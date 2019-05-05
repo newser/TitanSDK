@@ -65,8 +65,7 @@ tt_result_t tt_mutex_create_ntv(IN tt_mutex_ntv_t *sys_mutex,
     if (attr->config_recursive && attr->recursive) {
         ret = pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE);
         if (ret != 0) {
-            TT_ERROR("fail to set mutex attr recursive: %d[%s]",
-                     ret,
+            TT_ERROR("fail to set mutex attr recursive: %d[%s]", ret,
                      strerror(ret));
             pthread_mutexattr_destroy(&mutexattr);
             return TT_FAIL;

@@ -60,17 +60,19 @@
 
 tt_tmzone_t tt_g_local_tmzone;
 
-static tt_u32_t __s_daynum_of[TT_MONTH_NUM] =
-    {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+static tt_u32_t __s_daynum_of[TT_MONTH_NUM] = {31, 28, 31, 30, 31, 30,
+                                               31, 31, 30, 31, 30, 31};
 
-static tt_u32_t __s_daynum_before[TT_MONTH_NUM] =
-    {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+static tt_u32_t __s_daynum_before[TT_MONTH_NUM] = {0,   31,  59,  90,
+                                                   120, 151, 181, 212,
+                                                   243, 273, 304, 334};
 
-static tt_u32_t __s_daynum_of_leap[TT_MONTH_NUM] =
-    {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+static tt_u32_t __s_daynum_of_leap[TT_MONTH_NUM] = {31, 29, 31, 30, 31, 30,
+                                                    31, 31, 30, 31, 30, 31};
 
-static tt_u32_t __s_daynum_before_leap[TT_MONTH_NUM] =
-    {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335};
+static tt_u32_t __s_daynum_before_leap[TT_MONTH_NUM] = {0,   31,  60,  91,
+                                                        121, 152, 182, 213,
+                                                        244, 274, 305, 335};
 
 static tt_u32_t __s_min_cjdn;
 
@@ -83,17 +85,14 @@ static tt_result_t __date_component_init(IN tt_component_t *comp,
 
 static void __date_component_exit(IN tt_component_t *comp);
 
-static tt_bool_t __date_valid(IN tt_u16_t year,
-                              IN tt_month_t month,
+static tt_bool_t __date_valid(IN tt_u16_t year, IN tt_month_t month,
                               IN tt_u8_t day);
 
 static tt_bool_t __leap_year(IN tt_u16_t year);
 
 tt_u32_t __ymd2cjdn(IN tt_u16_t year, IN tt_month_t month, IN tt_u8_t day);
 
-void __cjdn2ymd(IN tt_u32_t cjdn,
-                OUT tt_u16_t *year,
-                OUT tt_month_t *month,
+void __cjdn2ymd(IN tt_u32_t cjdn, OUT tt_u16_t *year, OUT tt_month_t *month,
                 OUT tt_u8_t *day);
 
 ////////////////////////////////////////////////////////////
@@ -105,7 +104,8 @@ void tt_date_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __date_component_init, __date_component_exit,
+        __date_component_init,
+        __date_component_exit,
     };
 
     // init component
@@ -175,13 +175,9 @@ tt_s32_t tt_date_cmp_time(IN tt_date_t *a, IN tt_date_t *b)
             return -1;                                                         \
         }                                                                      \
     } while (0)
-tt_s32_t tt_date_cmp_v(IN tt_date_t *date,
-                       IN tt_u32_t year,
-                       IN tt_month_t month,
-                       IN tt_u32_t mday,
-                       IN tt_u32_t hour,
-                       IN tt_month_t minute,
-                       IN tt_u32_t second)
+tt_s32_t tt_date_cmp_v(IN tt_date_t *date, IN tt_u32_t year,
+                       IN tt_month_t month, IN tt_u32_t mday, IN tt_u32_t hour,
+                       IN tt_month_t minute, IN tt_u32_t second)
 {
     year = __Y_IN(year);
     __dcmp(year);
@@ -197,10 +193,8 @@ tt_s32_t tt_date_cmp_v(IN tt_date_t *date,
     return 0;
 }
 
-tt_s32_t tt_date_cmp_vdate(IN tt_date_t *date,
-                           IN tt_u32_t year,
-                           IN tt_month_t month,
-                           IN tt_u32_t mday)
+tt_s32_t tt_date_cmp_vdate(IN tt_date_t *date, IN tt_u32_t year,
+                           IN tt_month_t month, IN tt_u32_t mday)
 {
     year = __Y_IN(year);
     __dcmp(year);
@@ -213,10 +207,8 @@ tt_s32_t tt_date_cmp_vdate(IN tt_date_t *date,
     return 0;
 }
 
-tt_s32_t tt_date_cmp_vtime(IN tt_date_t *date,
-                           IN tt_u32_t hour,
-                           IN tt_month_t minute,
-                           IN tt_u32_t second)
+tt_s32_t tt_date_cmp_vtime(IN tt_date_t *date, IN tt_u32_t hour,
+                           IN tt_month_t minute, IN tt_u32_t second)
 {
     __dcmp(hour);
     __dcmp(minute);
@@ -293,9 +285,7 @@ tt_result_t tt_date_set_year(IN tt_date_t *date, IN tt_u16_t year)
     }
     y = __Y_IN(year);
 
-    if (!__date_valid(y, date->month, date->mday)) {
-        return TT_FAIL;
-    }
+    if (!__date_valid(y, date->month, date->mday)) { return TT_FAIL; }
 
     date->year = y;
     return TT_SUCCESS;
@@ -321,9 +311,7 @@ tt_result_t tt_date_set_monthday(IN tt_date_t *date, IN tt_u32_t mday)
     }
     md = (tt_u8_t)__MDAY_IN(mday);
 
-    if (!__date_valid(date->year, date->month, md)) {
-        return TT_FAIL;
-    }
+    if (!__date_valid(date->year, date->month, md)) { return TT_FAIL; }
 
     date->mday = md;
     return TT_SUCCESS;
@@ -384,10 +372,8 @@ tt_u32_t tt_date_get_yearday(IN tt_date_t *date)
     return __daynum_before(date->year)[date->month] + date->mday;
 }
 
-tt_result_t tt_date_set_date(IN tt_date_t *date,
-                             IN tt_u32_t year,
-                             IN tt_month_t month,
-                             IN tt_u32_t mday)
+tt_result_t tt_date_set_date(IN tt_date_t *date, IN tt_u32_t year,
+                             IN tt_month_t month, IN tt_u32_t mday)
 {
     tt_u32_t y, md;
 
@@ -405,9 +391,7 @@ tt_result_t tt_date_set_date(IN tt_date_t *date,
     }
     md = __MDAY_IN(mday);
 
-    if (!__date_valid(y, month, md)) {
-        return TT_FAIL;
-    }
+    if (!__date_valid(y, month, md)) { return TT_FAIL; }
 
     date->year = y;
     date->month = month;
@@ -437,9 +421,7 @@ tt_u32_t tt_date_get_week(IN tt_date_t *date, IN tt_weekday_t first_day)
     if (w >= n) {
         w -= n;
         w /= 7;
-        if (n != 0) {
-            ++w;
-        }
+        if (n != 0) { ++w; }
         return w;
     } else {
         return 0;
@@ -660,9 +642,7 @@ tt_result_t tt_date_to_julian(IN tt_date_t *date, OUT tt_double_t *julian)
     tt_u32_t cjdn;
 
     tt_date_copy(&d, date);
-    if (!TT_OK(tt_date_change_tmzone(&d, TT_UTC_00_00))) {
-        return -1;
-    }
+    if (!TT_OK(tt_date_change_tmzone(&d, TT_UTC_00_00))) { return -1; }
 
     cjdn = __ymd2cjdn(d.year, d.month, d.mday);
 
@@ -672,8 +652,7 @@ tt_result_t tt_date_to_julian(IN tt_date_t *date, OUT tt_double_t *julian)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_date_from_julian(IN tt_date_t *date,
-                                IN tt_double_t julian,
+tt_result_t tt_date_from_julian(IN tt_date_t *date, IN tt_double_t julian,
                                 IN tt_tmzone_t tz)
 {
     tt_double_t cjd;
@@ -686,9 +665,7 @@ tt_result_t tt_date_from_julian(IN tt_date_t *date,
 
     __cjdn2ymd(cjdn, &date->year, &m, &date->mday);
     date->month = m;
-    if (!__date_valid(date->year, date->month, date->mday)) {
-        return TT_FAIL;
-    }
+    if (!__date_valid(date->year, date->month, date->mday)) { return TT_FAIL; }
 
     // time
     TT_ASSERT(cjd < 1);
@@ -713,9 +690,7 @@ tt_result_t tt_date_from_julian(IN tt_date_t *date,
 tt_result_t __date_component_init(IN tt_component_t *comp,
                                   IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_date_component_init_ntv(profile))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_date_component_init_ntv(profile))) { return TT_FAIL; }
 
     tt_g_local_tmzone = tt_local_tmzone_ntv();
 
@@ -747,9 +722,7 @@ tt_bool_t __date_valid(IN tt_u16_t year, IN tt_month_t month, IN tt_u8_t day)
 tt_bool_t __leap_year(IN tt_u16_t year)
 {
     tt_s32_t y = __Y_OUT(year);
-    if (y < 0) {
-        ++y;
-    }
+    if (y < 0) { ++y; }
     return TT_BOOL((y % 4 == 0) && ((y % 100 != 0) || (y % 400 == 0)) &&
                    (y % 3200 != 0));
 }
@@ -775,9 +748,7 @@ tt_u32_t __ymd2cjdn(IN tt_u16_t year, IN tt_month_t month, IN tt_u8_t day)
     return (tt_u32_t)j;
 }
 
-void __cjdn2ymd(IN tt_u32_t cjdn,
-                OUT tt_u16_t *year,
-                OUT tt_month_t *month,
+void __cjdn2ymd(IN tt_u32_t cjdn, OUT tt_u16_t *year, OUT tt_month_t *month,
                 OUT tt_u8_t *day)
 {
     tt_u32_t x3, r3, x2, r2, x1, r1, d, c0, j, m;

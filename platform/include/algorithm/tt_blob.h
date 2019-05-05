@@ -59,8 +59,7 @@ typedef struct tt_blob_s
 ////////////////////////////////////////////////////////////
 
 // if addr is NULL, it only allocated memory of size len
-tt_inline tt_result_t tt_blob_create(OUT tt_blob_t *blob,
-                                     IN OPT tt_u8_t *addr,
+tt_inline tt_result_t tt_blob_create(OUT tt_blob_t *blob, IN OPT tt_u8_t *addr,
                                      IN tt_u32_t len)
 {
     tt_u8_t *p;
@@ -70,9 +69,7 @@ tt_inline tt_result_t tt_blob_create(OUT tt_blob_t *blob,
 
     p = (tt_u8_t *)tt_malloc(len);
     if (p != NULL) {
-        if (addr != NULL) {
-            tt_memcpy(p, addr, len);
-        }
+        if (addr != NULL) { tt_memcpy(p, addr, len); }
         blob->addr = p;
         blob->len = len;
         return TT_SUCCESS;
@@ -83,9 +80,7 @@ tt_inline tt_result_t tt_blob_create(OUT tt_blob_t *blob,
 
 tt_inline void tt_blob_destroy(IN tt_blob_t *blob)
 {
-    if (blob->addr != NULL) {
-        tt_free(blob->addr);
-    }
+    if (blob->addr != NULL) { tt_free(blob->addr); }
 }
 
 tt_inline void tt_blob_init(IN tt_blob_t *blob)
@@ -119,8 +114,7 @@ tt_inline tt_s32_t tt_blob_strcmp(IN tt_blob_t *blob, IN const tt_char_t *cstr)
     }
 }
 
-tt_inline tt_s32_t tt_blob_memcmp(IN tt_blob_t *a,
-                                  IN tt_u8_t *addr,
+tt_inline tt_s32_t tt_blob_memcmp(IN tt_blob_t *a, IN tt_u8_t *addr,
                                   IN tt_u32_t len)
 {
     if (a->len < len) {

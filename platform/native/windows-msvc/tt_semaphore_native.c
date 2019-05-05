@@ -46,8 +46,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem,
-                              IN tt_u32_t count,
+tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t count,
                               IN struct tt_sem_attr_s *attr)
 {
     HANDLE h_sem = CreateSemaphore(NULL, count, 0x7FFFFFFF, NULL);

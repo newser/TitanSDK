@@ -67,10 +67,8 @@
 ////////////////////////////////////////////////////////////
 
 typedef NTSTATUS(NTAPI *pNtQSI_t)(
-    SYSTEM_INFORMATION_CLASS SystemInformationClass,
-    PVOID SystemInformation,
-    ULONG SystemInformationLength,
-    PULONG ReturnLength);
+    SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation,
+    ULONG SystemInformationLength, PULONG ReturnLength);
 
 typedef NTSTATUS(NTAPI *pNtQO_t)(HANDLE ObjectHandle,
                                  ULONG ObjectInformationClass,
@@ -94,7 +92,8 @@ typedef struct _SYSTEM_HANDLE_INFORMATION
     SYSTEM_HANDLE Handles[1];
 } SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
 
-typedef enum _POOL_TYPE {
+typedef enum _POOL_TYPE
+{
     NonPagedPool,
     PagedPool,
     NonPagedPoolMustSucceed,
@@ -172,9 +171,7 @@ tt_result_t tt_ntdll_component_init_ntv()
     }
 
     s_pNtQO = (pNtQO_t)GetProcAddress(s_mod_ntdll, "NtQueryObject");
-    if (s_pNtQO == NULL) {
-        printf("fail to get NtQueryObject()\n");
-    }
+    if (s_pNtQO == NULL) { printf("fail to get NtQueryObject()\n"); }
 
 out:
     return TT_SUCCESS;
@@ -182,9 +179,7 @@ out:
 
 void tt_ntdll_component_exit_ntv()
 {
-    if (s_mod_ntdll != NULL) {
-        FreeLibrary(s_mod_ntdll);
-    }
+    if (s_mod_ntdll != NULL) { FreeLibrary(s_mod_ntdll); }
 }
 
 void tt_ntdll_dump_fs(IN tt_u32_t flag)
@@ -202,9 +197,7 @@ void tt_ntdll_dump_fs(IN tt_u32_t flag)
     do {
         s_qsi_size <<= 1;
 
-        if (hinfo != NULL) {
-            free(hinfo);
-        }
+        if (hinfo != NULL) { free(hinfo); }
         size = s_qsi_size;
         hinfo = malloc(size);
         if (hinfo == NULL) {
@@ -228,13 +221,9 @@ void tt_ntdll_dump_fs(IN tt_u32_t flag)
         wchar_t buf[1 << 12], *name;
         DWORD len = (sizeof(buf) / sizeof(wchar_t)) - 1;
 
-        if (sh->ProcessId != pid) {
-            continue;
-        }
+        if (sh->ProcessId != pid) { continue; }
 
-        if (GetFileType(h) != FILE_TYPE_DISK) {
-            continue;
-        }
+        if (GetFileType(h) != FILE_TYPE_DISK) { continue; }
 
         len = GetFinalPathNameByHandleW(h, buf, len, 0);
         if (len == 0) {
@@ -253,9 +242,7 @@ void tt_ntdll_dump_fs(IN tt_u32_t flag)
         }
 
         tt_printf("%s[handle: 0x%x] [%S]\n",
-                  TT_COND(flag & TT_FS_STATUS_PREFIX, "<<FS>> ", ""),
-                  h,
-                  name);
+                  TT_COND(flag & TT_FS_STATUS_PREFIX, "<<FS>> ", ""), h, name);
     }
 
     free(hinfo);
@@ -276,9 +263,7 @@ void tt_ntdll_dump_ipc(IN tt_u32_t flag)
     do {
         s_qsi_size <<= 1;
 
-        if (hinfo != NULL) {
-            free(hinfo);
-        }
+        if (hinfo != NULL) { free(hinfo); }
         size = s_qsi_size;
         hinfo = malloc(size);
         if (hinfo == NULL) {
@@ -303,9 +288,7 @@ void tt_ntdll_dump_ipc(IN tt_u32_t flag)
         FILE_NAME_INFO *info = (FILE_NAME_INFO *)buf;
         wchar_t *name;
 
-        if (sh->ProcessId != pid) {
-            continue;
-        }
+        if (sh->ProcessId != pid) { continue; }
 
         if ((GetFileType(h) != FILE_TYPE_PIPE) ||
             !GetNamedPipeInfo(h, NULL, NULL, NULL, NULL)) {
@@ -323,8 +306,7 @@ void tt_ntdll_dump_ipc(IN tt_u32_t flag)
         }
 
         tt_printf("%s[handle: 0x%x] %S\n",
-                  TT_COND(flag & TT_IPC_STATUS_PREFIX, "<<IPC>> ", ""),
-                  h,
+                  TT_COND(flag & TT_IPC_STATUS_PREFIX, "<<IPC>> ", ""), h,
                   name);
     }
 
@@ -346,9 +328,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
     do {
         s_qsi_size <<= 1;
 
-        if (hinfo != NULL) {
-            free(hinfo);
-        }
+        if (hinfo != NULL) { free(hinfo); }
         size = s_qsi_size;
         hinfo = malloc(size);
         if (hinfo == NULL) {
@@ -372,9 +352,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
         int val;
         int len = sizeof(int);
 
-        if (sh->ProcessId != pid) {
-            continue;
-        }
+        if (sh->ProcessId != pid) { continue; }
 
         if ((GetFileType(h) != FILE_TYPE_PIPE) ||
             GetNamedPipeInfo(h, NULL, NULL, NULL, NULL)) {
@@ -402,10 +380,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
 
                 ip.a32.__u32 = a4->sin_addr.s_addr;
                 tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
-                tt_snprintf(local,
-                            sizeof(local) - 1,
-                            "%s@%d",
-                            addr,
+                tt_snprintf(local, sizeof(local) - 1, "%s@%d", addr,
                             ntohs(a4->sin_port));
             } else if (a.ss_family == AF_INET6) {
                 struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)&a;
@@ -414,10 +389,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
 
                 tt_memcpy(ip.a128.__u8, a6->sin6_addr.s6_addr, 16);
                 tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
-                tt_snprintf(local,
-                            sizeof(local) - 1,
-                            "%s@%d",
-                            addr,
+                tt_snprintf(local, sizeof(local) - 1, "%s@%d", addr,
                             ntohs(a6->sin6_port));
             } else {
                 tt_snprintf(local, sizeof(local) - 1, "?@?");
@@ -432,10 +404,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
 
                 ip.a32.__u32 = a4->sin_addr.s_addr;
                 tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
-                tt_snprintf(remote,
-                            sizeof(remote) - 1,
-                            "%s@%d",
-                            addr,
+                tt_snprintf(remote, sizeof(remote) - 1, "%s@%d", addr,
                             ntohs(a4->sin_port));
             } else if (a.ss_family == AF_INET6) {
                 struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)&a;
@@ -444,10 +413,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
 
                 tt_memcpy(ip.a128.__u8, a6->sin6_addr.s6_addr, 16);
                 tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
-                tt_snprintf(remote,
-                            sizeof(remote) - 1,
-                            "%s@%d",
-                            addr,
+                tt_snprintf(remote, sizeof(remote) - 1, "%s@%d", addr,
                             ntohs(a6->sin6_port));
             } else {
                 tt_snprintf(remote, sizeof(local) - 1, "?@?");
@@ -455,9 +421,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
 
             tt_printf("%s[handle: 0x%x] tcp [%s --> %s]\n",
                       TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
-                      h,
-                      local,
-                      remote);
+                      h, local, remote);
         } else if (val == SOCK_DGRAM) {
             struct sockaddr_storage a;
             int alen = sizeof(a);
@@ -472,10 +436,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
 
                 ip.a32.__u32 = a4->sin_addr.s_addr;
                 tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
-                tt_snprintf(local,
-                            sizeof(local) - 1,
-                            "%s@%d",
-                            addr,
+                tt_snprintf(local, sizeof(local) - 1, "%s@%d", addr,
                             ntohs(a4->sin_port));
             } else if (a.ss_family == AF_INET6) {
                 struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)&a;
@@ -484,10 +445,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
 
                 tt_memcpy(ip.a128.__u8, a6->sin6_addr.s6_addr, 16);
                 tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
-                tt_snprintf(local,
-                            sizeof(local) - 1,
-                            "%s@%d",
-                            addr,
+                tt_snprintf(local, sizeof(local) - 1, "%s@%d", addr,
                             ntohs(a6->sin6_port));
             } else {
                 tt_snprintf(local, sizeof(local) - 1, "?@?");
@@ -495,8 +453,7 @@ void tt_ntdll_dump_skt(IN tt_u32_t flag)
 
             tt_printf("%s[handle: 0x%x] udp [%s]\n",
                       TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
-                      h,
-                      local);
+                      h, local);
         }
     }
 

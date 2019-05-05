@@ -121,8 +121,7 @@ tt_export tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf,
 // - if returned TT_SUCCESS, it guarentee that buffer has been updated
 // - otherwise, buffer may be parially updated so that caller need backup
 //   pos and restore buf pos when returned valus is not TT_SUCCESS
-tt_export tt_result_t tt_ssh_mpint_parse(IN tt_buf_t *buf,
-                                         OUT tt_u8_t **mpint,
+tt_export tt_result_t tt_ssh_mpint_parse(IN tt_buf_t *buf, OUT tt_u8_t **mpint,
                                          OUT tt_u32_t *mpint_len);
 
 /*

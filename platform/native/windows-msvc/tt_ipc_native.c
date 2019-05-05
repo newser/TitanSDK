@@ -52,8 +52,7 @@
 
 #ifdef __SIMU_FAIL_CreateFileA
 #define CreateFileA __sf_CreateFileA
-HANDLE WINAPI __sf_CreateFileA(LPCSTR lpFileName,
-                               DWORD dwDesiredAccess,
+HANDLE WINAPI __sf_CreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess,
                                DWORD dwShareMode,
                                LPSECURITY_ATTRIBUTES lpSecurityAttributes,
                                DWORD dwCreationDisposition,
@@ -63,12 +62,9 @@ HANDLE WINAPI __sf_CreateFileA(LPCSTR lpFileName,
 
 #ifdef __SIMU_FAIL_CreateNamedPipeA
 #define CreateNamedPipeA __sf_CreateNamedPipeA
-HANDLE WINAPI __sf_CreateNamedPipeA(LPCSTR lpName,
-                                    DWORD dwOpenMode,
-                                    DWORD dwPipeMode,
-                                    DWORD nMaxInstances,
-                                    DWORD nOutBufferSize,
-                                    DWORD nInBufferSize,
+HANDLE WINAPI __sf_CreateNamedPipeA(LPCSTR lpName, DWORD dwOpenMode,
+                                    DWORD dwPipeMode, DWORD nMaxInstances,
+                                    DWORD nOutBufferSize, DWORD nInBufferSize,
                                     DWORD nDefaultTimeOut,
                                     LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 #endif
@@ -85,8 +81,7 @@ BOOL WINAPI __sf_CloseHandle(HANDLE hObject);
 
 #ifdef __SIMU_FAIL_ReadFile
 #define ReadFile __sf_ReadFile
-BOOL WINAPI __sf_ReadFile(HANDLE hFile,
-                          LPVOID lpBuffer,
+BOOL WINAPI __sf_ReadFile(HANDLE hFile, LPVOID lpBuffer,
                           DWORD nNumberOfBytesToRead,
                           LPDWORD lpNumberOfBytesRead,
                           LPOVERLAPPED lpOverlapped);
@@ -94,8 +89,7 @@ BOOL WINAPI __sf_ReadFile(HANDLE hFile,
 
 #ifdef __SIMU_FAIL_WriteFile
 #define WriteFile __sf_WriteFile
-BOOL WINAPI __sf_WriteFile(HANDLE hFile,
-                           LPCVOID lpBuffer,
+BOOL WINAPI __sf_WriteFile(HANDLE hFile, LPCVOID lpBuffer,
                            DWORD nNumberOfBytesToWrite,
                            LPDWORD lpNumberOfBytesWritten,
                            LPOVERLAPPED lpOverlapped);
@@ -178,7 +172,9 @@ static tt_bool_t __do_send(IN tt_io_ev_t *io_ev);
 static tt_bool_t __do_recv(IN tt_io_ev_t *io_ev);
 
 static tt_poller_io_t __ipc_poller_io[__IPC_EV_NUM] = {
-    __do_accept, __do_send, __do_recv,
+    __do_accept,
+    __do_send,
+    __do_recv,
 };
 
 static tt_char_t tt_s_pipe_prefix[] = "\\\\.\\pipe\\";
@@ -191,10 +187,8 @@ static wchar_t *__pipe_name(IN const tt_char_t *addr);
 
 static HANDLE __ipc_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
 
-static tt_result_t __utf8_addr(IN wchar_t *name,
-                               OUT tt_char_t *addr,
-                               IN tt_u32_t size,
-                               OUT OPT tt_u32_t *len);
+static tt_result_t __utf8_addr(IN wchar_t *name, OUT tt_char_t *addr,
+                               IN tt_u32_t size, OUT OPT tt_u32_t *len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -211,9 +205,7 @@ tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
 {
     if (addr != NULL) {
         ipc->name = __pipe_name(addr);
-        if (ipc->name == NULL) {
-            return TT_FAIL;
-        }
+        if (ipc->name == NULL) { return TT_FAIL; }
     } else {
         ipc->name = NULL;
     }
@@ -232,13 +224,9 @@ tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
 
 void tt_ipc_destroy_ntv(IN tt_ipc_ntv_t *ipc)
 {
-    if (ipc->pipe != INVALID_HANDLE_VALUE) {
-        CloseHandle(ipc->pipe);
-    }
+    if (ipc->pipe != INVALID_HANDLE_VALUE) { CloseHandle(ipc->pipe); }
 
-    if (ipc->name != NULL) {
-        tt_wchar_destroy(ipc->name);
-    }
+    if (ipc->name != NULL) { tt_wchar_destroy(ipc->name); }
 }
 
 tt_result_t tt_ipc_connect_ntv(IN tt_ipc_ntv_t *ipc, IN const tt_char_t *addr)
@@ -255,22 +243,16 @@ tt_result_t tt_ipc_connect_ntv(IN tt_ipc_ntv_t *ipc, IN const tt_char_t *addr)
     // CreateFile will fail with ERROR_FILE_NOT_FOUND.
 
     name = __pipe_name(addr);
-    if (name == NULL) {
-        return TT_FAIL;
-    }
+    if (name == NULL) { return TT_FAIL; }
 
     // create client ipc, defautlt pipe has:
     //  - byte-mode
     //  - blocking wait
     //  - overlapped disabled (to change)
     //  - write through disabled (to change??)
-    pipe = CreateFileW(name,
-                       GENERIC_READ | GENERIC_WRITE,
-                       0,
-                       NULL,
-                       OPEN_EXISTING,
-                       FILE_FLAG_OVERLAPPED /*| FILE_FLAG_WRITE_THROUGH*/,
-                       NULL);
+    pipe =
+        CreateFileW(name, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+                    FILE_FLAG_OVERLAPPED /*| FILE_FLAG_WRITE_THROUGH*/, NULL);
     tt_free(name);
     if (pipe == INVALID_HANDLE_VALUE) {
         TT_ERROR_NTV("fail to connect ipc pipe[%s]", addr);
@@ -289,10 +271,8 @@ tt_result_t tt_ipc_connect_ntv(IN tt_ipc_ntv_t *ipc, IN const tt_char_t *addr)
     return TT_SUCCESS;
 }
 
-tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
-                            IN tt_ipc_attr_t *new_attr,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr)
+tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc, IN tt_ipc_attr_t *new_attr,
+                            OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr)
 {
     __ipc_accept_t ipc_accept;
     tt_fiber_t *cfb;
@@ -306,9 +286,7 @@ tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
     iocp = __ipc_ev_init(&ipc_accept.io_ev, __IPC_ACCEPT);
     cfb = ipc_accept.io_ev.src;
 
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return NULL;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return NULL; }
 
     ipc_accept.new_attr = new_attr;
 
@@ -317,14 +295,9 @@ tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
                  FILE_FLAG_OVERLAPPED;
     dwPipeMode = PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | /*PIPE_NOWAIT |*/
                  PIPE_REJECT_REMOTE_CLIENTS;
-    pipe = CreateNamedPipeW(ipc->name,
-                            dwOpenMode,
-                            dwPipeMode,
-                            PIPE_UNLIMITED_INSTANCES,
-                            ipc->out_buf_size,
-                            ipc->in_buf_size,
-                            0,
-                            NULL);
+    pipe = CreateNamedPipeW(ipc->name, dwOpenMode, dwPipeMode,
+                            PIPE_UNLIMITED_INSTANCES, ipc->out_buf_size,
+                            ipc->in_buf_size, 0, NULL);
     if (pipe == INVALID_HANDLE_VALUE) {
         TT_ERROR_NTV("fail to create server pipe");
         return NULL;
@@ -370,10 +343,8 @@ tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
     return NULL;
 }
 
-tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
-                            IN tt_u8_t *buf,
-                            IN tt_u32_t len,
-                            OUT OPT tt_u32_t *sent)
+tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc, IN tt_u8_t *buf,
+                            IN tt_u32_t len, OUT OPT tt_u32_t *sent)
 {
     __ipc_send_t ipc_send;
     DWORD dwError;
@@ -403,12 +374,9 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
     }
 }
 
-tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
-                            OUT tt_u8_t *buf,
-                            IN tt_u32_t len,
-                            OUT tt_u32_t *recvd,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr,
+tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc, OUT tt_u8_t *buf,
+                            IN tt_u32_t len, OUT tt_u32_t *recvd,
+                            OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr,
                             OUT tt_skt_t **p_skt)
 {
     __ipc_recv_t ipc_recv;
@@ -426,9 +394,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     // must try fiber recv, if some fiber send event during
     // current fiber sending, then current fiber won't be able
     // to see that event
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return TT_SUCCESS;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return TT_SUCCESS; }
 
     ipc_recv.ipc = ipc;
     ipc_recv.buf = buf;
@@ -481,8 +447,7 @@ tt_result_t tt_ipc_send_skt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
 {
     __pev_skt_t pev_skt;
 
-    tt_ipc_ev_init(&pev_skt.pev,
-                   __IPC_INTERNAL_EV_SKT,
+    tt_ipc_ev_init(&pev_skt.pev, __IPC_INTERNAL_EV_SKT,
                    sizeof(__pev_skt_t) - sizeof(tt_ipc_ev_t));
 
     if ((ipc->peer_pid == 0) &&
@@ -513,11 +478,7 @@ tt_skt_t *tt_ipc_handle_ev_skt(IN tt_ipc_ev_t *pev)
     TT_ASSERT(pev->ev == __IPC_INTERNAL_EV_SKT);
     pev_skt = (__pev_skt_t *)pev;
 
-    s = WSASocketW(pev_skt->af,
-                   SOCK_STREAM,
-                   IPPROTO_TCP,
-                   &pev_skt->info,
-                   0,
+    s = WSASocketW(pev_skt->af, SOCK_STREAM, IPPROTO_TCP, &pev_skt->info, 0,
                    WSA_FLAG_OVERLAPPED);
     if (s == INVALID_SOCKET) {
         TT_NET_ERROR_NTV("fail to create socket");
@@ -547,10 +508,8 @@ tt_bool_t tt_ipc_poller_io(IN tt_io_ev_t *io_ev)
     return __ipc_poller_io[io_ev->ev](io_ev);
 }
 
-tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
-                                  OUT tt_char_t *addr,
-                                  IN tt_u32_t size,
-                                  OUT OPT tt_u32_t *len)
+tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc, OUT tt_char_t *addr,
+                                  IN tt_u32_t size, OUT OPT tt_u32_t *len)
 {
     if (ipc->name != NULL) {
         // server, always has local addr
@@ -561,9 +520,7 @@ tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
             tt_u8_t buf[1024];
             FILE_NAME_INFO *info = (FILE_NAME_INFO *)buf;
 
-            if (!GetFileInformationByHandleEx(ipc->pipe,
-                                              FileNameInfo,
-                                              info,
+            if (!GetFileInformationByHandleEx(ipc->pipe, FileNameInfo, info,
                                               sizeof(buf))) {
                 TT_ERROR_NTV("fail to get ipc local addr");
                 return TT_FAIL;
@@ -590,10 +547,8 @@ tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
     }
 }
 
-tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
-                                   OUT tt_char_t *addr,
-                                   IN tt_u32_t size,
-                                   OUT OPT tt_u32_t *len)
+tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc, OUT tt_char_t *addr,
+                                   IN tt_u32_t size, OUT OPT tt_u32_t *len)
 {
     if (ipc->name != NULL) {
         // server, no remote addr
@@ -609,9 +564,7 @@ tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
             tt_u8_t buf[1024];
             FILE_NAME_INFO *info = (FILE_NAME_INFO *)buf;
 
-            if (!GetFileInformationByHandleEx(ipc->pipe,
-                                              FileNameInfo,
-                                              info,
+            if (!GetFileInformationByHandleEx(ipc->pipe, FileNameInfo, info,
                                               sizeof(buf))) {
                 TT_ERROR_NTV("fail to get ipc local addr");
                 return TT_FAIL;
@@ -655,9 +608,7 @@ wchar_t *__pipe_name(IN const tt_char_t *addr)
 
     wn = tt_wchar_create(name, 0, NULL);
     tt_free(name);
-    if (wn == NULL) {
-        TT_ERROR("no mem for pipe name");
-    }
+    if (wn == NULL) { TT_ERROR("no mem for pipe name"); }
     return wn;
 }
 
@@ -669,10 +620,8 @@ HANDLE __ipc_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
     return io_ev->src->fs->thread->task->iop.sys_iop.iocp;
 }
 
-tt_result_t __utf8_addr(IN wchar_t *wname,
-                        OUT tt_char_t *addr,
-                        IN tt_u32_t size,
-                        OUT OPT tt_u32_t *len)
+tt_result_t __utf8_addr(IN wchar_t *wname, OUT tt_char_t *addr,
+                        IN tt_u32_t size, OUT OPT tt_u32_t *len)
 {
     tt_u32_t n;
     tt_char_t *name, *p;
@@ -772,9 +721,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
     tt_memset(&ipc_send->io_ev.u.ov, 0, sizeof(OVERLAPPED));
     if (WriteFile(ipc_send->ipc->pipe,
                   TT_PTR_INC(char, ipc_send->buf, ipc_send->pos),
-                  ipc_send->len - ipc_send->pos,
-                  NULL,
-                  &ipc_send->io_ev.u.ov) ||
+                  ipc_send->len - ipc_send->pos, NULL, &ipc_send->io_ev.u.ov) ||
         ((dwError = GetLastError()) == ERROR_IO_PENDING)) {
         return TT_FALSE;
     }
@@ -813,13 +760,11 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
 
 #ifdef CreateFileA
 #undef CreateFileA
-HANDLE WINAPI __sf_CreateFileA(LPCSTR lpFileName,
-                               DWORD dwDesiredAccess,
+HANDLE WINAPI __sf_CreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess,
                                DWORD dwShareMode,
                                LPSECURITY_ATTRIBUTES lpSecurityAttributes,
                                DWORD dwCreationDisposition,
-                               DWORD dwFlagsAndAttributes,
-                               HANDLE hTemplateFile)
+                               DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
     return INVALID_HANDLE_VALUE;
 }
@@ -827,12 +772,9 @@ HANDLE WINAPI __sf_CreateFileA(LPCSTR lpFileName,
 
 #ifdef CreateNamedPipeA
 #undef CreateNamedPipeA
-HANDLE WINAPI __sf_CreateNamedPipeA(LPCSTR lpName,
-                                    DWORD dwOpenMode,
-                                    DWORD dwPipeMode,
-                                    DWORD nMaxInstances,
-                                    DWORD nOutBufferSize,
-                                    DWORD nInBufferSize,
+HANDLE WINAPI __sf_CreateNamedPipeA(LPCSTR lpName, DWORD dwOpenMode,
+                                    DWORD dwPipeMode, DWORD nMaxInstances,
+                                    DWORD nOutBufferSize, DWORD nInBufferSize,
                                     DWORD nDefaultTimeOut,
                                     LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
@@ -862,46 +804,34 @@ BOOL WINAPI __sf_CloseHandle(HANDLE hObject)
 
 #ifdef ReadFile
 #undef ReadFile
-BOOL WINAPI __sf_ReadFile(HANDLE hFile,
-                          LPVOID lpBuffer,
+BOOL WINAPI __sf_ReadFile(HANDLE hFile, LPVOID lpBuffer,
                           DWORD nNumberOfBytesToRead,
                           LPDWORD lpNumberOfBytesRead,
                           LPOVERLAPPED lpOverlapped)
 {
-    if (0 && (tt_rand_u32() % 4) == 0) {
-        return FALSE;
-    }
+    if (0 && (tt_rand_u32() % 4) == 0) { return FALSE; }
 
     if (nNumberOfBytesToRead > 1) {
         nNumberOfBytesToRead = tt_rand_u32() % nNumberOfBytesToRead + 1;
     }
-    return ReadFile(hFile,
-                    lpBuffer,
-                    nNumberOfBytesToRead,
-                    lpNumberOfBytesRead,
+    return ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead,
                     lpOverlapped);
 }
 #endif
 
 #ifdef WriteFile
 #undef WriteFile
-BOOL WINAPI __sf_WriteFile(HANDLE hFile,
-                           LPCVOID lpBuffer,
+BOOL WINAPI __sf_WriteFile(HANDLE hFile, LPCVOID lpBuffer,
                            DWORD nNumberOfBytesToWrite,
                            LPDWORD lpNumberOfBytesWritten,
                            LPOVERLAPPED lpOverlapped)
 {
-    if (0 && (tt_rand_u32() % 4) == 0) {
-        return FALSE;
-    }
+    if (0 && (tt_rand_u32() % 4) == 0) { return FALSE; }
 
     if (nNumberOfBytesToWrite > 1) {
         nNumberOfBytesToWrite = tt_rand_u32() % nNumberOfBytesToWrite + 1;
     }
-    return WriteFile(hFile,
-                     lpBuffer,
-                     nNumberOfBytesToWrite,
-                     lpNumberOfBytesWritten,
-                     lpOverlapped);
+    return WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite,
+                     lpNumberOfBytesWritten, lpOverlapped);
 }
 #endif

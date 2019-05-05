@@ -52,10 +52,7 @@ static HCRYPTPROV hProvider;
 
 tt_result_t tt_rng_component_init_ntv()
 {
-    if (!CryptAcquireContext(&hProvider,
-                             NULL,
-                             NULL,
-                             PROV_RSA_FULL,
+    if (!CryptAcquireContext(&hProvider, NULL, NULL, PROV_RSA_FULL,
                              CRYPT_VERIFYCONTEXT)) {
         TT_ERROR_NTV("fail to accquire crypto provider");
         return TT_FAIL;

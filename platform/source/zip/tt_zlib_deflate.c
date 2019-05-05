@@ -70,12 +70,9 @@ tt_result_t tt_zlibdef_create(IN tt_zlibdef_t *gzd,
 
     TT_ZSTREAM_INIT(&gzd->zs);
 
-    z_err = deflateInit2(&gzd->zs,
-                         attr->level,
-                         Z_DEFLATED,
+    z_err = deflateInit2(&gzd->zs, attr->level, Z_DEFLATED,
                          attr->window_bits, // zlib
-                         attr->mem_level,
-                         Z_DEFAULT_STRATEGY);
+                         attr->mem_level, Z_DEFAULT_STRATEGY);
     if (z_err != Z_OK) {
         TT_ERROR("fail to init zlib deflate");
         return TT_FAIL;

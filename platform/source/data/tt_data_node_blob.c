@@ -40,19 +40,19 @@
 
 static void __db_destroy(IN tt_dtnode_t *dtn);
 
-static tt_result_t __db_read(IN tt_dtnode_t *dtn,
-                             OUT tt_u8_t **p,
+static tt_result_t __db_read(IN tt_dtnode_t *dtn, OUT tt_u8_t **p,
                              OUT tt_u32_t *len);
 
 static void __db_read_update(IN tt_dtnode_t *dtn, IN tt_u32_t len);
 
-static tt_result_t __db_write(IN tt_dtnode_t *dtn,
-                              IN tt_u8_t *p,
-                              IN tt_u32_t len,
-                              OUT OPT tt_u32_t *write_len);
+static tt_result_t __db_write(IN tt_dtnode_t *dtn, IN tt_u8_t *p,
+                              IN tt_u32_t len, OUT OPT tt_u32_t *write_len);
 
 static tt_dtnode_itf_t tt_s_dtn_blob_itf = {
-    __db_destroy, __db_read, __db_read_update, __db_write,
+    __db_destroy,
+    __db_read,
+    __db_read_update,
+    __db_write,
 };
 
 ////////////////////////////////////////////////////////////
@@ -63,8 +63,7 @@ static tt_dtnode_itf_t tt_s_dtn_blob_itf = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_dtnode_t *tt_dtnode_blob_create(IN void *p,
-                                   IN tt_u32_t len,
+tt_dtnode_t *tt_dtnode_blob_create(IN void *p, IN tt_u32_t len,
                                    IN tt_bool_t free)
 {
     tt_dtnode_t *dtn;
@@ -73,9 +72,7 @@ tt_dtnode_t *tt_dtnode_blob_create(IN void *p,
     TT_ASSERT(p != NULL);
 
     dtn = tt_dtnode_create(sizeof(tt_dtnode_blob_t), &tt_s_dtn_blob_itf);
-    if (dtn == NULL) {
-        return NULL;
-    }
+    if (dtn == NULL) { return NULL; }
 
     db = TT_DTNODE_CAST(dtn, tt_dtnode_blob_t);
 
@@ -91,9 +88,7 @@ void __db_destroy(IN tt_dtnode_t *dtn)
 {
     tt_dtnode_blob_t *db = TT_DTNODE_CAST(dtn, tt_dtnode_blob_t);
 
-    if (db->free) {
-        tt_blob_destroy(&db->blob);
-    }
+    if (db->free) { tt_blob_destroy(&db->blob); }
 }
 
 tt_result_t __db_read(IN tt_dtnode_t *dtn, OUT tt_u8_t **p, OUT tt_u32_t *len)
@@ -120,9 +115,7 @@ void __db_read_update(IN tt_dtnode_t *dtn, IN tt_u32_t len)
     db->pos += len;
 }
 
-tt_result_t __db_write(IN tt_dtnode_t *dtn,
-                       IN tt_u8_t *p,
-                       IN tt_u32_t len,
+tt_result_t __db_write(IN tt_dtnode_t *dtn, IN tt_u8_t *p, IN tt_u32_t len,
                        OUT OPT tt_u32_t *sent)
 {
     tt_dtnode_blob_t *db = TT_DTNODE_CAST(dtn, tt_dtnode_blob_t);

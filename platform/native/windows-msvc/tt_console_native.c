@@ -177,9 +177,7 @@ void tt_console_component_exit_ntv()
 
 tt_result_t tt_console_enter_ntv()
 {
-    if (!TT_OK(__stdin_config())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__stdin_config())) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -212,9 +210,7 @@ tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
     DWORD i;
     tt_u32_t key_num;
 
-    if (!ReadConsoleInputA(__stdin_hdl,
-                           __stdin_evbuf,
-                           __STDIN_SIZE,
+    if (!ReadConsoleInputA(__stdin_hdl, __stdin_evbuf, __STDIN_SIZE,
                            &NumberOfEventsRead) ||
         (NumberOfEventsRead == 0)) {
         TT_ERROR_NTV("fail to read console input");
@@ -236,9 +232,7 @@ tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
             // TT_INFO("dwControlKeyState: %d", ke->dwControlKeyState);
 
             // only care key down
-            if (!ke->bKeyDown) {
-                continue;
-            }
+            if (!ke->bKeyDown) { continue; }
 
             // check if can handle the virtual key
             c = __key_map_vk(ke->wVirtualKeyCode);
@@ -249,9 +243,7 @@ tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
 
             // as observed, keys that can not be represented by
             // ascii code will be set to 0...
-            if (ke->uChar.AsciiChar == 0) {
-                continue;
-            }
+            if (ke->uChar.AsciiChar == 0) { continue; }
 
             // handle ctrl events, note it should return even if
             // it can not handle it
@@ -285,11 +277,10 @@ tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
                                 IN tt_cons_ev_data_t *ev_data)
 {
     switch (ev) {
-        case TT_CONS_EV_KEY:
-            return __cons_send_key(ev_data->key.key, ev_data->key.key_num);
+    case TT_CONS_EV_KEY:
+        return __cons_send_key(ev_data->key.key, ev_data->key.key_num);
 
-        default:
-            return TT_FAIL;
+    default: return TT_FAIL;
     }
 }
 
@@ -366,53 +357,39 @@ tt_result_t __stdin_config()
 tt_u8_t __key_map_vk(IN WORD vk)
 {
     switch (vk) {
-        case VK_LEFT:
-            return TT_CONS_EXTKEY_LEFT;
-        case VK_RIGHT:
-            return TT_CONS_EXTKEY_RIGHT;
-        case VK_UP:
-            return TT_CONS_EXTKEY_UP;
-        case VK_DOWN:
-            return TT_CONS_EXTKEY_DOWN;
+    case VK_LEFT: return TT_CONS_EXTKEY_LEFT;
+    case VK_RIGHT: return TT_CONS_EXTKEY_RIGHT;
+    case VK_UP: return TT_CONS_EXTKEY_UP;
+    case VK_DOWN: return TT_CONS_EXTKEY_DOWN;
 
-        default:
-            return TT_CONS_EXTKEY_END;
+    default: return TT_CONS_EXTKEY_END;
     }
 }
 
 tt_u8_t __key_map_ctrl(IN CHAR c)
 {
     switch (c) {
-        case 0x3:
-            return TT_CONS_EXTKEY_CTRLC;
-        case 0x4:
-            return TT_CONS_EXTKEY_CTRLD;
+    case 0x3: return TT_CONS_EXTKEY_CTRLC;
+    case 0x4: return TT_CONS_EXTKEY_CTRLD;
 
-        default:
-            return TT_CONS_EXTKEY_END;
+    default: return TT_CONS_EXTKEY_END;
     }
 }
 
 tt_u8_t __key_map_basic(IN CHAR c)
 {
-    if ((c >= 0x20) && (c <= 0x7e)) {
-        return c;
-    }
+    if ((c >= 0x20) && (c <= 0x7e)) { return c; }
 
     switch (c) {
-        case 0x08:
-        case 0x7f:
-            return TT_CONS_EXTKEY_DELETE;
+    case 0x08:
+    case 0x7f: return TT_CONS_EXTKEY_DELETE;
 
-        case 0x0a:
-        case 0x0d:
-            return TT_CONS_EXTKEY_CRLF;
+    case 0x0a:
+    case 0x0d: return TT_CONS_EXTKEY_CRLF;
 
-        case 0x09:
-            return TT_CONS_EXTKEY_TAB;
+    case 0x09: return TT_CONS_EXTKEY_TAB;
 
-        default:
-            return TT_CONS_EXTKEY_END;
+    default: return TT_CONS_EXTKEY_END;
     }
 }
 
@@ -424,18 +401,12 @@ tt_result_t __cons_send_key(IN tt_u8_t *key, IN tt_u32_t key_num)
 #define __output(p, len)                                                       \
     do {                                                                       \
         if (pos > head) {                                                      \
-            WriteConsoleA(__stdout_hdl,                                        \
-                          &key[head],                                          \
-                          pos - head,                                          \
-                          &NumberOfCharsWritten,                               \
-                          NULL);                                               \
+            WriteConsoleA(__stdout_hdl, &key[head], pos - head,                \
+                          &NumberOfCharsWritten, NULL);                        \
         }                                                                      \
                                                                                \
         if (p != NULL) {                                                       \
-            WriteConsoleA(__stdout_hdl,                                        \
-                          (p),                                                 \
-                          (len),                                               \
-                          &NumberOfCharsWritten,                               \
+            WriteConsoleA(__stdout_hdl, (p), (len), &NumberOfCharsWritten,     \
                           NULL);                                               \
         }                                                                      \
                                                                                \
@@ -464,11 +435,8 @@ tt_result_t __cons_send_key(IN tt_u8_t *key, IN tt_u32_t key_num)
         }
     }
     if (pos > head) {
-        WriteConsoleA(__stdout_hdl,
-                      &key[head],
-                      pos - head,
-                      &NumberOfCharsWritten,
-                      NULL);
+        WriteConsoleA(__stdout_hdl, &key[head], pos - head,
+                      &NumberOfCharsWritten, NULL);
     }
 #undef __output
 
@@ -486,9 +454,7 @@ tt_result_t __send_right()
     }
 
     pos = &csbi.dwCursorPosition;
-    if (pos->X < csbi.dwSize.X) {
-        ++pos->X;
-    }
+    if (pos->X < csbi.dwSize.X) { ++pos->X; }
 
     if (!SetConsoleCursorPosition(__stdout_hdl, *pos)) {
         TT_ERROR("fail to set curso pos");
@@ -509,9 +475,7 @@ tt_result_t __send_left()
     }
 
     pos = &csbi.dwCursorPosition;
-    if (pos->X > 0) {
-        --pos->X;
-    }
+    if (pos->X > 0) { --pos->X; }
 
     if (!SetConsoleCursorPosition(__stdout_hdl, *pos)) {
         TT_ERROR("fail to set curso pos");

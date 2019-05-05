@@ -15,9 +15,7 @@ tt_result_t test_link(IN void *param)
     // ssl
     do {
         tt_ssl_config_t sc;
-        tt_ssl_config_create(&sc,
-                             TT_SSL_CLIENT,
-                             TT_SSL_TRANSPORT_STREAM,
+        tt_ssl_config_create(&sc, TT_SSL_CLIENT, TT_SSL_TRANSPORT_STREAM,
                              TT_SSL_PRESET_DEFAULT);
         printf("tls api return\n");
     } while (0);
@@ -45,9 +43,7 @@ int main(int argc, char *argv[])
     tt_task_wait(&t);
 
 #if TT_ENV_OS_IS_WINDOWS
-    while (1) {
-        tt_sleep(10000);
-    }
+    while (1) { tt_sleep(10000); }
 #endif
 
     return 0;

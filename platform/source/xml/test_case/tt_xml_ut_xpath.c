@@ -50,42 +50,18 @@ TT_TEST_ROUTINE_DECLARE(case_xpath_xpvar)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(xml_xpath_case)
 
-TT_TEST_CASE("case_xpath_node",
-             "xml: xpath query node",
-             case_xpath_node,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_xpath_node", "xml: xpath query node", case_xpath_node, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_xpath_attr",
-                 "xml: xpath query attr",
-                 case_xpath_attr,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_xpath_attr", "xml: xpath query attr", case_xpath_attr,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_xpath_eval",
-                 "xml: xpath evaluate",
-                 case_xpath_eval,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_xpath_eval", "xml: xpath evaluate", case_xpath_eval,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_xpath_xpvar",
-                 "xml: xpath evaluate with variables",
-                 case_xpath_xpvar,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_xpath_xpvar", "xml: xpath evaluate with variables",
+                 case_xpath_xpvar, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(xml_xpath_case)
     // =========================================
@@ -198,12 +174,10 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_node)
         if (n == 0) {
             TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""),
                                   "Everyday Italian"),
-                        0,
-                        "");
+                        0, "");
         } else if (n == 3) {
             TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""), "Learning XML"),
-                        0,
-                        "");
+                        0, "");
         }
         ++n;
     }
@@ -220,12 +194,10 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_node)
         if (n == 3) {
             TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""),
                                   "Everyday Italian"),
-                        0,
-                        "");
+                        0, "");
         } else if (n == 0) {
             TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""), "Learning XML"),
-                        0,
-                        "");
+                        0, "");
         }
         ++n;
     }
@@ -268,12 +240,10 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_node)
         if (n == 0) {
             TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""),
                                   "Everyday Italian"),
-                        0,
-                        "");
+                        0, "");
         } else if (n == 3) {
             TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""), "Learning XML"),
-                        0,
-                        "");
+                        0, "");
         }
         ++n;
     }
@@ -323,8 +293,7 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_attr)
         TT_UT_NOT_NULL(xa, "");
 
         if (n == 0) {
-            TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "cooking"),
-                        0,
+            TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "cooking"), 0,
                         "");
         } else if (n == 3) {
             TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "web"), 0, "");
@@ -342,8 +311,7 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_attr)
         TT_UT_NOT_NULL(xa, "");
 
         if (n == 3) {
-            TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "cooking"),
-                        0,
+            TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "cooking"), 0,
                         "");
         } else if (n == 0) {
             TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "web"), 0, "");
@@ -387,8 +355,7 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_attr)
         TT_UT_NOT_NULL(xa, "");
 
         if (n == 0) {
-            TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "cooking"),
-                        0,
+            TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "cooking"), 0,
                         "");
         } else if (n == 3) {
             TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "web"), 0, "");
@@ -501,10 +468,7 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_xpvar)
     ret = tt_xpvars_set_number(&xpvs, "t", 123);
     TT_UT_FAIL(ret, "");
 
-    tt_xdoc_select(&xd,
-                   "/bookstore/book[title=string($t)]/author",
-                   &xpvs,
-                   &xn,
+    tt_xdoc_select(&xd, "/bookstore/book[title=string($t)]/author", &xpvs, &xn,
                    &xa);
     TT_UT_NOT_NULL(xn, "");
     TT_UT_NULL(xa, "");
@@ -513,9 +477,7 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_xpvar)
     ret = tt_xpvars_set_cstr(&xpvs, "t", "Harry Potter");
     TT_UT_SUCCESS(ret, "");
     tt_xnode_select(tt_xdoc_root(&xd),
-                    "/bookstore/book[title=string($t)]/author",
-                    &xpvs,
-                    &xn,
+                    "/bookstore/book[title=string($t)]/author", &xpvs, &xn,
                     &xa);
     TT_UT_NOT_NULL(xn, "");
     TT_UT_NULL(xa, "");
@@ -529,17 +491,13 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_xpvar)
     ret = tt_xpvars_set_bool(&xpvs, "price", TT_FALSE);
     TT_UT_FAIL(ret, "");
 
-    tt_xdoc_select(&xd,
-                   "/bookstore/book[price=number($price)]/author",
-                   &xpvs,
-                   &xn,
-                   &xa);
+    tt_xdoc_select(&xd, "/bookstore/book[price=number($price)]/author", &xpvs,
+                   &xn, &xa);
     TT_UT_NOT_NULL(xn, "");
     TT_UT_NULL(xa, "");
     TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""), "J K. Rowling"), 0, "");
 
-    ret = tt_xpath_create(&xp,
-                          "/bookstore/book[price=number($price)]/author",
+    ret = tt_xpath_create(&xp, "/bookstore/book[price=number($price)]/author",
                           &xpvs);
     TT_UT_SUCCESS(ret, "");
     TT_UT_NOT_NULL(xn, "");
@@ -549,11 +507,8 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_xpvar)
     ret = tt_xpvars_set_number(&xpvs, "price", 1.1);
     TT_UT_SUCCESS(ret, "");
 
-    tt_xdoc_select(&xd,
-                   "/bookstore/book[price=number($price)]/author",
-                   &xpvs,
-                   &xn,
-                   &xa);
+    tt_xdoc_select(&xd, "/bookstore/book[price=number($price)]/author", &xpvs,
+                   &xn, &xa);
     TT_UT_NULL(xn, "");
     TT_UT_NULL(xa, "");
 

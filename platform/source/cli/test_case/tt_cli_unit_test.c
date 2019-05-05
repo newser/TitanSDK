@@ -33,7 +33,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     CLI_UT_BEGIN = 0,
 
     CLI_UT_BASIC,
@@ -76,9 +77,7 @@ tt_result_t tt_cli_ut_init(IN tt_ptr_t reserved)
 
         if (tt_g_cli_ut_list[unit_id] != NULL) {
             result = tt_test_unit_to_class(tt_g_cli_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
+            if (!TT_OK(result)) { return TT_FAIL; }
         }
 
         // next

@@ -47,7 +47,8 @@ this file defines command line interface
 struct tt_cli_s;
 struct tt_buf_s;
 
-typedef enum tt_cli_ev_s {
+typedef enum tt_cli_ev_s
+{
     TT_CLI_EV_START = 0x80,
 
     TT_CLI_EV_UP = TT_CLI_EV_START,
@@ -64,7 +65,8 @@ typedef enum tt_cli_ev_s {
 } tt_cli_ev_t;
 #define TT_CLI_EV_VALID(k) (((k) >= TT_CLI_EV_START) && ((k) < TT_CLI_EV_END))
 
-typedef enum tt_cli_mode_s {
+typedef enum tt_cli_mode_s
+{
     // default mode requirement
     //  - won't echo anything
     //  - output a char won't move following chars
@@ -78,8 +80,7 @@ typedef enum tt_cli_mode_s {
 #define TT_CLI_MODE_VALID(m) ((m) < TT_CLI_MODE_NUM)
 
 // NULL cmd means cli would exit
-typedef tt_u32_t (*tt_cli_on_cmd_t)(IN struct tt_cli_s *cli,
-                                    IN void *param,
+typedef tt_u32_t (*tt_cli_on_cmd_t)(IN struct tt_cli_s *cli, IN void *param,
                                     IN const tt_char_t *cmd,
                                     IN struct tt_buf_s *output);
 // returned flags
@@ -94,8 +95,7 @@ typedef tt_u32_t (*tt_cli_on_cmd_t)(IN struct tt_cli_s *cli,
 // - return TT_CLICP_PARTIAL when something could be completed and stored in
 //   output
 typedef tt_u32_t (*tt_cli_on_complete_t)(IN struct tt_cli_s *cli,
-                                         IN void *param,
-                                         IN tt_u8_t *cur,
+                                         IN void *param, IN tt_u8_t *cur,
                                          IN tt_u32_t cur_len,
                                          IN tt_bool_t wait4cmd,
                                          IN struct tt_buf_s *output);
@@ -117,10 +117,8 @@ typedef struct
     tt_cli_on_quit_t on_quit;
 } tt_cli_cb_t;
 
-typedef tt_result_t (*tt_cli_send_t)(IN struct tt_cli_s *cli,
-                                     IN void *param,
-                                     IN tt_u8_t *ev,
-                                     IN tt_u32_t ev_num);
+typedef tt_result_t (*tt_cli_send_t)(IN struct tt_cli_s *cli, IN void *param,
+                                     IN tt_u8_t *ev, IN tt_u32_t ev_num);
 
 typedef struct
 {

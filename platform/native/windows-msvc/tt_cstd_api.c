@@ -51,8 +51,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_s32_t tt_strnicmp(IN const tt_char_t *s1,
-                     IN const tt_char_t *s2,
+tt_s32_t tt_strnicmp(IN const tt_char_t *s1, IN const tt_char_t *s2,
                      IN tt_u32_t n)
 {
     tt_u32_t i = 0;
@@ -65,9 +64,7 @@ tt_s32_t tt_strnicmp(IN const tt_char_t *s1,
         tt_char_t c1 = s1[i];
         tt_char_t c2 = s2[i];
 
-        if ((c1 == 0) || (c2 == 0)) {
-            return c1 - c2;
-        }
+        if ((c1 == 0) || (c2 == 0)) { return c1 - c2; }
 
         if (c1 == c2) {
             ++i;
@@ -117,9 +114,7 @@ tt_s32_t tt_memicmp(IN const tt_u8_t *s1, IN const tt_u8_t *s2, IN tt_u32_t n)
 int tt_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 {
     int n = vsnprintf(str, size, format, ap);
-    if ((n < 0) || ((size_t)n >= size)) {
-        n = (int)size - 1;
-    }
+    if ((n < 0) || ((size_t)n >= size)) { n = (int)size - 1; }
     return n;
 }
 
@@ -132,32 +127,20 @@ tt_result_t tt_strtou32(const char *str, char **endptr, int base, tt_u32_t *val)
 
     // check if it's an empty string
     __str = str;
-    while ((*__str != 0) && isspace(*__str)) {
-        ++__str;
-    }
-    if (*__str == 0) {
-        return TT_FAIL;
-    }
-    if (*__str == '-') {
-        return TT_FAIL;
-    }
+    while ((*__str != 0) && isspace(*__str)) { ++__str; }
+    if (*__str == 0) { return TT_FAIL; }
+    if (*__str == '-') { return TT_FAIL; }
 
     errno = 0;
     ul_val = strtoul(__str, &__endptr, base);
 
     // check if any unexpected char found
-    if ((*__endptr != 0) && (isspace(*__endptr) == 0)) {
-        return TT_FAIL;
-    }
+    if ((*__endptr != 0) && (isspace(*__endptr) == 0)) { return TT_FAIL; }
     TT_SAFE_ASSIGN(endptr, __endptr);
 
     // check overflow
-    if ((ul_val == ULONG_MAX) & (errno == ERANGE)) {
-        return TT_FAIL;
-    }
-    if (ul_val > (long)0xFFFFFFFF) {
-        return TT_FAIL;
-    }
+    if ((ul_val == ULONG_MAX) & (errno == ERANGE)) { return TT_FAIL; }
+    if (ul_val > (long)0xFFFFFFFF) { return TT_FAIL; }
 
     *val = (tt_s32_t)ul_val;
     return TT_SUCCESS;
@@ -172,20 +155,14 @@ tt_result_t tt_strtos32(const char *str, char **endptr, int base, tt_s32_t *val)
 
     // check if it's an empty string
     __str = str;
-    while ((*__str != 0) && isspace(*__str)) {
-        ++__str;
-    }
-    if (*__str == 0) {
-        return TT_FAIL;
-    }
+    while ((*__str != 0) && isspace(*__str)) { ++__str; }
+    if (*__str == 0) { return TT_FAIL; }
 
     errno = 0;
     l_val = strtol(__str, &__endptr, base);
 
     // check if any unexpected char found
-    if ((*__endptr != 0) && (isspace(*__endptr) == 0)) {
-        return TT_FAIL;
-    }
+    if ((*__endptr != 0) && (isspace(*__endptr) == 0)) { return TT_FAIL; }
     TT_SAFE_ASSIGN(endptr, __endptr);
 
     // check overflow
@@ -206,20 +183,14 @@ char *tt_strrstr(const char *haystack, const char *needle)
     const char *p;
 
     nlen = strlen(needle);
-    if (nlen == 0) {
-        return (char *)haystack;
-    }
+    if (nlen == 0) { return (char *)haystack; }
 
     hlen = strlen(haystack);
-    if (hlen < nlen) {
-        return NULL;
-    }
+    if (hlen < nlen) { return NULL; }
 
     p = haystack + hlen - nlen;
     while (p >= haystack) {
-        if (memcmp(p, needle, nlen) == 0) {
-            return (char *)p;
-        }
+        if (memcmp(p, needle, nlen) == 0) { return (char *)p; }
         --p;
     }
 
@@ -231,9 +202,7 @@ void *tt_memrchr(const void *s, int c, size_t n)
     if (n > 0) {
         unsigned char *pos = (unsigned char *)s + n - 1;
         while (pos >= (unsigned char *)s) {
-            if (*pos == c) {
-                return pos;
-            }
+            if (*pos == c) { return pos; }
             --pos;
         }
     }

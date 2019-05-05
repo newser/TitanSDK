@@ -119,8 +119,7 @@ tt_export tt_result_t tt_http_rawval_add_n(IN tt_slab_t *slab,
                                            IN const tt_char_t *val,
                                            IN tt_u32_t len);
 
-tt_inline tt_result_t tt_http_rawval_add(IN tt_slab_t *slab,
-                                         IN tt_dlist_t *dl,
+tt_inline tt_result_t tt_http_rawval_add(IN tt_slab_t *slab, IN tt_dlist_t *dl,
                                          IN const tt_char_t *val)
 {
     return tt_http_rawval_add_n(slab, dl, val, (tt_u32_t)tt_strlen(val));
@@ -178,11 +177,9 @@ tt_export tt_http_rawhdr_t *tt_http_rawhdr_next_n(IN tt_http_rawhdr_t *rh,
 tt_inline tt_http_rawhdr_t *tt_http_rawhdr_next(IN tt_http_rawhdr_t *rh,
                                                 IN const tt_char_t *name)
 {
-    return tt_http_rawhdr_next_n(rh,
-                                 name,
+    return tt_http_rawhdr_next_n(rh, name,
                                  TT_COND(name != NULL,
-                                         (tt_u32_t)tt_strlen(name),
-                                         0));
+                                         (tt_u32_t)tt_strlen(name), 0));
 }
 
 tt_inline void tt_http_rawhdr_add(IN tt_dlist_t *dl, IN tt_http_rawhdr_t *rh)
@@ -214,8 +211,7 @@ tt_export tt_u32_t tt_http_rawhdr_count_name_n(IN tt_dlist_t *dl,
 tt_inline tt_u32_t tt_http_rawhdr_count_name(IN tt_dlist_t *dl,
                                              IN const tt_char_t *name)
 {
-    return tt_http_rawhdr_count_name_n(dl,
-                                       (tt_char_t *)name,
+    return tt_http_rawhdr_count_name_n(dl, (tt_char_t *)name,
                                        (tt_u32_t)tt_strlen(name));
 }
 

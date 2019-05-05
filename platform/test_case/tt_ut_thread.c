@@ -54,14 +54,8 @@ TT_TEST_ROUTINE_DECLARE(case_process_basic)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(thread_case)
 
-TT_TEST_CASE("case_thread_basic",
-             "basic thread pressure test",
-             case_thread_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_thread_basic", "basic thread pressure test",
+             case_thread_basic, NULL, NULL, NULL, NULL, NULL)
 ,
 #if 0
     TT_TEST_CASE("case_thread_pressure",
@@ -74,35 +68,17 @@ TT_TEST_CASE("case_thread_basic",
                  NULL),
 #endif
 
-    TT_TEST_CASE("case_thread_sleep",
-                 "thread sleep api",
-                 case_thread_sleep,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
+    TT_TEST_CASE("case_thread_sleep", "thread sleep api", case_thread_sleep,
+                 NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_thread_rand", "thread random number generator",
+                 case_thread_rand, NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_dll", "dll operations", case_dll, NULL, NULL, NULL, NULL,
                  NULL),
 
-    TT_TEST_CASE("case_thread_rand",
-                 "thread random number generator",
-                 case_thread_rand,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE(
-        "case_dll", "dll operations", case_dll, NULL, NULL, NULL, NULL, NULL),
-
-    TT_TEST_CASE("case_process_basic",
-                 "process basic operations",
-                 case_process_basic,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_process_basic", "process basic operations",
+                 case_process_basic, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(thread_case)
     // =========================================
@@ -162,7 +138,7 @@ TT_TEST_ROUTINE_DEFINE(case_thread_pressure)
     tt_thread_attr_t attr;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #if (TT_UNIT_TEST_CASE_FAST & TT_UNIT_TEST_THREAD_FAST)
     TT_TEST_CASE_LEAVE()
@@ -187,9 +163,9 @@ TT_TEST_ROUTINE_DEFINE(case_thread_pressure)
     thread_num = 0;
     while (thread_num < 50) {
         // create a thread
-        thread[thread_num] = tt_thread_create(test_thread,
-                                              (void *)(tt_ptrdiff_t)thread_num,
-                                              NULL);
+        thread[thread_num] =
+            tt_thread_create(test_thread, (void *)(tt_ptrdiff_t)thread_num,
+                             NULL);
 
         tt_sleep((rand() % 10) * 10);
 
@@ -255,7 +231,6 @@ TT_TEST_ROUTINE_DEFINE(case_thread_sleep)
     tt_s64_t s, e;
     TT_TEST_CASE_ENTER()
     // test start
-
 
     thread = tt_thread_create(test_thread_sleep, NULL, NULL);
     s = tt_time_ref();

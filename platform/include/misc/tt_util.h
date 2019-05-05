@@ -160,8 +160,7 @@ are needed to cover requried size
 @param [in] order the size order of each memory block
 */
 #define TT_SIZE_IN_ORDER(size, order)                                          \
-    TT_COND((size) & ((1 << order) - 1),                                       \
-            ((size) >> order) + 1,                                             \
+    TT_COND((size) & ((1 << order) - 1), ((size) >> order) + 1,                \
             ((size) >> order))
 
 /**
@@ -256,9 +255,7 @@ used when a pointer in code need be assigned if it's not null
 */
 #define TT_SAFE_ASSIGN(p, v)                                                   \
     do {                                                                       \
-        if (p != NULL) {                                                       \
-            *(p) = (v);                                                        \
-        }                                                                      \
+        if (p != NULL) { *(p) = (v); }                                         \
     } while (0)
 
 #define TT_SWAP(type, a, b)                                                    \
@@ -278,9 +275,7 @@ used when a pointer in code need be assigned if it's not null
     do {                                                                       \
         tt_result_t __result;                                                  \
         __result = __VA_ARGS__;                                                \
-        if (TT_UNLIKELY(!TT_OK(__result))) {                                   \
-            exp;                                                               \
-        }                                                                      \
+        if (TT_UNLIKELY(!TT_OK(__result))) { exp; }                            \
     } while (0)
 #define TT_DO(...) __TT_DO(return __result, __VA_ARGS__)
 #define TT_DO_G(lable, ...) __TT_DO(goto lable, __VA_ARGS__)
@@ -289,9 +284,7 @@ used when a pointer in code need be assigned if it's not null
 
 #define __TT_NOT_NULL(exp, ...)                                                \
     do {                                                                       \
-        if (TT_UNLIKELY((__VA_ARGS__) == NULL)) {                              \
-            exp;                                                               \
-        }                                                                      \
+        if (TT_UNLIKELY((__VA_ARGS__) == NULL)) { exp; }                       \
     } while (0)
 #define TT_DONN(...) __TT_NOT_NULL(return TT_FAIL, __VA_ARGS__)
 #define TT_DONN_G(lable, ...) __TT_NOT_NULL(goto lable, __VA_ARGS__)
@@ -299,16 +292,12 @@ used when a pointer in code need be assigned if it's not null
 
 #define TT_LIMIT_MAX(v, max)                                                   \
     do {                                                                       \
-        if ((v) > (max)) {                                                     \
-            (v) = (max);                                                       \
-        }                                                                      \
+        if ((v) > (max)) { (v) = (max); }                                      \
     } while (0)
 
 #define TT_LIMIT_MIN(v, min)                                                   \
     do {                                                                       \
-        if ((v) < (min)) {                                                     \
-            (v) = (min);                                                       \
-        }                                                                      \
+        if ((v) < (min)) { (v) = (min); }                                      \
     } while (0)
 
 #define TT_LIMIT_RANGE(v, min, max)                                            \
@@ -330,10 +319,7 @@ used when a pointer in code need be assigned if it's not null
 
 #define TT_TIMEOUT_IF_ERROR(fail_exp)                                          \
     }                                                                          \
-    else                                                                       \
-    {                                                                          \
-        fail_exp;                                                              \
-    }
+    else { fail_exp; }
 
 #define TT_TIMEOUT_EXIT() break
 
@@ -351,7 +337,8 @@ used when a pointer in code need be assigned if it's not null
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_E_ENDIAN_INVALID,
 
     TT_E_ENDIAN_BIG,
@@ -487,8 +474,7 @@ tt_inline tt_endian_type_t tt_endian()
     }
 }
 
-tt_export void tt_hex_dump(IN tt_u8_t *buf,
-                           IN tt_u32_t buf_len,
+tt_export void tt_hex_dump(IN tt_u8_t *buf, IN tt_u32_t buf_len,
                            IN tt_u32_t num_per_line);
 
 tt_export tt_u8_t tt_c2h(IN tt_char_t c, IN tt_u8_t h_if_fail);
@@ -496,12 +482,10 @@ tt_export tt_u8_t tt_c2h(IN tt_char_t c, IN tt_u8_t h_if_fail);
 tt_export tt_char_t tt_h2c(IN tt_u8_t h, IN tt_u8_t c_if_fail);
 
 // str size must be twice of hex_num
-tt_export void tt_hex2str(IN void *hex,
-                          IN tt_u32_t hex_num,
+tt_export void tt_hex2str(IN void *hex, IN tt_u32_t hex_num,
                           OUT tt_char_t *str);
 
-tt_export void tt_str2hex(IN tt_char_t *str,
-                          IN tt_u32_t str_num,
+tt_export void tt_str2hex(IN tt_char_t *str, IN tt_u32_t str_num,
                           OUT void *hex);
 
 // copy a null terminated string
@@ -514,16 +498,13 @@ tt_export tt_char_t *tt_cstr_copy_n(IN const tt_char_t *cstr, IN tt_u32_t len);
 tt_export tt_u8_t *tt_memdup(IN const tt_u8_t *addr, IN tt_u32_t len);
 
 // return true if all are trimmed
-tt_export tt_bool_t tt_trim_l(IN OUT tt_u8_t **p,
-                              IN OUT tt_u32_t *len,
+tt_export tt_bool_t tt_trim_l(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len,
                               IN tt_u8_t b);
 
-tt_export tt_bool_t tt_trim_r(IN OUT tt_u8_t **p,
-                              IN OUT tt_u32_t *len,
+tt_export tt_bool_t tt_trim_r(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len,
                               IN tt_u8_t b);
 
-tt_export tt_bool_t tt_trim_lr(IN OUT tt_u8_t **p,
-                               IN OUT tt_u32_t *len,
+tt_export tt_bool_t tt_trim_lr(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len,
                                IN tt_u8_t b);
 
 #if 0

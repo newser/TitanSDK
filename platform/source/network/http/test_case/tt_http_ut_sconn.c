@@ -59,33 +59,15 @@ TT_TEST_ROUTINE_DECLARE(case_http_inserv_host)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(http_sconn_case)
 
-TT_TEST_CASE("case_http_sconn_basic",
-             "http server conn basic",
-             case_http_sconn_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_http_sconn_basic", "http server conn basic",
+             case_http_sconn_basic, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_http_sconn_cb_error",
-                 "http server conn callback error",
-                 case_http_sconn_cb_error,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_sconn_cb_error", "http server conn callback error",
+                 case_http_sconn_cb_error, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_inserv_host",
-                 "http in service: host",
-                 case_http_inserv_host,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_inserv_host", "http in service: host",
+                 case_http_inserv_host, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(http_sconn_case)
     // =========================================
@@ -114,14 +96,11 @@ TT_TEST_CASE("case_http_sconn_basic",
     */
 
     typedef tt_result_t (*__sconn_send_t)(IN tt_http_sconn_t *c,
-                                          IN tt_u8_t *buf,
-                                          IN tt_u32_t len,
+                                          IN tt_u8_t *buf, IN tt_u32_t len,
                                           OUT tt_u32_t *sent);
 
-typedef tt_result_t (*__sconn_recv_t)(IN tt_http_sconn_t *c,
-                                      OUT tt_u8_t *buf,
-                                      IN tt_u32_t len,
-                                      OUT tt_u32_t *recvd,
+typedef tt_result_t (*__sconn_recv_t)(IN tt_http_sconn_t *c, OUT tt_u8_t *buf,
+                                      IN tt_u32_t len, OUT tt_u32_t *recvd,
                                       OUT tt_fiber_ev_t **p_fev,
                                       OUT tt_tmr_t **p_tmr);
 
@@ -142,32 +121,28 @@ typedef struct
 // simple itf
 // ========================================
 
-static tt_result_t __simu_send(IN tt_http_sconn_t *c,
-                               IN tt_u8_t *buf,
-                               IN tt_u32_t len,
-                               OUT tt_u32_t *sent);
+static tt_result_t __simu_send(IN tt_http_sconn_t *c, IN tt_u8_t *buf,
+                               IN tt_u32_t len, OUT tt_u32_t *sent);
 
-static tt_result_t __simu_recv(IN tt_http_sconn_t *c,
-                               OUT tt_u8_t *buf,
-                               IN tt_u32_t len,
-                               OUT tt_u32_t *recvd,
-                               OUT tt_fiber_ev_t **p_fev,
-                               OUT tt_tmr_t **p_tmr);
+static tt_result_t __simu_recv(IN tt_http_sconn_t *c, OUT tt_u8_t *buf,
+                               IN tt_u32_t len, OUT tt_u32_t *recvd,
+                               OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr);
 
 static tt_result_t __simu_shut(IN tt_http_sconn_t *c, IN tt_http_shut_t shut);
 
 static void __simu_destroy(IN tt_http_sconn_t *c);
 
 static __sconn_itf_t __sconn_skt_itf = {
-    __simu_send, __simu_recv, __simu_shut, __simu_destroy,
+    __simu_send,
+    __simu_recv,
+    __simu_shut,
+    __simu_destroy,
 };
 
 static tt_buf_t __simu_in;
 static tt_buf_t __simu_out;
 
-tt_result_t __simu_send(IN tt_http_sconn_t *c,
-                        IN tt_u8_t *buf,
-                        IN tt_u32_t len,
+tt_result_t __simu_send(IN tt_http_sconn_t *c, IN tt_u8_t *buf, IN tt_u32_t len,
                         OUT tt_u32_t *sent)
 {
     tt_buf_put(&__simu_out, buf, len);
@@ -179,26 +154,19 @@ tt_result_t __simu_send(IN tt_http_sconn_t *c,
 static tt_u32_t __simu_recv_num;
 static tt_u32_t __simu_recv_err_idx;
 
-tt_result_t __simu_recv(IN tt_http_sconn_t *c,
-                        OUT tt_u8_t *buf,
-                        IN tt_u32_t len,
-                        OUT tt_u32_t *recvd,
-                        OUT tt_fiber_ev_t **p_fev,
-                        OUT tt_tmr_t **p_tmr)
+tt_result_t __simu_recv(IN tt_http_sconn_t *c, OUT tt_u8_t *buf,
+                        IN tt_u32_t len, OUT tt_u32_t *recvd,
+                        OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr)
 {
     tt_u32_t n, rd;
     tt_u8_t *p;
 
-    if (__simu_recv_num >= __simu_recv_err_idx) {
-        return TT_E_AGAIN;
-    }
+    if (__simu_recv_num >= __simu_recv_err_idx) { return TT_E_AGAIN; }
 
     n = TT_BUF_RLEN(&__simu_in);
     TT_ASSERT(n >= __simu_recv_num);
     n -= __simu_recv_num;
-    if (n == 0) {
-        return TT_E_END;
-    }
+    if (n == 0) { return TT_E_END; }
 
     rd = tt_rand_u32() % 20 + 1;
     rd = TT_MIN(rd, n);
@@ -229,7 +197,10 @@ void __simu_destroy(IN tt_http_sconn_t *c)
 }
 
 static __sconn_itf_t simu_itf1 = {
-    __simu_send, __simu_recv, __simu_shut, __simu_destroy,
+    __simu_send,
+    __simu_recv,
+    __simu_shut,
+    __simu_destroy,
 };
 
 void __simu1_start()
@@ -270,10 +241,8 @@ static tt_bool_t __simp1_uri_ok[__MAX_SIMP1_NUM];
 static tt_http_inserv_action_t __simp1_on_uri_ret[__MAX_SIMP1_NUM];
 
 static tt_http_inserv_action_t __simp1_on_uri(
-    IN struct tt_http_inserv_s *s,
-    IN void *ctx,
-    IN struct tt_http_parser_s *req,
-    OUT struct tt_http_resp_render_s *resp)
+    IN struct tt_http_inserv_s *s, IN void *ctx,
+    IN struct tt_http_parser_s *req, OUT struct tt_http_resp_render_s *resp)
 {
     if (tt_blobex_strcmp(&req->rawuri, __simp1_uri[__simp1_idx]) == 0) {
         __simp1_uri_ok[__simp1_idx] = TT_TRUE;
@@ -311,17 +280,13 @@ static tt_bool_t simp1_nv_ok[__MAX_SIMP1_NUM];
 static tt_http_inserv_action_t __simp1_on_hdr_ret[__MAX_SIMP1_NUM];
 
 static tt_http_inserv_action_t __simp1_on_header(
-    IN struct tt_http_inserv_s *s,
-    IN void *ctx,
-    IN struct tt_http_parser_s *req,
-    OUT struct tt_http_resp_render_s *resp)
+    IN struct tt_http_inserv_s *s, IN void *ctx,
+    IN struct tt_http_parser_s *req, OUT struct tt_http_resp_render_s *resp)
 {
     struct simp1_nv *nv = simp1_nv_ar[__simp1_idx];
     while (nv->name != NULL) {
         __check(rawhdr, nv->name, nv->val, simp1_nv_ok[__simp1_idx]);
-        if (!simp1_nv_ok[__simp1_idx]) {
-            break;
-        }
+        if (!simp1_nv_ok[__simp1_idx]) { break; }
         ++nv;
     }
 
@@ -332,13 +297,10 @@ static tt_buf_t __simp1_body[__MAX_SIMP1_NUM];
 static tt_http_inserv_action_t __simp1_on_bd_ret[__MAX_SIMP1_NUM];
 
 static tt_http_inserv_action_t __simp1_on_body(
-    IN struct tt_http_inserv_s *s,
-    IN void *ctx,
-    IN struct tt_http_parser_s *req,
-    OUT struct tt_http_resp_render_s *resp)
+    IN struct tt_http_inserv_s *s, IN void *ctx,
+    IN struct tt_http_parser_s *req, OUT struct tt_http_resp_render_s *resp)
 {
-    tt_buf_put(&__simp1_body[__simp1_idx],
-               tt_blobex_addr(&req->body),
+    tt_buf_put(&__simp1_body[__simp1_idx], tt_blobex_addr(&req->body),
                tt_blobex_len(&req->body));
     return __simp1_on_bd_ret[__simp1_idx];
 }
@@ -348,20 +310,14 @@ static tt_bool_t simp1_trail_ok[__MAX_SIMP1_NUM];
 static tt_http_inserv_action_t __simp1_on_trail_ret[__MAX_SIMP1_NUM];
 
 static tt_http_inserv_action_t __simp1_on_trailing(
-    IN struct tt_http_inserv_s *s,
-    IN void *ctx,
-    IN struct tt_http_parser_s *req,
-    OUT struct tt_http_resp_render_s *resp)
+    IN struct tt_http_inserv_s *s, IN void *ctx,
+    IN struct tt_http_parser_s *req, OUT struct tt_http_resp_render_s *resp)
 {
     struct simp1_nv *nv = simp1_trail_ar[__simp1_idx];
     while (nv->name != NULL) {
-        __check(trailing_rawhdr,
-                nv->name,
-                nv->val,
+        __check(trailing_rawhdr, nv->name, nv->val,
                 simp1_trail_ok[__simp1_idx]);
-        if (!simp1_trail_ok[__simp1_idx]) {
-            break;
-        }
+        if (!simp1_trail_ok[__simp1_idx]) { break; }
         ++nv;
     }
 
@@ -372,10 +328,8 @@ static tt_s32_t simp1_comp[__MAX_SIMP1_NUM];
 static tt_http_inserv_action_t __simp1_on_comp_ret[__MAX_SIMP1_NUM];
 
 static tt_http_inserv_action_t __simp1_on_complete(
-    IN struct tt_http_inserv_s *s,
-    IN void *ctx,
-    IN struct tt_http_parser_s *req,
-    OUT struct tt_http_resp_render_s *resp)
+    IN struct tt_http_inserv_s *s, IN void *ctx,
+    IN struct tt_http_parser_s *req, OUT struct tt_http_resp_render_s *resp)
 {
     ++simp1_comp[__simp1_idx];
     ++__simp1_idx;
@@ -384,10 +338,8 @@ static tt_http_inserv_action_t __simp1_on_complete(
     return __simp1_on_comp_ret[__simp1_idx];
 }
 
-static tt_http_inserv_cb_t __simp1_cb = {__simp1_on_uri,
-                                         __simp1_on_header,
-                                         __simp1_on_body,
-                                         __simp1_on_trailing,
+static tt_http_inserv_cb_t __simp1_cb = {__simp1_on_uri, __simp1_on_header,
+                                         __simp1_on_body, __simp1_on_trailing,
                                          __simp1_on_complete};
 
 static struct simp1_nv simp1_nv_s[1] = {{NULL, NULL}};
@@ -452,9 +404,7 @@ void __simp1_end()
 {
     tt_u32_t i;
 
-    for (i = 0; i < __MAX_SIMP1_NUM; ++i) {
-        tt_buf_destroy(&__simp1_body[i]);
-    }
+    for (i = 0; i < __MAX_SIMP1_NUM; ++i) { tt_buf_destroy(&__simp1_body[i]); }
 }
 
 static const tt_char_t *h =
@@ -949,14 +899,12 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_host)
             "1234567890";
         tt_http_rule_t *rule;
 
-        h1 = tt_http_host_create("www.example.com",
-                                 tt_http_host_match_cmp,
+        h1 = tt_http_host_create("www.example.com", tt_http_host_match_cmp,
                                  NULL);
         TT_UT_NOT_NULL(h1, "");
         tt_http_hostset_add(hs, h1);
 
-        rule = tt_http_rule_startwith_create("/",
-                                             "/usr/local/",
+        rule = tt_http_rule_startwith_create("/", "/usr/local/",
                                              TT_HTTP_RULE_BREAK);
         TT_UT_NOT_NULL(h1, "");
         tt_http_host_add_rule(h1, rule);

@@ -84,8 +84,7 @@ tt_export struct tt_param_s *tt_param_mgr_find_n(IN tt_param_mgr_t *pm,
 tt_inline struct tt_param_s *tt_param_mgr_find(IN tt_param_mgr_t *pm,
                                                IN const tt_char_t *path)
 {
-    return tt_param_mgr_find_n(pm,
-                               (tt_char_t *)path,
+    return tt_param_mgr_find_n(pm, (tt_char_t *)path,
                                (tt_u32_t)tt_strlen(path));
 }
 
@@ -102,28 +101,23 @@ tt_export tt_result_t tt_param_mgr_get_bool(IN tt_param_mgr_t *pm,
 
 tt_export tt_result_t tt_param_mgr_set_bool(IN tt_param_mgr_t *pm,
                                             IN const tt_char_t *path,
-                                            IN tt_u32_t len,
-                                            IN tt_bool_t val);
+                                            IN tt_u32_t len, IN tt_bool_t val);
 
 tt_export tt_result_t tt_param_mgr_get_u32(IN tt_param_mgr_t *pm,
                                            IN const tt_char_t *path,
-                                           IN tt_u32_t len,
-                                           OUT tt_u32_t *val);
+                                           IN tt_u32_t len, OUT tt_u32_t *val);
 
 tt_export tt_result_t tt_param_mgr_set_u32(IN tt_param_mgr_t *pm,
                                            IN const tt_char_t *path,
-                                           IN tt_u32_t len,
-                                           IN tt_u32_t val);
+                                           IN tt_u32_t len, IN tt_u32_t val);
 
 tt_export tt_result_t tt_param_mgr_get_s32(IN tt_param_mgr_t *pm,
                                            IN const tt_char_t *path,
-                                           IN tt_u32_t len,
-                                           OUT tt_s32_t *val);
+                                           IN tt_u32_t len, OUT tt_s32_t *val);
 
 tt_export tt_result_t tt_param_mgr_set_s32(IN tt_param_mgr_t *pm,
                                            IN const tt_char_t *path,
-                                           IN tt_u32_t len,
-                                           IN tt_s32_t val);
+                                           IN tt_u32_t len, IN tt_s32_t val);
 
 tt_export tt_result_t tt_param_mgr_get_str(IN tt_param_mgr_t *pm,
                                            IN const tt_char_t *path,
@@ -141,36 +135,29 @@ tt_export tt_result_t tt_param_mgr_set_str(IN tt_param_mgr_t *pm,
 // ========================================
 
 tt_export tt_result_t tt_get_param_bool(IN const tt_char_t *path,
-                                        IN tt_u32_t len,
-                                        OUT tt_bool_t *val);
+                                        IN tt_u32_t len, OUT tt_bool_t *val);
 
 tt_export tt_result_t tt_set_param_bool(IN const tt_char_t *path,
-                                        IN tt_u32_t len,
-                                        IN tt_bool_t val);
+                                        IN tt_u32_t len, IN tt_bool_t val);
 
 tt_export tt_result_t tt_get_param_u32(IN const tt_char_t *path,
-                                       IN tt_u32_t len,
-                                       OUT tt_u32_t *val);
+                                       IN tt_u32_t len, OUT tt_u32_t *val);
 
 tt_export tt_result_t tt_set_param_u32(IN const tt_char_t *path,
-                                       IN tt_u32_t len,
-                                       IN tt_u32_t val);
+                                       IN tt_u32_t len, IN tt_u32_t val);
 
 tt_export tt_result_t tt_get_param_s32(IN const tt_char_t *path,
-                                       IN tt_u32_t len,
-                                       OUT tt_s32_t *val);
+                                       IN tt_u32_t len, OUT tt_s32_t *val);
 
 tt_export tt_result_t tt_set_param_s32(IN const tt_char_t *path,
-                                       IN tt_u32_t len,
-                                       IN tt_s32_t val);
+                                       IN tt_u32_t len, IN tt_s32_t val);
 
 tt_export tt_result_t tt_get_param_str(IN const tt_char_t *path,
                                        IN tt_u32_t len,
                                        OUT struct tt_string_s *val);
 
 tt_export tt_result_t tt_set_param_str(IN const tt_char_t *path,
-                                       IN tt_u32_t len,
-                                       IN const tt_char_t *val,
+                                       IN tt_u32_t len, IN const tt_char_t *val,
                                        IN tt_u32_t val_len);
 
 #endif /* __TT_PARAM_MANAGER__ */

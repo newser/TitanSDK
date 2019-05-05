@@ -33,8 +33,7 @@ int app_ut_process(int argc, char *argv[])
         for (i = 3; i < 16; ++i) {
             if ((strlen(argv[i]) != 1) ||
                 (argv[i][0] != ((i > 9 ? 'a' + i - 10 : '0' + i)))) {
-                printf("argv[%d][0] != %c\n",
-                       i,
+                printf("argv[%d][0] != %c\n", i,
                        ((i > 9 ? 'a' + i - 10 : '0' + i)));
                 tt_sleep(5000);
                 tt_process_exit(TT_PROCESS_EXIT_FAILURE);

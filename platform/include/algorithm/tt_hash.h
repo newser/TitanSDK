@@ -40,7 +40,8 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_HASH_ALG_MURMUR3,
     TT_HASH_ALG_FNV1A,
 
@@ -55,8 +56,7 @@ typedef union
     tt_u32_t seed;
 } tt_hashctx_t;
 
-typedef tt_hashcode_t (*tt_hash_t)(IN const tt_u8_t *key,
-                                   IN tt_u32_t key_len,
+typedef tt_hashcode_t (*tt_hash_t)(IN const tt_u8_t *key, IN tt_u32_t key_len,
                                    IN tt_hashctx_t *hctx);
 
 ////////////////////////////////////////////////////////////

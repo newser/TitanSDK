@@ -43,8 +43,7 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __lio_std_output(IN tt_logio_t *lio,
-                             IN const tt_char_t *data,
+static void __lio_std_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                              IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_std_itf = {
@@ -75,9 +74,7 @@ tt_logio_t *tt_logio_std_create(IN OPT tt_logio_std_attr_t *attr)
     }
 
     lio = tt_logio_create(sizeof(tt_logio_std_t), &tt_s_logio_std_itf);
-    if (lio == NULL) {
-        return NULL;
-    }
+    if (lio == NULL) { return NULL; }
 
     lio_std = TT_LOGIO_CAST(lio, tt_logio_std_t);
 
@@ -91,8 +88,7 @@ void tt_logio_std_attr_default(IN tt_logio_std_attr_t *attr)
     attr->reserved = 0;
 }
 
-void __lio_std_output(IN tt_logio_t *lio,
-                      IN const tt_char_t *data,
+void __lio_std_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                       IN tt_u32_t data_len)
 {
     tt_printf("%s", data);

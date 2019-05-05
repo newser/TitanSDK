@@ -68,9 +68,7 @@ tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
     // 4 pages as initial committed size
     commit = TT_MIN(stack_size, tt_g_page_size << 2);
 
-    wrap_fb->fb = CreateFiberEx(commit,
-                                reserve,
-                                FIBER_FLAG_FLOAT_SWITCH,
+    wrap_fb->fb = CreateFiberEx(commit, reserve, FIBER_FLAG_FLOAT_SWITCH,
                                 __fiber_routine_wrapper,
                                 TT_CONTAINER(wrap_fb, tt_fiber_t, wrap_fb));
     if (wrap_fb->fb == NULL) {
@@ -108,8 +106,7 @@ void tt_fiber_destroy_local_wrap(IN tt_fiber_wrap_t *wrap_fb)
     }
 }
 
-void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
-                          IN tt_fiber_t *from,
+void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs, IN tt_fiber_t *from,
                           IN tt_fiber_t *to)
 {
     tt_fiber_wrap_t *wrap_to = &to->wrap_fb;

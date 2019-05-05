@@ -48,8 +48,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t tt_percent_encode_len(IN const tt_char_t *str,
-                               IN tt_u32_t len,
+tt_u32_t tt_percent_encode_len(IN const tt_char_t *str, IN tt_u32_t len,
                                IN tt_char_t *enc_tbl)
 {
     tt_u32_t i, n = 0;
@@ -62,10 +61,8 @@ tt_u32_t tt_percent_encode_len(IN const tt_char_t *str,
     return n;
 }
 
-tt_u32_t tt_percent_encode(IN const tt_char_t *str,
-                           IN tt_u32_t len,
-                           IN tt_char_t *enc_tbl,
-                           OUT tt_char_t *dst)
+tt_u32_t tt_percent_encode(IN const tt_char_t *str, IN tt_u32_t len,
+                           IN tt_char_t *enc_tbl, OUT tt_char_t *dst)
 {
     static tt_char_t c2s[] = "0123456789abcdef";
     tt_u32_t i, n = 0;
@@ -108,10 +105,8 @@ tt_u32_t tt_percent_decode_len(IN const tt_char_t *str, IN tt_u32_t len)
     return n;
 }
 
-tt_u32_t tt_percent_decode(IN const tt_char_t *str,
-                           IN tt_u32_t len,
-                           IN tt_bool_t plus2sp,
-                           OUT tt_char_t *dst)
+tt_u32_t tt_percent_decode(IN const tt_char_t *str, IN tt_u32_t len,
+                           IN tt_bool_t plus2sp, OUT tt_char_t *dst)
 {
     const tt_char_t *p, *end;
     tt_char_t *d;

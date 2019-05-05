@@ -91,8 +91,7 @@ static tt_result_t __b64_rm_boundary(IN OUT tt_u8_t **data,
                                      IN const tt_char_t *start_boundary,
                                      IN const tt_char_t *end_boundary);
 static tt_result_t __b64_validate(IN tt_u8_t *data, IN tt_u32_t data_len);
-static tt_result_t __b64_decode(IN tt_u8_t *data,
-                                IN tt_u32_t data_len,
+static tt_result_t __b64_decode(IN tt_u8_t *data, IN tt_u32_t data_len,
                                 IN tt_base64_decode_attr_t *attr,
                                 OUT tt_u8_t *decoded,
                                 IN OUT tt_u32_t *decoded_len);
@@ -113,11 +112,9 @@ tt_inline tt_u8_t __b64_c2u(IN tt_char_t c)
     return tt_s_base64_c2u_table[(tt_u8_t)c];
 }
 
-tt_result_t tt_base64_decode(IN tt_u8_t *data,
-                             IN tt_u32_t data_len,
+tt_result_t tt_base64_decode(IN tt_u8_t *data, IN tt_u32_t data_len,
                              IN OPT tt_base64_decode_attr_t *attr,
-                             OUT tt_u8_t *decoded,
-                             IN OUT tt_u32_t *decoded_len)
+                             OUT tt_u8_t *decoded, IN OUT tt_u32_t *decoded_len)
 {
     tt_base64_decode_attr_t __attr;
 
@@ -128,9 +125,7 @@ tt_result_t tt_base64_decode(IN tt_u8_t *data,
         *decoded_len = 0;
         return TT_SUCCESS;
     }
-    if ((decoded != NULL) && (*decoded_len == 0)) {
-        return TT_SUCCESS;
-    }
+    if ((decoded != NULL) && (*decoded_len == 0)) { return TT_SUCCESS; }
 
     if (attr == NULL) {
         tt_base64_decode_attr_default(&__attr);
@@ -139,9 +134,7 @@ tt_result_t tt_base64_decode(IN tt_u8_t *data,
 
     // remove boundary
     if ((attr->start_boundary != NULL) && (attr->end_boundary != NULL) &&
-        !TT_OK(__b64_rm_boundary(&data,
-                                 &data_len,
-                                 attr->start_boundary,
+        !TT_OK(__b64_rm_boundary(&data, &data_len, attr->start_boundary,
                                  attr->end_boundary))) {
         TT_ERROR("no base64 boundary found");
         return TT_FAIL;
@@ -152,16 +145,13 @@ tt_result_t tt_base64_decode(IN tt_u8_t *data,
     }
 
     // validate content
-    if (!TT_OK(__b64_validate(data, data_len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__b64_validate(data, data_len))) { return TT_FAIL; }
 
     // do decoding
     return __b64_decode(data, data_len, attr, decoded, decoded_len);
 }
 
-tt_result_t tt_base64_decode_alloc(IN tt_u8_t *data,
-                                   IN tt_u32_t data_len,
+tt_result_t tt_base64_decode_alloc(IN tt_u8_t *data, IN tt_u32_t data_len,
                                    IN OPT tt_base64_decode_attr_t *attr,
                                    OUT tt_u8_t **decoded,
                                    IN OUT tt_u32_t *decoded_len)
@@ -184,10 +174,7 @@ tt_result_t tt_base64_decode_alloc(IN tt_u8_t *data,
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_base64_decode(data,
-                                data_len,
-                                attr,
-                                __decoded,
+    if (!TT_OK(tt_base64_decode(data, data_len, attr, __decoded,
                                 &__decoded_len))) {
         tt_free(__decoded);
         return TT_FAIL;
@@ -205,23 +192,18 @@ void tt_base64_decode_attr_default(IN tt_base64_decode_attr_t *attr)
     // no boundary by default: all data are base64 encoded
 }
 
-tt_result_t __b64_rm_boundary(IN OUT tt_u8_t **data,
-                              IN OUT tt_u32_t *data_len,
+tt_result_t __b64_rm_boundary(IN OUT tt_u8_t **data, IN OUT tt_u32_t *data_len,
                               IN const tt_char_t *start_boundary,
                               IN const tt_char_t *end_boundary)
 {
     tt_char_t *begin, *end;
 
     begin = tt_strstr((tt_char_t *)*data, start_boundary);
-    if (begin == NULL) {
-        return TT_FAIL;
-    }
+    if (begin == NULL) { return TT_FAIL; }
     begin += (tt_u32_t)tt_strlen(start_boundary);
 
     end = tt_strstr(begin, end_boundary);
-    if (end == NULL) {
-        return TT_FAIL;
-    }
+    if (end == NULL) { return TT_FAIL; }
 
     *data = (tt_u8_t *)begin;
     *data_len = (tt_u32_t)(end - begin);
@@ -311,10 +293,8 @@ tt_result_t __b64_validate(IN tt_u8_t *data, IN tt_u32_t data_len)
     return TT_SUCCESS;
 }
 
-tt_result_t __b64_decode(IN tt_u8_t *data,
-                         IN tt_u32_t data_len,
-                         IN tt_base64_decode_attr_t *attr,
-                         OUT tt_u8_t *decoded,
+tt_result_t __b64_decode(IN tt_u8_t *data, IN tt_u32_t data_len,
+                         IN tt_base64_decode_attr_t *attr, OUT tt_u8_t *decoded,
                          IN OUT tt_u32_t *decoded_len)
 {
     tt_u32_t i, n, val, pad_num;

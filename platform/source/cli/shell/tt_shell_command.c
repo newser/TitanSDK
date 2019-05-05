@@ -81,9 +81,7 @@ tt_shcmd_t *tt_shcmd_find(IN const tt_char_t *name)
 {
     tt_u32_t i;
     for (i = 0; i < TT_SHCMD_NUM; ++i) {
-        if (tt_strcmp(tt_g_shcmd[i]->name, name) == 0) {
-            return tt_g_shcmd[i];
-        }
+        if (tt_strcmp(tt_g_shcmd[i]->name, name) == 0) { return tt_g_shcmd[i]; }
     }
     return NULL;
 }

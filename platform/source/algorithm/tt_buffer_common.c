@@ -63,12 +63,8 @@ void tt_buf_swap(IN tt_buf_t *a, IN tt_buf_t *b)
 
     if ((a->p == b->initbuf) || (b->p == a->initbuf)) {
         tt_swap(a->initbuf, b->initbuf, TT_BUF_INIT_SIZE);
-        if (a->p == b->initbuf) {
-            a->p = a->initbuf;
-        }
-        if (b->p == a->initbuf) {
-            b->p = b->initbuf;
-        }
+        if (a->p == b->initbuf) { a->p = a->initbuf; }
+        if (b->p == a->initbuf) { b->p = b->initbuf; }
     }
 }
 
@@ -76,15 +72,11 @@ tt_s32_t tt_buf_cmp(IN tt_buf_t *a, IN tt_buf_t *b)
 {
     tt_u32_t a_len, b_len;
 
-    if (a == b) {
-        return 0;
-    }
+    if (a == b) { return 0; }
 
     a_len = TT_BUF_RLEN(a);
     b_len = TT_BUF_RLEN(b);
-    if ((a_len != b_len) || (a_len == 0)) {
-        return (tt_s32_t)(a_len - b_len);
-    }
+    if ((a_len != b_len) || (a_len == 0)) { return (tt_s32_t)(a_len - b_len); }
 
     return tt_memcmp(TT_BUF_RPOS(a), TT_BUF_RPOS(b), a_len);
 }
@@ -97,19 +89,13 @@ tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *cstr)
 
     a_len = TT_BUF_RLEN(a);
     cstr_len = (tt_u32_t)tt_strlen(cstr);
-    if (a_len < cstr_len) {
-        return (tt_s32_t)(a_len - cstr_len);
-    }
+    if (a_len < cstr_len) { return (tt_s32_t)(a_len - cstr_len); }
 
     p = TT_BUF_RPOS(a);
-    if ((r = tt_memcmp(p, cstr, cstr_len)) != 0) {
-        return r;
-    }
+    if ((r = tt_memcmp(p, cstr, cstr_len)) != 0) { return r; }
 
     for (i = cstr_len; i < a_len; ++i) {
-        if (p[i] != 0) {
-            return (tt_s32_t)i;
-        }
+        if (p[i] != 0) { return (tt_s32_t)i; }
     }
 
     return 0;
@@ -152,12 +138,8 @@ void tt_buf_remove_range(IN tt_buf_t *buf, IN tt_u32_t from, IN tt_u32_t to)
         return;
     }
 
-    if (from >= len) {
-        return;
-    }
-    if (to >= len) {
-        to = len;
-    }
+    if (from >= len) { return; }
+    if (to >= len) { to = len; }
 
     tt_memmove(&buf->p[buf->rpos + from], &buf->p[buf->rpos + to], len - to);
     buf->wpos -= (to - from);
@@ -167,9 +149,7 @@ void tt_buf_remove_headto(IN tt_buf_t *buf, IN tt_u32_t to)
 {
     tt_u32_t len = TT_BUF_RLEN(buf);
 
-    if (to >= len) {
-        to = len;
-    }
+    if (to >= len) { to = len; }
 
     buf->rpos += to;
 }
@@ -178,16 +158,12 @@ void tt_buf_remove_tailfrom(IN tt_buf_t *buf, IN tt_u32_t from)
 {
     tt_u32_t len = TT_BUF_RLEN(buf);
 
-    if (from >= len) {
-        return;
-    }
+    if (from >= len) { return; }
 
     buf->wpos -= (len - from);
 }
 
-tt_result_t tt_buf_insert(IN tt_buf_t *buf,
-                          IN tt_u32_t idx,
-                          IN tt_u8_t *data,
+tt_result_t tt_buf_insert(IN tt_buf_t *buf, IN tt_u32_t idx, IN tt_u8_t *data,
                           IN tt_u32_t data_len)
 {
     tt_u32_t len = TT_BUF_RLEN(buf);
@@ -203,8 +179,7 @@ tt_result_t tt_buf_insert(IN tt_buf_t *buf,
     }
 
     TT_DO(tt_buf_reserve(buf, data_len));
-    tt_memmove(&buf->p[buf->rpos + idx + data_len],
-               &buf->p[buf->rpos + idx],
+    tt_memmove(&buf->p[buf->rpos + idx + data_len], &buf->p[buf->rpos + idx],
                len - idx);
     tt_memcpy(&buf->p[buf->rpos + idx], data, data_len);
     buf->wpos += data_len;
@@ -212,11 +187,8 @@ tt_result_t tt_buf_insert(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_buf_tok(IN tt_buf_t *buf,
-                       IN tt_u8_t *sep,
-                       IN tt_u32_t sep_num,
-                       IN tt_u32_t flag,
-                       IN OUT tt_u8_t **last,
+tt_result_t tt_buf_tok(IN tt_buf_t *buf, IN tt_u8_t *sep, IN tt_u32_t sep_num,
+                       IN tt_u32_t flag, IN OUT tt_u8_t **last,
                        IN OUT tt_u32_t *last_len)
 {
     tt_u8_t *pos, *end, *tstart;
@@ -241,9 +213,7 @@ tt_result_t tt_buf_tok(IN tt_buf_t *buf,
     tstart = pos;
     while (pos < end) {
         tt_u32_t i = 0;
-        while ((i < sep_num) && (*pos != sep[i])) {
-            ++i;
-        }
+        while ((i < sep_num) && (*pos != sep[i])) { ++i; }
 
         TT_ASSERT_BUF(i <= sep_num);
         if (i < sep_num) {
@@ -278,18 +248,14 @@ void tt_buf_trim_sp(IN tt_buf_t *buf)
     // trim head
     if (buf->rpos < buf->wpos) {
         pos = buf->rpos;
-        while ((pos < buf->wpos) && tt_isspace(buf->p[pos])) {
-            ++pos;
-        }
+        while ((pos < buf->wpos) && tt_isspace(buf->p[pos])) { ++pos; }
         buf->rpos = pos;
     }
 
     // trim tail
     if (buf->rpos < buf->wpos) {
         pos = buf->wpos - 1;
-        while ((pos > buf->rpos) && tt_isspace(buf->p[pos])) {
-            --pos;
-        }
+        while ((pos > buf->rpos) && tt_isspace(buf->p[pos])) { --pos; }
         buf->wpos = pos + 1;
     }
 }

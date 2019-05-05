@@ -84,8 +84,7 @@ typedef struct tt_ptrheap_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_ptrheap_init(IN tt_ptrheap_t *ph,
-                               IN OPT tt_cmp_t cmp,
+tt_export void tt_ptrheap_init(IN tt_ptrheap_t *ph, IN OPT tt_cmp_t cmp,
                                IN OPT tt_ptrheap_attr_t *attr);
 
 tt_export void tt_ptrheap_destroy(IN tt_ptrheap_t *ph);
@@ -125,8 +124,7 @@ tt_export void tt_ptrheap_clear(IN tt_ptrheap_t *ph);
 // - the value of returned idx could be used as a key to query
 //   the entry in ph, i.e. passing to tt_ptrheap_remove() to remove
 //   the inserted entry
-tt_export tt_result_t tt_ptrheap_add(IN tt_ptrheap_t *ph,
-                                     IN tt_ptr_t p,
+tt_export tt_result_t tt_ptrheap_add(IN tt_ptrheap_t *ph, IN tt_ptr_t p,
                                      OUT tt_u32_t *idx);
 
 tt_export void tt_ptrheap_remove(IN tt_ptrheap_t *ph, IN tt_u32_t idx);

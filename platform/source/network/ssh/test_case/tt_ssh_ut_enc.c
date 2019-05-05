@@ -46,24 +46,12 @@ TT_TEST_ROUTINE_DECLARE(case_sshenc_aes256)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshenc_case)
 
-TT_TEST_CASE("case_sshenc_aes128",
-             "ssh encrypt & decrypt: aes128",
-             case_sshenc_aes128,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_sshenc_aes128", "ssh encrypt & decrypt: aes128",
+             case_sshenc_aes128, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_sshenc_aes256",
-                 "ssh encrypt & decrypt: aes256",
-                 case_sshenc_aes256,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshenc_aes256", "ssh encrypt & decrypt: aes256",
+                 case_sshenc_aes256, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(sshenc_case)
     // =========================================
@@ -128,22 +116,9 @@ static tt_u8_t __aes128_out1[] = {
     0x08, 0xa7, 0x34, 0xd9, 0x29, 0x82, 0xc9, 0x8d, 0x4d, 0x0a, 0x4a, 0xc9,
 };
 static tt_u8_t __aes128_key1[] = {0xab, 0xc1, 0x23};
-static tt_u8_t __aes128_iv1[] = {0x12,
-                                 0x34,
-                                 0x56,
-                                 0x78,
-                                 0x9a,
-                                 0xbc,
-                                 0xde,
-                                 0xf0,
-                                 0x12,
-                                 0x34,
-                                 0x56,
-                                 0x78,
-                                 0x9a,
-                                 0xbc,
-                                 0xde,
-                                 0xf0};
+static tt_u8_t __aes128_iv1[] = {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc,
+                                 0xde, 0xf0, 0x12, 0x34, 0x56, 0x78,
+                                 0x9a, 0xbc, 0xde, 0xf0};
 
 TT_TEST_ROUTINE_DEFINE(case_sshenc_aes128)
 {
@@ -180,47 +155,30 @@ TT_TEST_ROUTINE_DEFINE(case_sshenc_aes128)
     TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // set alg to aes128
-    ret = tt_sshenc_setalg(&enc,
-                           TT_SSH_ENC_ALG_AES128_CBC,
-                           TT_TRUE,
-                           iv.addr,
-                           iv.len,
-                           key.addr,
-                           key.len);
+    ret = tt_sshenc_setalg(&enc, TT_SSH_ENC_ALG_AES128_CBC, TT_TRUE, iv.addr,
+                           iv.len, key.addr, key.len);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(enc.alg, TT_SSH_ENC_ALG_AES128_CBC, "");
     TT_UT_NOT_EQUAL(enc.block_len, 0, "");
 
-    ret = tt_sshenc_setalg(&dec,
-                           TT_SSH_ENC_ALG_AES128_CBC,
-                           TT_FALSE,
-                           iv.addr,
-                           iv.len,
-                           key.addr,
-                           key.len);
+    ret = tt_sshenc_setalg(&dec, TT_SSH_ENC_ALG_AES128_CBC, TT_FALSE, iv.addr,
+                           iv.len, key.addr, key.len);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(dec.alg, TT_SSH_ENC_ALG_AES128_CBC, "");
     TT_UT_NOT_EQUAL(dec.block_len, 0, "");
 
     // can not set again
-    ret = tt_sshenc_setalg(&enc,
-                           TT_SSH_ENC_ALG_AES256_CBC,
-                           TT_TRUE,
-                           iv.addr,
-                           iv.len,
-                           key.addr,
-                           key.len);
+    ret = tt_sshenc_setalg(&enc, TT_SSH_ENC_ALG_AES256_CBC, TT_TRUE, iv.addr,
+                           iv.len, key.addr, key.len);
     TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     // can encrypt now
     ret = tt_sshenc_encrypt(&enc, TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf));
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&buf), sizeof(__aes128_out1), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf),
-                          __aes128_out1,
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf), __aes128_out1,
                           sizeof(__aes128_out1)),
-                0,
-                "");
+                0, "");
 
     // encrypt 0
     ret = tt_sshenc_encrypt(&enc, TT_BUF_RPOS(&buf), 0);
@@ -230,11 +188,9 @@ TT_TEST_ROUTINE_DEFINE(case_sshenc_aes128)
     ret = tt_sshenc_decrypt(&dec, TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf));
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&buf), sizeof(__aes128_in1), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf),
-                          __aes128_in1,
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf), __aes128_in1,
                           sizeof(__aes128_in1)),
-                0,
-                "");
+                0, "");
 
     // decrypt 0
     ret = tt_sshenc_decrypt(&dec, TT_BUF_RPOS(&buf), 0);
@@ -302,57 +258,38 @@ TT_TEST_ROUTINE_DEFINE(case_sshenc_aes256)
     TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // set alg to aes256
-    ret = tt_sshenc_setalg(&enc,
-                           TT_SSH_ENC_ALG_AES256_CBC,
-                           TT_TRUE,
-                           iv.addr,
-                           iv.len,
-                           key.addr,
-                           key.len);
+    ret = tt_sshenc_setalg(&enc, TT_SSH_ENC_ALG_AES256_CBC, TT_TRUE, iv.addr,
+                           iv.len, key.addr, key.len);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(enc.alg, TT_SSH_ENC_ALG_AES256_CBC, "");
     TT_UT_NOT_EQUAL(enc.block_len, 0, "");
 
-    ret = tt_sshenc_setalg(&dec,
-                           TT_SSH_ENC_ALG_AES256_CBC,
-                           TT_FALSE,
-                           iv.addr,
-                           iv.len,
-                           key.addr,
-                           key.len);
+    ret = tt_sshenc_setalg(&dec, TT_SSH_ENC_ALG_AES256_CBC, TT_FALSE, iv.addr,
+                           iv.len, key.addr, key.len);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(dec.alg, TT_SSH_ENC_ALG_AES256_CBC, "");
     TT_UT_NOT_EQUAL(dec.block_len, 0, "");
 
     // can not set again
-    ret = tt_sshenc_setalg(&enc,
-                           TT_SSH_ENC_ALG_AES128_CBC,
-                           TT_TRUE,
-                           iv.addr,
-                           iv.len,
-                           key.addr,
-                           key.len);
+    ret = tt_sshenc_setalg(&enc, TT_SSH_ENC_ALG_AES128_CBC, TT_TRUE, iv.addr,
+                           iv.len, key.addr, key.len);
     TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     // can encrypt now
     ret = tt_sshenc_encrypt(&enc, TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf));
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&buf), sizeof(__aes256_out2), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf),
-                          __aes256_out2,
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf), __aes256_out2,
                           sizeof(__aes256_out2)),
-                0,
-                "");
+                0, "");
 
     // can decrypt now
     ret = tt_sshenc_decrypt(&dec, TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf));
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&buf), sizeof(__aes128_in1), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf),
-                          __aes128_in1,
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf), __aes128_in1,
                           sizeof(__aes128_in1)),
-                0,
-                "");
+                0, "");
 
     tt_sshenc_destroy(&enc);
     tt_sshenc_destroy(&dec);

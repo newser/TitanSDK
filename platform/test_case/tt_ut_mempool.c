@@ -64,51 +64,21 @@ TT_TEST_ROUTINE_DECLARE(case_mem_page)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(mempool_case)
 
-TT_TEST_CASE("case_mempool_basic",
-             "testing mempool basic operation",
-             case_mempool_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_mempool_basic", "testing mempool basic operation",
+             case_mempool_basic, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_mempool_alloc_free",
-                 "testing mempool alloc free APIs",
-                 case_mempool_alloc_free,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_mempool_alloc_free", "testing mempool alloc free APIs",
+                 case_mempool_alloc_free, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_mempool_sanity",
-                 "testing mempool sanity test",
-                 case_mempool_sanity,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_mempool_sanity", "testing mempool sanity test",
+                 case_mempool_sanity, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_mem_spg",
-                 "testing memory spring",
-                 case_mem_spg,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_mem_spg", "testing memory spring", case_mem_spg, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_mem_page",
-                 "testing memory page",
-                 case_mem_page,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_mem_page", "testing memory page", case_mem_page, NULL,
+                 NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(mempool_case)
     // =========================================
@@ -200,7 +170,6 @@ TT_TEST_ROUTINE_DEFINE(case_mempool_alloc_free)
     TT_TEST_CASE_ENTER()
     // test start
 
-
     // create a pool
     tt_mempool_attr_default(&pool_attr);
     pool_attr.max_pool_size = 18000;
@@ -266,9 +235,7 @@ TT_TEST_ROUTINE_DEFINE(case_mempool_sanity)
     do {
         tt_u32_t size = tt_rand_u32() % (1 << 8) + 1;
         p = tt_mp_alloc(&pool, size);
-        if (p != NULL) {
-            tt_memset(p, 0xcf, size);
-        }
+        if (p != NULL) { tt_memset(p, 0xcf, size); }
     } while (p != NULL);
 
     // destroy
@@ -364,9 +331,7 @@ TT_TEST_ROUTINE_DEFINE(case_mem_spg)
     TT_UT_NOT_EQUAL(p, NULL, "");
     TT_UT_EQUAL(size, 80, "");
 
-    for (i = 0; i < 80; ++i) {
-        p[i] = i;
-    }
+    for (i = 0; i < 80; ++i) { p[i] = i; }
     ret = tt_memspg_compress_range(&mspg, &p, &size, 3, 78);
     TT_UT_SUCCESS(ret, "");
     TT_UT_NOT_EQUAL(p, NULL, "");
@@ -395,27 +360,16 @@ TT_TEST_ROUTINE_DEFINE(case_mem_spg)
     // set to zero
     p = val;
     size = sizeof(val);
-    ret = tt_memspg_extend_ex(&mspg,
-                              &p,
-                              &size,
-                              20,
+    ret = tt_memspg_extend_ex(&mspg, &p, &size, 20,
                               TT_MSPGEXT_NOFREE | TT_MSPGEXT_ZERO);
     TT_UT_SUCCESS(ret, "");
-    for (i = 0; i < sizeof(val); ++i) {
-        TT_UT_EQUAL(p[i], val[i], "");
-    }
-    for (; i < size; ++i) {
-        TT_UT_EQUAL(p[i], 0, "");
-    }
+    for (i = 0; i < sizeof(val); ++i) { TT_UT_EQUAL(p[i], val[i], ""); }
+    for (; i < size; ++i) { TT_UT_EQUAL(p[i], 0, ""); }
 
     ret = tt_memspg_extend_ex(&mspg, &p, &size, 30, TT_MSPGEXT_ZERO);
     TT_UT_SUCCESS(ret, "");
-    for (i = 0; i < sizeof(val); ++i) {
-        TT_UT_EQUAL(p[i], val[i], "");
-    }
-    for (; i < size; ++i) {
-        TT_UT_EQUAL(p[i], 0, "");
-    }
+    for (i = 0; i < sizeof(val); ++i) { TT_UT_EQUAL(p[i], val[i], ""); }
+    for (; i < size; ++i) { TT_UT_EQUAL(p[i], 0, ""); }
     tt_free(p);
 
     // test end

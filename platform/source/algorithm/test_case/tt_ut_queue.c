@@ -48,18 +48,12 @@ TT_TEST_ROUTINE_DECLARE(case_ptr_queue)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(queue_case)
 
-TT_TEST_CASE(
-    "case_queue", "testing queue", case_queue, NULL, NULL, NULL, NULL, NULL)
+TT_TEST_CASE("case_queue", "testing queue", case_queue, NULL, NULL, NULL, NULL,
+             NULL)
 ,
 
-    TT_TEST_CASE("case_ptr_queue",
-                 "testing ptr queue",
-                 case_ptr_queue,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_ptr_queue", "testing ptr queue", case_ptr_queue, NULL,
+                 NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(queue_case)
     // =========================================
@@ -102,9 +96,7 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_TEST_CASE_ENTER()
     // test start
 
-    for (i = 0; i < __q_size; ++i) {
-        v[i] = i;
-    }
+    for (i = 0; i < __q_size; ++i) { v[i] = i; }
 
     tt_queue_attr_default(&attr);
     attr.obj_per_frame = __qf_size;
@@ -205,8 +197,7 @@ TT_TEST_ROUTINE_DEFINE(name)
             TT_UT_SUCCESS(tt_queue_pop_tail(&q, &vv), "");
             TT_UT_EQUAL(vv, v[__q_size - 1 - i], "");
             TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q), v[0], "");
-            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_tail(&q),
-                        v[__q_size - 2 - i],
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_tail(&q), v[__q_size - 2 - i],
                         "");
         }
         TT_UT_EQUAL(tt_queue_count(&q), __q_size - n, "");
@@ -229,8 +220,7 @@ TT_TEST_ROUTINE_DEFINE(name)
             TT_UT_SUCCESS(tt_queue_pop_head(&q, &vv), "");
             TT_UT_EQUAL(vv, v[__q_size - 1 - i], "");
             TT_UT_EQUAL(*(tt_u32_t *)tt_queue_tail(&q), v[0], "");
-            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q),
-                        v[__q_size - 2 - i],
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q), v[__q_size - 2 - i],
                         "");
         }
         TT_UT_EQUAL(tt_queue_count(&q), __q_size - n, "");
@@ -304,9 +294,7 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
     TT_TEST_CASE_ENTER()
     // test start
 
-    for (i = 0; i < __q_size; ++i) {
-        v[i] = i;
-    }
+    for (i = 0; i < __q_size; ++i) { v[i] = i; }
 
     tt_ptrq_attr_default(&a);
     a.destroy_ptr = destroy_q_p;
@@ -333,9 +321,7 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
         tt_ptrq_iter_t pos;
         tt_ptrq_iter(&q, &pos);
         i = 0;
-        while (tt_ptrq_iter_next(&pos) != NULL) {
-            ++i;
-        }
+        while (tt_ptrq_iter_next(&pos) != NULL) { ++i; }
         TT_UT_EQUAL(i, 0, "");
     }
 

@@ -33,7 +33,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     DATA_UT_BEGIN = 0,
 
     DATA_UT_DTNODE = DATA_UT_BEGIN,
@@ -71,9 +72,7 @@ tt_result_t tt_data_ut_init(IN tt_ptr_t reserved)
 
         if (tt_g_data_ut_list[unit_id] != NULL) {
             result = tt_test_unit_to_class(tt_g_data_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
+            if (!TT_OK(result)) { return TT_FAIL; }
         }
 
         // next

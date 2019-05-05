@@ -116,24 +116,12 @@ TT_TEST_ROUTINE_DECLARE(case_x509_crl)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_x509_case)
 
-TT_TEST_CASE("case_x509_cert",
-             "ssl: x509 cert",
-             case_x509_cert,
-             NULL,
-             __x509_prepare,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_x509_cert", "ssl: x509 cert", case_x509_cert, NULL,
+             __x509_prepare, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_x509_crl",
-                 "ssl: x509 crl",
-                 case_x509_crl,
-                 NULL,
-                 __x509_prepare,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_x509_crl", "ssl: x509 crl", case_x509_crl, NULL,
+                 __x509_prepare, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_x509_case)
     // =========================================
@@ -460,9 +448,7 @@ void __x509_prepare(void *p)
     tt_file_t f;
     const tt_char_t *s;
 
-    if (has_x509) {
-        return;
-    }
+    if (has_x509) { return; }
 
 #if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 
@@ -499,9 +485,7 @@ void __x509_prepare(void *p)
 #endif
 
     // root cert
-    if (!TT_OK(tt_fopen(&f,
-                        __X509_CA,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
+    if (!TT_OK(tt_fopen(&f, __X509_CA, TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
                         NULL))) {
         TT_ERROR("fail to open %s", __X509_CA);
         return;
@@ -513,9 +497,7 @@ void __x509_prepare(void *p)
     tt_fclose(&f);
 
     // root key
-    if (!TT_OK(tt_fopen(&f,
-                        __CA_key,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
+    if (!TT_OK(tt_fopen(&f, __CA_key, TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
                         NULL))) {
         TT_ERROR("fail to open %s", __CA_key);
         return;
@@ -527,9 +509,7 @@ void __x509_prepare(void *p)
     tt_fclose(&f);
 
     // int cert
-    if (!TT_OK(tt_fopen(&f,
-                        __X509_CA2,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
+    if (!TT_OK(tt_fopen(&f, __X509_CA2, TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
                         NULL))) {
         TT_ERROR("fail to open %s", __X509_CA2);
         return;
@@ -541,9 +521,7 @@ void __x509_prepare(void *p)
     tt_fclose(&f);
 
     // int key
-    if (!TT_OK(tt_fopen(&f,
-                        __CA_key2,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
+    if (!TT_OK(tt_fopen(&f, __CA_key2, TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
                         NULL))) {
         TT_ERROR("fail to open %s", __CA_key2);
         return;
@@ -555,10 +533,8 @@ void __x509_prepare(void *p)
     tt_fclose(&f);
 
     // leaf cert
-    if (!TT_OK(tt_fopen(&f,
-                        __X509_LEAF,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
-                        NULL))) {
+    if (!TT_OK(tt_fopen(&f, __X509_LEAF,
+                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC, NULL))) {
         TT_ERROR("fail to open %s", __X509_LEAF);
         return;
     }
@@ -569,9 +545,7 @@ void __x509_prepare(void *p)
     tt_fclose(&f);
 
     // leaf key
-    if (!TT_OK(tt_fopen(&f,
-                        __leaf_key,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
+    if (!TT_OK(tt_fopen(&f, __leaf_key, TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
                         NULL))) {
         TT_ERROR("fail to open %s", __leaf_key);
         return;
@@ -583,10 +557,8 @@ void __x509_prepare(void *p)
     tt_fclose(&f);
 
     // crl
-    if (!TT_OK(tt_fopen(&f,
-                        __X509_CRL1,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
-                        NULL))) {
+    if (!TT_OK(tt_fopen(&f, __X509_CRL1,
+                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC, NULL))) {
         TT_ERROR("fail to open %s", __X509_CRL1);
         return;
     }

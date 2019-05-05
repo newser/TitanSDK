@@ -110,8 +110,7 @@ tt_export tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter);
 
 tt_export tt_ptr_t tt_ptrq_get(IN tt_ptrq_t *pq, IN tt_u32_t idx);
 
-tt_export tt_ptr_t tt_ptrq_set(IN tt_ptrq_t *pq,
-                               IN tt_u32_t idx,
+tt_export tt_ptr_t tt_ptrq_set(IN tt_ptrq_t *pq, IN tt_u32_t idx,
                                IN tt_ptr_t p);
 
 tt_export void tt_ptrq_swap(IN tt_ptrq_t *a, IN tt_ptrq_t *b);

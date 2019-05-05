@@ -49,7 +49,8 @@ this file defines http content type
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
 #define __ENTRY(id, str, ext) TT_HTTP_CONTYPE_##id,
     TT_HTTP_CONTYPE_MAP(__ENTRY)
 #undef __ENTRY

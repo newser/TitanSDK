@@ -56,12 +56,11 @@ struct tt_http_inserv_host_ctx_s;
 typedef void (*tt_http_rule_destroy_t)(IN struct tt_http_rule_s *r);
 
 typedef tt_bool_t (*tt_http_rule_match_t)(
-    IN struct tt_http_rule_s *r,
-    IN struct tt_http_uri_s *uri,
-    IN struct tt_string_s *path,
-    IN struct tt_http_inserv_host_ctx_s *ctx);
+    IN struct tt_http_rule_s *r, IN struct tt_http_uri_s *uri,
+    IN struct tt_string_s *path, IN struct tt_http_inserv_host_ctx_s *ctx);
 
-typedef enum {
+typedef enum
+{
     // match next
     TT_HTTP_RULE_NEXT,
     // stop matching
@@ -79,8 +78,7 @@ typedef enum {
 // - can operation on uri->path, but do not modify uri->path and @path at same
 //   time otherwise uri->path would be overwritten by @path
 typedef tt_http_rule_result_t (*tt_http_rule_apply_t)(
-    IN struct tt_http_rule_s *r,
-    IN OUT struct tt_http_uri_s *uri,
+    IN struct tt_http_rule_s *r, IN OUT struct tt_http_uri_s *uri,
     IN OUT struct tt_string_s *path,
     IN OUT struct tt_http_inserv_host_ctx_s *ctx);
 
@@ -109,16 +107,14 @@ typedef struct tt_http_rule_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_rule_t *tt_http_rule_create(IN tt_u32_t extra_size,
-                                              IN tt_http_rule_itf_t *itf,
-                                              IN tt_http_rule_result_t
-                                                  default_result);
+tt_export tt_http_rule_t *tt_http_rule_create(
+    IN tt_u32_t extra_size, IN tt_http_rule_itf_t *itf,
+    IN tt_http_rule_result_t default_result);
 
 tt_export void __http_rule_destroy(IN tt_http_rule_t *r);
 
 tt_export tt_http_rule_result_t
-tt_http_rule_apply(IN tt_http_rule_t *r,
-                   IN OUT struct tt_http_uri_s *uri,
+tt_http_rule_apply(IN tt_http_rule_t *r, IN OUT struct tt_http_uri_s *uri,
                    IN OUT struct tt_string_s *path,
                    IN OUT struct tt_http_inserv_host_ctx_s *ctx);
 

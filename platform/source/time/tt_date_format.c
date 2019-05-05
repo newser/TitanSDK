@@ -60,60 +60,52 @@ static tt_result_t __y_render(IN tt_date_t *d, OUT tt_string_t *s);
 static tt_result_t __C_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static const tt_char_t *__Y_parse(IN const tt_char_t *start,
-                                  IN const tt_char_t *end,
-                                  OUT tt_date_t *d);
+                                  IN const tt_char_t *end, OUT tt_date_t *d);
 
 static tt_result_t __B_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static tt_result_t __b_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static const tt_char_t *__B_parse(IN const tt_char_t *start,
-                                  IN const tt_char_t *end,
-                                  OUT tt_date_t *d);
+                                  IN const tt_char_t *end, OUT tt_date_t *d);
 
 static tt_result_t __N_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static tt_result_t __n_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static const tt_char_t *__N_parse(IN const tt_char_t *start,
-                                  IN const tt_char_t *end,
-                                  OUT tt_date_t *d);
+                                  IN const tt_char_t *end, OUT tt_date_t *d);
 
 static tt_result_t __D_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static tt_result_t __d_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static const tt_char_t *__D_parse(IN const tt_char_t *start,
-                                  IN const tt_char_t *end,
-                                  OUT tt_date_t *d);
+                                  IN const tt_char_t *end, OUT tt_date_t *d);
 
 static tt_result_t __H_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static tt_result_t __h_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static const tt_char_t *__H_parse(IN const tt_char_t *start,
-                                  IN const tt_char_t *end,
-                                  OUT tt_date_t *d);
+                                  IN const tt_char_t *end, OUT tt_date_t *d);
 
 static tt_result_t __M_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static const tt_char_t *__M_parse(IN const tt_char_t *start,
-                                  IN const tt_char_t *end,
-                                  OUT tt_date_t *d);
+                                  IN const tt_char_t *end, OUT tt_date_t *d);
 
 static tt_result_t __S_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static const tt_char_t *__S_parse(IN const tt_char_t *start,
-                                  IN const tt_char_t *end,
-                                  OUT tt_date_t *d);
+                                  IN const tt_char_t *end, OUT tt_date_t *d);
 
 static tt_result_t __W_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static tt_result_t __w_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static const tt_char_t *__W_parse(IN const tt_char_t *start,
-                                  IN const tt_char_t *end,
-                                  OUT tt_date_t *d);
+                                  IN const tt_char_t *end, OUT tt_date_t *d);
 
 static tt_result_t __A_render(IN tt_date_t *d, OUT tt_string_t *s);
 
@@ -124,66 +116,101 @@ static tt_result_t __Z_render(IN tt_date_t *d, OUT tt_string_t *s);
 static tt_result_t __z_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static const tt_char_t *__Z_parse(IN const tt_char_t *start,
-                                  IN const tt_char_t *end,
-                                  OUT tt_date_t *d);
+                                  IN const tt_char_t *end, OUT tt_date_t *d);
 
 static __sym_t __sym[] = {
     {
-        'Y', __Y_render, __Y_parse,
+        'Y',
+        __Y_render,
+        __Y_parse,
     },
     {
-        'y', __y_render, __Y_parse,
+        'y',
+        __y_render,
+        __Y_parse,
     },
     {
-        'C', __C_render, __Y_parse,
+        'C',
+        __C_render,
+        __Y_parse,
     },
     {
-        'B', __B_render, __B_parse,
+        'B',
+        __B_render,
+        __B_parse,
     },
     {
-        'b', __b_render, __B_parse,
+        'b',
+        __b_render,
+        __B_parse,
     },
     {
-        'N', __N_render, __N_parse,
+        'N',
+        __N_render,
+        __N_parse,
     },
     {
-        'n', __n_render, __N_parse,
+        'n',
+        __n_render,
+        __N_parse,
     },
     {
-        'D', __D_render, __D_parse,
+        'D',
+        __D_render,
+        __D_parse,
     },
     {
-        'd', __d_render, __D_parse,
+        'd',
+        __d_render,
+        __D_parse,
     },
     {
-        'H', __H_render, __H_parse,
+        'H',
+        __H_render,
+        __H_parse,
     },
     {
-        'h', __h_render, __H_parse,
+        'h',
+        __h_render,
+        __H_parse,
     },
     {
-        'M', __M_render, __M_parse,
+        'M',
+        __M_render,
+        __M_parse,
     },
     {
-        'S', __S_render, __S_parse,
+        'S',
+        __S_render,
+        __S_parse,
     },
     {
-        'W', __W_render, __W_parse,
+        'W',
+        __W_render,
+        __W_parse,
     },
     {
-        'w', __w_render, __W_parse,
+        'w',
+        __w_render,
+        __W_parse,
     },
     {
-        'A', __A_render,
+        'A',
+        __A_render,
     },
     {
-        'a', __a_render,
+        'a',
+        __a_render,
     },
     {
-        'Z', __Z_render, __Z_parse,
+        'Z',
+        __Z_render,
+        __Z_parse,
     },
     {
-        'z', __z_render, __Z_parse,
+        'z',
+        __z_render,
+        __Z_parse,
     },
 };
 
@@ -197,10 +224,8 @@ static __sym_t *__find_sym(IN tt_char_t c);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t tt_date_render(IN tt_date_t *date,
-                        IN const tt_char_t *format,
-                        IN tt_char_t *buf,
-                        IN tt_u32_t len)
+tt_u32_t tt_date_render(IN tt_date_t *date, IN const tt_char_t *format,
+                        IN tt_char_t *buf, IN tt_u32_t len)
 {
     tt_string_t s;
     const tt_char_t *p, *end, *prev;
@@ -210,9 +235,7 @@ tt_u32_t tt_date_render(IN tt_date_t *date,
     TT_ASSERT(format != NULL);
     TT_ASSERT(buf != NULL);
 
-    if (len == 0) {
-        return 0;
-    }
+    if (len == 0) { return 0; }
 
     tt_string_init(&s, NULL);
     p = format;
@@ -251,9 +274,7 @@ tt_u32_t tt_date_render(IN tt_date_t *date,
     }
 
     n = tt_string_len(&s);
-    if (n >= len) {
-        n = len - 1;
-    }
+    if (n >= len) { n = len - 1; }
     tt_memcpy(buf, tt_string_cstr(&s), n);
     buf[n] = 0;
 
@@ -262,10 +283,8 @@ done:
     return n;
 }
 
-tt_result_t tt_date_parse(IN tt_date_t *date,
-                          IN const tt_char_t *format,
-                          IN const tt_char_t *buf,
-                          IN OUT tt_u32_t *len)
+tt_result_t tt_date_parse(IN tt_date_t *date, IN const tt_char_t *format,
+                          IN const tt_char_t *buf, IN OUT tt_u32_t *len)
 {
     tt_date_t d;
     const tt_char_t *fp, *fend, *bp, *bend;
@@ -274,9 +293,7 @@ tt_result_t tt_date_parse(IN tt_date_t *date,
     TT_ASSERT(format != NULL);
     TT_ASSERT(buf != NULL);
 
-    if (len == 0) {
-        return TT_SUCCESS;
-    }
+    if (len == 0) { return TT_SUCCESS; }
 
     tt_date_init(&d, tt_g_local_tmzone);
 
@@ -285,15 +302,9 @@ tt_result_t tt_date_parse(IN tt_date_t *date,
     bp = buf;
     bend = bp + *len;
     do {
-        while ((fp < fend) && tt_isspace(*fp)) {
-            ++fp;
-        }
-        if (fp >= fend) {
-            break;
-        }
-        while ((bp < bend) && tt_isspace(*bp)) {
-            ++bp;
-        }
+        while ((fp < fend) && tt_isspace(*fp)) { ++fp; }
+        if (fp >= fend) { break; }
+        while ((bp < bend) && tt_isspace(*bp)) { ++bp; }
         if (bp >= bend) {
             TT_ERROR("%c has no matching part", *fp);
             return TT_FAIL;
@@ -318,9 +329,7 @@ tt_result_t tt_date_parse(IN tt_date_t *date,
                     }
 
                     bp = sym->parse(bp, bend, &d);
-                    if (bp == NULL) {
-                        return TT_FAIL;
-                    }
+                    if (bp == NULL) { return TT_FAIL; }
 
                     fp += 2;
                 }
@@ -355,9 +364,7 @@ __sym_t *__find_sym(IN tt_char_t c)
     tt_u32_t i;
     for (i = 0; i < sizeof(__sym) / sizeof(__sym[0]); ++i) {
         __sym_t *sym = &__sym[i];
-        if (sym->c == c) {
-            return sym;
-        }
+        if (sym->c == c) { return sym; }
     }
     return NULL;
 }
@@ -396,15 +403,12 @@ tt_result_t __C_render(IN tt_date_t *d, OUT tt_string_t *s)
     return tt_string_append(s, c);
 }
 
-const tt_char_t *__Y_parse(IN const tt_char_t *start,
-                           IN const tt_char_t *end,
+const tt_char_t *__Y_parse(IN const tt_char_t *start, IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
     tt_u32_t y = 0;
 
-    if ((start + 4) < end) {
-        end = start + 4;
-    }
+    if ((start + 4) < end) { end = start + 4; }
 
     while ((start < end) && tt_isdigit(*start)) {
         y *= 10;
@@ -426,14 +430,12 @@ tt_result_t __B_render(IN tt_date_t *d, OUT tt_string_t *s)
 
 tt_result_t __b_render(IN tt_date_t *d, OUT tt_string_t *s)
 {
-    return tt_string_append(s,
-                            (tt_char_t *)
-                                tt_g_month_name_abbr[tt_date_get_month(d)]
-                                    .addr);
+    return tt_string_append(s, (tt_char_t *)
+                                   tt_g_month_name_abbr[tt_date_get_month(d)]
+                                       .addr);
 }
 
-const tt_char_t *__B_parse(IN const tt_char_t *start,
-                           IN const tt_char_t *end,
+const tt_char_t *__B_parse(IN const tt_char_t *start, IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
     tt_u32_t len = (tt_u32_t)(end - start), i;
@@ -488,15 +490,12 @@ tt_result_t __n_render(IN tt_date_t *d, OUT tt_string_t *s)
     return tt_string_append(s, c);
 }
 
-const tt_char_t *__N_parse(IN const tt_char_t *start,
-                           IN const tt_char_t *end,
+const tt_char_t *__N_parse(IN const tt_char_t *start, IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
     tt_u32_t m = 0;
 
-    if ((start + 2) < end) {
-        end = start + 2;
-    }
+    if ((start + 2) < end) { end = start + 2; }
 
     while ((start < end) && tt_isdigit(*start)) {
         m *= 10;
@@ -539,15 +538,12 @@ tt_result_t __d_render(IN tt_date_t *d, OUT tt_string_t *s)
     return tt_string_append(s, c);
 }
 
-const tt_char_t *__D_parse(IN const tt_char_t *start,
-                           IN const tt_char_t *end,
+const tt_char_t *__D_parse(IN const tt_char_t *start, IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
     tt_u32_t day = 0;
 
-    if ((start + 2) < end) {
-        end = start + 2;
-    }
+    if ((start + 2) < end) { end = start + 2; }
 
     while ((start < end) && tt_isdigit(*start)) {
         day *= 10;
@@ -579,15 +575,12 @@ tt_result_t __h_render(IN tt_date_t *d, OUT tt_string_t *s)
     return tt_string_append(s, c);
 }
 
-const tt_char_t *__H_parse(IN const tt_char_t *start,
-                           IN const tt_char_t *end,
+const tt_char_t *__H_parse(IN const tt_char_t *start, IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
     tt_u32_t h = 0;
 
-    if ((start + 2) < end) {
-        end = start + 2;
-    }
+    if ((start + 2) < end) { end = start + 2; }
 
     while ((start < end) && tt_isdigit(*start)) {
         h *= 10;
@@ -614,15 +607,12 @@ tt_result_t __M_render(IN tt_date_t *d, OUT tt_string_t *s)
     return tt_string_append(s, c);
 }
 
-const tt_char_t *__M_parse(IN const tt_char_t *start,
-                           IN const tt_char_t *end,
+const tt_char_t *__M_parse(IN const tt_char_t *start, IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
     tt_u32_t m = 0;
 
-    if ((start + 2) < end) {
-        end = start + 2;
-    }
+    if ((start + 2) < end) { end = start + 2; }
 
     while ((start < end) && tt_isdigit(*start)) {
         m *= 10;
@@ -649,15 +639,12 @@ tt_result_t __S_render(IN tt_date_t *d, OUT tt_string_t *s)
     return tt_string_append(s, c);
 }
 
-const tt_char_t *__S_parse(IN const tt_char_t *start,
-                           IN const tt_char_t *end,
+const tt_char_t *__S_parse(IN const tt_char_t *start, IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
     tt_u32_t s = 0;
 
-    if ((start + 2) < end) {
-        end = start + 2;
-    }
+    if ((start + 2) < end) { end = start + 2; }
 
     while ((start < end) && tt_isdigit(*start)) {
         s *= 10;
@@ -676,10 +663,9 @@ const tt_char_t *__S_parse(IN const tt_char_t *start,
 
 tt_result_t __W_render(IN tt_date_t *d, OUT tt_string_t *s)
 {
-    return tt_string_append(s,
-                            (tt_char_t *)
-                                tt_g_weekday_name[tt_date_get_weekday(d)]
-                                    .addr);
+    return tt_string_append(s, (tt_char_t *)
+                                   tt_g_weekday_name[tt_date_get_weekday(d)]
+                                       .addr);
 }
 
 tt_result_t __w_render(IN tt_date_t *d, OUT tt_string_t *s)
@@ -690,8 +676,7 @@ tt_result_t __w_render(IN tt_date_t *d, OUT tt_string_t *s)
                                     .addr);
 }
 
-const tt_char_t *__W_parse(IN const tt_char_t *start,
-                           IN const tt_char_t *end,
+const tt_char_t *__W_parse(IN const tt_char_t *start, IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
     tt_u32_t len = (tt_u32_t)(end - start), i;
@@ -747,8 +732,7 @@ tt_result_t __z_render(IN tt_date_t *d, OUT tt_string_t *s)
                                     .addr);
 }
 
-const tt_char_t *__Z_parse(IN const tt_char_t *start,
-                           IN const tt_char_t *end,
+const tt_char_t *__Z_parse(IN const tt_char_t *start, IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
     tt_u32_t len = (tt_u32_t)(end - start), i;

@@ -52,12 +52,12 @@ struct tt_sh_s;
 struct tt_buf_s;
 
 // see return value of tt_cli_on_cmd_t
-typedef tt_u32_t (*tt_shcmd_run_t)(IN struct tt_sh_s *sh,
-                                   IN tt_u32_t argc,
+typedef tt_u32_t (*tt_shcmd_run_t)(IN struct tt_sh_s *sh, IN tt_u32_t argc,
                                    IN tt_char_t *arv[],
                                    OUT struct tt_buf_s *output);
 
-typedef enum {
+typedef enum
+{
     TT_SHCMD_LS,
     TT_SHCMD_CD,
     TT_SHCMD_HELP,

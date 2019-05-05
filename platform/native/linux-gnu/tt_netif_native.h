@@ -83,8 +83,7 @@ extern void tt_netif_destroy_ntv(IN tt_netif_ntv_t *sys_netif);
 extern tt_result_t tt_netif_name2idx_ntv(IN const tt_char_t *name,
                                          OUT tt_u32_t *idx);
 
-extern tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx,
-                                         OUT tt_char_t *name,
+extern tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx, OUT tt_char_t *name,
                                          IN tt_u32_t len);
 
 #endif /* __TT_NETIF_NATIVE__ */

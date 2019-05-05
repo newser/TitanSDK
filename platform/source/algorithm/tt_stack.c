@@ -61,8 +61,7 @@ static void __free_frame(IN tt_stack_t *stk, IN __frame_t *frame);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_stack_init(IN tt_stack_t *stk,
-                   IN tt_u32_t obj_size,
+void tt_stack_init(IN tt_stack_t *stk, IN tt_u32_t obj_size,
                    IN OPT tt_stack_attr_t *attr)
 {
     tt_stack_attr_t __attr;
@@ -94,9 +93,7 @@ void tt_stack_destroy(IN tt_stack_t *stk)
         tt_free(TT_CONTAINER(dnode, __frame_t, node));
     }
 
-    if (stk->cached_frame != NULL) {
-        tt_free(stk->cached_frame);
-    }
+    if (stk->cached_frame != NULL) { tt_free(stk->cached_frame); }
 }
 
 void tt_stack_attr_default(IN tt_stack_attr_t *attr)
@@ -127,17 +124,13 @@ tt_result_t tt_stack_push(IN tt_stack_t *stk, IN void *obj)
         frame = TT_CONTAINER(dnode, __frame_t, node);
     } else {
         frame = __alloc_frame(stk);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_tail(&stk->frame, &frame->node);
     }
 
     if (frame->top == stk->obj_per_frame) {
         frame = __alloc_frame(stk);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_tail(&stk->frame, &frame->node);
     }
     TT_ASSERT(frame->top < stk->obj_per_frame);
@@ -155,9 +148,7 @@ tt_result_t tt_stack_pop(IN tt_stack_t *stk, OUT void *obj)
     __frame_t *frame;
 
     dnode = tt_dlist_tail(&stk->frame);
-    if (dnode == NULL) {
-        return TT_FAIL;
-    }
+    if (dnode == NULL) { return TT_FAIL; }
 
     frame = TT_CONTAINER(dnode, __frame_t, node);
     TT_ASSERT(frame->top > 0);
@@ -179,9 +170,7 @@ void *tt_stack_top(IN tt_stack_t *stk)
     __frame_t *frame;
 
     dnode = tt_dlist_tail(&stk->frame);
-    if (dnode == NULL) {
-        return NULL;
-    }
+    if (dnode == NULL) { return NULL; }
 
     frame = TT_CONTAINER(dnode, __frame_t, node);
     TT_ASSERT(frame->top > 0);
@@ -209,9 +198,7 @@ void *tt_stack_iter_next(IN OUT tt_stack_iter_t *iter)
     __frame_t *frame = iter->frame;
     void *obj;
 
-    if (frame == NULL) {
-        return NULL;
-    }
+    if (frame == NULL) { return NULL; }
 
     TT_ASSERT(iter->idx <= frame->top);
     if (iter->idx == frame->top) {

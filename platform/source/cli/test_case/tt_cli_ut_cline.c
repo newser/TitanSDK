@@ -47,33 +47,15 @@ TT_TEST_ROUTINE_DECLARE(case_cli_line_cursor)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(cli_line_case)
 
-TT_TEST_CASE("case_cli_line",
-             "cli line editor",
-             case_cli_line,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_cli_line", "cli line editor", case_cli_line, NULL, NULL,
+             NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_cli_line_stress",
-                 "cli line editor stress test",
-                 case_cli_line_stress,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_cli_line_stress", "cli line editor stress test",
+                 case_cli_line_stress, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_cli_line_cursor",
-                 "cli line editor get curosr data",
-                 case_cli_line_cursor,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_cli_line_cursor", "cli line editor get curosr data",
+                 case_cli_line_cursor, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(cli_line_case)
     // =========================================
@@ -119,23 +101,17 @@ static __cline_case __cline_input[] = {
     {{TT_CLI_EV_LEFT}, 1}, // left
     {{TT_CLI_EV_LEFT, TT_CLI_EV_LEFT}, 2}, // 2left
     /*10*/ {{TT_CLI_EV_RIGHT}, 1}, // right
-    {{TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT},
+    {{TT_CLI_EV_LEFT, TT_CLI_EV_LEFT, TT_CLI_EV_LEFT, TT_CLI_EV_LEFT,
+      TT_CLI_EV_LEFT, TT_CLI_EV_LEFT},
      6}, // 6left
     {{TT_CLI_EV_LEFT, TT_CLI_EV_LEFT}, 2}, // 2left
 
     {{TT_CLI_EV_DELETE}, 1}, // delete
     {{TT_CLI_EV_RIGHT, TT_CLI_EV_DELETE}, 2}, // right delete
-    /*15*/ {{TT_CLI_EV_RIGHT,
-             TT_CLI_EV_RIGHT,
-             TT_CLI_EV_RIGHT,
-             TT_CLI_EV_RIGHT,
-             TT_CLI_EV_DELETE},
-            5}, // 4right delete middle
+    /*15*/
+    {{TT_CLI_EV_RIGHT, TT_CLI_EV_RIGHT, TT_CLI_EV_RIGHT, TT_CLI_EV_RIGHT,
+      TT_CLI_EV_DELETE},
+     5}, // 4right delete middle
 
     {{TT_CLI_EV_RIGHT,  TT_CLI_EV_RIGHT,  TT_CLI_EV_RIGHT,  TT_CLI_EV_RIGHT,
       TT_CLI_EV_RIGHT,  TT_CLI_EV_RIGHT,  TT_CLI_EV_RIGHT,  TT_CLI_EV_RIGHT,
@@ -226,42 +202,18 @@ static __cline_case __cline_output[] = {
     {{TT_CLI_EV_LEFT}, 1}, // left
     {{TT_CLI_EV_LEFT, TT_CLI_EV_LEFT}, 2}, // 2left
     {{TT_CLI_EV_RIGHT}, 1}, // right
-    {{TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
+    {{TT_CLI_EV_LEFT, TT_CLI_EV_LEFT, TT_CLI_EV_LEFT, TT_CLI_EV_LEFT,
       TT_CLI_EV_LEFT},
      5}, // 6left
     {{0}, 0}, // left
 
     {{0}, 0}, // delete
-    {{TT_CLI_EV_RIGHT,
-      TT_CLI_EV_DELETE,
-      'b',
-      'z',
-      'A',
-      'Z',
-      '0',
-      '9',
-      ' ',
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT},
+    {{TT_CLI_EV_RIGHT, TT_CLI_EV_DELETE, 'b', 'z', 'A', 'Z', '0', '9', ' ',
+      TT_CLI_EV_LEFT, TT_CLI_EV_LEFT, TT_CLI_EV_LEFT, TT_CLI_EV_LEFT,
+      TT_CLI_EV_LEFT, TT_CLI_EV_LEFT, TT_CLI_EV_LEFT},
      16}, // right delete
-    {{TT_CLI_EV_RIGHT,
-      TT_CLI_EV_RIGHT,
-      TT_CLI_EV_RIGHT,
-      TT_CLI_EV_RIGHT,
-      TT_CLI_EV_DELETE,
-      '0',
-      '9',
-      ' ',
-      TT_CLI_EV_LEFT,
-      TT_CLI_EV_LEFT,
+    {{TT_CLI_EV_RIGHT, TT_CLI_EV_RIGHT, TT_CLI_EV_RIGHT, TT_CLI_EV_RIGHT,
+      TT_CLI_EV_DELETE, '0', '9', ' ', TT_CLI_EV_LEFT, TT_CLI_EV_LEFT,
       TT_CLI_EV_LEFT},
      11}, // 4right delete middle
 
@@ -316,12 +268,9 @@ TT_TEST_ROUTINE_DEFINE(case_cli_line)
         TT_UT_EQUAL(len, __cline_line[i].num, "");
 
         cstr = tt_string_cstr(&cl.line);
-        TT_UT_EQUAL(tt_strncmp(cstr,
-                               (tt_char_t *)__cline_line[i].data,
+        TT_UT_EQUAL(tt_strncmp(cstr, (tt_char_t *)__cline_line[i].data,
                                __cline_line[i].num),
-                    0,
-                    "");
-
+                    0, "");
 
         // cursor
         TT_UT_EQUAL(cl.cursor, __cline_cursor[i], "");
@@ -332,11 +281,9 @@ TT_TEST_ROUTINE_DEFINE(case_cli_line)
         // TT_UT_EQUAL(ret, TT_SUCCESS, "");
         len = TT_BUF_RLEN(&ob);
         TT_UT_EQUAL(len, __cline_output[i].num, "");
-        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&ob),
-                              __cline_output[i].data,
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&ob), __cline_output[i].data,
                               __cline_output[i].num),
-                    0,
-                    "");
+                    0, "");
     }
 
     tt_cline_destroy(&cl);
@@ -385,9 +332,7 @@ TT_TEST_ROUTINE_DEFINE(case_cli_line_stress)
                 }
             }
         } else {
-            for (i = 0; i < n; ++i) {
-                evbuf[i] = (tt_u8_t)tt_rand_u32();
-            }
+            for (i = 0; i < n; ++i) { evbuf[i] = (tt_u8_t)tt_rand_u32(); }
         }
 
         {

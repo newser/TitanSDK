@@ -123,17 +123,13 @@ tt_export void tt_sshsvr_destroy_rsa(IN tt_sshsvr_t *sshsvr);
 
 tt_inline tt_rsa_t *tt_sshsvr_get_rsapub(IN tt_sshsvr_t *sshsvr)
 {
-    if (sshsvr->rsapub == NULL) {
-        tt_sshsvr_create_rsa(sshsvr);
-    }
+    if (sshsvr->rsapub == NULL) { tt_sshsvr_create_rsa(sshsvr); }
     return sshsvr->rsapub;
 }
 
 tt_inline tt_rsa_t *tt_sshsvr_get_rsapriv(IN tt_sshsvr_t *sshsvr)
 {
-    if (sshsvr->rsapriv == NULL) {
-        tt_sshsvr_create_rsa(sshsvr);
-    }
+    if (sshsvr->rsapriv == NULL) { tt_sshsvr_create_rsa(sshsvr); }
     return sshsvr->rsapriv;
 }
 

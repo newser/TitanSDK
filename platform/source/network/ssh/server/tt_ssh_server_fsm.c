@@ -64,14 +64,9 @@ const tt_char_t *tt_sshsvr_state_name[TT_SSHSVRST_NUM] = {
     "VERXCHG", "KEYXCHG", "KEXDH", "KEX_DONE", "AUTH", "AUTH_DONE",
 };
 
-const tt_char_t *tt_sshsvr_event_name[TT_SSHSVREV_NUM] = {"PACKET",
-                                                          "DISCONNECT",
-                                                          "VERXCHG",
-                                                          "KEYINIT",
-                                                          "NEWKEYS",
-                                                          "KEXDH_REPLY",
-                                                          "SERVICE_REQUEST",
-                                                          "SERVICE_ACCEPT"};
+const tt_char_t *tt_sshsvr_event_name[TT_SSHSVREV_NUM] =
+    {"PACKET",  "DISCONNECT",  "VERXCHG",         "KEYINIT",
+     "NEWKEYS", "KEXDH_REPLY", "SERVICE_REQUEST", "SERVICE_ACCEPT"};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -84,8 +79,7 @@ static void __sshsvract_init(IN tt_sshsvr_action_t *svract);
 ////////////////////////////////////////////////////////////
 
 tt_result_t tt_sshsvr_fsm(IN struct tt_sshsvrconn_s *svrconn,
-                          IN tt_sshsvr_event_t event,
-                          IN void *param)
+                          IN tt_sshsvr_event_t event, IN void *param)
 {
     tt_sshsvr_state_t state;
     tt_sshsvr_action_t svract;
@@ -93,8 +87,7 @@ tt_result_t tt_sshsvr_fsm(IN struct tt_sshsvrconn_s *svrconn,
 enter_fsm:
 
     state = svrconn->state;
-    TT_DEBUG("ssh fsm state: [%s], event[%s]",
-             tt_sshsvr_state_name[state],
+    TT_DEBUG("ssh fsm state: [%s], event[%s]", tt_sshsvr_state_name[state],
              tt_sshsvr_event_name[event]);
 
     TT_ASSERT(TT_SSHSVR_STATE_VALID(state));
@@ -113,19 +106,19 @@ enter_fsm:
     if (event == TT_SSHSVREV_PACKET) {
         tt_sshmsg_t *msg = (tt_sshmsg_t *)param;
         switch (msg->msg_id) {
-            case TT_SSH_MSGID_DISCONNECT: {
-                return TT_E_END;
-            } break;
-            case TT_SSH_MSGID_IGNORE:
-            case TT_SSH_MSGID_UNIMPLEMENTED:
-            case TT_SSH_MSGID_DEBUG: {
-                TT_SSH_EV_IGNORED(state, event);
-                return TT_SUCCESS;
-            } break;
+        case TT_SSH_MSGID_DISCONNECT: {
+            return TT_E_END;
+        } break;
+        case TT_SSH_MSGID_IGNORE:
+        case TT_SSH_MSGID_UNIMPLEMENTED:
+        case TT_SSH_MSGID_DEBUG: {
+            TT_SSH_EV_IGNORED(state, event);
+            return TT_SUCCESS;
+        } break;
 
-            default: {
-                // let fsm process it
-            } break;
+        default: {
+            // let fsm process it
+        } break;
         }
     } else if (event == TT_SSHSVREV_DISCONNECT) {
         tt_sshsvr_disconnect(svrconn, TT_SSH_DMRC_BY_APPLICATION, param);
@@ -166,17 +159,13 @@ void tt_sshsvr_new_state(IN struct tt_sshsvrconn_s *svrconn,
     svrconn->state = new_state;
 }
 
-void tt_sshsvr_disconnect(IN tt_sshsvrconn_t *svrconn,
-                          IN tt_u32_t reason_code,
+void tt_sshsvr_disconnect(IN tt_sshsvrconn_t *svrconn, IN tt_u32_t reason_code,
                           IN OPT const tt_char_t *description)
 {
     tt_sshmsg_t *msg = NULL;
 
-    if (svrconn->state == TT_SSHSVRST_DISCONNECTED) {
-        return;
-    }
-    tt_sshsvr_new_state(svrconn,
-                        TT_SSHSVRST_DISCONNECTED,
+    if (svrconn->state == TT_SSHSVRST_DISCONNECTED) { return; }
+    tt_sshsvr_new_state(svrconn, TT_SSHSVRST_DISCONNECTED,
                         TT_SSHSVREV_DISCONNECT);
 
     // ssh msg: disconnect

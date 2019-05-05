@@ -45,14 +45,8 @@ TT_TEST_ROUTINE_DECLARE(case_ssh_basic)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshbasic_case)
 
-TT_TEST_CASE("case_ssh_basic",
-             "ssh server basic",
-             case_ssh_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_ssh_basic", "ssh server basic", case_ssh_basic, NULL, NULL,
+             NULL, NULL, NULL)
 ,
 
     TT_TEST_CASE_LIST_DEFINE_END(sshbasic_case)
@@ -129,8 +123,7 @@ void __ut1_ch_on_connect(IN struct tt_sshch_s *ch,
 {
 }
 
-void __ut1_ch_on_recv(IN struct tt_sshch_s *ch,
-                      IN tt_u8_t *data,
+void __ut1_ch_on_recv(IN struct tt_sshch_s *ch, IN tt_u8_t *data,
                       IN tt_u32_t data_len)
 {
     static tt_u32_t total_len = 0;
@@ -177,9 +170,7 @@ tt_result_t __ut1_on_init(IN struct tt_evcenter_s *evc, IN void *on_init_param)
     ch_cb.on_recv = __ut1_ch_on_recv;
 
     server = tt_sshsvr_create(&addr, &attr, NULL, NULL, &ch_cb);
-    if (server == NULL) {
-        return TT_FAIL;
-    }
+    if (server == NULL) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -190,7 +181,6 @@ TT_TEST_ROUTINE_DEFINE(case_ssh_basic)
     tt_evcenter_t evc;
     tt_evc_attr_t evc_attr;
     tt_result_t result;
-
 
     TT_TEST_CASE_ENTER()
     // test start

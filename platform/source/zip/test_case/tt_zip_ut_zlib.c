@@ -50,54 +50,26 @@ TT_TEST_ROUTINE_DECLARE(case_zip_zlibdef_null)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(zip_zlib_case)
 
-TT_TEST_CASE(
-    "case_zip_def", "zip: deflate", case_zip_def, NULL, NULL, NULL, NULL, NULL)
+TT_TEST_CASE("case_zip_def", "zip: deflate", case_zip_def, NULL, NULL, NULL,
+             NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_zip_def_null",
-                 "zip: deflate, null input/output",
-                 case_zip_def_null,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_zip_def_null", "zip: deflate, null input/output",
+                 case_zip_def_null, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_zip_gzipdef",
-                 "zip: gzip deflate",
-                 case_zip_gzipdef,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_zip_gzipdef", "zip: gzip deflate", case_zip_gzipdef,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE("case_zip_gzipdef_null",
-                 "zip: gzip deflate, null input/output",
-                 case_zip_gzipdef_null,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+                 "zip: gzip deflate, null input/output", case_zip_gzipdef_null,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_zip_zlibdef",
-                 "zip: zlib deflate",
-                 case_zip_zlibdef,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_zip_zlibdef", "zip: zlib deflate", case_zip_zlibdef,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE("case_zip_zlibdef_null",
-                 "zip: zlib deflate, null input/output",
-                 case_zip_zlibdef_null,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+                 "zip: zlib deflate, null input/output", case_zip_zlibdef_null,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(zip_zlib_case)
     // =========================================
@@ -193,13 +165,7 @@ TT_TEST_CASE(
     olen = o_n;
 
     tt_inflate_reset(&ifl);
-    ret = tt_inflate_run(&ifl,
-                         obuf,
-                         olen,
-                         &o_n,
-                         ibuf,
-                         sizeof(ibuf),
-                         &i_n,
+    ret = tt_inflate_run(&ifl, obuf, olen, &o_n, ibuf, sizeof(ibuf), &i_n,
                          TT_TRUE);
     TT_UT_EQUAL(ret, TT_E_END, "");
     TT_UT_EQUAL(i_n, 0, "");
@@ -209,9 +175,7 @@ TT_TEST_CASE(
     tt_deflate_reset(&dfl);
     tt_inflate_reset(&ifl);
 
-    for (i = 0; i < sizeof(ibuf); ++i) {
-        ibuf[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(ibuf); ++i) { ibuf[i] = (tt_u8_t)tt_rand_u32(); }
     i = 0;
     j = 0;
     while (i < sizeof(ibuf)) {
@@ -222,19 +186,11 @@ TT_TEST_CASE(
             finish = TT_TRUE;
         }
 
-        ret = tt_deflate_run(&dfl,
-                             ibuf + i,
-                             n,
-                             &i_n,
-                             obuf + j,
-                             sizeof(obuf) - j,
-                             &o_n,
-                             finish);
+        ret = tt_deflate_run(&dfl, ibuf + i, n, &i_n, obuf + j,
+                             sizeof(obuf) - j, &o_n, finish);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == sizeof(ibuf));
@@ -250,19 +206,11 @@ TT_TEST_CASE(
             finish = TT_TRUE;
         }
 
-        ret = tt_inflate_run(&ifl,
-                             obuf + i,
-                             n,
-                             &i_n,
-                             ibuf2 + j,
-                             sizeof(ibuf2) - j,
-                             &o_n,
-                             finish);
+        ret = tt_inflate_run(&ifl, obuf + i, n, &i_n, ibuf2 + j,
+                             sizeof(ibuf2) - j, &o_n, finish);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == olen);
@@ -303,9 +251,7 @@ TT_TEST_ROUTINE_DEFINE(case_zip_def_null)
     TT_UT_SUCCESS(ret, "");
 
     // deflate
-    for (i = 0; i < sizeof(ibuf); ++i) {
-        ibuf[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(ibuf); ++i) { ibuf[i] = (tt_u8_t)tt_rand_u32(); }
 
     ret =
         tt_deflate_run(&dfl, ibuf, sizeof(ibuf), &i_n, obuf, 10, &o_n, TT_TRUE);
@@ -315,16 +261,12 @@ TT_TEST_ROUTINE_DEFINE(case_zip_def_null)
     j = 10;
     while (j < sizeof(obuf)) {
         tt_u32_t n = tt_rand_u32() % 10 + 10;
-        if (j + n >= sizeof(obuf)) {
-            n = sizeof(obuf) - j;
-        }
+        if (j + n >= sizeof(obuf)) { n = sizeof(obuf) - j; }
 
         ret = tt_deflate_run(&dfl, NULL, 0, &i_n, obuf + j, n, &o_n, TT_TRUE);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == sizeof(ibuf));
@@ -338,16 +280,12 @@ TT_TEST_ROUTINE_DEFINE(case_zip_def_null)
     j = 10;
     while (i < olen) {
         tt_u32_t n = tt_rand_u32() % 10 + 1;
-        if (j + n >= sizeof(ibuf2)) {
-            n = sizeof(ibuf2) - j;
-        }
+        if (j + n >= sizeof(ibuf2)) { n = sizeof(ibuf2) - j; }
 
         ret = tt_inflate_run(&ifl, NULL, 0, &i_n, ibuf2 + j, n, &o_n, TT_TRUE);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == olen);
@@ -430,13 +368,7 @@ TT_TEST_ROUTINE_DEFINE(case_zip_gzipdef)
     olen = o_n;
 
     tt_gzipinf_reset(&ifl);
-    ret = tt_gzipinf_run(&ifl,
-                         obuf,
-                         olen,
-                         &o_n,
-                         ibuf,
-                         sizeof(ibuf),
-                         &i_n,
+    ret = tt_gzipinf_run(&ifl, obuf, olen, &o_n, ibuf, sizeof(ibuf), &i_n,
                          TT_TRUE);
     TT_UT_EQUAL(ret, TT_E_END, "");
     TT_UT_EQUAL(i_n, 0, "");
@@ -446,9 +378,7 @@ TT_TEST_ROUTINE_DEFINE(case_zip_gzipdef)
     tt_gzipdef_reset(&dfl);
     tt_gzipinf_reset(&ifl);
 
-    for (i = 0; i < sizeof(ibuf); ++i) {
-        ibuf[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(ibuf); ++i) { ibuf[i] = (tt_u8_t)tt_rand_u32(); }
     i = 0;
     j = 0;
     while (i < sizeof(ibuf)) {
@@ -459,19 +389,11 @@ TT_TEST_ROUTINE_DEFINE(case_zip_gzipdef)
             finish = TT_TRUE;
         }
 
-        ret = tt_gzipdef_run(&dfl,
-                             ibuf + i,
-                             n,
-                             &i_n,
-                             obuf + j,
-                             sizeof(obuf) - j,
-                             &o_n,
-                             finish);
+        ret = tt_gzipdef_run(&dfl, ibuf + i, n, &i_n, obuf + j,
+                             sizeof(obuf) - j, &o_n, finish);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == sizeof(ibuf));
@@ -487,19 +409,11 @@ TT_TEST_ROUTINE_DEFINE(case_zip_gzipdef)
             finish = TT_TRUE;
         }
 
-        ret = tt_gzipinf_run(&ifl,
-                             obuf + i,
-                             n,
-                             &i_n,
-                             ibuf2 + j,
-                             sizeof(ibuf2) - j,
-                             &o_n,
-                             finish);
+        ret = tt_gzipinf_run(&ifl, obuf + i, n, &i_n, ibuf2 + j,
+                             sizeof(ibuf2) - j, &o_n, finish);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == olen);
@@ -540,9 +454,7 @@ TT_TEST_ROUTINE_DEFINE(case_zip_gzipdef_null)
     TT_UT_SUCCESS(ret, "");
 
     // deflate
-    for (i = 0; i < sizeof(ibuf); ++i) {
-        ibuf[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(ibuf); ++i) { ibuf[i] = (tt_u8_t)tt_rand_u32(); }
 
     ret =
         tt_gzipdef_run(&dfl, ibuf, sizeof(ibuf), &i_n, obuf, 10, &o_n, TT_TRUE);
@@ -552,16 +464,12 @@ TT_TEST_ROUTINE_DEFINE(case_zip_gzipdef_null)
     j = 10;
     while (j < sizeof(obuf)) {
         tt_u32_t n = tt_rand_u32() % 10 + 10;
-        if (j + n >= sizeof(obuf)) {
-            n = sizeof(obuf) - j;
-        }
+        if (j + n >= sizeof(obuf)) { n = sizeof(obuf) - j; }
 
         ret = tt_gzipdef_run(&dfl, NULL, 0, &i_n, obuf + j, n, &o_n, TT_TRUE);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == sizeof(ibuf));
@@ -575,16 +483,12 @@ TT_TEST_ROUTINE_DEFINE(case_zip_gzipdef_null)
     j = 10;
     while (i < olen) {
         tt_u32_t n = tt_rand_u32() % 10 + 1;
-        if (j + n >= sizeof(ibuf2)) {
-            n = sizeof(ibuf2) - j;
-        }
+        if (j + n >= sizeof(ibuf2)) { n = sizeof(ibuf2) - j; }
 
         ret = tt_gzipinf_run(&ifl, NULL, 0, &i_n, ibuf2 + j, n, &o_n, TT_TRUE);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == olen);
@@ -667,13 +571,7 @@ TT_TEST_ROUTINE_DEFINE(case_zip_zlibdef)
     olen = o_n;
 
     tt_zlibinf_reset(&ifl);
-    ret = tt_zlibinf_run(&ifl,
-                         obuf,
-                         olen,
-                         &o_n,
-                         ibuf,
-                         sizeof(ibuf),
-                         &i_n,
+    ret = tt_zlibinf_run(&ifl, obuf, olen, &o_n, ibuf, sizeof(ibuf), &i_n,
                          TT_TRUE);
     TT_UT_EQUAL(ret, TT_E_END, "");
     TT_UT_EQUAL(i_n, 0, "");
@@ -683,9 +581,7 @@ TT_TEST_ROUTINE_DEFINE(case_zip_zlibdef)
     tt_zlibdef_reset(&dfl);
     tt_zlibinf_reset(&ifl);
 
-    for (i = 0; i < sizeof(ibuf); ++i) {
-        ibuf[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(ibuf); ++i) { ibuf[i] = (tt_u8_t)tt_rand_u32(); }
     i = 0;
     j = 0;
     while (i < sizeof(ibuf)) {
@@ -696,19 +592,11 @@ TT_TEST_ROUTINE_DEFINE(case_zip_zlibdef)
             finish = TT_TRUE;
         }
 
-        ret = tt_zlibdef_run(&dfl,
-                             ibuf + i,
-                             n,
-                             &i_n,
-                             obuf + j,
-                             sizeof(obuf) - j,
-                             &o_n,
-                             finish);
+        ret = tt_zlibdef_run(&dfl, ibuf + i, n, &i_n, obuf + j,
+                             sizeof(obuf) - j, &o_n, finish);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == sizeof(ibuf));
@@ -724,19 +612,11 @@ TT_TEST_ROUTINE_DEFINE(case_zip_zlibdef)
             finish = TT_TRUE;
         }
 
-        ret = tt_zlibinf_run(&ifl,
-                             obuf + i,
-                             n,
-                             &i_n,
-                             ibuf2 + j,
-                             sizeof(ibuf2) - j,
-                             &o_n,
-                             finish);
+        ret = tt_zlibinf_run(&ifl, obuf + i, n, &i_n, ibuf2 + j,
+                             sizeof(ibuf2) - j, &o_n, finish);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == olen);
@@ -777,9 +657,7 @@ TT_TEST_ROUTINE_DEFINE(case_zip_zlibdef_null)
     TT_UT_SUCCESS(ret, "");
 
     // deflate
-    for (i = 0; i < sizeof(ibuf); ++i) {
-        ibuf[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(ibuf); ++i) { ibuf[i] = (tt_u8_t)tt_rand_u32(); }
 
     ret =
         tt_zlibdef_run(&dfl, ibuf, sizeof(ibuf), &i_n, obuf, 10, &o_n, TT_TRUE);
@@ -789,16 +667,12 @@ TT_TEST_ROUTINE_DEFINE(case_zip_zlibdef_null)
     j = 10;
     while (j < sizeof(obuf)) {
         tt_u32_t n = tt_rand_u32() % 10 + 10;
-        if (j + n >= sizeof(obuf)) {
-            n = sizeof(obuf) - j;
-        }
+        if (j + n >= sizeof(obuf)) { n = sizeof(obuf) - j; }
 
         ret = tt_zlibdef_run(&dfl, NULL, 0, &i_n, obuf + j, n, &o_n, TT_TRUE);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == sizeof(ibuf));
@@ -812,16 +686,12 @@ TT_TEST_ROUTINE_DEFINE(case_zip_zlibdef_null)
     j = 10;
     while (i < olen) {
         tt_u32_t n = tt_rand_u32() % 10 + 1;
-        if (j + n >= sizeof(ibuf2)) {
-            n = sizeof(ibuf2) - j;
-        }
+        if (j + n >= sizeof(ibuf2)) { n = sizeof(ibuf2) - j; }
 
         ret = tt_zlibinf_run(&ifl, NULL, 0, &i_n, ibuf2 + j, n, &o_n, TT_TRUE);
         i += i_n;
         j += o_n;
-        if (ret == TT_E_END) {
-            break;
-        }
+        if (ret == TT_E_END) { break; }
         TT_UT_SUCCESS(ret, "");
     }
     TT_ASSERT(i == olen);

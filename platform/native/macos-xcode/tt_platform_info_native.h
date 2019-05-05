@@ -61,10 +61,8 @@ extern tt_result_t tt_platform_cache_line_size_load(OUT tt_u32_t *size);
  - this function should do numa initialization
  */
 extern tt_result_t tt_platform_numa_node_id_load(
-    IN struct tt_profile_s *profile,
-    OUT tt_u32_t *numa_id,
-    OUT tt_u32_t *numa_id_thread,
-    OUT tt_u32_t *numa_id_memory);
+    IN struct tt_profile_s *profile, OUT tt_u32_t *numa_id,
+    OUT tt_u32_t *numa_id_thread, OUT tt_u32_t *numa_id_memory);
 
 tt_inline tt_bool_t tt_platform_numa_enabled_ntv()
 {

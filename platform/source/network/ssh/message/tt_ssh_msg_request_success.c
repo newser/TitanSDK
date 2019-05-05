@@ -54,12 +54,9 @@ static tt_result_t __reqsucc_parse(IN struct tt_sshmsg_s *msg,
                                    IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __reqsucc_op = {
-    __reqsucc_create,
-    __reqsucc_destroy,
-    NULL,
+    __reqsucc_create,         __reqsucc_destroy, NULL,
 
-    __reqsucc_render_prepare,
-    __reqsucc_render,
+    __reqsucc_render_prepare, __reqsucc_render,
 
     __reqsucc_parse,
 };
@@ -75,8 +72,7 @@ static tt_sshmsg_itf_t __reqsucc_op = {
 tt_sshmsg_t *tt_sshmsg_reqsucc_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_REQUEST_SUCCESS,
-                            sizeof(tt_sshmsg_reqsucc_t),
-                            &__reqsucc_op);
+                            sizeof(tt_sshmsg_reqsucc_t), &__reqsucc_op);
 }
 
 tt_result_t __reqsucc_create(IN struct tt_sshmsg_s *msg)

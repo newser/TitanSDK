@@ -90,8 +90,7 @@ tt_export void tt_netif_group_dump(IN tt_netif_group_t *group);
 tt_inline tt_netif_t *tt_netif_group_next(IN tt_netif_group_t *group,
                                           IN tt_netif_t *netif)
 {
-    tt_lnode_t *node = TT_COND(netif == NULL,
-                               tt_list_head(&group->netif_list),
+    tt_lnode_t *node = TT_COND(netif == NULL, tt_list_head(&group->netif_list),
                                netif->node.next);
     return TT_CONTAINER(node, tt_netif_t, node);
 }

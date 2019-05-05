@@ -74,7 +74,8 @@ void tt_console_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __console_component_init, __console_component_exit,
+        __console_component_init,
+        __console_component_exit,
     };
 
     // init component
@@ -106,8 +107,7 @@ tt_result_t tt_console_config(IN tt_console_attr_t *attr)
     return tt_console_config_ntv(attr);
 }
 
-void tt_console_run(IN tt_cons_ev_handler_t ev_handler,
-                    IN void *param,
+void tt_console_run(IN tt_cons_ev_handler_t ev_handler, IN void *param,
                     IN tt_bool_t local)
 {
     TT_ASSERT(ev_handler != NULL);
@@ -153,9 +153,7 @@ void tt_console_set_color(IN tt_console_color_t foreground,
 tt_result_t __console_component_init(IN tt_component_t *comp,
                                      IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_console_component_init_ntv())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_console_component_init_ntv())) { return TT_FAIL; }
 
     tt_atomic_s32_set(&tt_s_console_running, 0);
 
@@ -175,9 +173,7 @@ void __console_run()
     tt_cons_ev_t ev;
     tt_cons_ev_data_t ev_data;
 
-    if (!TT_OK(tt_console_enter_ntv())) {
-        return;
-    }
+    if (!TT_OK(tt_console_enter_ntv())) { return; }
     while (TT_OK(tt_console_recv_ntv(&ev, &ev_data)) &&
            TT_OK(tt_s_console_ev_handler(tt_s_console_param, ev, &ev_data)))
         ;

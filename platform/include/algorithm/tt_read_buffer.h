@@ -56,10 +56,8 @@ typedef tt_result_t (*tt_rbuf_decode_prepare_t)(IN tt_buf_t *raw,
 // ignored and
 //   tt_rbuf_inc_wp would return fail
 // - if success is returned, func should precise set pos of raw and dec
-typedef tt_result_t (*tt_rbuf_decode_t)(IN tt_buf_t *raw,
-                                        IN tt_u32_t len,
-                                        OUT tt_buf_t *dec,
-                                        IN void *param);
+typedef tt_result_t (*tt_rbuf_decode_t)(IN tt_buf_t *raw, IN tt_u32_t len,
+                                        OUT tt_buf_t *dec, IN void *param);
 
 typedef struct
 {
@@ -83,10 +81,8 @@ typedef tt_result_t (*tt_rbuf_parse_prepare_t)(IN tt_buf_t *buf,
 // ignored and
 //   tt_rbuf_inc_wp would return fail
 // - if success is returned, func should precise set buf pos
-typedef tt_result_t (*tt_rbuf_parse_t)(IN tt_buf_t *buf,
-                                       IN tt_u32_t len,
-                                       OUT void **parse_ret,
-                                       IN void *param);
+typedef tt_result_t (*tt_rbuf_parse_t)(IN tt_buf_t *buf, IN tt_u32_t len,
+                                       OUT void **parse_ret, IN void *param);
 
 typedef void (*tt_rbuf_parse_done_t)(IN void *parse_ret, IN void *param);
 
@@ -125,10 +121,8 @@ typedef struct tt_rbuf_s
 
 tt_export void tt_rbuf_init(IN tt_rbuf_t *rbuf,
                             IN OPT tt_rbuf_decode_itf_t *d_itf,
-                            IN OPT void *d_param,
-                            IN tt_rbuf_parse_itf_t *p_itf,
-                            IN OPT void *p_param,
-                            IN OPT tt_rbuf_attr_t *attr);
+                            IN OPT void *d_param, IN tt_rbuf_parse_itf_t *p_itf,
+                            IN OPT void *p_param, IN OPT tt_rbuf_attr_t *attr);
 
 tt_export void tt_rbuf_destroy(IN tt_rbuf_t *rbuf);
 
@@ -149,8 +143,7 @@ tt_inline void tt_rbuf_clear(IN tt_rbuf_t *rbuf)
 // write rbuf
 // ========================================
 
-tt_inline void tt_rbuf_get_wptr(IN tt_rbuf_t *rbuf,
-                                IN tt_u8_t **p,
+tt_inline void tt_rbuf_get_wptr(IN tt_rbuf_t *rbuf, IN tt_u8_t **p,
                                 IN tt_u32_t *len)
 {
     tt_buf_get_wptr(&rbuf->raw, p, len);

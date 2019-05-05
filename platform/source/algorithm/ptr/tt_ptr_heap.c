@@ -64,15 +64,11 @@
                                                                                \
             (ph)->node[(a)].p = (ph)->node[(b)].p;                             \
             (ph)->node[(a)].idx = (ph)->node[(b)].idx;                         \
-            if ((ph)->node[(a)].idx != NULL) {                                 \
-                *((ph)->node[(a)].idx) = a;                                    \
-            }                                                                  \
+            if ((ph)->node[(a)].idx != NULL) { *((ph)->node[(a)].idx) = a; }   \
                                                                                \
             (ph)->node[(b)].p = __tmp.p;                                       \
             (ph)->node[(b)].idx = __tmp.idx;                                   \
-            if ((ph)->node[(b)].idx != NULL) {                                 \
-                *((ph)->node[(b)].idx) = b;                                    \
-            }                                                                  \
+            if ((ph)->node[(b)].idx != NULL) { *((ph)->node[(b)].idx) = b; }   \
         }                                                                      \
     } while (0)
 
@@ -115,8 +111,7 @@ static tt_result_t __ph_sanity_check(IN tt_ptrheap_t *ph, IN tt_u32_t idx);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_ptrheap_init(IN tt_ptrheap_t *ph,
-                     IN OPT tt_cmp_t cmp,
+void tt_ptrheap_init(IN tt_ptrheap_t *ph, IN OPT tt_cmp_t cmp,
                      IN OPT tt_ptrheap_attr_t *attr)
 {
     tt_ptrheap_attr_t __attr;
@@ -136,8 +131,7 @@ void tt_ptrheap_init(IN tt_ptrheap_t *ph,
 
     ph->p = NULL;
     ph->cmp = TT_COND(cmp != NULL, cmp, tt_cmp_ptr);
-    tt_memspg_init(&ph->mspg,
-                   attr->min_extent_num * sizeof(tt_phnode_t),
+    tt_memspg_init(&ph->mspg, attr->min_extent_num * sizeof(tt_phnode_t),
                    attr->max_extent_num * sizeof(tt_phnode_t),
                    attr->max_limit_num * sizeof(tt_phnode_t));
     ph->size = 0;
@@ -167,9 +161,7 @@ void tt_ptrheap_attr_default(IN tt_ptrheap_attr_t *attr)
 
 tt_result_t __ptrheap_reserve(IN tt_ptrheap_t *ph, IN tt_u32_t count)
 {
-    TT_DO(tt_memspg_extend(&ph->mspg,
-                           &ph->p,
-                           &ph->size,
+    TT_DO(tt_memspg_extend(&ph->mspg, &ph->p, &ph->size,
                            (ph->capacity + count) * sizeof(tt_phnode_t)));
     ph->capacity = ph->size / sizeof(tt_phnode_t);
 
@@ -190,29 +182,22 @@ void tt_ptrheap_clear(IN tt_ptrheap_t *ph)
 {
     tt_u32_t i;
     for (i = 0; i < ph->count; ++i) {
-        if (ph->node[i].idx != NULL) {
-            *(ph->node[i].idx) = TT_POS_NULL;
-        }
+        if (ph->node[i].idx != NULL) { *(ph->node[i].idx) = TT_POS_NULL; }
     }
     ph->count = 0;
 }
 
-tt_result_t tt_ptrheap_add(IN tt_ptrheap_t *ph,
-                           IN tt_ptr_t p,
+tt_result_t tt_ptrheap_add(IN tt_ptrheap_t *ph, IN tt_ptr_t p,
                            IN OUT tt_u32_t *idx)
 {
-    if (p == NULL) {
-        return TT_FAIL;
-    }
+    if (p == NULL) { return TT_FAIL; }
 
     TT_DO(tt_ptrheap_reserve(ph, 1));
 
     // put the new node at the end
     ph->node[ph->count].p = p;
     ph->node[ph->count].idx = idx;
-    if (idx != NULL) {
-        *idx = ph->count;
-    }
+    if (idx != NULL) { *idx = ph->count; }
     ++ph->count;
 
     __fix_upward(ph, ph->count - 1);
@@ -225,9 +210,7 @@ void tt_ptrheap_remove(IN tt_ptrheap_t *ph, IN tt_u32_t idx)
 {
     TT_ASSERT_ALWAYS(idx < ph->count);
 
-    if (ph->node[idx].idx != NULL) {
-        *(ph->node[idx].idx) = TT_POS_NULL;
-    }
+    if (ph->node[idx].idx != NULL) { *(ph->node[idx].idx) = TT_POS_NULL; }
 
     --ph->count;
     if (idx != ph->count) {
@@ -258,9 +241,7 @@ tt_bool_t tt_ptrheap_contain(IN tt_ptrheap_t *ph, IN tt_ptr_t p)
 {
     tt_u32_t i;
     for (i = 0; i < ph->count; ++i) {
-        if (ph->cmp(ph->node[i].p, p) == 0) {
-            return TT_TRUE;
-        }
+        if (ph->cmp(ph->node[i].p, p) == 0) { return TT_TRUE; }
     }
     return TT_FALSE;
 }
@@ -269,9 +250,7 @@ tt_ptr_t tt_ptrheap_pop(IN tt_ptrheap_t *ph)
 {
     tt_ptr_t head;
 
-    if (ph->count == 0) {
-        return NULL;
-    }
+    if (ph->count == 0) { return NULL; }
     head = ph->node[0].p;
     tt_ptrheap_remove(ph, 0);
 
@@ -309,9 +288,7 @@ void __fix_upward(IN tt_ptrheap_t *ph, IN tt_u32_t idx)
     while (idx > 0) {
         tt_u32_t parent = __PH_PARENT(idx);
 
-        if (ph->cmp(ph->node[parent].p, ph->node[idx].p) >= 0) {
-            break;
-        }
+        if (ph->cmp(ph->node[parent].p, ph->node[idx].p) >= 0) { break; }
 
         __SWAP_PH_NODE(ph, parent, idx);
         idx = parent;
@@ -322,9 +299,7 @@ void __build_heap(IN tt_ptrheap_t *ph)
 {
     tt_u32_t i;
 
-    if (ph->count == 0) {
-        return;
-    }
+    if (ph->count == 0) { return; }
     TT_ASSERT_PH(ph->node != NULL);
     TT_ASSERT_PH(ph->capacity > 0);
 

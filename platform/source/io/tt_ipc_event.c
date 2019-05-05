@@ -92,15 +92,10 @@ tt_result_t tt_ipc_send_ev(IN tt_ipc_t *dst, IN tt_ipc_ev_t *pev)
 
     n = 0;
     len = (tt_u32_t)sizeof(tt_ipc_ev_t) + pev->size;
-    while (TT_OK(tt_ipc_send_ntv(&dst->sys_ipc,
-                                 TT_PTR_INC(tt_u8_t, pev, n),
-                                 len - n,
-                                 &sent)) &&
-           ((n += sent) < len)) {
-    }
-    if (pev->free) {
-        tt_free(pev);
-    }
+    while (TT_OK(tt_ipc_send_ntv(&dst->sys_ipc, TT_PTR_INC(tt_u8_t, pev, n),
+                                 len - n, &sent)) &&
+           ((n += sent) < len)) {}
+    if (pev->free) { tt_free(pev); }
 
     TT_ASSERT(n <= len);
     if (n == len) {
@@ -111,10 +106,8 @@ tt_result_t tt_ipc_send_ev(IN tt_ipc_t *dst, IN tt_ipc_ev_t *pev)
     }
 }
 
-tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
-                           OUT tt_ipc_ev_t **p_pev,
-                           OUT tt_fiber_ev_t **p_fev,
-                           OUT tt_tmr_t **p_tmr,
+tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc, OUT tt_ipc_ev_t **p_pev,
+                           OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr,
                            OUT tt_skt_t **p_skt)
 {
     tt_buf_t *buf = &ipc->buf;
@@ -186,9 +179,7 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
         tt_buf_get_wptr(buf, &p, &len);
     }
 
-    if (result != TT_E_END) {
-        TT_ERROR("ipc data may be broken");
-    }
+    if (result != TT_E_END) { TT_ERROR("ipc data may be broken"); }
     return result;
 }
 
@@ -210,14 +201,10 @@ tt_ipc_ev_t *__parse_ipc_ev(IN tt_buf_t *buf)
     tt_ipc_ev_t *pev;
 
     tt_buf_get_rptr(buf, &p, &len);
-    if (len < sizeof(tt_ipc_ev_t)) {
-        return NULL;
-    }
+    if (len < sizeof(tt_ipc_ev_t)) { return NULL; }
 
     pev = (tt_ipc_ev_t *)p;
-    if (len < (sizeof(tt_ipc_ev_t) + pev->size)) {
-        return NULL;
-    }
+    if (len < (sizeof(tt_ipc_ev_t) + pev->size)) { return NULL; }
     pev->free = TT_FALSE;
 
     tt_buf_inc_rp(buf, (sizeof(tt_ipc_ev_t) + pev->size));

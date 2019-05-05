@@ -46,26 +46,18 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __sshkdf_sha1(IN tt_sshkdf_t *kdf,
-                                 IN tt_blob_t *k,
-                                 IN tt_blob_t *h,
-                                 IN tt_blob_t *session_id,
-                                 IN tt_u32_t iv_c2s_len,
-                                 IN tt_u32_t iv_s2c_len,
+static tt_result_t __sshkdf_sha1(IN tt_sshkdf_t *kdf, IN tt_blob_t *k,
+                                 IN tt_blob_t *h, IN tt_blob_t *session_id,
+                                 IN tt_u32_t iv_c2s_len, IN tt_u32_t iv_s2c_len,
                                  IN tt_u32_t enc_c2s_len,
                                  IN tt_u32_t enc_s2c_len,
                                  IN tt_u32_t mac_c2s_len,
                                  IN tt_u32_t mac_s2c_len);
-static tt_result_t __sshkdf_sha1_n(IN tt_blob_t *k,
-                                   IN tt_blob_t *h,
-                                   IN tt_char_t x,
-                                   IN tt_blob_t *session_id,
-                                   IN tt_u32_t len,
-                                   OUT tt_buf_t *key);
-static tt_result_t __sshkdf_sha1_1(IN tt_blob_t *k,
-                                   IN tt_blob_t *h,
-                                   IN tt_char_t x,
-                                   IN tt_blob_t *blob,
+static tt_result_t __sshkdf_sha1_n(IN tt_blob_t *k, IN tt_blob_t *h,
+                                   IN tt_char_t x, IN tt_blob_t *session_id,
+                                   IN tt_u32_t len, OUT tt_buf_t *key);
+static tt_result_t __sshkdf_sha1_1(IN tt_blob_t *k, IN tt_blob_t *h,
+                                   IN tt_char_t x, IN tt_blob_t *blob,
                                    IN tt_u8_t *hash_val);
 
 ////////////////////////////////////////////////////////////
@@ -98,15 +90,10 @@ void tt_sshkdf_destroy(IN tt_sshkdf_t *kdf)
     tt_buf_destroy(&kdf->mac_s2c);
 }
 
-tt_result_t tt_sshkdf_run(IN tt_sshkdf_t *kdf,
-                          IN tt_blob_t *k,
-                          IN tt_blob_t *h,
-                          IN tt_blob_t *session_id,
-                          IN tt_u32_t iv_c2s_len,
-                          IN tt_u32_t iv_s2c_len,
-                          IN tt_u32_t enc_c2s_len,
-                          IN tt_u32_t enc_s2c_len,
-                          IN tt_u32_t mac_c2s_len,
+tt_result_t tt_sshkdf_run(IN tt_sshkdf_t *kdf, IN tt_blob_t *k, IN tt_blob_t *h,
+                          IN tt_blob_t *session_id, IN tt_u32_t iv_c2s_len,
+                          IN tt_u32_t iv_s2c_len, IN tt_u32_t enc_c2s_len,
+                          IN tt_u32_t enc_s2c_len, IN tt_u32_t mac_c2s_len,
                           IN tt_u32_t mac_s2c_len)
 {
     TT_ASSERT(TT_SSH_HASH_ALG_VALID(kdf->hash_alg));
@@ -133,47 +120,31 @@ tt_result_t tt_sshkdf_run(IN tt_sshkdf_t *kdf,
     // check lengths
     if ((iv_c2s_len == 0) || (iv_s2c_len == 0) || (enc_c2s_len == 0) ||
         (enc_s2c_len == 0) || (mac_c2s_len == 0) || (mac_s2c_len == 0)) {
-        TT_ERROR("invalid lengths: [%d, %d, %d, %d, %d, %d]",
-                 iv_c2s_len,
-                 iv_s2c_len,
-                 enc_c2s_len,
-                 enc_s2c_len,
-                 mac_c2s_len,
+        TT_ERROR("invalid lengths: [%d, %d, %d, %d, %d, %d]", iv_c2s_len,
+                 iv_s2c_len, enc_c2s_len, enc_s2c_len, mac_c2s_len,
                  mac_s2c_len);
         return TT_FAIL;
     }
 
     // kdf
     switch (kdf->hash_alg) {
-        case TT_SSH_HASH_ALG_SHA1: {
-            return __sshkdf_sha1(kdf,
-                                 k,
-                                 h,
-                                 session_id,
-                                 iv_c2s_len,
-                                 iv_s2c_len,
-                                 enc_c2s_len,
-                                 enc_s2c_len,
-                                 mac_c2s_len,
-                                 mac_s2c_len);
-        } break;
+    case TT_SSH_HASH_ALG_SHA1: {
+        return __sshkdf_sha1(kdf, k, h, session_id, iv_c2s_len, iv_s2c_len,
+                             enc_c2s_len, enc_s2c_len, mac_c2s_len,
+                             mac_s2c_len);
+    } break;
 
-        default: {
-            TT_ERROR("unsupported ssh hash alg[%d]", kdf->hash_alg);
-            return TT_FAIL;
-        } break;
+    default: {
+        TT_ERROR("unsupported ssh hash alg[%d]", kdf->hash_alg);
+        return TT_FAIL;
+    } break;
     }
 }
 
-tt_result_t __sshkdf_sha1(IN tt_sshkdf_t *kdf,
-                          IN tt_blob_t *k,
-                          IN tt_blob_t *h,
-                          IN tt_blob_t *session_id,
-                          IN tt_u32_t iv_c2s_len,
-                          IN tt_u32_t iv_s2c_len,
-                          IN tt_u32_t enc_c2s_len,
-                          IN tt_u32_t enc_s2c_len,
-                          IN tt_u32_t mac_c2s_len,
+tt_result_t __sshkdf_sha1(IN tt_sshkdf_t *kdf, IN tt_blob_t *k, IN tt_blob_t *h,
+                          IN tt_blob_t *session_id, IN tt_u32_t iv_c2s_len,
+                          IN tt_u32_t iv_s2c_len, IN tt_u32_t enc_c2s_len,
+                          IN tt_u32_t enc_s2c_len, IN tt_u32_t mac_c2s_len,
                           IN tt_u32_t mac_s2c_len)
 {
     tt_result_t result;
@@ -223,33 +194,24 @@ tt_result_t __sshkdf_sha1(IN tt_sshkdf_t *kdf,
     return TT_SUCCESS;
 }
 
-tt_result_t __sshkdf_sha1_n(IN tt_blob_t *k,
-                            IN tt_blob_t *h,
-                            IN tt_char_t x,
-                            IN tt_blob_t *session_id,
-                            IN tt_u32_t len,
+tt_result_t __sshkdf_sha1_n(IN tt_blob_t *k, IN tt_blob_t *h, IN tt_char_t x,
+                            IN tt_blob_t *session_id, IN tt_u32_t len,
                             OUT tt_buf_t *key)
 {
     tt_u32_t i, n;
     tt_result_t result;
 
     n = len;
-    if ((n % TT_SHA1_DIGEST_LENGTH) != 0) {
-        n += TT_SHA1_DIGEST_LENGTH;
-    }
+    if ((n % TT_SHA1_DIGEST_LENGTH) != 0) { n += TT_SHA1_DIGEST_LENGTH; }
     n /= TT_SHA1_DIGEST_LENGTH;
 
     tt_buf_reset_rwp(key);
     result = tt_buf_reserve(key, n * TT_SHA1_DIGEST_LENGTH);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // K1 = HASH(K || H || X || session_id)
     result = __sshkdf_sha1_1(k, h, x, session_id, TT_BUF_WPOS(key));
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
     tt_buf_inc_wp(key, TT_SHA1_DIGEST_LENGTH);
 
     // K2 = HASH(K || H || K1)
@@ -260,43 +222,28 @@ tt_result_t __sshkdf_sha1_n(IN tt_blob_t *k,
 
         tt_buf_get_rblob(key, &tail);
         result = __sshkdf_sha1_1(k, h, 0, &tail, TT_BUF_WPOS(key));
-        if (!TT_OK(result)) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(result)) { return TT_FAIL; }
         tt_buf_inc_wp(key, TT_SHA1_DIGEST_LENGTH);
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t __sshkdf_sha1_1(IN tt_blob_t *k,
-                            IN tt_blob_t *h,
-                            IN tt_char_t x,
-                            IN tt_blob_t *tail,
-                            IN tt_u8_t *hash_val)
+tt_result_t __sshkdf_sha1_1(IN tt_blob_t *k, IN tt_blob_t *h, IN tt_char_t x,
+                            IN tt_blob_t *tail, IN tt_u8_t *hash_val)
 {
     tt_sha_t sha;
 
-    if (!TT_OK(tt_sha_create(&sha, TT_SHA_VER_SHA1))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_sha_create(&sha, TT_SHA_VER_SHA1))) { return TT_FAIL; }
 
-    if (!TT_OK(tt_sha_update(&sha, k->addr, k->len))) {
-        return TT_FAIL;
-    }
-    if (!TT_OK(tt_sha_update(&sha, h->addr, h->len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_sha_update(&sha, k->addr, k->len))) { return TT_FAIL; }
+    if (!TT_OK(tt_sha_update(&sha, h->addr, h->len))) { return TT_FAIL; }
     if ((x != 0) && !TT_OK(tt_sha_update(&sha, (tt_u8_t *)&x, 1))) {
         return TT_FAIL;
     }
-    if (!TT_OK(tt_sha_update(&sha, tail->addr, tail->len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_sha_update(&sha, tail->addr, tail->len))) { return TT_FAIL; }
 
-    if (!TT_OK(tt_sha_final(&sha, hash_val))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_sha_final(&sha, hash_val))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }

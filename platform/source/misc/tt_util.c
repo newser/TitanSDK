@@ -57,9 +57,7 @@ tt_u32_t tt_least_2power(IN tt_u32_t value)
     tt_u32_t ret = 0;
 
     if (TT_OK(tt_high_bit_1(value, &ret))) {
-        if (value > (1u << ret)) {
-            ++ret;
-        }
+        if (value > (1u << ret)) { ++ret; }
     }
     return ret;
 }
@@ -73,9 +71,7 @@ tt_result_t tt_order(IN tt_u32_t value, OUT tt_u32_t *order)
     ret = tt_least_2power(value);
     // no need call TT_U32_ORDER_OVERFLOW
     if (value == (1u << ret)) {
-        if (order != NULL) {
-            *order = ret;
-        }
+        if (order != NULL) { *order = ret; }
 
         return TT_SUCCESS;
     } else {
@@ -93,9 +89,7 @@ void tt_swap(IN void *a, IN void *b, IN tt_u32_t size)
     TT_ASSERT(b != NULL);
     TT_ASSERT(size != 0);
 
-    if (a == b) {
-        return;
-    }
+    if (a == b) { return; }
 
     swap_a = (tt_u8_t *)a;
     swap_b = (tt_u8_t *)b;
@@ -123,9 +117,7 @@ tt_result_t tt_high_bit_1(IN tt_u32_t value, OUT tt_u32_t *pos)
     //  - not portable
     //  - no much performance improvement
 
-    if (value == 0) {
-        return TT_FAIL;
-    }
+    if (value == 0) { return TT_FAIL; }
 
     // actually a binary search
     while (cur_shift != 0) {
@@ -154,9 +146,7 @@ tt_result_t tt_low_bit_1(IN tt_u32_t value, OUT tt_u32_t *pos)
 
     TT_ASSERT(pos != NULL);
 
-    if (value == 0) {
-        return TT_FAIL;
-    }
+    if (value == 0) { return TT_FAIL; }
 
     // actually a binary search
     while (cur_shift != 0) {
@@ -257,9 +247,7 @@ tt_char_t *tt_cstr_copy(IN const tt_char_t *cstr)
 {
     tt_u32_t len = (tt_u32_t)tt_strlen(cstr);
     tt_char_t *new_cstr = tt_malloc(len + 1);
-    if (new_cstr != NULL) {
-        tt_memcpy(new_cstr, cstr, len + 1);
-    }
+    if (new_cstr != NULL) { tt_memcpy(new_cstr, cstr, len + 1); }
     return new_cstr;
 }
 
@@ -280,18 +268,14 @@ tt_char_t *tt_cstr_copy_n(IN const tt_char_t *cstr, IN tt_u32_t len)
 tt_u8_t *tt_memdup(IN const tt_u8_t *addr, IN tt_u32_t len)
 {
     tt_u8_t *new_mem = tt_malloc(len);
-    if (new_mem != NULL) {
-        tt_memcpy(new_mem, addr, len);
-    }
+    if (new_mem != NULL) { tt_memcpy(new_mem, addr, len); }
     return new_mem;
 }
 
 tt_bool_t tt_trim_l(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len, IN tt_u8_t b)
 {
     tt_u8_t *beg = *p, *end = *p + *len;
-    while ((beg < end) && (*beg == b)) {
-        ++beg;
-    }
+    while ((beg < end) && (*beg == b)) { ++beg; }
     *p = beg;
     *len = (tt_u32_t)(end - beg);
 
@@ -303,9 +287,7 @@ tt_bool_t tt_trim_r(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len, IN tt_u8_t b)
 {
     tt_u8_t *beg = *p, *end = *p + *len;
     --end;
-    while ((end >= beg) && (*end == b)) {
-        --end;
-    }
+    while ((end >= beg) && (*end == b)) { --end; }
     ++end;
     *p = beg;
     *len = (tt_u32_t)(end - beg);

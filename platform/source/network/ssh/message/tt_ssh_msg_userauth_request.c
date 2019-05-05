@@ -56,12 +56,9 @@ static tt_result_t __uar_render(IN struct tt_sshmsg_s *msg,
 static tt_result_t __uar_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __uar_op = {
-    __uar_create,
-    __uar_destroy,
-    NULL,
+    __uar_create,         __uar_destroy, NULL,
 
-    __uar_render_prepare,
-    __uar_render,
+    __uar_render_prepare, __uar_render,
 
     __uar_parse,
 };
@@ -77,8 +74,7 @@ static tt_sshmsg_itf_t __uar_op = {
 tt_sshmsg_t *tt_sshmsg_uar_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_USERAUTH_REQUEST,
-                            sizeof(tt_sshmsg_uar_t),
-                            &__uar_op);
+                            sizeof(tt_sshmsg_uar_t), &__uar_op);
 }
 
 tt_result_t tt_sshmsg_uar_set_user(IN tt_sshmsg_t *msg,
@@ -151,8 +147,7 @@ tt_result_t tt_sshmsg_uar_set_pubkey_alg(IN tt_sshmsg_t *msg,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_sshmsg_uar_set_pubkey(IN tt_sshmsg_t *msg,
-                                     IN tt_u8_t *pubkey,
+tt_result_t tt_sshmsg_uar_set_pubkey(IN tt_sshmsg_t *msg, IN tt_u8_t *pubkey,
                                      IN tt_u32_t pubkey_len)
 {
     tt_sshmsg_uar_t *uar;
@@ -177,8 +172,7 @@ tt_result_t tt_sshmsg_uar_set_pubkey(IN tt_sshmsg_t *msg,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_sshmsg_uar_set_signature(IN tt_sshmsg_t *msg,
-                                        IN tt_u8_t *sig,
+tt_result_t tt_sshmsg_uar_set_signature(IN tt_sshmsg_t *msg, IN tt_u8_t *sig,
                                         IN tt_u32_t sig_len)
 {
     tt_sshmsg_uar_t *uar;
@@ -218,8 +212,7 @@ tt_result_t tt_sshmsg_uar_set_pwd(IN tt_sshmsg_t *msg, IN const tt_char_t *pwd)
     }
 
     tt_blob_destroy(&uar->auth_u.pwd.pwd);
-    if (!TT_OK(tt_blob_create(&uar->auth_u.pwd.pwd,
-                              (tt_u8_t *)pwd,
+    if (!TT_OK(tt_blob_create(&uar->auth_u.pwd.pwd, (tt_u8_t *)pwd,
                               (tt_u32_t)tt_strlen(pwd)))) {
         return TT_FAIL;
     }
@@ -244,8 +237,7 @@ tt_result_t tt_sshmsg_uar_set_newpwd(IN tt_sshmsg_t *msg,
     }
 
     tt_blob_destroy(&uar->auth_u.pwd.new_pwd);
-    if (!TT_OK(tt_blob_create(&uar->auth_u.pwd.new_pwd,
-                              (tt_u8_t *)pwd,
+    if (!TT_OK(tt_blob_create(&uar->auth_u.pwd.new_pwd, (tt_u8_t *)pwd,
                               (tt_u32_t)tt_strlen(pwd)))) {
         return TT_FAIL;
     }
@@ -288,8 +280,7 @@ void __uar_destroy(IN struct tt_sshmsg_s *msg)
     }
 }
 
-tt_result_t __uar_render_prepare(IN struct tt_sshmsg_s *msg,
-                                 OUT tt_u32_t *len,
+tt_result_t __uar_render_prepare(IN struct tt_sshmsg_s *msg, OUT tt_u32_t *len,
                                  OUT tt_ssh_render_mode_t *mode)
 {
     tt_sshmsg_uar_t *uar;
@@ -327,14 +318,14 @@ tt_result_t __uar_render_prepare(IN struct tt_sshmsg_s *msg,
     msg_len += tt_ssh_string_render_prepare(NULL, uar->user.len);
 
     // string service name
-    msg_len += tt_ssh_string_render_prepare(NULL,
-                                            (tt_u32_t)tt_strlen(
-                                                tt_g_ssh_serv_name[sshserv]));
+    msg_len +=
+        tt_ssh_string_render_prepare(NULL, (tt_u32_t)tt_strlen(
+                                               tt_g_ssh_serv_name[sshserv]));
 
     // string method name
-    msg_len += tt_ssh_string_render_prepare(NULL,
-                                            (tt_u32_t)tt_strlen(
-                                                tt_g_ssh_auth_name[sshauth]));
+    msg_len +=
+        tt_ssh_string_render_prepare(NULL, (tt_u32_t)tt_strlen(
+                                               tt_g_ssh_auth_name[sshauth]));
     if (uar->auth == TT_SSH_AUTH_PUBLICKEY) {
         tt_ssh_auth_pubkey_t *pubkey = &uar->auth_u.pubkey;
         tt_ssh_pubkey_alg_t pubkey_alg = pubkey->pubkey_alg;
@@ -371,10 +362,10 @@ tt_result_t __uar_render_prepare(IN struct tt_sshmsg_s *msg,
         msg_len += tt_ssh_boolean_render_prepare();
 
         // string public key algorithm name
-        msg_len += tt_ssh_string_render_prepare(NULL,
-                                                (tt_u32_t)tt_strlen(
-                                                    tt_g_ssh_pubkey_alg_name
-                                                        [pubkey_alg]));
+        msg_len +=
+            tt_ssh_string_render_prepare(NULL, (tt_u32_t)tt_strlen(
+                                                   tt_g_ssh_pubkey_alg_name
+                                                       [pubkey_alg]));
 
         // string public key blob
         msg_len += tt_ssh_string_render_prepare(NULL, pubkey->pubkey.len);
@@ -455,14 +446,12 @@ tt_result_t __uar_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
 
     // string service name
     TT_DO(
-        tt_ssh_string_render(buf,
-                             (tt_u8_t *)tt_g_ssh_serv_name[sshserv],
+        tt_ssh_string_render(buf, (tt_u8_t *)tt_g_ssh_serv_name[sshserv],
                              (tt_u32_t)tt_strlen(tt_g_ssh_serv_name[sshserv])));
 
     // string method name
     TT_DO(
-        tt_ssh_string_render(buf,
-                             (tt_u8_t *)tt_g_ssh_auth_name[sshauth],
+        tt_ssh_string_render(buf, (tt_u8_t *)tt_g_ssh_auth_name[sshauth],
                              (tt_u32_t)tt_strlen(tt_g_ssh_auth_name[sshauth])));
     if (uar->auth == TT_SSH_AUTH_PUBLICKEY) {
         tt_ssh_auth_pubkey_t *pubkey = &uar->auth_u.pubkey;
@@ -485,8 +474,7 @@ tt_result_t __uar_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
 
         // string signaturenature
         if (pubkey->signature.addr != NULL) {
-            TT_DO(tt_ssh_string_render(buf,
-                                       pubkey->signature.addr,
+            TT_DO(tt_ssh_string_render(buf, pubkey->signature.addr,
                                        pubkey->signature.len));
         }
     } else {

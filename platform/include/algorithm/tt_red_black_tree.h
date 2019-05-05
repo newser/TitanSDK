@@ -174,8 +174,7 @@ search a node in rbtree
 - the matching node if found
 - NULL if no matching node
 */
-tt_export tt_rbnode_t *tt_rbtree_find(IN tt_rbtree_t *tree,
-                                      IN tt_u8_t *key,
+tt_export tt_rbnode_t *tt_rbtree_find(IN tt_rbtree_t *tree, IN tt_u8_t *key,
                                       IN tt_u32_t key_len);
 
 /**
@@ -249,10 +248,8 @@ insert a node to rbtree
 @return
 void
 */
-tt_export void tt_rbtree_add(IN tt_rbtree_t *tree,
-                             IN tt_u8_t *key,
-                             IN tt_u32_t key_len,
-                             IN tt_rbnode_t *node);
+tt_export void tt_rbtree_add(IN tt_rbtree_t *tree, IN tt_u8_t *key,
+                             IN tt_u32_t key_len, IN tt_rbnode_t *node);
 
 /**
 @fn void tt_rbtree_remove(IN tt_rbnode_t *node)

@@ -67,7 +67,8 @@ void tt_page_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __page_component_init, __page_component_exit,
+        __page_component_init,
+        __page_component_exit,
     };
 
     // init component
@@ -145,8 +146,7 @@ void *tt_page_alloc_align(IN tt_u32_t size_order, OUT tt_uintptr_t *handle)
     return p;
 }
 
-void tt_page_free_align(IN void *addr,
-                        IN tt_u32_t size_order,
+void tt_page_free_align(IN void *addr, IN tt_u32_t size_order,
                         IN tt_uintptr_t handle)
 {
 #ifdef TT_PAGE_BY_MALLOC

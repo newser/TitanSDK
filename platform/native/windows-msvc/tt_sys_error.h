@@ -67,8 +67,7 @@ tt_inline tt_u32_t tt_get_sys_err()
     return GetLastError();
 }
 
-extern void tt_sys_err_show(IN DWORD err_no,
-                            IN LPSTR lpszFunction,
+extern void tt_sys_err_show(IN DWORD err_no, IN LPSTR lpszFunction,
                             IN int line);
 
 #endif /* __TT_SYS_ERROR__ */

@@ -104,10 +104,8 @@ tt_inline void tt_sshch_set_opaque(IN tt_sshch_t *ch, IN void *opaque)
     ch->opaque = opaque;
 }
 
-tt_export tt_result_t tt_sshch_send(IN tt_sshch_t *ch,
-                                    IN tt_u8_t *data,
-                                    IN tt_u32_t data_len,
-                                    IN tt_u32_t flag);
+tt_export tt_result_t tt_sshch_send(IN tt_sshch_t *ch, IN tt_u8_t *data,
+                                    IN tt_u32_t data_len, IN tt_u32_t flag);
 
 tt_export void tt_sshch_pkt_handler(IN tt_sshch_t *ch,
                                     IN struct tt_sshmsg_s *msg,

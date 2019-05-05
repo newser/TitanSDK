@@ -47,13 +47,14 @@ static const tt_char_t __set_info[] = "set value";
 
 static const tt_char_t __set_usage[] = "testing set";
 
-static tt_u32_t __set_run(IN tt_shell_t *sh,
-                          IN tt_u32_t argc,
-                          IN tt_char_t *arv[],
-                          OUT tt_buf_t *output);
+static tt_u32_t __set_run(IN tt_shell_t *sh, IN tt_u32_t argc,
+                          IN tt_char_t *arv[], OUT tt_buf_t *output);
 
 tt_shcmd_t tt_g_shcmd_set = {
-    TT_SHCMD_NAME_SET, __set_info, __set_usage, __set_run,
+    TT_SHCMD_NAME_SET,
+    __set_info,
+    __set_usage,
+    __set_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -64,9 +65,7 @@ tt_shcmd_t tt_g_shcmd_set = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __set_run(IN tt_shell_t *sh,
-                   IN tt_u32_t argc,
-                   IN tt_char_t *argv[],
+tt_u32_t __set_run(IN tt_shell_t *sh, IN tt_u32_t argc, IN tt_char_t *argv[],
                    OUT tt_buf_t *output)
 {
     const tt_char_t *path, *val;
@@ -80,9 +79,7 @@ tt_u32_t __set_run(IN tt_shell_t *sh,
     }
 
     path = argv[0];
-    p = tt_param_path_p2n(sh->root,
-                          sh->current,
-                          path,
+    p = tt_param_path_p2n(sh->root, sh->current, path,
                           (tt_u32_t)tt_strlen(path));
     if (p == NULL) {
         tt_buf_putf(output, "not found: %s", argv[0]);

@@ -54,51 +54,21 @@ TT_TEST_ROUTINE_DECLARE(case_http_uri_encode_query)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(http_uri_case)
 
-TT_TEST_CASE("case_http_uri_basic",
-             "http uri basic",
-             case_http_uri_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_http_uri_basic", "http uri basic", case_http_uri_basic, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_http_uri_parse",
-                 "http uri parsing",
-                 case_http_uri_parse,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_uri_parse", "http uri parsing", case_http_uri_parse,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_uri_parse_query",
-                 "http uri parsing query",
-                 case_http_uri_parse_query,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_uri_parse_query", "http uri parsing query",
+                 case_http_uri_parse_query, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_uri_encode",
-                 "http uri encoding",
-                 case_http_uri_encode,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_uri_encode", "http uri encoding",
+                 case_http_uri_encode, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_uri_encode_query",
-                 "http uri encoding query",
-                 case_http_uri_encode_query,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_uri_encode_query", "http uri encoding query",
+                 case_http_uri_encode_query, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(http_uri_case)
     // =========================================
@@ -473,46 +443,40 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_encode)
 
     // path
     s = "/a/b/c";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
-                                      (tt_char_t *)s,
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s,
                                       (tt_u32_t)tt_strlen(s)),
                   "");
     TT_UT_STREQ(tt_http_uri_render(&u), "/a/b/c", "");
 
     s = "a/b/c/";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
-                                      (tt_char_t *)s,
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s,
                                       (tt_u32_t)tt_strlen(s)),
                   "");
     TT_UT_STREQ(tt_http_uri_render(&u), "a/b/c/", "");
 
     // path with 0 params
     s = "/a/b/c;?";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
-                                      (tt_char_t *)s,
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s,
                                       (tt_u32_t)tt_strlen(s)),
                   "");
     TT_UT_STREQ(tt_http_uri_render(&u), "/a/b/c;", "");
 
     // path with 1 params
     s = "a/b/c/;a?";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
-                                      (tt_char_t *)s,
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s,
                                       (tt_u32_t)tt_strlen(s)),
                   "");
     TT_UT_STREQ(tt_http_uri_render(&u), "a/b/c/;a", "");
 
     s = "a/b/c/;a=1?";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
-                                      (tt_char_t *)s,
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s,
                                       (tt_u32_t)tt_strlen(s)),
                   "");
     TT_UT_STREQ(tt_http_uri_render(&u), "a/b/c/;a=1", "");
 
     // path with 2 params
     s = "/a/b/c;a=1&b=2?";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
-                                      (tt_char_t *)s,
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s,
                                       (tt_u32_t)tt_strlen(s)),
                   "");
     TT_UT_STREQ(tt_http_uri_render(&u), "/a/b/c;a=1&b=2", "");
@@ -521,8 +485,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_encode)
     TT_UT_EQUAL(tt_blobex_strcmp(&kv->val, "2"), 0, "");
 
     s = "/a/b/c/;a=1&b=2&";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
-                                      (tt_char_t *)s,
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s,
                                       (tt_u32_t)tt_strlen(s)),
                   "");
     TT_UT_STREQ(tt_http_uri_render(&u), "/a/b/c/;a=1&b=2&", "");

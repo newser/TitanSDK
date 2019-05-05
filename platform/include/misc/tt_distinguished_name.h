@@ -40,7 +40,8 @@ this file defines distinguished name APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_RDN_DOMAIN,
     TT_RDN_COMMON_NAME,
     TT_RDN_ORG_UNIT,

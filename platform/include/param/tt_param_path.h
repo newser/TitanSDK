@@ -74,12 +74,9 @@ tt_export tt_result_t tt_param_path_n2p(IN OPT tt_param_t *root,
 // - TT_PPCP_NONE, none match, @ref completed includes candidates
 // - TT_PPCP_PARTIAL, can be partially completed
 // - TT_PPCP_FULL, fully completed
-tt_export tt_result_t tt_param_path_complete(IN tt_param_t *root,
-                                             IN tt_param_t *current,
-                                             IN const tt_char_t *path,
-                                             IN tt_u32_t path_len,
-                                             OUT tt_u32_t *status,
-                                             OUT struct tt_buf_s *output);
+tt_export tt_result_t tt_param_path_complete(
+    IN tt_param_t *root, IN tt_param_t *current, IN const tt_char_t *path,
+    IN tt_u32_t path_len, OUT tt_u32_t *status, OUT struct tt_buf_s *output);
 #define TT_PPCP_NONE 0
 #define TT_PPCP_PARTIAL 1
 #define TT_PPCP_FULL 2

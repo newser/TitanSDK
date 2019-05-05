@@ -67,12 +67,10 @@ tt_export void tt_inflate_destroy(IN tt_inflate_t *ifl);
 
 tt_export void tt_inflate_attr_default(IN tt_inflate_attr_t *attr);
 
-tt_export tt_result_t tt_inflate_run(IN tt_inflate_t *ifl,
-                                     IN tt_u8_t *ibuf,
+tt_export tt_result_t tt_inflate_run(IN tt_inflate_t *ifl, IN tt_u8_t *ibuf,
                                      IN tt_u32_t ilen,
                                      OUT tt_u32_t *consumed_len,
-                                     IN tt_u8_t *obuf,
-                                     IN tt_u32_t olen,
+                                     IN tt_u8_t *obuf, IN tt_u32_t olen,
                                      OUT tt_u32_t *produced_len,
                                      IN tt_bool_t finish);
 

@@ -43,7 +43,8 @@
 static tt_u64_t __rx_u64(IN tt_rng_t *rng);
 
 static tt_rng_itf_t __rx_itf = {
-    __rx_u64, NULL,
+    __rx_u64,
+    NULL,
 };
 
 ////////////////////////////////////////////////////////////

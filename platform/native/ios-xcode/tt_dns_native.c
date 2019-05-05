@@ -84,30 +84,22 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-static ares_socket_t __dskt_socket(IN int af,
-                                   IN int type,
-                                   IN int protocol,
+static ares_socket_t __dskt_socket(IN int af, IN int type, IN int protocol,
                                    IN void *param);
 
 static int __dskt_close(IN ares_socket_t s, IN void *param);
 
-static int __dskt_connect(IN ares_socket_t s,
-                          IN const struct sockaddr *addr,
-                          IN ares_socklen_t addrlen,
-                          IN void *param);
+static int __dskt_connect(IN ares_socket_t s, IN const struct sockaddr *addr,
+                          IN ares_socklen_t addrlen, IN void *param);
 
-static ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
-                                    IN void *data,
-                                    IN size_t data_len,
-                                    IN int flags,
+static ares_ssize_t __dskt_recvfrom(IN ares_socket_t s, IN void *data,
+                                    IN size_t data_len, IN int flags,
                                     OUT struct sockaddr *from,
                                     IN OUT ares_socklen_t *from_len,
                                     IN void *param);
 
-static ares_ssize_t __dskt_sendv(IN ares_socket_t s,
-                                 IN const struct iovec *vec,
-                                 IN int len,
-                                 IN void *param);
+static ares_ssize_t __dskt_sendv(IN ares_socket_t s, IN const struct iovec *vec,
+                                 IN int len, IN void *param);
 
 static struct ares_socket_functions __dskt_itf = {
     __dskt_socket, __dskt_close, __dskt_connect, __dskt_recvfrom, __dskt_sendv,
@@ -118,7 +110,8 @@ static tt_bool_t __do_read(IN tt_io_ev_t *io_ev);
 static tt_bool_t __do_write(IN tt_io_ev_t *io_ev);
 
 static tt_poller_io_t __dns_poller_io[__DNS_EV_NUM] = {
-    __do_read, __do_write,
+    __do_read,
+    __do_write,
 };
 
 ////////////////////////////////////////////////////////////
@@ -153,9 +146,7 @@ tt_result_t tt_dns_create_ntv(IN ares_channel ch)
             return TT_FAIL;
         }
 
-        for (i = 0; i < __DSKT_NUM(ch); ++i) {
-            __dskt_init(&dskt[i], ch);
-        }
+        for (i = 0; i < __DSKT_NUM(ch); ++i) { __dskt_init(&dskt[i], ch); }
 
         // save dskt in ch->sock_create_cb_data. note ares_dup()
         // would copy the pointer, then two ares_channels would
@@ -255,9 +246,7 @@ __dskt_t *__dskt_avail(IN ares_channel ch)
 {
     int i;
     for (i = 0; i < __DSKT_NUM(ch); ++i) {
-        if (__DSKT(ch, i)->s == -1) {
-            return __DSKT(ch, i);
-        }
+        if (__DSKT(ch, i)->s == -1) { return __DSKT(ch, i); }
     }
     return NULL;
 }
@@ -337,8 +326,7 @@ tt_result_t __dskt_config(IN int s, IN int af, IN ares_channel ch)
         }
     } else {
         TT_ASSERT(af == AF_INET6);
-        if (tt_memcmp(ch->local_ip6,
-                      &ares_in6addr_any,
+        if (tt_memcmp(ch->local_ip6, &ares_in6addr_any,
                       sizeof(ch->local_ip6)) != 0) {
             tt_sktaddr_ip_t ip;
 
@@ -362,9 +350,7 @@ tt_result_t __dskt_config(IN int s, IN int af, IN ares_channel ch)
 // dskt interface
 // ========================================
 
-ares_socket_t __dskt_socket(IN int af,
-                            IN int type,
-                            IN int protocol,
+ares_socket_t __dskt_socket(IN int af, IN int type, IN int protocol,
                             IN void *param)
 {
     ares_channel ch = (ares_channel)param;
@@ -383,9 +369,7 @@ ares_socket_t __dskt_socket(IN int af,
         return ARES_SOCKET_BAD;
     }
 
-    if (!TT_OK(__dskt_config(s, af, ch))) {
-        goto fail;
-    }
+    if (!TT_OK(__dskt_config(s, af, ch))) { goto fail; }
 
     dskt->s = s;
     dskt->udp = TT_BOOL(type == SOCK_DGRAM);
@@ -405,10 +389,8 @@ int __dskt_close(IN ares_socket_t s, IN void *param)
     return __dskt_reset(__DSKT(ch, s));
 }
 
-int __dskt_connect(IN ares_socket_t s,
-                   IN const struct sockaddr *addr,
-                   IN ares_socklen_t addrlen,
-                   IN void *param)
+int __dskt_connect(IN ares_socket_t s, IN const struct sockaddr *addr,
+                   IN ares_socklen_t addrlen, IN void *param)
 {
     ares_channel ch = (ares_channel)param;
     __dskt_t *dskt = __DSKT(ch, s);
@@ -423,20 +405,15 @@ again:
     } else if (errno == EINTR) {
         goto again;
     } else {
-        if (errno != EINPROGRESS) {
-            TT_ERROR_NTV("fail to connect");
-        }
+        if (errno != EINPROGRESS) { TT_ERROR_NTV("fail to connect"); }
         return e;
     }
 }
 
-ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
-                             IN void *data,
-                             IN size_t data_len,
-                             IN int flags,
+ares_ssize_t __dskt_recvfrom(IN ares_socket_t s, IN void *data,
+                             IN size_t data_len, IN int flags,
                              IN struct sockaddr *from,
-                             IN ares_socklen_t *from_len,
-                             IN void *param)
+                             IN ares_socklen_t *from_len, IN void *param)
 {
     ares_channel ch = (ares_channel)param;
     __dskt_t *dskt = __DSKT(ch, s);
@@ -448,10 +425,8 @@ ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
     }
 }
 
-ares_ssize_t __dskt_sendv(IN ares_socket_t s,
-                          IN const struct iovec *vec,
-                          IN int len,
-                          IN void *param)
+ares_ssize_t __dskt_sendv(IN ares_socket_t s, IN const struct iovec *vec,
+                          IN int len, IN void *param)
 {
     ares_channel ch = (ares_channel)param;
     __dskt_t *dskt = __DSKT(ch, s);

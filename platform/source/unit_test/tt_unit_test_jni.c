@@ -99,8 +99,7 @@ Java_com_titansdk_titansdkunittest_TTUnitTestJNI_exit(JNIEnv *env, jobject obj)
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_titansdk_titansdkunittest_TTUnitTestJNI_runUT(JNIEnv *env,
-                                                       jobject obj,
+Java_com_titansdk_titansdkunittest_TTUnitTestJNI_runUT(JNIEnv *env, jobject obj,
                                                        jstring name)
 {
     tt_task_t t;
@@ -109,11 +108,8 @@ Java_com_titansdk_titansdkunittest_TTUnitTestJNI_runUT(JNIEnv *env,
     tt_buf_init(&tt_g_jni_buf, NULL);
 
     tt_task_create(&t, NULL);
-    tt_task_add_fiber(&t,
-                      NULL,
-                      __ut_fiber,
-                      (void *)(*env)->GetStringUTFChars(env, name, 0),
-                      NULL);
+    tt_task_add_fiber(&t, NULL, __ut_fiber,
+                      (void *)(*env)->GetStringUTFChars(env, name, 0), NULL);
     tt_task_run(&t);
     tt_task_wait(&t);
     TT_INFO("exiting");

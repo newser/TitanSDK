@@ -40,8 +40,7 @@
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
-                                IN const tt_char_t *name,
+extern tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc, IN const tt_char_t *name,
                                 IN tt_bool_t create);
 
 extern void __dc_check_inuse(IN tt_dns_cache_t *dc, IN tt_s64_t now);
@@ -60,43 +59,19 @@ TT_TEST_ROUTINE_DECLARE(case_dc_exception)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_cache_case)
 
-TT_TEST_CASE("case_dc_basic",
-             "dns cache basic",
-             case_dc_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_dc_basic", "dns cache basic", case_dc_basic, NULL, NULL,
+             NULL, NULL, NULL)
 ,
 
 #if 1
-    TT_TEST_CASE("case_dc_get_a",
-                 "dns cache get a record",
-                 case_dc_get_a,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_dc_get_a", "dns cache get a record", case_dc_get_a, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_dc_get_aaaa",
-                 "dns cache get aaaa record",
-                 case_dc_get_aaaa,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_dc_get_aaaa", "dns cache get aaaa record",
+                 case_dc_get_aaaa, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_dc_exception",
-                 "dns cache get exceptional case",
-                 case_dc_exception,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_dc_exception", "dns cache get exceptional case",
+                 case_dc_exception, NULL, NULL, NULL, NULL, NULL),
 #endif
 
     TT_TEST_CASE_LIST_DEFINE_END(dns_cache_case)
@@ -170,8 +145,7 @@ TT_TEST_CASE("case_dc_basic",
     TT_UT_EQUAL(tt_ptrheap_count(&dc->heap), 1, "");
 
     now = tt_time_ref();
-    TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, tt_time_ms2ref(10000)),
-                TT_TRUE,
+    TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, tt_time_ms2ref(10000)), TT_TRUE,
                 "");
     TT_UT_EQUAL(tt_dns_rr_inuse(&de2->rr[TT_DNS_A_IN]), TT_FALSE, "");
     TT_UT_EQUAL(tt_dns_rr_inuse(&de2->rr[TT_DNS_AAAA_IN]), TT_FALSE, "");
@@ -184,8 +158,7 @@ TT_TEST_CASE("case_dc_basic",
         drr->querying_fb = (tt_fiber_t *)drr;
         TT_UT_EQUAL(tt_dns_rr_inuse(drr), TT_TRUE, "");
         TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, tt_time_ms2ref(10000)),
-                    TT_TRUE,
-                    "");
+                    TT_TRUE, "");
         TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, 1), TT_TRUE, "");
         drr->querying_fb = NULL;
 
@@ -197,8 +170,7 @@ TT_TEST_CASE("case_dc_basic",
         TT_UT_EQUAL(tt_dns_rr_inuse(drr), TT_FALSE, "");
         now = tt_time_ref();
         TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, tt_time_ms2ref(10000)),
-                    TT_TRUE,
-                    "");
+                    TT_TRUE, "");
         {
             tt_s64_t bak = de2->timestamp;
             de2->timestamp = now - 100;
@@ -306,10 +278,8 @@ static tt_u32_t __dns_errline;
 static tt_bool_t __udp_tc;
 static tt_bool_t __ttl_0;
 
-typedef tt_result_t (*on_recv_t)(IN tt_skt_t *s,
-                                 IN tt_u8_t *buf,
-                                 IN tt_u32_t len,
-                                 IN tt_sktaddr_t *addr);
+typedef tt_result_t (*on_recv_t)(IN tt_skt_t *s, IN tt_u8_t *buf,
+                                 IN tt_u32_t len, IN tt_sktaddr_t *addr);
 
 typedef struct __svr_param_s
 {
@@ -355,18 +325,12 @@ static tt_result_t __udp_svr1(IN void *param)
         }
 
         ++i;
-        if (i <= sp->ignore_num) {
-            continue;
-        }
+        if (i <= sp->ignore_num) { continue; }
 
         ret = sp->on_recv(s, buf, recvd, &addr);
-        if (!TT_OK(ret)) {
-            break;
-        }
+        if (!TT_OK(ret)) { break; }
 
-        if ((sp->recv_num != 0) && (i >= sp->recv_num)) {
-            break;
-        }
+        if ((sp->recv_num != 0) && (i >= sp->recv_num)) { break; }
     }
     if (!TT_OK(ret)) {
         __dns_errline = __LINE__;
@@ -379,10 +343,8 @@ static tt_result_t __udp_svr1(IN void *param)
     return TT_SUCCESS;
 }
 
-static tt_result_t __udp_answer(IN tt_skt_t *s,
-                                IN tt_u8_t *buf,
-                                IN tt_u32_t len,
-                                IN tt_sktaddr_t *addr)
+static tt_result_t __udp_answer(IN tt_skt_t *s, IN tt_u8_t *buf,
+                                IN tt_u32_t len, IN tt_sktaddr_t *addr)
 {
     const tt_u8_t ans[] = {3, '1', '6', '3', 3, 'c', 'o', 'm', 0, 0, 1, 0,
                            1, 1,   2,   3,   4, 0,   4,   7,   8, 9, 10};
@@ -576,10 +538,8 @@ static tt_result_t __dc_get2(IN void *param)
     return TT_SUCCESS;
 }
 
-static tt_result_t __udp_answer6(IN tt_skt_t *s,
-                                 IN tt_u8_t *buf,
-                                 IN tt_u32_t len,
-                                 IN tt_sktaddr_t *addr)
+static tt_result_t __udp_answer6(IN tt_skt_t *s, IN tt_u8_t *buf,
+                                 IN tt_u32_t len, IN tt_sktaddr_t *addr)
 {
     // ipv6
     const tt_u8_t ans[] = {3,   '1',  '6', '3', 3,   'c', 'o', 'm', 0,
@@ -653,13 +613,11 @@ TT_TEST_ROUTINE_DEFINE(case_dc_get_aaaa)
     TT_TEST_CASE_LEAVE()
 }
 
-static tt_result_t __udp_answer_any(IN tt_skt_t *s,
-                                    IN tt_u8_t *buf,
-                                    IN tt_u32_t len,
-                                    IN tt_sktaddr_t *addr)
+static tt_result_t __udp_answer_any(IN tt_skt_t *s, IN tt_u8_t *buf,
+                                    IN tt_u32_t len, IN tt_sktaddr_t *addr)
 {
-    const tt_u8_t ans[] =
-        {0xc0, 0x0c, 0, 1, 0, 1, 1, 2, 3, 4, 0, 4, 7, 8, 9, 10};
+    const tt_u8_t ans[] = {0xc0, 0x0c, 0, 1, 0, 1, 1, 2,
+                           3,    4,    0, 4, 7, 8, 9, 10};
 
     if (len >= 3) {
         buf[2] |= 0x80; // response
@@ -724,21 +682,15 @@ static tt_result_t __udp_svr_rand(IN void *param)
         } else if (i == 2) {
             tt_u32_t n = tt_rand_u32() % 500 + 1, k;
             DUT_INFO("udp short rand");
-            for (k = 0; k < n; ++k) {
-                buf[k] = (tt_u8_t)tt_rand_u32();
-            }
+            for (k = 0; k < n; ++k) { buf[k] = (tt_u8_t)tt_rand_u32(); }
             ret = tt_skt_sendto(s, buf, n, NULL, &addr);
         } else {
             tt_u32_t n = tt_rand_u32() % 1500 + 1, k;
             DUT_INFO("udp long rand");
-            for (k = 0; k < n; ++k) {
-                buf[k] = (tt_u8_t)tt_rand_u32();
-            }
+            for (k = 0; k < n; ++k) { buf[k] = (tt_u8_t)tt_rand_u32(); }
             ret = tt_skt_sendto(s, buf, n, NULL, &addr);
         }
-        if (!TT_OK(ret)) {
-            break;
-        }
+        if (!TT_OK(ret)) { break; }
     }
     if (!TT_OK(ret)) {
         __dns_errline = __LINE__;
@@ -752,29 +704,23 @@ static tt_result_t __udp_svr_rand(IN void *param)
 
 extern tt_result_t __tcp_svr1(IN void *param);
 
-static tt_result_t __tcp_answer_rand(IN tt_skt_t *s,
-                                     IN tt_u8_t *buf,
-                                     IN tt_u32_t len,
-                                     IN tt_sktaddr_t *addr)
+static tt_result_t __tcp_answer_rand(IN tt_skt_t *s, IN tt_u8_t *buf,
+                                     IN tt_u32_t len, IN tt_sktaddr_t *addr)
 {
-    const tt_u8_t ans[] =
-        {0xc0, 0x0c, 0, 1, 0, 1, 1, 2, 3, 4, 0, 4, 7, 8, 9, 10};
+    const tt_u8_t ans[] = {0xc0, 0x0c, 0, 1, 0, 1, 1, 2,
+                           3,    4,    0, 4, 7, 8, 9, 10};
     tt_u32_t msglen, m;
 
     m = tt_rand_u32() % 4;
     if (m == 0) {
         tt_u32_t n = tt_rand_u32() % len + 1, k;
         DUT_INFO("tcp short rand");
-        for (k = 0; k < n; ++k) {
-            buf[k] = (tt_u8_t)tt_rand_u32();
-        }
+        for (k = 0; k < n; ++k) { buf[k] = (tt_u8_t)tt_rand_u32(); }
         return tt_skt_send(s, buf, n, NULL);
     } else if (m == 1) {
         tt_u32_t n = tt_rand_u32() % 1000 + 1, k;
         DUT_INFO("tcp long rand");
-        for (k = 0; k < n; ++k) {
-            buf[k] = (tt_u8_t)tt_rand_u32();
-        }
+        for (k = 0; k < n; ++k) { buf[k] = (tt_u8_t)tt_rand_u32(); }
         return tt_skt_send(s, buf, n, NULL);
     } else if (m == 2) {
         // force tcp disconnect
@@ -830,9 +776,7 @@ static tt_result_t __dc_get3(IN void *param)
         (void)rrl;
     }
 
-    if (--__d_fb_num == 0) {
-        tt_task_exit(NULL);
-    }
+    if (--__d_fb_num == 0) { tt_task_exit(NULL); }
     DUT_INFO("fb[%d/%d] end", idx, __D_FB_NUM);
     return TT_SUCCESS;
 }
@@ -844,7 +788,8 @@ TT_TEST_ROUTINE_DEFINE(case_dc_exception)
     tt_result_t ret;
     tt_task_attr_t attr;
     const tt_char_t *svr[] = {
-        "127.0.0.1:53210", "[::1]:53211",
+        "127.0.0.1:53210",
+        "[::1]:53211",
     };
     __svr_param_t sp[4];
     tt_u32_t i;
@@ -862,9 +807,7 @@ TT_TEST_ROUTINE_DEFINE(case_dc_exception)
     for (i = 0; i < __DNAME_NUM; ++i) {
         tt_u32_t n = tt_rand_u32() % (__DNAME_LEN - 1) + 1;
         tt_u32_t j;
-        for (j = 0; j < n; ++j) {
-            __ut_dname[i][j] = tt_rand_u32() % 20 + 'a';
-        }
+        for (j = 0; j < n; ++j) { __ut_dname[i][j] = tt_rand_u32() % 20 + 'a'; }
     }
 
     tt_memset(sp, 0, sizeof(sp));

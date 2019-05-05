@@ -85,8 +85,7 @@
 
 #define __cmp_addr(na, sa)                                                     \
     tt_memcmp(&((struct sockaddr_in *)(na))->sin_addr,                         \
-              &((struct sockaddr_in *)(sa))->sin_addr,                         \
-              sizeof(struct in_addr))
+              &((struct sockaddr_in *)(sa))->sin_addr, sizeof(struct in_addr))
 #define __copy_addr(na, sa) tt_memcpy((na), (sa), sizeof(struct sockaddr_in))
 
 #define __cmp_addr6(na, sa)                                                    \
@@ -168,28 +167,26 @@ tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
         }
 
         switch (sa->sa_family) {
-            case AF_LINK: {
-                result = __netif_link_update(netif, cur_ifa);
-            } break;
-            case AF_INET: {
-                result = __netif_inet_update(netif, cur_ifa);
-            } break;
-            case AF_INET6: {
-                if (group->flag & TT_NIFGRP_NO_IPV6_LINK_LOCAL) {
-                    tt_u8_t *__u8 =
-                        (tt_u8_t *)(((struct sockaddr_in6 *)sa)
-                                        ->sin6_addr.__u6_addr.__u6_addr8);
-                    if ((__u8[0] == 0xFE) && (__u8[1] == 0x80)) {
-                        continue;
-                    }
-                }
+        case AF_LINK: {
+            result = __netif_link_update(netif, cur_ifa);
+        } break;
+        case AF_INET: {
+            result = __netif_inet_update(netif, cur_ifa);
+        } break;
+        case AF_INET6: {
+            if (group->flag & TT_NIFGRP_NO_IPV6_LINK_LOCAL) {
+                tt_u8_t *__u8 =
+                    (tt_u8_t *)(((struct sockaddr_in6 *)sa)
+                                    ->sin6_addr.__u6_addr.__u6_addr8);
+                if ((__u8[0] == 0xFE) && (__u8[1] == 0x80)) { continue; }
+            }
 
-                result = __netif_inet6_update(netif, cur_ifa);
-            } break;
+            result = __netif_inet6_update(netif, cur_ifa);
+        } break;
 
-            default: {
-                continue;
-            } break;
+        default: {
+            continue;
+        } break;
         }
         if (!TT_OK(result)) {
             TT_ERROR("netif[%s] is removed due to updating failed",
@@ -213,9 +210,7 @@ tt_result_t tt_netif_create_ntv(IN tt_netif_ntv_t *sys_netif)
 
 void tt_netif_destroy_ntv(IN tt_netif_ntv_t *sys_netif)
 {
-    if (sys_netif->skt != -1) {
-        __RETRY_IF_EINTR(close(sys_netif->skt));
-    }
+    if (sys_netif->skt != -1) { __RETRY_IF_EINTR(close(sys_netif->skt)); }
 }
 
 tt_result_t tt_netif_name2idx_ntv(IN const tt_char_t *name, OUT tt_u32_t *idx)
@@ -230,8 +225,7 @@ tt_result_t tt_netif_name2idx_ntv(IN const tt_char_t *name, OUT tt_u32_t *idx)
     }
 }
 
-tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx,
-                                  OUT tt_char_t *name,
+tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx, OUT tt_char_t *name,
                                   IN tt_u32_t len)
 {
     char ifname[IFNAMSIZ + 1] = {0};
@@ -337,26 +331,16 @@ tt_result_t __netif_inet6_update(IN tt_netif_t *netif, IN struct ifaddrs *ifa)
 tt_netif_type_t __type_map(IN u_char sdl_type)
 {
     switch (sdl_type) {
-        case IFT_ETHER:
-            return TT_NETIF_TYPE_ETHERNET;
-        case IFT_ISO88023:
-            return TT_NETIF_TYPE_CSMA_CD;
-        case IFT_ISO88025:
-            return TT_NETIF_TYPE_TOKEN_RING;
-        case IFT_FRELAY:
-            return TT_NETIF_TYPE_FRELAY;
-        case IFT_FDDI:
-            return TT_NETIF_TYPE_FDDI;
-        case IFT_PPP:
-            return TT_NETIF_TYPE_PPP;
-        case IFT_LOOP:
-            return TT_NETIF_TYPE_LOOPBACK;
-        case IFT_ATM:
-            return TT_NETIF_TYPE_ATM;
-        case IFT_IEEE1394:
-            return TT_NETIF_TYPE_IEEE1394;
-        default:
-            return TT_NETIF_TYPE_OTHER;
+    case IFT_ETHER: return TT_NETIF_TYPE_ETHERNET;
+    case IFT_ISO88023: return TT_NETIF_TYPE_CSMA_CD;
+    case IFT_ISO88025: return TT_NETIF_TYPE_TOKEN_RING;
+    case IFT_FRELAY: return TT_NETIF_TYPE_FRELAY;
+    case IFT_FDDI: return TT_NETIF_TYPE_FDDI;
+    case IFT_PPP: return TT_NETIF_TYPE_PPP;
+    case IFT_LOOP: return TT_NETIF_TYPE_LOOPBACK;
+    case IFT_ATM: return TT_NETIF_TYPE_ATM;
+    case IFT_IEEE1394: return TT_NETIF_TYPE_IEEE1394;
+    default: return TT_NETIF_TYPE_OTHER;
     }
 }
 
@@ -370,9 +354,7 @@ tt_netif_addr_t *__find_addr(IN tt_netif_t *netif, IN struct sockaddr *sockaddr)
         node = node->next;
 
         if (sockaddr->sa_family == AF_INET) {
-            if (__cmp_addr(cur_addr, sockaddr) == 0) {
-                return cur_addr;
-            }
+            if (__cmp_addr(cur_addr, sockaddr) == 0) { return cur_addr; }
         }
     }
     return NULL;
@@ -407,9 +389,7 @@ tt_netif_addr_t *__find_addr6(IN tt_netif_t *netif,
         node = node->next;
 
         if (sockaddr->sa_family == AF_INET6) {
-            if (__cmp_addr6(cur_addr, sockaddr) == 0) {
-                return cur_addr;
-            }
+            if (__cmp_addr6(cur_addr, sockaddr) == 0) { return cur_addr; }
         }
     }
     return NULL;

@@ -42,28 +42,22 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_param_t *__param_goto(IN tt_param_t *root,
-                                IN tt_param_t *current,
-                                IN const tt_char_t *name,
-                                IN tt_u32_t len);
+static tt_param_t *__param_goto(IN tt_param_t *root, IN tt_param_t *current,
+                                IN const tt_char_t *name, IN tt_u32_t len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_param_t *tt_param_path_p2n(IN tt_param_t *root,
-                              IN tt_param_t *current,
-                              IN const tt_char_t *path,
-                              IN tt_u32_t len)
+tt_param_t *tt_param_path_p2n(IN tt_param_t *root, IN tt_param_t *current,
+                              IN const tt_char_t *path, IN tt_u32_t len)
 {
     tt_u32_t prev, pos;
     tt_param_t *p;
 
     TT_ASSERT(path != NULL);
 
-    if (len == 0) {
-        return NULL;
-    }
+    if (len == 0) { return NULL; }
 
     if (path[0] == '/') {
         prev = 1;
@@ -73,16 +67,12 @@ tt_param_t *tt_param_path_p2n(IN tt_param_t *root,
         p = current;
     }
     TT_ASSERT(p != NULL);
-    if (p->type != TT_PARAM_DIR) {
-        return NULL;
-    }
+    if (p->type != TT_PARAM_DIR) { return NULL; }
 
 // find next '/'
 next_slash:
     pos = prev;
-    while ((pos < len) && (path[pos] != '/')) {
-        ++pos;
-    }
+    while ((pos < len) && (path[pos] != '/')) { ++pos; }
     if (pos < len) {
         p = __param_goto(root, p, &path[prev], pos - prev);
         if ((p == NULL) || (p->type != TT_PARAM_DIR)) {
@@ -96,15 +86,12 @@ next_slash:
     TT_ASSERT(pos == len);
 
     // last node
-    if (prev < len) {
-        p = __param_goto(root, p, &path[prev], pos - prev);
-    }
+    if (prev < len) { p = __param_goto(root, p, &path[prev], pos - prev); }
 
     return p;
 }
 
-tt_result_t tt_param_path_n2p(IN OPT tt_param_t *root,
-                              IN tt_param_t *current,
+tt_result_t tt_param_path_n2p(IN OPT tt_param_t *root, IN tt_param_t *current,
                               OUT tt_buf_t *path)
 {
     tt_u32_t pos;
@@ -114,18 +101,14 @@ tt_result_t tt_param_path_n2p(IN OPT tt_param_t *root,
     TT_ASSERT(current != NULL);
     TT_ASSERT(path != NULL);
 
-    if (root == current) {
-        return TT_SUCCESS;
-    }
+    if (root == current) { return TT_SUCCESS; }
 
     pos = path->wpos;
     TT_DO(tt_buf_insert_cstr(path, pos, current->name));
 
     p = current;
     while ((p = tt_param_parent(p)) != NULL) {
-        if (p == root) {
-            break;
-        }
+        if (p == root) { break; }
         TT_DO(tt_buf_insert(path, pos, &slash, 1));
         TT_DO(tt_buf_insert_cstr(path, pos, p->name));
     }
@@ -133,11 +116,9 @@ tt_result_t tt_param_path_n2p(IN OPT tt_param_t *root,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_param_path_complete(IN tt_param_t *root,
-                                   IN tt_param_t *current,
+tt_result_t tt_param_path_complete(IN tt_param_t *root, IN tt_param_t *current,
                                    IN const tt_char_t *path,
-                                   IN tt_u32_t path_len,
-                                   OUT tt_u32_t *status,
+                                   IN tt_u32_t path_len, OUT tt_u32_t *status,
                                    OUT tt_buf_t *output)
 {
     const tt_char_t *tail_name;
@@ -162,9 +143,7 @@ tt_result_t tt_param_path_complete(IN tt_param_t *root,
 
         p = path;
         i = path_len - 1;
-        while ((i != ~0) && (p[i] != '/')) {
-            --i;
-        }
+        while ((i != ~0) && (p[i] != '/')) { --i; }
 
         if (i != ~0) {
             current = tt_param_path_p2n(root, current, p, i);
@@ -252,9 +231,7 @@ tt_result_t tt_param_path_complete(IN tt_param_t *root,
                 tt_u32_t k = 0;
                 tt_u32_t n =
                     TT_MIN(common_len, (tt_u32_t)tt_strlen(name) - tail_len);
-                while ((k < n) && (common[k] == name[tail_len + k])) {
-                    ++k;
-                }
+                while ((k < n) && (common[k] == name[tail_len + k])) { ++k; }
                 common_len -= (n - k);
             }
 
@@ -314,18 +291,15 @@ tt_result_t tt_param_path_complete(IN tt_param_t *root,
     return TT_SUCCESS;
 }
 
-tt_param_t *__param_goto(IN tt_param_t *root,
-                         IN tt_param_t *current,
-                         IN const tt_char_t *name,
-                         IN tt_u32_t len)
+tt_param_t *__param_goto(IN tt_param_t *root, IN tt_param_t *current,
+                         IN const tt_char_t *name, IN tt_u32_t len)
 {
     if ((len == 1) && (tt_strncmp(name, ".", 1) == 0)) {
         return current;
     } else if ((len == 2) && (tt_strncmp(name, "..", 2) == 0)) {
         return tt_param_parent(current);
     } else {
-        return tt_param_dir_find(TT_PARAM_CAST(current, tt_param_dir_t),
-                                 name,
+        return tt_param_dir_find(TT_PARAM_CAST(current, tt_param_dir_t), name,
                                  len);
     }
 }

@@ -44,8 +44,7 @@
 // interface enclaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __wbuf_render(IN tt_wbuf_t *wbuf,
-                                 IN void *to_render,
+static tt_result_t __wbuf_render(IN tt_wbuf_t *wbuf, IN void *to_render,
                                  OUT OPT tt_u8_t **rendered,
                                  OUT OPT tt_u32_t *len);
 
@@ -55,12 +54,9 @@ static tt_result_t __wbuf_encode(IN tt_wbuf_t *wbuf);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_wbuf_init(IN tt_wbuf_t *wbuf,
-                  IN OPT tt_wbuf_encode_itf_t *e_itf,
-                  IN OPT void *e_param,
-                  IN tt_wbuf_render_itf_t *r_itf,
-                  IN OPT void *r_param,
-                  IN OPT tt_wbuf_attr_t *attr)
+void tt_wbuf_init(IN tt_wbuf_t *wbuf, IN OPT tt_wbuf_encode_itf_t *e_itf,
+                  IN OPT void *e_param, IN tt_wbuf_render_itf_t *r_itf,
+                  IN OPT void *r_param, IN OPT tt_wbuf_attr_t *attr)
 {
     tt_wbuf_attr_t __attr;
 
@@ -100,10 +96,8 @@ void tt_wbuf_attr_default(IN tt_wbuf_attr_t *attr)
     attr->refine_threshold = 1024;
 }
 
-tt_result_t tt_wbuf_render(IN tt_wbuf_t *wbuf,
-                           IN void *to_render,
-                           OUT OPT tt_u8_t **rendered,
-                           OUT OPT tt_u32_t *len)
+tt_result_t tt_wbuf_render(IN tt_wbuf_t *wbuf, IN void *to_render,
+                           OUT OPT tt_u8_t **rendered, OUT OPT tt_u32_t *len)
 {
     if (!TT_OK(__wbuf_render(wbuf, to_render, rendered, len))) {
         return TT_FAIL;
@@ -116,8 +110,7 @@ tt_result_t tt_wbuf_render(IN tt_wbuf_t *wbuf,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_wbuf_put(IN tt_wbuf_t *wbuf,
-                        IN tt_u8_t *data,
+tt_result_t tt_wbuf_put(IN tt_wbuf_t *wbuf, IN tt_u8_t *data,
                         IN tt_u32_t data_len)
 {
     TT_DO(tt_buf_put(&wbuf->raw, data, data_len));
@@ -149,10 +142,8 @@ tt_result_t tt_wbuf_inc_rp(IN tt_wbuf_t *wbuf, IN tt_u32_t num)
     return TT_SUCCESS;
 }
 
-tt_result_t __wbuf_render(IN tt_wbuf_t *wbuf,
-                          IN void *to_render,
-                          OUT OPT tt_u8_t **rendered,
-                          OUT OPT tt_u32_t *len)
+tt_result_t __wbuf_render(IN tt_wbuf_t *wbuf, IN void *to_render,
+                          OUT OPT tt_u8_t **rendered, OUT OPT tt_u32_t *len)
 {
     tt_wbuf_render_itf_t *r_itf = wbuf->r_itf;
     void *r_param = wbuf->r_param;
@@ -160,9 +151,7 @@ tt_result_t __wbuf_render(IN tt_wbuf_t *wbuf,
     tt_buf_t *raw = &wbuf->raw;
 
     n = r_itf->prepare(to_render, r_param);
-    if (n == 0) {
-        return TT_FAIL;
-    }
+    if (n == 0) { return TT_FAIL; }
 
     tt_buf_backup_rwp(raw, &rp, &wp);
     if (TT_OK(r_itf->render(raw, n, to_render, r_param))) {
@@ -188,9 +177,7 @@ tt_result_t __wbuf_encode(IN tt_wbuf_t *wbuf)
     tt_buf_t *raw, *enc;
     tt_bool_t has_enc = TT_FALSE;
 
-    if (wbuf->e_itf == NULL) {
-        return TT_SUCCESS;
-    }
+    if (wbuf->e_itf == NULL) { return TT_SUCCESS; }
     e_itf = wbuf->e_itf;
     e_param = wbuf->e_param;
 

@@ -66,8 +66,7 @@ static void __free_frame(IN tt_queue_t *q, IN __q_frame_t *frame);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_queue_init(IN tt_queue_t *q,
-                   IN tt_u32_t obj_size,
+void tt_queue_init(IN tt_queue_t *q, IN tt_u32_t obj_size,
                    IN OPT tt_queue_attr_t *attr)
 {
     tt_queue_attr_t __attr;
@@ -99,9 +98,7 @@ void tt_queue_destroy(IN tt_queue_t *q)
         tt_free(TT_CONTAINER(dnode, __q_frame_t, node));
     }
 
-    if (q->cached_frame != NULL) {
-        tt_free(q->cached_frame);
-    }
+    if (q->cached_frame != NULL) { tt_free(q->cached_frame); }
 }
 
 void tt_queue_attr_default(IN tt_queue_attr_t *attr)
@@ -132,17 +129,13 @@ tt_result_t tt_queue_push_head(IN tt_queue_t *q, IN void *obj)
         frame = TT_CONTAINER(dnode, __q_frame_t, node);
     } else {
         frame = __alloc_head_frame(q);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_head(&q->frame, &frame->node);
     }
 
     if (frame->start == 0) {
         frame = __alloc_head_frame(q);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_head(&q->frame, &frame->node);
     }
     TT_ASSERT(frame->start > 0);
@@ -166,17 +159,13 @@ tt_result_t tt_queue_push_tail(IN tt_queue_t *q, IN void *obj)
         frame = TT_CONTAINER(dnode, __q_frame_t, node);
     } else {
         frame = __alloc_tail_frame(q);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_tail(&q->frame, &frame->node);
     }
 
     if (frame->end == q->obj_per_frame) {
         frame = __alloc_tail_frame(q);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_tail(&q->frame, &frame->node);
     }
     TT_ASSERT(frame->end < q->obj_per_frame);
@@ -194,9 +183,7 @@ tt_result_t tt_queue_pop_head(IN tt_queue_t *q, OUT void *obj)
     __q_frame_t *frame;
 
     dnode = tt_dlist_head(&q->frame);
-    if (dnode == NULL) {
-        return TT_FAIL;
-    }
+    if (dnode == NULL) { return TT_FAIL; }
 
     frame = TT_CONTAINER(dnode, __q_frame_t, node);
     TT_ASSERT(frame->start < frame->end);
@@ -218,9 +205,7 @@ tt_result_t tt_queue_pop_tail(IN tt_queue_t *q, OUT void *obj)
     __q_frame_t *frame;
 
     dnode = tt_dlist_tail(&q->frame);
-    if (dnode == NULL) {
-        return TT_FAIL;
-    }
+    if (dnode == NULL) { return TT_FAIL; }
 
     frame = TT_CONTAINER(dnode, __q_frame_t, node);
     TT_ASSERT(frame->start < frame->end);
@@ -242,9 +227,7 @@ void *tt_queue_head(IN tt_queue_t *q)
     __q_frame_t *frame;
 
     dnode = tt_dlist_head(&q->frame);
-    if (dnode == NULL) {
-        return NULL;
-    }
+    if (dnode == NULL) { return NULL; }
 
     frame = TT_CONTAINER(dnode, __q_frame_t, node);
     TT_ASSERT(frame->start < frame->end);
@@ -257,9 +240,7 @@ void *tt_queue_tail(IN tt_queue_t *q)
     __q_frame_t *frame;
 
     dnode = tt_dlist_tail(&q->frame);
-    if (dnode == NULL) {
-        return NULL;
-    }
+    if (dnode == NULL) { return NULL; }
 
     frame = TT_CONTAINER(dnode, __q_frame_t, node);
     TT_ASSERT(frame->start < frame->end);
@@ -287,9 +268,7 @@ void *tt_queue_iter_next(IN OUT tt_queue_iter_t *iter)
     __q_frame_t *frame = iter->frame;
     void *obj;
 
-    if (frame == NULL) {
-        return NULL;
-    }
+    if (frame == NULL) { return NULL; }
 
     TT_ASSERT((frame->start + iter->idx) <= frame->end);
     if ((frame->start + iter->idx) == frame->end) {
@@ -311,9 +290,7 @@ tt_result_t tt_queue_get(IN tt_queue_t *q, IN tt_u32_t idx, OUT void *obj)
 {
     tt_dnode_t *node;
 
-    if (idx >= q->count) {
-        return TT_FAIL;
-    }
+    if (idx >= q->count) { return TT_FAIL; }
 
     node = tt_dlist_head(&q->frame);
     while (node != NULL) {
@@ -340,9 +317,7 @@ tt_result_t tt_queue_set(IN tt_queue_t *q, IN tt_u32_t idx, IN void *obj)
 
     TT_ASSERT(obj != NULL);
 
-    if (idx >= q->count) {
-        return TT_FAIL;
-    }
+    if (idx >= q->count) { return TT_FAIL; }
 
     node = tt_dlist_head(&q->frame);
     while (node != NULL) {

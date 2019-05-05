@@ -51,7 +51,8 @@ this file specifies json val
 
 DEF_JVAL_TYPE(tt_jval_t);
 
-typedef enum {
+typedef enum
+{
     TT_JVAL_NULL,
     TT_JVAL_BOOL,
     TT_JVAL_NUMBER,

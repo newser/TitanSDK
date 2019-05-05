@@ -23,7 +23,6 @@
 #include <tt/init/component.h>
 
 #include <tt/log/manager.h>
-#include <tt/misc/rng.h>
 #include <tt/misc/rollback.h>
 
 ////////////////////////////////////////////////////////////
@@ -56,8 +55,7 @@ component_mgr component_mgr::s_instance;
 
 component_mgr::component_mgr()
 {
-    components_[component::e_log_mgr] = &log::init::mgr::instance();
-    components_[component::e_rng] = &init::rng::instance();
+    components_[component::e_log] = &log::log_component::instance();
 }
 
 bool component_mgr::start(void *reserved)

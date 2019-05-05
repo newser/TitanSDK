@@ -56,8 +56,7 @@
 ////////////////////////////////////////////////////////////
 
 tt_ctr_drbg_t *tt_ctr_drbg_create(IN tt_entropy_t *entropy,
-                                  IN OPT tt_u8_t *opaque,
-                                  IN tt_u32_t len)
+                                  IN OPT tt_u8_t *opaque, IN tt_u32_t len)
 {
     tt_ctr_drbg_t *drbg;
     int e;
@@ -72,11 +71,8 @@ tt_ctr_drbg_t *tt_ctr_drbg_create(IN tt_entropy_t *entropy,
 
     mbedtls_ctr_drbg_init(&drbg->ctx);
 
-    e = mbedtls_ctr_drbg_seed(&drbg->ctx,
-                              mbedtls_entropy_func,
-                              &entropy->ctx,
-                              opaque,
-                              len);
+    e = mbedtls_ctr_drbg_seed(&drbg->ctx, mbedtls_entropy_func, &entropy->ctx,
+                              opaque, len);
     if (e != 0) {
         tt_crypto_error("fail to seed ctr drbg");
         tt_free(drbg);
@@ -102,18 +98,15 @@ tt_ctr_drbg_t *tt_current_ctr_drbg()
         tt_entropy_t *entropy = tt_current_entropy();
         if (entropy != NULL) {
             t->ctr_drbg =
-                tt_ctr_drbg_create(entropy,
-                                   (tt_u8_t *)t->name,
+                tt_ctr_drbg_create(entropy, (tt_u8_t *)t->name,
                                    TT_COND(t->name != NULL,
-                                           (tt_u32_t)tt_strlen(t->name),
-                                           0));
+                                           (tt_u32_t)tt_strlen(t->name), 0));
         }
     }
     return t->ctr_drbg;
 }
 
-tt_result_t tt_ctr_drbg_rand(IN tt_ctr_drbg_t *drbg,
-                             OUT tt_u8_t *buf,
+tt_result_t tt_ctr_drbg_rand(IN tt_ctr_drbg_t *drbg, OUT tt_u8_t *buf,
                              IN tt_u32_t len)
 {
     int e;

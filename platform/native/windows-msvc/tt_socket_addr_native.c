@@ -92,8 +92,7 @@ void tt_sktaddr_set_ip_n_ntv(IN tt_sktaddr_ntv_t *addr, IN tt_sktaddr_ip_t *na)
         if (na == TT_IP_ANY) {
             ((SOCKADDR_IN6 *)addr)->sin6_addr = in6addr_any;
         } else {
-            tt_memcpy(((SOCKADDR_IN6 *)addr)->sin6_addr.s6_bytes,
-                      na->a128.__u8,
+            tt_memcpy(((SOCKADDR_IN6 *)addr)->sin6_addr.s6_bytes, na->a128.__u8,
                       16);
         }
     }
@@ -107,14 +106,12 @@ void tt_sktaddr_get_ip_n_ntv(IN tt_sktaddr_ntv_t *addr, OUT tt_sktaddr_ip_t *na)
     } else {
         TT_ASSERT_SA(addr->ss_family == AF_INET6);
         tt_memcpy(na->a128.__u8,
-                  ((struct sockaddr_in6 *)addr)->sin6_addr.s6_bytes,
-                  16);
+                  ((struct sockaddr_in6 *)addr)->sin6_addr.s6_bytes, 16);
     }
 }
 
 tt_result_t tt_sktaddr_ip_n2p_ntv(IN tt_net_family_t family,
-                                  IN tt_sktaddr_ip_t *na,
-                                  OUT tt_char_t *buf,
+                                  IN tt_sktaddr_ip_t *na, OUT tt_char_t *buf,
                                   IN tt_u32_t buf_len)
 {
     if (family == TT_NET_AF_INET) {
@@ -229,9 +226,7 @@ void tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
     }
 
     InterfaceName = tt_wchar_create(scope_name, 0, NULL);
-    if (InterfaceName == NULL) {
-        return;
-    }
+    if (InterfaceName == NULL) { return; }
 
     if ((ConvertInterfaceNameToLuidW(InterfaceName, &luid) != 0) ||
         (ConvertInterfaceLuidToIndex(&luid, &ifidx) != NO_ERROR)) {
@@ -273,9 +268,7 @@ tt_bool_t tt_sktaddr_ipv4mapped_ntv(IN tt_sktaddr_ntv_t *addr)
 {
     u_char *uc6 = ((SOCKADDR_IN6 *)addr)->sin6_addr.s6_bytes;
 
-    if (addr->ss_family != AF_INET6) {
-        return TT_FALSE;
-    }
+    if (addr->ss_family != AF_INET6) { return TT_FALSE; }
 
     if ((*((u_long *)&uc6[0]) != 0) || (*((u_long *)&uc6[4]) != 0) ||
         (*((u_short *)&uc6[8]) != 0) || (*((u_short *)&uc6[10]) != 0xFFFF)) {

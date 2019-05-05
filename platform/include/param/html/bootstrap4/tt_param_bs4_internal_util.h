@@ -59,14 +59,10 @@ tt_inline const tt_char_t *__param_display(IN tt_param_t *p)
     const tt_char_t *disp;
 
     disp = tt_param_display(p);
-    if (disp[0] != 0) {
-        return disp;
-    }
+    if (disp[0] != 0) { return disp; }
 
     disp = tt_param_name(p);
-    if (disp[0] != 0) {
-        return disp;
-    }
+    if (disp[0] != 0) { return disp; }
 
     return "?";
 }

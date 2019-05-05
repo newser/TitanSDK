@@ -111,10 +111,7 @@ tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g)
         return TT_FAIL;
     }
 
-    e = mbedtls_ecdh_gen_public(&ctx->grp,
-                                &ctx->d,
-                                &ctx->Q,
-                                tt_ctr_drbg,
+    e = mbedtls_ecdh_gen_public(&ctx->grp, &ctx->d, &ctx->Q, tt_ctr_drbg,
                                 tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to generate ecdh pub");
@@ -125,10 +122,8 @@ tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
-                            IN tt_bool_t local,
-                            IN tt_bool_t compress,
-                            OUT tt_u8_t *pub,
+tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh, IN tt_bool_t local,
+                            IN tt_bool_t compress, OUT tt_u8_t *pub,
                             IN OUT tt_u32_t *len)
 {
     mbedtls_ecdh_context *ctx;
@@ -146,9 +141,7 @@ tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
                                        TT_COND(compress,
                                                MBEDTLS_ECP_PF_COMPRESSED,
                                                MBEDTLS_ECP_PF_UNCOMPRESSED),
-                                       &olen,
-                                       pub,
-                                       (size_t)len);
+                                       &olen, pub, (size_t)len);
     if (e != 0) {
         tt_crypto_error("fail to get ec pub");
         return TT_FAIL;
@@ -158,10 +151,8 @@ tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ecdh_set_pub(IN tt_ecdh_t *ecdh,
-                            IN tt_bool_t local,
-                            IN tt_u8_t *pub,
-                            IN tt_u32_t len)
+tt_result_t tt_ecdh_set_pub(IN tt_ecdh_t *ecdh, IN tt_bool_t local,
+                            IN tt_u8_t *pub, IN tt_u32_t len)
 {
     mbedtls_ecdh_context *ctx;
     int e;
@@ -172,8 +163,7 @@ tt_result_t tt_ecdh_set_pub(IN tt_ecdh_t *ecdh,
     ctx = &ecdh->ctx;
 
     e = mbedtls_ecp_point_read_binary(&ctx->grp,
-                                      TT_COND(local, &ctx->Q, &ctx->Qp),
-                                      pub,
+                                      TT_COND(local, &ctx->Q, &ctx->Qp), pub,
                                       len);
     if (e != 0) {
         tt_crypto_error("fail to set ec pub");
@@ -192,12 +182,8 @@ tt_result_t tt_ecdh_derive(IN tt_ecdh_t *ecdh)
 
     ctx = &ecdh->ctx;
 
-    e = mbedtls_ecdh_compute_shared(&ctx->grp,
-                                    &ctx->z,
-                                    &ctx->Qp,
-                                    &ctx->d,
-                                    tt_ctr_drbg,
-                                    tt_current_ctr_drbg());
+    e = mbedtls_ecdh_compute_shared(&ctx->grp, &ctx->z, &ctx->Qp, &ctx->d,
+                                    tt_ctr_drbg, tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to drive ecdh secret");
         return TT_FAIL;
@@ -206,8 +192,7 @@ tt_result_t tt_ecdh_derive(IN tt_ecdh_t *ecdh)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ecdh_get_secret(IN tt_ecdh_t *ecdh,
-                               OUT tt_u8_t *secret,
+tt_result_t tt_ecdh_get_secret(IN tt_ecdh_t *ecdh, OUT tt_u8_t *secret,
                                IN tt_u32_t len)
 {
     mbedtls_ecdh_context *ctx;

@@ -51,10 +51,8 @@
 ////////////////////////////////////////////////////////////
 
 tt_result_t tt_sshenc_aes_create_128cbc(IN struct tt_sshenc_s *enc,
-                                        IN tt_bool_t encrypt,
-                                        IN tt_u8_t *iv,
-                                        IN tt_u32_t iv_len,
-                                        IN tt_u8_t *key,
+                                        IN tt_bool_t encrypt, IN tt_u8_t *iv,
+                                        IN tt_u32_t iv_len, IN tt_u8_t *key,
                                         IN tt_u32_t key_len)
 {
     tt_blob_t key_blob;
@@ -71,10 +69,7 @@ tt_result_t tt_sshenc_aes_create_128cbc(IN struct tt_sshenc_s *enc,
     attr.cbc.ivec.addr = iv;
     attr.cbc.ivec.len = iv_len;
 
-    if (!TT_OK(tt_aes_create(&enc->alg_u.aes,
-                             encrypt,
-                             &key_blob,
-                             TT_AES128,
+    if (!TT_OK(tt_aes_create(&enc->alg_u.aes, encrypt, &key_blob, TT_AES128,
                              &attr))) {
         TT_ERROR("fail to create ssh aes");
         return TT_FAIL;
@@ -87,10 +82,8 @@ tt_result_t tt_sshenc_aes_create_128cbc(IN struct tt_sshenc_s *enc,
 }
 
 tt_result_t tt_sshenc_aes_create_256cbc(IN struct tt_sshenc_s *enc,
-                                        IN tt_bool_t encrypt,
-                                        IN tt_u8_t *iv,
-                                        IN tt_u32_t iv_len,
-                                        IN tt_u8_t *key,
+                                        IN tt_bool_t encrypt, IN tt_u8_t *iv,
+                                        IN tt_u32_t iv_len, IN tt_u8_t *key,
                                         IN tt_u32_t key_len)
 {
     tt_blob_t key_blob;
@@ -107,10 +100,7 @@ tt_result_t tt_sshenc_aes_create_256cbc(IN struct tt_sshenc_s *enc,
     attr.cbc.ivec.addr = iv;
     attr.cbc.ivec.len = iv_len;
 
-    if (!TT_OK(tt_aes_create(&enc->alg_u.aes,
-                             encrypt,
-                             &key_blob,
-                             TT_AES256,
+    if (!TT_OK(tt_aes_create(&enc->alg_u.aes, encrypt, &key_blob, TT_AES256,
                              &attr))) {
         TT_ERROR("fail to create ssh aes");
         return TT_FAIL;
@@ -128,8 +118,7 @@ void tt_sshenc_aes_destroy(IN struct tt_sshenc_s *enc)
 }
 
 tt_result_t tt_sshenc_aes_encrypt(IN struct tt_sshenc_s *enc,
-                                  IN OUT tt_u8_t *data,
-                                  IN tt_u32_t data_len)
+                                  IN OUT tt_u8_t *data, IN tt_u32_t data_len)
 {
     tt_u32_t output_len = data_len;
 
@@ -137,8 +126,7 @@ tt_result_t tt_sshenc_aes_encrypt(IN struct tt_sshenc_s *enc,
 }
 
 tt_result_t tt_sshenc_aes_decrypt(IN struct tt_sshenc_s *enc,
-                                  IN OUT tt_u8_t *data,
-                                  IN tt_u32_t data_len)
+                                  IN OUT tt_u8_t *data, IN tt_u32_t data_len)
 {
     tt_u32_t output_len = data_len;
 

@@ -66,18 +66,15 @@ typedef struct
 //   data with length not less than data_len, then decoded_len
 //   will return length decoded data which is always less than
 //   data_len
-tt_export tt_result_t tt_base64_decode(IN tt_u8_t *data,
-                                       IN tt_u32_t data_len,
+tt_export tt_result_t tt_base64_decode(IN tt_u8_t *data, IN tt_u32_t data_len,
                                        IN OPT tt_base64_decode_attr_t *attr,
                                        OUT tt_u8_t *decoded,
                                        IN OUT tt_u32_t *decoded_len);
 
 tt_export tt_result_t
-tt_base64_decode_alloc(IN tt_u8_t *data,
-                       IN tt_u32_t data_len,
+tt_base64_decode_alloc(IN tt_u8_t *data, IN tt_u32_t data_len,
                        IN OPT tt_base64_decode_attr_t *attr,
-                       OUT tt_u8_t **decoded,
-                       IN OUT tt_u32_t *decoded_len);
+                       OUT tt_u8_t **decoded, IN OUT tt_u32_t *decoded_len);
 
 tt_export void tt_base64_decode_attr_default(IN tt_base64_decode_attr_t *attr);
 

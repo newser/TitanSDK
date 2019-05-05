@@ -33,10 +33,7 @@ extern "C" {
 #include <misc/tt_util.h>
 }
 
-#include <tt/init/component.h>
-#include <tt/misc/util.h>
-
-#include <rng_native.h>
+#include <random>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -48,49 +45,31 @@ extern "C" {
 
 namespace tt {
 
-namespace init {
+namespace rng {
 
-class rng: public component
+////////////////////////////////////////////////////////////
+// global variants
+////////////////////////////////////////////////////////////
+
+tt_export thread_local std::random_device g_randev;
+
+////////////////////////////////////////////////////////////
+// interface declaration
+////////////////////////////////////////////////////////////
+
+class xorshift
 {
 public:
-    static rng &instance() { return s_instance; }
+    using result_type = uint64_t;
 
-private:
-    static rng s_instance;
-
-    rng(): component(component::e_rng, "random number generator") {}
-
-    bool do_start(void *reserved) override;
-    void do_stop() override;
-};
-
-}
-
-enum rng_alg
-{
-    e_xorshift,
-};
-
-template<rng_alg t_alg = e_xorshift>
-class rng
-{
-};
-
-template<>
-class rng<e_xorshift>
-{
-public:
-    rng()
+    xorshift()
     {
-        if (!native::rng(&s_, sizeof(s_[0]))) {
-            s_[0] = (rand() << 4) | rand();
-        }
-        if (!native::rng(&s_, sizeof(s_[1]))) {
-            s_[1] = (rand() << 4) | rand();
-        }
+        static_assert(sizeof(std::random_device::result_type) == 4);
+        s_[0] = (g_randev() << 4) | g_randev();
+        s_[1] = (g_randev() << 4) | g_randev();
     }
 
-    uint64_t next()
+    uint64_t operator()()
     {
         uint64_t s1 = s_[0];
         const uint64_t s0 = s_[1];
@@ -104,13 +83,29 @@ private:
     uint64_t s_[2];
 };
 
-////////////////////////////////////////////////////////////
-// global variants
-////////////////////////////////////////////////////////////
+template<typename T>
+T &engine()
+{
+    thread_local static T s_engine(std::random_device{}());
+    return s_engine;
+}
 
-////////////////////////////////////////////////////////////
-// interface declaration
-////////////////////////////////////////////////////////////
+template<>
+inline xorshift &engine<xorshift>()
+{
+    thread_local static xorshift s_engine;
+    return s_engine;
+}
+
+// template<typename T = std::mt19937, typename V = typename T::result_type>
+template<typename T = xorshift, typename V = typename T::result_type>
+V next()
+{
+    T &e = engine<T>();
+    return e();
+}
+
+}
 
 }
 

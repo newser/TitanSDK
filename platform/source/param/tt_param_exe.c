@@ -35,7 +35,9 @@
 ////////////////////////////////////////////////////////////
 
 static tt_param_itf_t __exe_itf = {
-    NULL, NULL, NULL,
+    NULL,
+    NULL,
+    NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -55,15 +57,9 @@ tt_param_t *tt_param_exe_create(IN const tt_char_t *name,
 
     TT_ASSERT(run != NULL);
 
-    p = tt_param_create(sizeof(tt_param_exe_t),
-                        TT_PARAM_EXE,
-                        name,
-                        &__exe_itf,
-                        NULL,
-                        attr);
-    if (p == NULL) {
-        return NULL;
-    }
+    p = tt_param_create(sizeof(tt_param_exe_t), TT_PARAM_EXE, name, &__exe_itf,
+                        NULL, attr);
+    if (p == NULL) { return NULL; }
 
     pe = TT_PARAM_CAST(p, tt_param_exe_t);
 

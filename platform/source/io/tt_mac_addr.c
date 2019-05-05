@@ -113,10 +113,8 @@ tt_result_t tt_macaddr_p2n(IN tt_macaddr_t *ma, IN const tt_char_t *cstr)
     }
 }
 
-tt_result_t tt_macaddr_n2p(IN tt_macaddr_t *ma,
-                           OUT tt_char_t *cstr,
-                           IN tt_u32_t len,
-                           IN tt_u32_t flag)
+tt_result_t tt_macaddr_n2p(IN tt_macaddr_t *ma, OUT tt_char_t *cstr,
+                           IN tt_u32_t len, IN tt_u32_t flag)
 {
     TT_ASSERT(ma != NULL);
     TT_ASSERT(cstr != NULL);
@@ -126,14 +124,8 @@ tt_result_t tt_macaddr_n2p(IN tt_macaddr_t *ma,
         return TT_E_NOSPC;
     }
 
-    tt_snprintf(cstr,
-                18,
-                "%02X:%02X:%02X:%02x:%02x:%02x",
-                ma->addr[0],
-                ma->addr[1],
-                ma->addr[2],
-                ma->addr[3],
-                ma->addr[4],
+    tt_snprintf(cstr, 18, "%02X:%02X:%02X:%02x:%02x:%02x", ma->addr[0],
+                ma->addr[1], ma->addr[2], ma->addr[3], ma->addr[4],
                 ma->addr[5]);
     return TT_SUCCESS;
 }

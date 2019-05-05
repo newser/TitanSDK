@@ -51,8 +51,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_zip_t *tt_zip_create(IN tt_zipsrc_t *zsrc,
-                        IN tt_u32_t flag,
+tt_zip_t *tt_zip_create(IN tt_zipsrc_t *zsrc, IN tt_u32_t flag,
                         IN OPT tt_zip_attr_t *attr)
 {
     tt_zip_attr_t __attr;
@@ -75,19 +74,14 @@ tt_zip_t *tt_zip_create(IN tt_zipsrc_t *zsrc,
     return z;
 }
 
-tt_zip_t *tt_zip_create_blob(IN void *p,
-                             IN tt_u32_t len,
-                             IN tt_bool_t free,
-                             IN tt_u32_t flag,
-                             IN OPT tt_zip_attr_t *attr)
+tt_zip_t *tt_zip_create_blob(IN void *p, IN tt_u32_t len, IN tt_bool_t free,
+                             IN tt_u32_t flag, IN OPT tt_zip_attr_t *attr)
 {
     tt_zipsrc_t *zs;
     tt_zip_t *z;
 
     zs = tt_zipsrc_blob_create(p, len, free);
-    if (zs == NULL) {
-        return NULL;
-    }
+    if (zs == NULL) { return NULL; }
 
     z = tt_zip_create(zs, flag, attr);
     if (z == NULL) {
@@ -98,19 +92,15 @@ tt_zip_t *tt_zip_create_blob(IN void *p,
     return z;
 }
 
-tt_zip_t *tt_zip_create_file(IN const tt_char_t *path,
-                             IN tt_u64_t from,
-                             IN tt_u64_t len,
-                             IN tt_u32_t flag,
+tt_zip_t *tt_zip_create_file(IN const tt_char_t *path, IN tt_u64_t from,
+                             IN tt_u64_t len, IN tt_u32_t flag,
                              IN OPT tt_zip_attr_t *attr)
 {
     tt_zipsrc_t *zs;
     tt_zip_t *z;
 
     zs = tt_zipsrc_file_create(path, from, len);
-    if (zs == NULL) {
-        return NULL;
-    }
+    if (zs == NULL) { return NULL; }
 
     z = tt_zip_create(zs, flag, attr);
     if (z == NULL) {

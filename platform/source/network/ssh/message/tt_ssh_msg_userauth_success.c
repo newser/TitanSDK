@@ -74,8 +74,7 @@ tt_sshmsg_t *tt_sshmsg_uas_create()
     return tt_sshmsg_create(TT_SSH_MSGID_USERAUTH_SUCCESS, 0, &__uas_op);
 }
 
-tt_result_t __uas_render_prepare(IN struct tt_sshmsg_s *msg,
-                                 OUT tt_u32_t *len,
+tt_result_t __uas_render_prepare(IN struct tt_sshmsg_s *msg, OUT tt_u32_t *len,
                                  OUT tt_ssh_render_mode_t *mode)
 {
     tt_u32_t msg_len = 0;

@@ -76,8 +76,7 @@ tt_result_t tt_platform_info_load(IN tt_profile_t *profile)
     tt_result_t result = TT_FAIL;
 
     // first load numa info
-    result = tt_platform_numa_node_id_load(profile,
-                                           &tt_g_numa_node_id,
+    result = tt_platform_numa_node_id_load(profile, &tt_g_numa_node_id,
                                            &tt_g_numa_node_id_thread,
                                            &tt_g_numa_node_id_memory);
     if (!TT_OK(result)) {
@@ -94,8 +93,7 @@ tt_result_t tt_platform_info_load(IN tt_profile_t *profile)
 
     result = tt_order(tt_g_page_size, &tt_g_page_size_order);
     if (!TT_OK(result) || (tt_g_page_size != (1 << tt_g_page_size_order))) {
-        TT_ERROR("fail to load page size order [%x - %d]\n",
-                 tt_g_page_size,
+        TT_ERROR("fail to load page size order [%x - %d]\n", tt_g_page_size,
                  tt_g_page_size_order);
         return TT_FAIL;
     }
@@ -118,8 +116,7 @@ tt_result_t tt_platform_info_load(IN tt_profile_t *profile)
     if (!TT_OK(result) ||
         (tt_g_cache_line_size != (1 << tt_g_cache_line_size_order))) {
         TT_ERROR("fail to load cache line size order [%x - %d]\n",
-                 tt_g_cache_line_size,
-                 tt_g_cache_line_size_order);
+                 tt_g_cache_line_size, tt_g_cache_line_size_order);
         return TT_FAIL;
     }
 

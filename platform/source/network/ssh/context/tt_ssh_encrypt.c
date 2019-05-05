@@ -80,20 +80,15 @@ void tt_sshenc_init(IN tt_sshenc_t *enc)
 
 void tt_sshenc_destroy(IN tt_sshenc_t *enc)
 {
-    if (enc->alg == TT_SSH_ENC_ALG_NUM) {
-        return;
-    }
+    if (enc->alg == TT_SSH_ENC_ALG_NUM) { return; }
 
     TT_ASSERT_SSH(TT_SSH_ENC_ALG_VALID(enc->alg));
     tt_s_sshenc_itf[enc->alg].destroy(enc);
 }
 
-tt_result_t tt_sshenc_setalg(IN tt_sshenc_t *enc,
-                             IN tt_ssh_enc_alg_t alg,
-                             IN tt_bool_t encrypt,
-                             IN tt_u8_t *iv,
-                             IN tt_u32_t iv_len,
-                             IN tt_u8_t *key,
+tt_result_t tt_sshenc_setalg(IN tt_sshenc_t *enc, IN tt_ssh_enc_alg_t alg,
+                             IN tt_bool_t encrypt, IN tt_u8_t *iv,
+                             IN tt_u32_t iv_len, IN tt_u8_t *key,
                              IN tt_u32_t key_len)
 {
     TT_ASSERT_SSH(TT_SSH_ENC_ALG_VALID(alg));
@@ -106,8 +101,7 @@ tt_result_t tt_sshenc_setalg(IN tt_sshenc_t *enc,
     return tt_s_sshenc_itf[alg].create(enc, encrypt, iv, iv_len, key, key_len);
 }
 
-tt_result_t tt_sshenc_encrypt(IN tt_sshenc_t *enc,
-                              IN OUT tt_u8_t *data,
+tt_result_t tt_sshenc_encrypt(IN tt_sshenc_t *enc, IN OUT tt_u8_t *data,
                               IN tt_u32_t data_len)
 {
     if (enc->alg == TT_SSH_ENC_ALG_NUM) {
@@ -123,8 +117,7 @@ tt_result_t tt_sshenc_encrypt(IN tt_sshenc_t *enc,
     }
 }
 
-tt_result_t tt_sshenc_decrypt(IN tt_sshenc_t *enc,
-                              IN OUT tt_u8_t *data,
+tt_result_t tt_sshenc_decrypt(IN tt_sshenc_t *enc, IN OUT tt_u8_t *data,
                               IN tt_u32_t data_len)
 {
     if (enc->alg == TT_SSH_ENC_ALG_NUM) {

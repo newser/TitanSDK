@@ -86,11 +86,6 @@ void tt_date_now_ntv(OUT tt_date_t *date)
 
 void __tm2date(IN struct tm *tm, OUT tt_date_t *date)
 {
-    tt_date_set(date,
-                tm->tm_year + 1900,
-                tm->tm_mon,
-                tm->tm_mday,
-                tm->tm_hour,
-                tm->tm_min,
-                TT_COND(tm->tm_sec < 60, tm->tm_sec, 59));
+    tt_date_set(date, tm->tm_year + 1900, tm->tm_mon, tm->tm_mday, tm->tm_hour,
+                tm->tm_min, TT_COND(tm->tm_sec < 60, tm->tm_sec, 59));
 }

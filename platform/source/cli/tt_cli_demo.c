@@ -64,43 +64,32 @@ static __cli_demo_t tt_s_cli_demo;
 static __cli_demo_app_t tt_s_cli_demo_app;
 static __cli_demo_io_t tt_s_cli_demo_io;
 
-static const tt_char_t *__cli_demo_cmd[] =
-    {"help", "ls", "lsof", "cd", "cdets", "unit-test"};
+static const tt_char_t *__cli_demo_cmd[] = {"help", "ls",    "lsof",
+                                            "cd",   "cdets", "unit-test"};
 
-static const tt_char_t *__cli_demo_arg[] = {"Applications",
-                                            "Users",
-                                            "etc",
-                                            "opt",
-                                            "option",
-                                            "var",
-                                            "Library",
-                                            "Volume-A",
+static const tt_char_t *__cli_demo_arg[] = {"Applications", "Users",
+                                            "etc",          "opt",
+                                            "option",       "var",
+                                            "Library",      "Volume-A",
                                             "Volume-B"};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __cli_app_on_cmd(IN struct tt_cli_s *cli,
-                                 IN void *param,
-                                 IN const tt_char_t *cmd,
-                                 IN tt_buf_t *output);
-static tt_u32_t __cli_app_on_complete(IN struct tt_cli_s *cli,
-                                      IN void *param,
-                                      IN tt_u8_t *cur,
-                                      IN tt_u32_t cur_len,
+static tt_u32_t __cli_app_on_cmd(IN struct tt_cli_s *cli, IN void *param,
+                                 IN const tt_char_t *cmd, IN tt_buf_t *output);
+static tt_u32_t __cli_app_on_complete(IN struct tt_cli_s *cli, IN void *param,
+                                      IN tt_u8_t *cur, IN tt_u32_t cur_len,
                                       IN tt_bool_t wait4cmd,
                                       IN tt_buf_t *output);
 static tt_bool_t __cli_app_on_quit(IN struct tt_cli_s *cli,
                                    IN struct tt_buf_s *output);
 
-static tt_result_t __cli_io_send(IN struct tt_cli_s *cli,
-                                 IN void *param,
-                                 IN tt_u8_t *ev,
-                                 IN tt_u32_t ev_num);
+static tt_result_t __cli_io_send(IN struct tt_cli_s *cli, IN void *param,
+                                 IN tt_u8_t *ev, IN tt_u32_t ev_num);
 
-static tt_result_t __console_ev_handler(IN void *param,
-                                        IN tt_cons_ev_t ev,
+static tt_result_t __console_ev_handler(IN void *param, IN tt_cons_ev_t ev,
                                         IN tt_cons_ev_data_t *ev_data);
 
 ////////////////////////////////////////////////////////////
@@ -130,9 +119,7 @@ tt_result_t tt_cli_demo_run()
 
     result =
         tt_cli_create(&tt_s_cli_demo.cli, TT_CLI_MODE_DEFAUTL, &cb, &itf, NULL);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     result = tt_cli_start(&tt_s_cli_demo.cli);
     if (!TT_OK(result)) {
@@ -146,10 +133,8 @@ tt_result_t tt_cli_demo_run()
     return TT_SUCCESS;
 }
 
-tt_u32_t __cli_app_on_cmd(IN struct tt_cli_s *cli,
-                          IN void *param,
-                          IN const tt_char_t *cmd,
-                          IN tt_buf_t *output)
+tt_u32_t __cli_app_on_cmd(IN struct tt_cli_s *cli, IN void *param,
+                          IN const tt_char_t *cmd, IN tt_buf_t *output)
 {
     if (cmd != NULL) {
         tt_buf_put(output, (tt_u8_t *)"input: ", sizeof("input: ") - 1);
@@ -161,12 +146,9 @@ tt_u32_t __cli_app_on_cmd(IN struct tt_cli_s *cli,
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __cli_app_on_complete(IN struct tt_cli_s *cli,
-                               IN void *param,
-                               IN tt_u8_t *cur,
-                               IN tt_u32_t cur_len,
-                               IN tt_bool_t wait4cmd,
-                               IN tt_buf_t *output)
+tt_u32_t __cli_app_on_complete(IN struct tt_cli_s *cli, IN void *param,
+                               IN tt_u8_t *cur, IN tt_u32_t cur_len,
+                               IN tt_bool_t wait4cmd, IN tt_buf_t *output)
 {
     __cli_demo_app_t *app = (__cli_demo_app_t *)param;
     const tt_char_t **option;
@@ -192,10 +174,8 @@ tt_bool_t __cli_app_on_quit(IN struct tt_cli_s *cli, IN struct tt_buf_s *output)
     return TT_TRUE;
 }
 
-tt_result_t __cli_io_send(IN struct tt_cli_s *cli,
-                          IN void *param,
-                          IN tt_u8_t *ev,
-                          IN tt_u32_t ev_num)
+tt_result_t __cli_io_send(IN struct tt_cli_s *cli, IN void *param,
+                          IN tt_u8_t *ev, IN tt_u32_t ev_num)
 {
     tt_u32_t i;
     tt_cons_ev_data_t ev_data;
@@ -205,9 +185,7 @@ tt_result_t __cli_io_send(IN struct tt_cli_s *cli,
         if (TT_CLI_EV_VALID(e)) {
             switch (e) {
 #define __EVMAP(from, to)                                                      \
-    case from:                                                                 \
-        ev[i] = to;                                                            \
-        break
+    case from: ev[i] = to; break
                 __EVMAP(TT_CLI_EV_UP, TT_CONS_EXTKEY_UP);
                 __EVMAP(TT_CLI_EV_DOWN, TT_CONS_EXTKEY_DOWN);
                 __EVMAP(TT_CLI_EV_RIGHT, TT_CONS_EXTKEY_RIGHT);
@@ -218,8 +196,7 @@ tt_result_t __cli_io_send(IN struct tt_cli_s *cli,
                 __EVMAP(TT_CLI_EV_ENTER, TT_CONS_EXTKEY_CRLF);
                 __EVMAP(TT_CLI_EV_TAB, TT_CONS_EXTKEY_TAB);
 #undef __EVMAP
-                default:
-                    break;
+            default: break;
             }
         }
     }
@@ -229,17 +206,14 @@ tt_result_t __cli_io_send(IN struct tt_cli_s *cli,
     return tt_console_send(TT_CONS_EV_KEY, &ev_data);
 }
 
-tt_result_t __console_ev_handler(IN void *param,
-                                 IN tt_cons_ev_t ev,
+tt_result_t __console_ev_handler(IN void *param, IN tt_cons_ev_t ev,
                                  IN tt_cons_ev_data_t *ev_data)
 {
     tt_u32_t i;
     tt_cons_ev_key_t *ev_key;
     tt_cli_t *cli = (tt_cli_t *)param;
 
-    if (ev != TT_CONS_EV_KEY) {
-        return TT_SUCCESS;
-    }
+    if (ev != TT_CONS_EV_KEY) { return TT_SUCCESS; }
 
     ev_key = &ev_data->key;
     for (i = 0; i < ev_key->key_num; ++i) {
@@ -247,9 +221,7 @@ tt_result_t __console_ev_handler(IN void *param,
         if (TT_CONS_KEY_IS_EXTENDED(k)) {
             switch (k) {
 #define __EVMAP(from, to)                                                      \
-    case from:                                                                 \
-        ev_key->key[i] = to;                                                   \
-        break
+    case from: ev_key->key[i] = to; break
                 __EVMAP(TT_CONS_EXTKEY_UP, TT_CLI_EV_UP);
                 __EVMAP(TT_CONS_EXTKEY_DOWN, TT_CLI_EV_DOWN);
                 __EVMAP(TT_CONS_EXTKEY_RIGHT, TT_CLI_EV_RIGHT);
@@ -260,8 +232,7 @@ tt_result_t __console_ev_handler(IN void *param,
                 __EVMAP(TT_CONS_EXTKEY_CRLF, TT_CLI_EV_ENTER);
                 __EVMAP(TT_CONS_EXTKEY_TAB, TT_CLI_EV_TAB);
 #undef __EVMAP
-                default:
-                    break;
+            default: break;
             }
         }
     }

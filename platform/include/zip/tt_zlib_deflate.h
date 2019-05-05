@@ -65,23 +65,15 @@ tt_inline void tt_zlibdef_attr_default(IN tt_zlibdef_attr_t *attr)
     tt_deflate_attr_default(attr);
 }
 
-tt_inline tt_result_t tt_zlibdef_run(IN tt_zlibdef_t *zli,
-                                     IN tt_u8_t *ibuf,
+tt_inline tt_result_t tt_zlibdef_run(IN tt_zlibdef_t *zli, IN tt_u8_t *ibuf,
                                      IN tt_u32_t ilen,
                                      OUT tt_u32_t *consumed_len,
-                                     IN tt_u8_t *obuf,
-                                     IN tt_u32_t olen,
+                                     IN tt_u8_t *obuf, IN tt_u32_t olen,
                                      OUT tt_u32_t *produced_len,
                                      IN tt_bool_t all_in)
 {
-    return tt_deflate_run(zli,
-                          ibuf,
-                          ilen,
-                          consumed_len,
-                          obuf,
-                          olen,
-                          produced_len,
-                          all_in);
+    return tt_deflate_run(zli, ibuf, ilen, consumed_len, obuf, olen,
+                          produced_len, all_in);
 }
 
 tt_inline void tt_zlibdef_reset(IN tt_zlibdef_t *zli)

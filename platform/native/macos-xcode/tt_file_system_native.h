@@ -84,26 +84,19 @@ extern tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,
 extern tt_result_t tt_fremove_ntv(IN const tt_char_t *path);
 
 extern tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file,
-                                IN const tt_char_t *path,
-                                IN tt_u32_t flag,
+                                IN const tt_char_t *path, IN tt_u32_t flag,
                                 IN struct tt_file_attr_s *attr);
 
 extern void tt_fclose_ntv(IN tt_file_ntv_t *file);
 
-extern tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file,
-                                IN tt_u32_t whence,
-                                IN tt_s64_t offset,
-                                OUT tt_u64_t *location);
+extern tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file, IN tt_u32_t whence,
+                                IN tt_s64_t offset, OUT tt_u64_t *location);
 
-extern tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
-                                OUT tt_u8_t *buf,
-                                IN tt_u32_t buf_len,
-                                OUT tt_u32_t *read_len);
+extern tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file, OUT tt_u8_t *buf,
+                                IN tt_u32_t buf_len, OUT tt_u32_t *read_len);
 
-extern tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
-                                 IN tt_u8_t *buf,
-                                 IN tt_u32_t buf_len,
-                                 OUT tt_u32_t *write_len);
+extern tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file, IN tt_u8_t *buf,
+                                 IN tt_u32_t buf_len, OUT tt_u32_t *write_len);
 
 extern tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file,
                                 IN struct tt_fstat_s *fstat);
@@ -111,8 +104,7 @@ extern tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file,
 extern tt_result_t tt_ftrunc_ntv(IN tt_file_ntv_t *file, IN tt_u64_t len);
 
 extern tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst,
-                                IN const tt_char_t *src,
-                                IN tt_u32_t flag);
+                                IN const tt_char_t *src, IN tt_u32_t flag);
 
 extern tt_result_t tt_fsync_ntv(IN tt_file_ntv_t *file);
 
@@ -131,8 +123,7 @@ extern tt_result_t tt_dcreate_ntv(IN const tt_char_t *path,
 
 extern tt_result_t tt_dremove_ntv(IN const tt_char_t *path);
 
-extern tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir,
-                                IN const tt_char_t *path,
+extern tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir, IN const tt_char_t *path,
                                 IN struct tt_dir_attr_s *attr);
 
 extern void tt_dclose_ntv(OUT tt_dir_ntv_t *dir);
@@ -142,8 +133,7 @@ extern tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir,
                                 OUT struct tt_dirent_s *entry);
 
 extern tt_result_t tt_dcopy_ntv(IN const tt_char_t *dst,
-                                IN const tt_char_t *src,
-                                IN tt_u32_t flag);
+                                IN const tt_char_t *src, IN tt_u32_t flag);
 
 extern tt_bool_t tt_fs_exist_ntv(IN const tt_char_t *path);
 
@@ -157,12 +147,10 @@ extern tt_result_t tt_fs_symlink_ntv(IN const tt_char_t *path,
                                      IN const tt_char_t *link);
 
 extern tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link,
-                                      OUT tt_char_t *path,
-                                      IN tt_u32_t len);
+                                      OUT tt_char_t *path, IN tt_u32_t len);
 
 extern tt_result_t tt_fs_realpath_ntv(IN const tt_char_t *path,
-                                      OUT tt_char_t *resolved,
-                                      IN tt_u32_t len);
+                                      OUT tt_char_t *resolved, IN tt_u32_t len);
 
 extern void tt_fs_worker_io(IN struct tt_io_ev_s *ev);
 

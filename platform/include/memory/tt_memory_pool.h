@@ -91,8 +91,7 @@ create a memory pool
 the total available size in pool may be less than specified due to some
 overhead of memory block allocated each time and alignment required in attr
 */
-tt_export void tt_mempool_init(IN tt_mempool_t *mp,
-                               IN tt_u32_t max_block_size,
+tt_export void tt_mempool_init(IN tt_mempool_t *mp, IN tt_u32_t max_block_size,
                                IN OPT tt_mempool_attr_t *attr);
 
 /**

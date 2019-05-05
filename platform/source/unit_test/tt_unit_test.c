@@ -120,9 +120,7 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
 
         if (tt_g_test_unit_list[unit_id] != NULL) {
             result = tt_test_unit_to_class(tt_g_test_unit_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
+            if (!TT_OK(result)) { return TT_FAIL; }
         }
 
         // next
@@ -207,24 +205,19 @@ tt_result_t tt_test_unit_list(IN const tt_char_t *unit_name)
 
     ret = tt_test_list(unit_name, &succ_num, &fail_num);
 
-    TT_TEST_INFO("\r\ntest case result: [%d / %d] OK\r\n",
-                 succ_num,
+    TT_TEST_INFO("\r\ntest case result: [%d / %d] OK\r\n", succ_num,
                  succ_num + fail_num);
 #if TT_ENV_OS_IS_IOS
     {
         extern void __ios_display(const char *str);
 
         tt_char_t buf[200] = {0};
-        snprintf(buf,
-                 sizeof(buf) - 1,
-                 "\r\ntest case result: [%d / %d] OK\r\n",
-                 succ_num,
-                 succ_num + fail_num);
+        snprintf(buf, sizeof(buf) - 1, "\r\ntest case result: [%d / %d] OK\r\n",
+                 succ_num, succ_num + fail_num);
         __ios_display(buf);
     }
 #elif TT_ENV_OS_IS_ANDROID
-    __android_display("\r\ntest case result: [%d / %d] OK\r\n",
-                      succ_num,
+    __android_display("\r\ntest case result: [%d / %d] OK\r\n", succ_num,
                       succ_num + fail_num);
 #endif
 
@@ -251,9 +244,7 @@ tt_result_t tt_test_unit_to_class(IN tt_test_unit_t *unit)
         tt_test_case_t *test_case = &(unit->case_list[index]);
 
         result = tt_test_case_to_item(test_class, test_case);
-        if (!TT_OK(result)) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(result)) { return TT_FAIL; }
     }
 
     return TT_SUCCESS;
@@ -263,12 +254,9 @@ tt_result_t tt_test_case_to_item(IN tt_test_class_t *test_class,
                                  IN tt_test_case_t *unit)
 {
     tt_result_t result = TT_FAIL;
-    tt_test_entry_t entry = {unit->routine,
-                             unit->param,
-                             unit->routine_enter,
-                             unit->enter_param,
-                             unit->routine_leave,
-                             unit->leave_param};
+    tt_test_entry_t entry = {unit->routine,       unit->param,
+                             unit->routine_enter, unit->enter_param,
+                             unit->routine_leave, unit->leave_param};
 
     result = tt_test_item_add(test_class, &entry, unit->name, unit->comment);
     if (!TT_OK(result)) {

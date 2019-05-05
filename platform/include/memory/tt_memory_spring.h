@@ -56,10 +56,8 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 // must: 0 < min_extend < max_extend < max_limit, or max_limit equals 0
-tt_export void tt_memspg_init(IN tt_memspg_t *mspg,
-                              IN tt_u32_t min_extend,
-                              IN tt_u32_t max_extend,
-                              IN tt_u32_t max_limit);
+tt_export void tt_memspg_init(IN tt_memspg_t *mspg, IN tt_u32_t min_extend,
+                              IN tt_u32_t max_extend, IN tt_u32_t max_limit);
 
 tt_export tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg,
                                           IN OUT tt_u8_t **p,
@@ -69,8 +67,7 @@ tt_export tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg,
 #define TT_MSPGEXT_ZERO (1 << 0)
 #define TT_MSPGEXT_NOFREE (1 << 1)
 
-tt_inline tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg,
-                                       IN OUT tt_u8_t **p,
+tt_inline tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg, IN OUT tt_u8_t **p,
                                        IN OUT tt_u32_t *size,
                                        IN tt_u32_t to_size)
 {

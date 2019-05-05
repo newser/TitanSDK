@@ -54,8 +54,7 @@ void tt_sem_component_register()
 {
 }
 
-tt_result_t tt_sem_create(IN tt_sem_t *sem,
-                          IN tt_u32_t count,
+tt_result_t tt_sem_create(IN tt_sem_t *sem, IN tt_u32_t count,
                           IN OPT tt_sem_attr_t *attr)
 {
     tt_sem_attr_t __attr;

@@ -90,69 +90,27 @@ static void __fs_enter_consis(void *enter_param);
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
-TT_TEST_CASE("case_fs_basic",
-             "testing fs basic",
-             case_fs_basic,
-             NULL,
-             __fs_enter,
-             NULL,
-             __fs_exit,
-             NULL)
+TT_TEST_CASE("case_fs_basic", "testing fs basic", case_fs_basic, NULL,
+             __fs_enter, NULL, __fs_exit, NULL)
 ,
 
-    TT_TEST_CASE("case_fs_open",
-                 "testing fs open close",
-                 case_fs_open,
-                 NULL,
-                 __fs_enter,
-                 NULL,
-                 __fs_exit,
-                 NULL),
+    TT_TEST_CASE("case_fs_open", "testing fs open close", case_fs_open, NULL,
+                 __fs_enter, NULL, __fs_exit, NULL),
 
-    TT_TEST_CASE("case_fs_rw",
-                 "testing fs read write",
-                 case_fs_rw,
-                 NULL,
-                 __fs_enter,
-                 NULL,
-                 __fs_exit,
-                 NULL),
+    TT_TEST_CASE("case_fs_rw", "testing fs read write", case_fs_rw, NULL,
+                 __fs_enter, NULL, __fs_exit, NULL),
 
-    TT_TEST_CASE("case_fs_copy",
-                 "testing fs copy",
-                 case_fs_copy,
-                 NULL,
-                 __fs_enter,
-                 NULL,
-                 __fs_exit,
-                 NULL),
+    TT_TEST_CASE("case_fs_copy", "testing fs copy", case_fs_copy, NULL,
+                 __fs_enter, NULL, __fs_exit, NULL),
 
-    TT_TEST_CASE("case_dir_basic",
-                 "testing dir basic",
-                 case_dir_basic,
-                 NULL,
-                 __fs_enter_consis,
-                 NULL,
-                 __fs_exit,
-                 NULL),
+    TT_TEST_CASE("case_dir_basic", "testing dir basic", case_dir_basic, NULL,
+                 __fs_enter_consis, NULL, __fs_exit, NULL),
 
-    TT_TEST_CASE("case_fs_multhread",
-                 "testing fs read write in multi thread",
-                 case_fs_multhread,
-                 NULL,
-                 __fs_enter,
-                 NULL,
-                 __fs_exit,
-                 NULL),
+    TT_TEST_CASE("case_fs_multhread", "testing fs read write in multi thread",
+                 case_fs_multhread, NULL, __fs_enter, NULL, __fs_exit, NULL),
 
-    TT_TEST_CASE("case_fs_consistency",
-                 "testing fs read write consistency",
-                 case_fs_consistency,
-                 NULL,
-                 __fs_enter,
-                 NULL,
-                 __fs_exit,
-                 NULL),
+    TT_TEST_CASE("case_fs_consistency", "testing fs read write consistency",
+                 case_fs_consistency, NULL, __fs_enter, NULL, __fs_exit, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(fs_case)
     // =========================================
@@ -162,7 +120,6 @@ TT_TEST_CASE("case_fs_basic",
 /*
  * interface implementation
  */
-
 
 /*
 TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
@@ -333,8 +290,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
                        __TEST_D1
                        "/"__TEST_D2
                        "/"__TEST_F3,
-                       TT_FO_CREAT_DIR,
-                       NULL);
+                       TT_FO_CREAT_DIR, NULL);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
                                          "/"__TEST_F3),
@@ -353,8 +309,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
                        __TEST_D1
                        "/"__TEST_D2
                        "/"__TEST_F3,
-                       TT_FO_CREAT_DIR,
-                       NULL);
+                       TT_FO_CREAT_DIR, NULL);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
                                          "/"__TEST_F3),
@@ -605,9 +560,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
     TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
 
     // open file
-    ret = tt_fopen(&tf,
-                   __SC_TEST_FILE,
-                   TT_FO_CREAT | TT_FO_READ | TT_FO_WRITE,
+    ret = tt_fopen(&tf, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_READ | TT_FO_WRITE,
                    NULL);
     TT_UT_SUCCESS(ret, "");
 
@@ -684,10 +637,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
         TT_UT_EQUAL(d, 2 * (strlen((const char *)buf1) + 1), "");
 
         d = ~0;
-        ret = tt_fseek(&tf2,
-                       TT_FSEEK_CUR,
-                       -2 * (tt_s32_t)(strlen((const char *)buf1) + 1),
-                       &d);
+        ret = tt_fseek(&tf2, TT_FSEEK_CUR,
+                       -2 * (tt_s32_t)(strlen((const char *)buf1) + 1), &d);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(d, 0, "");
 
@@ -755,9 +706,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_rw)
     tt_fremove(__SC_TEST_FILE);
 
     // create
-    ret = tt_fopen(&tf,
-                   __SC_TEST_FILE,
-                   TT_FO_CREAT | TT_FO_EXCL | TT_FO_RDWR,
+    ret = tt_fopen(&tf, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_EXCL | TT_FO_RDWR,
                    NULL);
     TT_UT_SUCCESS(ret, "");
 
@@ -801,11 +750,9 @@ TT_TEST_ROUTINE_DEFINE(case_fs_rw)
         }
         TT_UT_EXP(n == sizeof(rbuf), "");
 
-        TT_UT_EQUAL(tt_strncmp((const char *)buf,
-                               (const char *)rbuf,
+        TT_UT_EQUAL(tt_strncmp((const char *)buf, (const char *)rbuf,
                                sizeof(buf)),
-                    0,
-                    "");
+                    0, "");
     }
 
     // close to delete
@@ -828,7 +775,7 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
     tt_dirent_t de;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 
@@ -1081,9 +1028,7 @@ tt_result_t __fs_fiber(IN void *param)
         if (act == 0) {
             tt_result_t ret = TT_FAIL;
             ret = tt_fread(&f, buf, tt_rand_u32() % sizeof(buf), &len);
-            if (TT_OK(ret)) {
-                l += len;
-            }
+            if (TT_OK(ret)) { l += len; }
         } else {
             tt_fwrite(&f, buf, tt_rand_u32() % sizeof(buf), &len);
         }
@@ -1119,11 +1064,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_multhread)
         TT_UT_SUCCESS(ret, "");
 
         for (j = 0; j < __fiber_per_task; ++j) {
-            tt_task_add_fiber(&task[i],
-                              NULL,
-                              __fs_fiber,
-                              (void *)(tt_uintptr_t)((i << 16) | j),
-                              NULL);
+            tt_task_add_fiber(&task[i], NULL, __fs_fiber,
+                              (void *)(tt_uintptr_t)((i << 16) | j), NULL);
         }
     }
 
@@ -1133,9 +1075,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_multhread)
         TT_UT_SUCCESS(ret, "");
     }
 
-    for (i = 0; i < __task_num; ++i) {
-        tt_task_wait(&task[i]);
-    }
+    for (i = 0; i < __task_num; ++i) { tt_task_wait(&task[i]); }
     TT_UT_EQUAL(__err_line, 0, "");
 
     tt_fremove(__ut_fname);
@@ -1146,18 +1086,14 @@ TT_TEST_ROUTINE_DEFINE(case_fs_multhread)
 
 #if TT_ENV_OS_IS_IOS
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
-static const tt_char_t *fname[4] = {"../tmp/1.txt",
-                                    "../tmp/2.txt",
-                                    "../tmp/3.txt",
-                                    "../tmp/4.txt"};
+static const tt_char_t *fname[4] = {"../tmp/1.txt", "../tmp/2.txt",
+                                    "../tmp/3.txt", "../tmp/4.txt"};
 #else
 static const tt_char_t *fname[4] = {0};
 #endif
 #elif TT_ENV_OS_IS_ANDROID
-static const tt_char_t *fname[4] = {APK_PATH "1.txt",
-                                    APK_PATH "2.txt",
-                                    APK_PATH "3.txt",
-                                    APK_PATH "4.txt"};
+static const tt_char_t *fname[4] = {APK_PATH "1.txt", APK_PATH "2.txt",
+                                    APK_PATH "3.txt", APK_PATH "4.txt"};
 #else
 static const tt_char_t *fname[4] = {"1.txt", "2.txt", "3.txt", "4.txt"};
 #endif
@@ -1170,9 +1106,7 @@ void __fs_enter_consis(void *enter_param)
     static tt_bool_t done = TT_FALSE;
     tt_char_t *s;
 
-    if (done) {
-        return;
-    }
+    if (done) { return; }
 
     __fs_enter(NULL);
 
@@ -1325,7 +1259,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     tt_u32_t j;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #ifdef __UT_LITE__
     return TT_SUCCESS;
@@ -1335,10 +1269,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     TT_UT_SUCCESS(ret, "");
 
     for (j = 0; j < 4; ++j) {
-        tt_task_add_fiber(&task,
-                          NULL,
-                          __wr_fiber,
-                          (void *)(tt_uintptr_t)j,
+        tt_task_add_fiber(&task, NULL, __wr_fiber, (void *)(tt_uintptr_t)j,
                           NULL);
     }
 
@@ -1355,10 +1286,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 
     // read, check consistency
     for (j = 0; j < 8; ++j) {
-        tt_task_add_fiber(&task,
-                          NULL,
-                          __rd_fiber,
-                          (void *)(tt_uintptr_t)j,
+        tt_task_add_fiber(&task, NULL, __rd_fiber, (void *)(tt_uintptr_t)j,
                           NULL);
     }
 

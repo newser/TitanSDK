@@ -55,12 +55,9 @@ static tt_result_t __uaf_render(IN struct tt_sshmsg_s *msg,
 static tt_result_t __uaf_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __uaf_op = {
-    __uaf_create,
-    NULL,
-    NULL,
+    __uaf_create,         NULL,         NULL,
 
-    __uaf_render_prepare,
-    __uaf_render,
+    __uaf_render_prepare, __uaf_render,
 
     __uaf_parse,
 };
@@ -76,8 +73,7 @@ static tt_sshmsg_itf_t __uaf_op = {
 tt_sshmsg_t *tt_sshmsg_uaf_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_USERAUTH_FAILURE,
-                            sizeof(tt_sshmsg_uaf_t),
-                            &__uaf_op);
+                            sizeof(tt_sshmsg_uaf_t), &__uaf_op);
 }
 
 void tt_sshmsg_uaf_add_auth(IN tt_sshmsg_t *msg, IN tt_ssh_auth_t auth)
@@ -92,9 +88,7 @@ void tt_sshmsg_uaf_add_auth(IN tt_sshmsg_t *msg, IN tt_ssh_auth_t auth)
     uaf = TT_SSHMSG_CAST(msg, tt_sshmsg_uaf_t);
 
     for (i = 0; i < uaf->auth_num; ++i) {
-        if (uaf->auth[i] == auth) {
-            return;
-        }
+        if (uaf->auth[i] == auth) { return; }
     }
     uaf->auth[uaf->auth_num++] = auth;
 }
@@ -126,8 +120,7 @@ tt_result_t __uaf_create(IN struct tt_sshmsg_s *msg)
     return TT_SUCCESS;
 }
 
-tt_result_t __uaf_render_prepare(IN struct tt_sshmsg_s *msg,
-                                 OUT tt_u32_t *len,
+tt_result_t __uaf_render_prepare(IN struct tt_sshmsg_s *msg, OUT tt_u32_t *len,
                                  OUT tt_ssh_render_mode_t *mode)
 {
     tt_sshmsg_uaf_t *uaf;
@@ -191,8 +184,7 @@ tt_result_t __uaf_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
     return TT_SUCCESS;
 }
 
-tt_result_t __uaf_parse_auth(IN tt_char_t *name,
-                             IN tt_u32_t name_len,
+tt_result_t __uaf_parse_auth(IN tt_char_t *name, IN tt_u32_t name_len,
                              IN void *param)
 {
     tt_sshmsg_uaf_t *uaf = (tt_sshmsg_uaf_t *)param;
@@ -206,13 +198,9 @@ tt_result_t __uaf_parse_auth(IN tt_char_t *name,
     }
 
     for (i = 0; i < uaf->auth_num; ++i) {
-        if (uaf->auth[i] == auth) {
-            break;
-        }
+        if (uaf->auth[i] == auth) { break; }
     }
-    if (i == uaf->auth_num) {
-        uaf->auth[uaf->auth_num++] = auth;
-    }
+    if (i == uaf->auth_num) { uaf->auth[uaf->auth_num++] = auth; }
 
     return TT_SUCCESS;
 }

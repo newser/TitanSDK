@@ -59,132 +59,48 @@ TT_TEST_ROUTINE_DECLARE(case_sshmsg_servacc)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshmsg_case)
 
-TT_TEST_CASE("case_sshmsg_byte",
-             "ssh msg parse byte",
-             case_sshmsg_byte,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_sshmsg_byte", "ssh msg parse byte", case_sshmsg_byte, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_sshmsg_boolean",
-                 "ssh msg parse boolean",
-                 case_sshmsg_boolean,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_boolean", "ssh msg parse boolean",
+                 case_sshmsg_boolean, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_u32",
-                 "ssh msg parse uint32",
-                 case_sshmsg_u32,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_u32", "ssh msg parse uint32", case_sshmsg_u32,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_u64",
-                 "ssh msg parse uint64",
-                 case_sshmsg_u64,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_u64", "ssh msg parse uint64", case_sshmsg_u64,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_string",
-                 "ssh msg parse string",
-                 case_sshmsg_string,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_string", "ssh msg parse string",
+                 case_sshmsg_string, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_mpint",
-                 "ssh msg parse mpint",
-                 case_sshmsg_mpint,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_mpint", "ssh msg parse mpint", case_sshmsg_mpint,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_namelist",
-                 "ssh msg parse namelist",
-                 case_sshmsg_namelist,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_namelist", "ssh msg parse namelist",
+                 case_sshmsg_namelist, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_parse",
-                 "ssh msg parse",
-                 case_sshmsg_parse,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_parse", "ssh msg parse", case_sshmsg_parse, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_disconnect",
-                 "ssh msg: disconnect",
-                 case_sshmsg_disconnect,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_disconnect", "ssh msg: disconnect",
+                 case_sshmsg_disconnect, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_ignore",
-                 "ssh msg: ignore",
-                 case_sshmsg_ignore,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_ignore", "ssh msg: ignore", case_sshmsg_ignore,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshms_newkeys",
-                 "ssh msg: newkeys",
-                 case_sshms_newkeys,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshms_newkeys", "ssh msg: newkeys", case_sshms_newkeys,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_servreq",
-                 "ssh msg: service request",
-                 case_sshmsg_servreq,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_servreq", "ssh msg: service request",
+                 case_sshmsg_servreq, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_servacc",
-                 "ssh msg: service accept",
-                 case_sshmsg_servacc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_servacc", "ssh msg: service accept",
+                 case_sshmsg_servacc, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_servacc",
-                 "ssh msg: service accept",
-                 case_sshmsg_servacc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_servacc", "ssh msg: service accept",
+                 case_sshmsg_servacc, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(sshmsg_case)
     // =========================================
@@ -635,19 +551,14 @@ tt_result_t __nl_cb(IN tt_char_t *name, IN tt_u32_t name_len, IN void *param)
 {
     const tt_char_t *nm;
 
-    if (param == NULL)
-        return TT_FAIL;
+    if (param == NULL) return TT_FAIL;
 
     nm = ((struct __nl_cb_param *)param)
              ->name[((struct __nl_cb_param *)param)->idx];
     ((struct __nl_cb_param *)param)->idx += 1;
 
-    if (name_len != (tt_u32_t)tt_strlen(nm)) {
-        return TT_FAIL;
-    }
-    if (tt_strncmp(nm, name, name_len) != 0) {
-        return TT_FAIL;
-    }
+    if (name_len != (tt_u32_t)tt_strlen(nm)) { return TT_FAIL; }
+    if (tt_strncmp(nm, name, name_len) != 0) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -895,9 +806,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_parse)
         tt_buf_put_rand(&buf, tt_rand_u32() % 1000 + 1);
 
         ret = tt_sshmsg_parse(&buf, &msg);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(msg); }
     }
 
     tt_buf_destroy(&buf);
@@ -955,8 +864,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_disconnect)
                            "bcdef0123456789abcdef0123456789abcdef012345"
                            "6789abcdef",
                            TT_SSHMSG_DISC_DESC_LEN),
-                0,
-                "");
+                0, "");
 
     tt_sshmsg_release(out_msg);
 
@@ -968,9 +876,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_disconnect)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -1031,9 +937,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_ignore)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -1078,9 +982,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshms_newkeys)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -1121,8 +1023,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_servreq)
     TT_UT_EQUAL(msg->msg_id, TT_SSH_MSGID_SERVICE_REQUEST, "");
     tt_buf_restore_rwp(&msg->buf, &rp, &wp);
 
-    TT_UT_EQUAL(tt_sshmsg_servreq_get_service(msg),
-                TT_SSH_SERVICE_USERAUTH,
+    TT_UT_EQUAL(tt_sshmsg_servreq_get_service(msg), TT_SSH_SERVICE_USERAUTH,
                 "");
 
     tt_sshmsg_release(out_msg);
@@ -1136,9 +1037,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_servreq)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -1164,8 +1063,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_servreq)
     TT_UT_EQUAL(msg->msg_id, TT_SSH_MSGID_SERVICE_REQUEST, "");
     tt_buf_restore_rwp(&msg->buf, &rp, &wp);
 
-    TT_UT_EQUAL(tt_sshmsg_servreq_get_service(msg),
-                TT_SSH_SERVICE_CONNECTION,
+    TT_UT_EQUAL(tt_sshmsg_servreq_get_service(msg), TT_SSH_SERVICE_CONNECTION,
                 "");
 
     tt_sshmsg_release(out_msg);
@@ -1179,9 +1077,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_servreq)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -1222,8 +1118,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_servacc)
     TT_UT_EQUAL(msg->msg_id, TT_SSH_MSGID_SERVICE_ACCEPT, "");
     tt_buf_restore_rwp(&msg->buf, &rp, &wp);
 
-    TT_UT_EQUAL(tt_sshmsg_servacc_get_service(msg),
-                TT_SSH_SERVICE_USERAUTH,
+    TT_UT_EQUAL(tt_sshmsg_servacc_get_service(msg), TT_SSH_SERVICE_USERAUTH,
                 "");
 
     tt_sshmsg_release(out_msg);
@@ -1237,9 +1132,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_servacc)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -1264,8 +1157,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_servacc)
     TT_UT_EQUAL(msg->msg_id, TT_SSH_MSGID_SERVICE_ACCEPT, "");
     tt_buf_restore_rwp(&msg->buf, &rp, &wp);
 
-    TT_UT_EQUAL(tt_sshmsg_servacc_get_service(msg),
-                TT_SSH_SERVICE_CONNECTION,
+    TT_UT_EQUAL(tt_sshmsg_servacc_get_service(msg), TT_SSH_SERVICE_CONNECTION,
                 "");
 
     tt_sshmsg_release(out_msg);
@@ -1279,9 +1171,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_servacc)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;

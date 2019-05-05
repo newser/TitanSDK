@@ -49,33 +49,15 @@ TT_TEST_ROUTINE_DECLARE(case_xnode_rel)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(xml_xnode_case)
 
-TT_TEST_CASE("case_xnode_bool",
-             "xml: node value bool",
-             case_xnode_bool,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_xnode_bool", "xml: node value bool", case_xnode_bool, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_xnode_int",
-                 "xml: node value int",
-                 case_xnode_int,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_xnode_int", "xml: node value int", case_xnode_int, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_xnode_rel",
-                 "xml: node relation",
-                 case_xnode_rel,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_xnode_rel", "xml: node relation", case_xnode_rel, NULL,
+                 NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(xml_xnode_case)
     // =========================================
@@ -277,8 +259,7 @@ TT_TEST_ROUTINE_DEFINE(case_xnode_int)
     // double
     xa = tt_xnode_child_byname(xn, "double_1");
     TT_UT_NOT_NULL(xa, "");
-    TT_UT_EQUAL(tt_xnode_get_bool(xa, TT_TRUE),
-                TT_FALSE,
+    TT_UT_EQUAL(tt_xnode_get_bool(xa, TT_TRUE), TT_FALSE,
                 ""); // not begins with 1
     TT_UT_EQUAL(tt_xnode_get_u32(xa, 0), 0, "");
     TT_UT_EQUAL(tt_xnode_get_s32(xa, 0), -2, ""); // truncated
@@ -386,8 +367,7 @@ TT_TEST_ROUTINE_DEFINE(case_xnode_rel)
                           "pi-4?><![CDATA[cdata-2]]><!--comment-3-->\n<node-1>"
                           "value-1</node-1>\n<?node-5?>\n<!DOCTYPE "
                           "doctype-6>\n"),
-                0,
-                "");
+                0, "");
 
     // remove child
     ret = tt_xnode_remove_child(root, xn);
@@ -407,8 +387,7 @@ TT_TEST_ROUTINE_DEFINE(case_xnode_rel)
                           "<?xml "
                           "version=\"1.0\"?>\n<![CDATA[cdata-2]]><!--comment-3-"
                           "->\n<node-1>value-1</node-1>\n<?node-5?>\n"),
-                0,
-                "");
+                0, "");
 
     tt_xdoc_destroy(&xd);
 

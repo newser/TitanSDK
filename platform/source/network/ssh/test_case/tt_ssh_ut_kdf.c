@@ -45,14 +45,8 @@ TT_TEST_ROUTINE_DECLARE(case_ssh_kdf)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshkdf_case)
 
-TT_TEST_CASE("case_ssh_kdf",
-             "ssh key derivation function",
-             case_ssh_kdf,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_ssh_kdf", "ssh key derivation function", case_ssh_kdf, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
     TT_TEST_CASE_LIST_DEFINE_END(sshkdf_case)
@@ -158,70 +152,14 @@ static tt_u8_t s2[] = {0xdd, 0xe6, 0xf8, 0xe0, 0x70, 0xef, 0x32,
                        0xa2, 0x7f, 0xf0, 0x4a, 0xd1, 0x04, 0x5c,
                        0x65, 0xb2, 0xdf, 0xa3, 0x3e, 0x03};
 
-static tt_u8_t iv_c2s_2[] = {0x79,
-                             0xc9,
-                             0x19,
-                             0x5e,
-                             0x68,
-                             0x3a,
-                             0xe1,
-                             0x07,
-                             0x50,
-                             0x96,
-                             0x0c,
-                             0xb5,
-                             0x5c,
-                             0x4d,
-                             0x4c,
-                             0x0b};
-static tt_u8_t iv_s2c_2[] = {0xef,
-                             0x00,
-                             0xb4,
-                             0x48,
-                             0xab,
-                             0x9f,
-                             0xd6,
-                             0x52,
-                             0x3b,
-                             0xb5,
-                             0x14,
-                             0x3a,
-                             0x0a,
-                             0x81,
-                             0x87,
-                             0x50};
-static tt_u8_t enc_c2s_2[] = {0x51,
-                              0xc8,
-                              0xb4,
-                              0xaa,
-                              0xf5,
-                              0xe4,
-                              0x24,
-                              0x43,
-                              0xbe,
-                              0x0a,
-                              0xa3,
-                              0xc5,
-                              0x0a,
-                              0xa7,
-                              0xe1,
-                              0xdd};
-static tt_u8_t enc_s2c_2[] = {0x41,
-                              0x53,
-                              0xa5,
-                              0x87,
-                              0x39,
-                              0x7f,
-                              0xb1,
-                              0x4d,
-                              0xc3,
-                              0xfa,
-                              0xad,
-                              0x02,
-                              0x8f,
-                              0xdb,
-                              0x7e,
-                              0xcc};
+static tt_u8_t iv_c2s_2[] = {0x79, 0xc9, 0x19, 0x5e, 0x68, 0x3a, 0xe1, 0x07,
+                             0x50, 0x96, 0x0c, 0xb5, 0x5c, 0x4d, 0x4c, 0x0b};
+static tt_u8_t iv_s2c_2[] = {0xef, 0x00, 0xb4, 0x48, 0xab, 0x9f, 0xd6, 0x52,
+                             0x3b, 0xb5, 0x14, 0x3a, 0x0a, 0x81, 0x87, 0x50};
+static tt_u8_t enc_c2s_2[] = {0x51, 0xc8, 0xb4, 0xaa, 0xf5, 0xe4, 0x24, 0x43,
+                              0xbe, 0x0a, 0xa3, 0xc5, 0x0a, 0xa7, 0xe1, 0xdd};
+static tt_u8_t enc_s2c_2[] = {0x41, 0x53, 0xa5, 0x87, 0x39, 0x7f, 0xb1, 0x4d,
+                              0xc3, 0xfa, 0xad, 0x02, 0x8f, 0xdb, 0x7e, 0xcc};
 static tt_u8_t mac_c2s_2[] = {0xd2, 0x3e, 0x36, 0x34, 0x70, 0x52, 0xa1,
                               0xcf, 0xb4, 0xa7, 0x78, 0x9d, 0xf4, 0x86,
                               0x27, 0xe8, 0xa3, 0x13, 0x45, 0xc7};
@@ -309,7 +247,6 @@ TT_TEST_ROUTINE_DEFINE(case_ssh_kdf)
     TT_TEST_CASE_ENTER()
     // test start
 
-
     for (i = 0; i < sizeof(sshkdf_tv) / sizeof(sshkdf_tv[0]); ++i) {
         sshkdf_tv_t *t = &sshkdf_tv[i];
         tt_blob_t k, h, s;
@@ -323,63 +260,43 @@ TT_TEST_ROUTINE_DEFINE(case_ssh_kdf)
         s.addr = t->s;
         s.len = t->s_len;
 
-        ret = tt_sshkdf_run(&kdf,
-                            &k,
-                            &h,
-                            &s,
-                            t->iv_c2s_len,
-                            t->iv_s2c_len,
-                            t->enc_c2s_len,
-                            t->enc_s2c_len,
-                            t->mac_c2s_len,
+        ret = tt_sshkdf_run(&kdf, &k, &h, &s, t->iv_c2s_len, t->iv_s2c_len,
+                            t->enc_c2s_len, t->enc_s2c_len, t->mac_c2s_len,
                             t->mac_s2c_len);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         TT_UT_EXP(TT_BUF_RLEN(&kdf.iv_c2s) >= t->iv_c2s_len, "");
-        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.iv_c2s),
-                              t->iv_c2s,
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.iv_c2s), t->iv_c2s,
                               t->iv_c2s_len),
-                    0,
-                    "");
+                    0, "");
 
         TT_UT_EXP(TT_BUF_RLEN(&kdf.iv_s2c) >= t->iv_s2c_len, "");
-        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.iv_s2c),
-                              t->iv_s2c,
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.iv_s2c), t->iv_s2c,
                               t->iv_s2c_len),
-                    0,
-                    "");
+                    0, "");
 
         TT_UT_EXP(TT_BUF_RLEN(&kdf.enc_c2s) >= t->enc_c2s_len, "");
-        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.enc_c2s),
-                              t->enc_c2s,
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.enc_c2s), t->enc_c2s,
                               t->enc_c2s_len),
-                    0,
-                    "");
+                    0, "");
 
         TT_UT_EXP(TT_BUF_RLEN(&kdf.enc_s2c) >= t->enc_s2c_len, "");
-        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.enc_s2c),
-                              t->enc_s2c,
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.enc_s2c), t->enc_s2c,
                               t->enc_s2c_len),
-                    0,
-                    "");
+                    0, "");
 
         TT_UT_EXP(TT_BUF_RLEN(&kdf.mac_c2s) >= t->mac_c2s_len, "");
-        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.mac_c2s),
-                              t->mac_c2s,
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.mac_c2s), t->mac_c2s,
                               t->mac_c2s_len),
-                    0,
-                    "");
+                    0, "");
 
         TT_UT_EXP(TT_BUF_RLEN(&kdf.mac_s2c) >= t->mac_s2c_len, "");
-        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.mac_s2c),
-                              t->mac_s2c,
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.mac_s2c), t->mac_s2c,
                               t->mac_s2c_len),
-                    0,
-                    "");
+                    0, "");
 
         tt_sshkdf_destroy(&kdf);
     }
-
 
     // test end
     TT_TEST_CASE_LEAVE()

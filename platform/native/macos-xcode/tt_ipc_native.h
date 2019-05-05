@@ -88,15 +88,11 @@ extern tt_result_t tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
                                      OUT tt_fiber_ev_t **p_fev,
                                      OUT struct tt_tmr_s **p_tmr);
 
-extern tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
-                                   IN tt_u8_t *buf,
-                                   IN tt_u32_t len,
-                                   OUT OPT tt_u32_t *sent);
+extern tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc, IN tt_u8_t *buf,
+                                   IN tt_u32_t len, OUT OPT tt_u32_t *sent);
 
-extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
-                                   OUT tt_u8_t *buf,
-                                   IN tt_u32_t len,
-                                   OUT tt_u32_t *recvd,
+extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc, OUT tt_u8_t *buf,
+                                   IN tt_u32_t len, OUT tt_u32_t *recvd,
                                    OUT tt_fiber_ev_t **p_fev,
                                    OUT struct tt_tmr_s **p_tmr,
                                    OUT struct tt_skt_s **p_skt);
@@ -114,13 +110,11 @@ extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);
 extern tt_bool_t tt_ipc_poller_io(IN struct tt_io_ev_s *io_ev);
 
 extern tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
-                                         OUT tt_char_t *addr,
-                                         IN tt_u32_t size,
+                                         OUT tt_char_t *addr, IN tt_u32_t size,
                                          OUT OPT tt_u32_t *len);
 
 extern tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
-                                          OUT tt_char_t *addr,
-                                          IN tt_u32_t size,
+                                          OUT tt_char_t *addr, IN tt_u32_t size,
                                           OUT OPT tt_u32_t *len);
 
 #endif /* __TT_IPC_NATIVE__ */

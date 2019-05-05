@@ -74,8 +74,7 @@ tt_result_t tt_buf_put_cstr2hex(IN tt_buf_t *buf, IN const tt_char_t *cstr)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_buf_put_hex2cstr(IN tt_buf_t *buf,
-                                IN tt_u8_t *hex,
+tt_result_t tt_buf_put_hex2cstr(IN tt_buf_t *buf, IN tt_u8_t *hex,
                                 IN tt_u32_t hex_len)
 {
     tt_u8_t *pos, *end;
@@ -104,8 +103,7 @@ tt_result_t tt_buf_putf(IN tt_buf_t *buf, IN const tt_char_t *format, ...)
     return result;
 }
 
-tt_result_t tt_buf_putv(IN tt_buf_t *buf,
-                        IN const tt_char_t *format,
+tt_result_t tt_buf_putv(IN tt_buf_t *buf, IN const tt_char_t *format,
                         IN va_list ap)
 {
     tt_u8_t *p;

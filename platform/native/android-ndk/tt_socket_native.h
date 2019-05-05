@@ -97,35 +97,27 @@ extern tt_result_t tt_skt_remote_addr_ntv(IN tt_skt_ntv_t *skt,
 
 // recv_len stores how many bytes are received only when return value is
 // TT_SUCCESS
-extern tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
-                                       OUT tt_u8_t *buf,
-                                       IN tt_u32_t len,
-                                       OUT OPT tt_u32_t *recvd,
+extern tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt, OUT tt_u8_t *buf,
+                                       IN tt_u32_t len, OUT OPT tt_u32_t *recvd,
                                        OUT OPT tt_sktaddr_t *addr,
                                        OUT tt_fiber_ev_t **p_fev,
                                        OUT struct tt_tmr_s **p_tmr);
 
 // send_len stores how many bytes are sent only when return value is TT_SUCCESS
-extern tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
-                                     IN tt_u8_t *buf,
-                                     IN tt_u32_t len,
-                                     OUT OPT tt_u32_t *sent,
+extern tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t *buf,
+                                     IN tt_u32_t len, OUT OPT tt_u32_t *sent,
                                      IN tt_sktaddr_t *addr);
 
 // recv_len stores how many bytes are received only when return value is
 // TT_SUCCESS
-extern tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
-                                   OUT tt_u8_t *buf,
-                                   IN tt_u32_t len,
-                                   OUT OPT tt_u32_t *recvd,
+extern tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt, OUT tt_u8_t *buf,
+                                   IN tt_u32_t len, OUT OPT tt_u32_t *recvd,
                                    OUT tt_fiber_ev_t **p_fev,
                                    OUT struct tt_tmr_s **p_tmr);
 
 // send_len stores how many bytes are sent only when return value is TT_SUCCESS
-extern tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
-                                   IN tt_u8_t *buf,
-                                   IN tt_u32_t len,
-                                   OUT OPT tt_u32_t *sent);
+extern tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t *buf,
+                                   IN tt_u32_t len, OUT OPT tt_u32_t *sent);
 
 extern tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b);
 

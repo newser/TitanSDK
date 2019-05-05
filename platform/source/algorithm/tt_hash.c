@@ -60,8 +60,7 @@ void tt_hashctx_init(IN tt_hashctx_t *hctx)
     }
 }
 
-tt_hashcode_t tt_hash_murmur3(IN const tt_u8_t *key,
-                              IN tt_u32_t key_len,
+tt_hashcode_t tt_hash_murmur3(IN const tt_u8_t *key, IN tt_u32_t key_len,
                               IN tt_hashctx_t *hctx)
 {
     static const tt_u32_t c1 = 0xcc9e2d51;
@@ -94,17 +93,15 @@ tt_hashcode_t tt_hash_murmur3(IN const tt_u8_t *key,
     }
 
     switch (key_len & 3) {
-        case 3:
-            k1 ^= tail[2] << 16;
-        case 2:
-            k1 ^= tail[1] << 8;
-        case 1:
-            k1 ^= tail[0];
+    case 3: k1 ^= tail[2] << 16;
+    case 2: k1 ^= tail[1] << 8;
+    case 1:
+        k1 ^= tail[0];
 
-            k1 *= c1;
-            k1 = (k1 << r1) | (k1 >> (32 - r1));
-            k1 *= c2;
-            hash ^= k1;
+        k1 *= c1;
+        k1 = (k1 << r1) | (k1 >> (32 - r1));
+        k1 *= c2;
+        hash ^= k1;
     }
 
     hash ^= key_len;
@@ -117,8 +114,7 @@ tt_hashcode_t tt_hash_murmur3(IN const tt_u8_t *key,
     return hash;
 }
 
-tt_hashcode_t tt_hash_fnv1a(IN const tt_u8_t *key,
-                            IN tt_u32_t key_len,
+tt_hashcode_t tt_hash_fnv1a(IN const tt_u8_t *key, IN tt_u32_t key_len,
                             IN tt_hashctx_t *hctx)
 {
     tt_u8_t *bp = (tt_u8_t *)key;

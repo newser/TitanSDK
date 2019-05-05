@@ -64,8 +64,8 @@ TT_TEST_ROUTINE_DECLARE(case_dh)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_dh_case)
 
-TT_TEST_CASE(
-    "case_dh", "crypto: dh", case_dh, NULL, __dh_prepare, NULL, NULL, NULL)
+TT_TEST_CASE("case_dh", "crypto: dh", case_dh, NULL, __dh_prepare, NULL, NULL,
+             NULL)
 ,
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_dh_case)
@@ -183,9 +183,7 @@ void __dh_prepare(void *p)
 {
     tt_file_t f;
 
-    if (has_dh) {
-        return;
-    }
+    if (has_dh) { return; }
 
 #if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
     {
@@ -203,16 +201,12 @@ void __dh_prepare(void *p)
 #endif
 
     // gen rsa priv
-    if (!TT_OK(tt_fopen(&f,
-                        __DH_PARAM_FILE,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
-                        NULL))) {
+    if (!TT_OK(tt_fopen(&f, __DH_PARAM_FILE,
+                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC, NULL))) {
         TT_ERROR("fail to open %s", __DH_PARAM_FILE);
         return;
     }
-    if (!TT_OK(tt_fwrite(&f,
-                         (tt_u8_t *)__dh_param,
-                         sizeof(__dh_param) - 1,
+    if (!TT_OK(tt_fwrite(&f, (tt_u8_t *)__dh_param, sizeof(__dh_param) - 1,
                          NULL))) {
         TT_ERROR("fail to write %s", __DH_PARAM_FILE);
         return;

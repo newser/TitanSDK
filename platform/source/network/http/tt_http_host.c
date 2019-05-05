@@ -99,9 +99,7 @@ tt_http_host_t *tt_http_host_create_n(IN OPT const tt_char_t *name,
     h->match = match;
 
     h->root = tt_http_rule_create(0, &s_root_itf, TT_HTTP_RULE_NEXT);
-    if (h->root == NULL) {
-        goto fail;
-    }
+    if (h->root == NULL) { goto fail; }
     __done |= __HH_ROOT;
 
     if ((name == NULL) || (match == NULL)) {
@@ -120,17 +118,11 @@ tt_http_host_t *tt_http_host_create_n(IN OPT const tt_char_t *name,
 
 fail:
 
-    if (__done & __HH_NAME) {
-        tt_blob_destroy(&h->name);
-    }
+    if (__done & __HH_NAME) { tt_blob_destroy(&h->name); }
 
-    if (__done & __HH_ROOT) {
-        tt_http_rule_release(h->root);
-    }
+    if (__done & __HH_ROOT) { tt_http_rule_release(h->root); }
 
-    if (__done & __HH_MEM) {
-        tt_free(h);
-    }
+    if (__done & __HH_MEM) { tt_free(h); }
 
     return NULL;
 }
@@ -162,9 +154,7 @@ tt_http_rule_result_t tt_http_host_apply(IN tt_http_host_t *h,
     tt_http_rule_result_t result;
     tt_u32_t n = 0;
 
-    if (tt_http_uri_render(uri) == NULL) {
-        return TT_HTTP_RULE_ERROR;
-    }
+    if (tt_http_uri_render(uri) == NULL) { return TT_HTTP_RULE_ERROR; }
 
 again:
     result = tt_http_rule_apply(h->root, uri, s, ctx);
@@ -203,8 +193,7 @@ again:
 // host matching helper
 // ========================================
 
-tt_bool_t tt_http_host_match_cmp(IN tt_http_host_t *h,
-                                 IN tt_char_t *s,
+tt_bool_t tt_http_host_match_cmp(IN tt_http_host_t *h, IN tt_char_t *s,
                                  IN tt_u32_t len)
 {
     tt_char_t *name = (tt_char_t *)h->name.addr;

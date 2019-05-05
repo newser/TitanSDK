@@ -74,18 +74,13 @@ tt_inline void *tt_page_alloc_ntv(IN tt_u32_t size)
     void *p = NULL;
 
     if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        p = VirtualAllocExNuma(GetCurrentProcess(),
-                               NULL,
-                               size,
-                               MEM_COMMIT | MEM_RESERVE,
-                               PAGE_READWRITE,
+        p = VirtualAllocExNuma(GetCurrentProcess(), NULL, size,
+                               MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE,
                                tt_g_numa_node_id_memory);
     } else {
         p = VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     }
-    if (p == NULL) {
-        TT_ERROR("fail to allocate pages");
-    }
+    if (p == NULL) { TT_ERROR("fail to allocate pages"); }
 
     return p;
 }
@@ -152,12 +147,10 @@ tt_inline void *tt_page_alloc_align_ntv(IN tt_u32_t size_order,
     // reserve
 
     if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        reserve_addr = VirtualAllocExNuma(GetCurrentProcess(),
-                                          NULL,
-                                          reserve_size,
-                                          MEM_RESERVE,
-                                          PAGE_NOACCESS,
-                                          tt_g_numa_node_id_memory);
+        reserve_addr =
+            VirtualAllocExNuma(GetCurrentProcess(), NULL, reserve_size,
+                               MEM_RESERVE, PAGE_NOACCESS,
+                               tt_g_numa_node_id_memory);
     } else {
         reserve_addr =
             VirtualAlloc(NULL, reserve_size, MEM_RESERVE, PAGE_NOACCESS);
@@ -173,11 +166,8 @@ tt_inline void *tt_page_alloc_align_ntv(IN tt_u32_t size_order,
     TT_PTR_ALIGN_INC(commit_addr, size_order);
 
     if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        ret = VirtualAllocExNuma(GetCurrentProcess(),
-                                 commit_addr,
-                                 commit_size,
-                                 MEM_COMMIT,
-                                 PAGE_READWRITE,
+        ret = VirtualAllocExNuma(GetCurrentProcess(), commit_addr, commit_size,
+                                 MEM_COMMIT, PAGE_READWRITE,
                                  tt_g_numa_node_id_memory);
     } else {
         ret =

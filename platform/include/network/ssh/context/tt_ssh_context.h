@@ -103,28 +103,22 @@ tt_export tt_result_t tt_sshctx_kex_setalg(IN tt_sshctx_t *sshctx,
                                            IN tt_ssh_kex_alg_t alg);
 
 tt_export tt_result_t tt_sshctx_kex_setks(IN tt_sshctx_t *sshctx,
-                                          IN tt_u8_t *ks,
-                                          IN tt_u32_t ks_len,
+                                          IN tt_u8_t *ks, IN tt_u32_t ks_len,
                                           IN tt_bool_t format);
 tt_export tt_result_t tt_sshctx_kex_setks_rsa(IN tt_sshctx_t *sshctx,
-                                              IN tt_blob_t *e,
-                                              IN tt_blob_t *n);
+                                              IN tt_blob_t *e, IN tt_blob_t *n);
 
 tt_export tt_result_t tt_sshctx_kex_setvs(IN tt_sshctx_t *sshctx,
-                                          IN tt_u8_t *vs,
-                                          IN tt_u32_t vs_len,
+                                          IN tt_u8_t *vs, IN tt_u32_t vs_len,
                                           IN tt_bool_t format);
 tt_export tt_result_t tt_sshctx_kex_setvc(IN tt_sshctx_t *sshctx,
-                                          IN tt_u8_t *vc,
-                                          IN tt_u32_t vc_len,
+                                          IN tt_u8_t *vc, IN tt_u32_t vc_len,
                                           IN tt_bool_t format);
 tt_export tt_result_t tt_sshctx_kex_setis(IN tt_sshctx_t *sshctx,
-                                          IN tt_u8_t *is,
-                                          IN tt_u32_t is_len,
+                                          IN tt_u8_t *is, IN tt_u32_t is_len,
                                           IN tt_bool_t format);
 tt_export tt_result_t tt_sshctx_kex_setic(IN tt_sshctx_t *sshctx,
-                                          IN tt_u8_t *ic,
-                                          IN tt_u32_t ic_len,
+                                          IN tt_u8_t *ic, IN tt_u32_t ic_len,
                                           IN tt_bool_t format);
 
 tt_export tt_result_t tt_sshctx_kex_calc_h(IN tt_sshctx_t *sshctx);
@@ -137,14 +131,12 @@ tt_export tt_result_t tt_sshctx_kexdh_compute(IN tt_sshctx_t *sshctx,
                                               IN tt_u32_t peerpub_len);
 
 tt_export tt_result_t tt_sshctx_kexdh_set_e(IN tt_sshctx_t *sshctx,
-                                            IN tt_u8_t *e,
-                                            IN tt_u32_t e_len,
+                                            IN tt_u8_t *e, IN tt_u32_t e_len,
                                             IN tt_bool_t format);
 tt_export tt_result_t tt_sshctx_kexdh_load_e(IN tt_sshctx_t *sshctx);
 
 tt_export tt_result_t tt_sshctx_kexdh_set_f(IN tt_sshctx_t *sshctx,
-                                            IN tt_u8_t *f,
-                                            IN tt_u32_t f_len,
+                                            IN tt_u8_t *f, IN tt_u32_t f_len,
                                             IN tt_bool_t format);
 tt_export tt_result_t tt_sshctx_kexdh_load_f(IN tt_sshctx_t *sshctx);
 
@@ -172,17 +164,10 @@ tt_export tt_result_t tt_sshctx_pubk_sign(IN tt_sshctx_t *sshctx,
 
 tt_inline tt_result_t tt_sshctx_enc_setalg(IN tt_sshctx_t *sshctx,
                                            IN tt_ssh_enc_alg_t alg,
-                                           IN tt_u8_t *iv,
-                                           IN tt_u32_t iv_len,
-                                           IN tt_u8_t *key,
-                                           IN tt_u32_t key_len)
+                                           IN tt_u8_t *iv, IN tt_u32_t iv_len,
+                                           IN tt_u8_t *key, IN tt_u32_t key_len)
 {
-    return tt_sshenc_setalg(&sshctx->encrypt,
-                            alg,
-                            TT_TRUE,
-                            iv,
-                            iv_len,
-                            key,
+    return tt_sshenc_setalg(&sshctx->encrypt, alg, TT_TRUE, iv, iv_len, key,
                             key_len);
 }
 
@@ -192,25 +177,17 @@ tt_inline void tt_sshctx_enc_destroy(IN tt_sshctx_t *sshctx)
 }
 
 tt_inline tt_result_t tt_sshctx_encrypt(IN tt_sshctx_t *sshctx,
-                                        IN tt_u8_t *data,
-                                        IN tt_u32_t data_len)
+                                        IN tt_u8_t *data, IN tt_u32_t data_len)
 {
     return tt_sshenc_encrypt(&sshctx->encrypt, data, data_len);
 }
 
 tt_inline tt_result_t tt_sshctx_dec_setalg(IN tt_sshctx_t *sshctx,
                                            IN tt_ssh_enc_alg_t alg,
-                                           IN tt_u8_t *iv,
-                                           IN tt_u32_t iv_len,
-                                           IN tt_u8_t *key,
-                                           IN tt_u32_t key_len)
+                                           IN tt_u8_t *iv, IN tt_u32_t iv_len,
+                                           IN tt_u8_t *key, IN tt_u32_t key_len)
 {
-    return tt_sshenc_setalg(&sshctx->decrypt,
-                            alg,
-                            TT_FALSE,
-                            iv,
-                            iv_len,
-                            key,
+    return tt_sshenc_setalg(&sshctx->decrypt, alg, TT_FALSE, iv, iv_len, key,
                             key_len);
 }
 
@@ -220,8 +197,7 @@ tt_inline void tt_sshctx_dec_destroy(IN tt_sshctx_t *sshctx)
 }
 
 tt_inline tt_result_t tt_sshctx_decrypt(IN tt_sshctx_t *sshctx,
-                                        IN tt_u8_t *data,
-                                        IN tt_u32_t data_len)
+                                        IN tt_u8_t *data, IN tt_u32_t data_len)
 {
     return tt_sshenc_decrypt(&sshctx->decrypt, data, data_len);
 }
@@ -248,18 +224,13 @@ tt_inline void tt_sshctx_sign_inc_seq(IN tt_sshctx_t *sshctx)
     ++sshctx->sign_seq;
 }
 
-tt_inline tt_result_t tt_sshctx_sign(IN tt_sshctx_t *sshctx,
-                                     IN tt_u8_t *data,
+tt_inline tt_result_t tt_sshctx_sign(IN tt_sshctx_t *sshctx, IN tt_u8_t *data,
                                      IN tt_u32_t data_len,
                                      OUT tt_u8_t *signature,
                                      IN tt_u32_t signature_len)
 {
-    return tt_sshmac_sign(&sshctx->sign,
-                          sshctx->sign_seq,
-                          data,
-                          data_len,
-                          signature,
-                          signature_len);
+    return tt_sshmac_sign(&sshctx->sign, sshctx->sign_seq, data, data_len,
+                          signature, signature_len);
 }
 
 tt_inline tt_result_t tt_sshctx_verify_setalg(IN tt_sshctx_t *sshctx,
@@ -280,18 +251,13 @@ tt_inline void tt_sshctx_verify_inc_seq(IN tt_sshctx_t *sshctx)
     ++sshctx->verify_seq;
 }
 
-tt_inline tt_result_t tt_sshctx_verify(IN tt_sshctx_t *sshctx,
-                                       IN tt_u8_t *data,
+tt_inline tt_result_t tt_sshctx_verify(IN tt_sshctx_t *sshctx, IN tt_u8_t *data,
                                        IN tt_u32_t data_len,
                                        IN tt_u8_t *signature,
                                        IN tt_u32_t signature_len)
 {
-    return tt_sshmac_verify(&sshctx->verify,
-                            sshctx->verify_seq,
-                            data,
-                            data_len,
-                            signature,
-                            signature_len);
+    return tt_sshmac_verify(&sshctx->verify, sshctx->verify_seq, data, data_len,
+                            signature, signature_len);
 }
 
 // ========================================

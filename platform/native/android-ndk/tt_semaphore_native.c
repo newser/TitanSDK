@@ -57,8 +57,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem,
-                              IN tt_u32_t count,
+tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t count,
                               IN tt_sem_attr_t *attr)
 {
     if (sem_init(&sys_sem->sem, 0, count) == 0) {

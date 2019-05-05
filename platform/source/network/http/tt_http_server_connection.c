@@ -41,7 +41,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_SERVER_NO_SPACE,
     TT_HTTP_SERVER_PARSE_FAIL,
 
@@ -49,15 +50,11 @@ typedef enum {
 } tt_http_server_error_t;
 #define TT_HTTP_SERVER_ERROR_VALID(e) ((e) < TT_HTTP_SERVER_ERROR_NUM)
 
-typedef tt_result_t (*__sconn_send_t)(IN tt_http_sconn_t *c,
-                                      IN tt_u8_t *buf,
-                                      IN tt_u32_t len,
-                                      OUT tt_u32_t *sent);
+typedef tt_result_t (*__sconn_send_t)(IN tt_http_sconn_t *c, IN tt_u8_t *buf,
+                                      IN tt_u32_t len, OUT tt_u32_t *sent);
 
-typedef tt_result_t (*__sconn_recv_t)(IN tt_http_sconn_t *c,
-                                      OUT tt_u8_t *buf,
-                                      IN tt_u32_t len,
-                                      OUT tt_u32_t *recvd,
+typedef tt_result_t (*__sconn_recv_t)(IN tt_http_sconn_t *c, OUT tt_u8_t *buf,
+                                      IN tt_u32_t len, OUT tt_u32_t *recvd,
                                       OUT tt_fiber_ev_t **p_fev,
                                       OUT tt_tmr_t **p_tmr);
 
@@ -78,48 +75,44 @@ typedef struct
 // socket
 // ========================================
 
-static tt_result_t __skt_send(IN tt_http_sconn_t *c,
-                              IN tt_u8_t *buf,
-                              IN tt_u32_t len,
-                              OUT tt_u32_t *sent);
+static tt_result_t __skt_send(IN tt_http_sconn_t *c, IN tt_u8_t *buf,
+                              IN tt_u32_t len, OUT tt_u32_t *sent);
 
-static tt_result_t __skt_recv(IN tt_http_sconn_t *c,
-                              OUT tt_u8_t *buf,
-                              IN tt_u32_t len,
-                              OUT tt_u32_t *recvd,
-                              OUT tt_fiber_ev_t **p_fev,
-                              OUT tt_tmr_t **p_tmr);
+static tt_result_t __skt_recv(IN tt_http_sconn_t *c, OUT tt_u8_t *buf,
+                              IN tt_u32_t len, OUT tt_u32_t *recvd,
+                              OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr);
 
 static tt_result_t __skt_shut(IN tt_http_sconn_t *c, IN tt_http_shut_t shut);
 
 static void __skt_destroy(IN tt_http_sconn_t *c);
 
 static __sconn_itf_t __sconn_skt_itf = {
-    __skt_send, __skt_recv, __skt_shut, __skt_destroy,
+    __skt_send,
+    __skt_recv,
+    __skt_shut,
+    __skt_destroy,
 };
 
 // ========================================
 // ssl
 // ========================================
 
-static tt_result_t __ssl_send(IN tt_http_sconn_t *c,
-                              IN tt_u8_t *buf,
-                              IN tt_u32_t len,
-                              OUT tt_u32_t *sent);
+static tt_result_t __ssl_send(IN tt_http_sconn_t *c, IN tt_u8_t *buf,
+                              IN tt_u32_t len, OUT tt_u32_t *sent);
 
-static tt_result_t __ssl_recv(IN tt_http_sconn_t *c,
-                              OUT tt_u8_t *buf,
-                              IN tt_u32_t len,
-                              OUT tt_u32_t *recvd,
-                              OUT tt_fiber_ev_t **p_fev,
-                              OUT tt_tmr_t **p_tmr);
+static tt_result_t __ssl_recv(IN tt_http_sconn_t *c, OUT tt_u8_t *buf,
+                              IN tt_u32_t len, OUT tt_u32_t *recvd,
+                              OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr);
 
 static tt_result_t __ssl_shut(IN tt_http_sconn_t *c, IN tt_http_shut_t shut);
 
 static void __ssl_destroy(IN tt_http_sconn_t *c);
 
 static __sconn_itf_t __sconn_ssl_itf = {
-    __ssl_send, __ssl_recv, __ssl_shut, __ssl_destroy,
+    __ssl_send,
+    __ssl_recv,
+    __ssl_shut,
+    __ssl_destroy,
 };
 
 ////////////////////////////////////////////////////////////
@@ -134,8 +127,7 @@ static __sconn_itf_t __sconn_ssl_itf = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __sconn_set_itf(IN tt_http_sconn_t *c,
-                            IN __sconn_itf_t *itf,
+static void __sconn_set_itf(IN tt_http_sconn_t *c, IN __sconn_itf_t *itf,
                             IN void *itf_opaque);
 
 static tt_result_t __sconn_create(IN tt_http_sconn_t *c,
@@ -160,16 +152,14 @@ static tt_bool_t __sconn_action(IN tt_http_sconn_t *c,
 
 static void __sconn_clear(IN tt_http_sconn_t *c, IN tt_bool_t clear_recv_buf);
 
-static tt_result_t __sconn_send(IN tt_http_sconn_t *c,
-                                IN tt_u8_t *data,
+static tt_result_t __sconn_send(IN tt_http_sconn_t *c, IN tt_u8_t *data,
                                 IN tt_u32_t len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_http_sconn_create(IN tt_http_sconn_t *c,
-                                 IN void *itf,
+tt_result_t tt_http_sconn_create(IN tt_http_sconn_t *c, IN void *itf,
                                  IN void *itf_opaque,
                                  IN OPT tt_http_sconn_attr_t *attr)
 {
@@ -186,8 +176,7 @@ tt_result_t tt_http_sconn_create(IN tt_http_sconn_t *c,
     return __sconn_create(c, attr);
 }
 
-tt_result_t tt_http_sconn_create_skt(IN tt_http_sconn_t *c,
-                                     IN tt_skt_t *s,
+tt_result_t tt_http_sconn_create_skt(IN tt_http_sconn_t *c, IN tt_skt_t *s,
                                      IN OPT tt_http_sconn_attr_t *attr)
 {
     tt_http_sconn_attr_t __attr;
@@ -207,8 +196,7 @@ tt_result_t tt_http_sconn_create_skt(IN tt_http_sconn_t *c,
     }
 }
 
-tt_result_t tt_http_sconn_create_ssl(IN tt_http_sconn_t *c,
-                                     IN tt_ssl_t *s,
+tt_result_t tt_http_sconn_create_ssl(IN tt_http_sconn_t *c, IN tt_ssl_t *s,
                                      IN OPT tt_http_sconn_attr_t *attr)
 {
     tt_http_sconn_attr_t __attr;
@@ -265,9 +253,7 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
         TT_TIMEOUT_BEGIN(c->tmr, 5000);
 
         tt_http_parser_wpos(req, &p, &len);
-        if (len == 0) {
-            return __sconn_on_error(c, TT_HTTP_SERVER_NO_SPACE);
-        }
+        if (len == 0) { return __sconn_on_error(c, TT_HTTP_SERVER_NO_SPACE); }
 
         result = itf->recv(c, p, len, &recvd, &ev, &tmr);
         TT_TIMEOUT_IF_ERROR(result = TT_FAIL);
@@ -406,9 +392,7 @@ tt_bool_t tt_http_sconn_wait_eof(IN tt_http_sconn_t *c)
         TT_TIMEOUT_BEGIN(c->tmr, 5000);
         result = ((__sconn_itf_t *)c->itf)->recv(c, p, len, &recvd, &ev, &tmr);
         TT_TIMEOUT_IF_ERROR(result = TT_FAIL);
-        if (!TT_OK(result)) {
-            return TT_BOOL(result == TT_E_END);
-        }
+        if (!TT_OK(result)) { return TT_BOOL(result == TT_E_END); }
 
         if (recvd > 0) {
             total_recvd += recvd;
@@ -418,31 +402,24 @@ tt_bool_t tt_http_sconn_wait_eof(IN tt_http_sconn_t *c)
             }
         }
 
-        if (ev != NULL) {
-            tt_fiber_finish(ev);
-        }
+        if (ev != NULL) { tt_fiber_finish(ev); }
 
         if (tmr != NULL) {
-            if (tmr == c->tmr) {
-                return TT_FALSE;
-            }
+            if (tmr == c->tmr) { return TT_FALSE; }
         }
 
         TT_TIMEOUT_END();
     }
 }
 
-tt_result_t tt_http_sconn_send(IN tt_http_sconn_t *c,
-                               IN tt_u8_t *buf,
-                               IN tt_u32_t len,
-                               OUT OPT tt_u32_t *sent)
+tt_result_t tt_http_sconn_send(IN tt_http_sconn_t *c, IN tt_u8_t *buf,
+                               IN tt_u32_t len, OUT OPT tt_u32_t *sent)
 {
     __sconn_itf_t *itf = (__sconn_itf_t *)c->itf;
     return itf->send(c, buf, len, sent);
 }
 
-void __sconn_set_itf(IN tt_http_sconn_t *c,
-                     IN __sconn_itf_t *itf,
+void __sconn_set_itf(IN tt_http_sconn_t *c, IN __sconn_itf_t *itf,
                      IN void *itf_opaque)
 {
     c->itf = itf;
@@ -471,15 +448,12 @@ tt_result_t __sconn_create(IN tt_http_sconn_t *c, IN tt_http_sconn_attr_t *attr)
     __done |= __SC_SVCMGR;
 
     // by default, we add a chunked encoding service
-    tt_http_svcmgr_set_encserv(&c->svcmgr,
-                               TT_HTTP_TXENC_CHUNKED,
+    tt_http_svcmgr_set_encserv(&c->svcmgr, TT_HTTP_TXENC_CHUNKED,
                                tt_g_http_encserv_chunked);
 
     rhs = __local_rawhdr_slab();
     rvs = __local_rawval_slab();
-    if ((rhs == NULL) || (rvs == NULL)) {
-        goto fail;
-    }
+    if ((rhs == NULL) || (rvs == NULL)) { goto fail; }
 
     if (!TT_OK(
             tt_http_parser_create(&c->parser, rhs, rvs, &attr->parser_attr))) {
@@ -499,25 +473,15 @@ tt_result_t __sconn_create(IN tt_http_sconn_t *c, IN tt_http_sconn_attr_t *attr)
 
 fail:
 
-    if (__done & __SC_TMR) {
-        tt_tmr_destroy(c->tmr);
-    }
+    if (__done & __SC_TMR) { tt_tmr_destroy(c->tmr); }
 
-    if (__done & __SC_SVCMGR) {
-        tt_http_svcmgr_destroy(&c->svcmgr);
-    }
+    if (__done & __SC_SVCMGR) { tt_http_svcmgr_destroy(&c->svcmgr); }
 
-    if (__done & __SC_PARSER) {
-        tt_http_parser_destroy(&c->parser);
-    }
+    if (__done & __SC_PARSER) { tt_http_parser_destroy(&c->parser); }
 
-    if (__done & __SC_RENDER) {
-        tt_http_resp_render_destroy(&c->render);
-    }
+    if (__done & __SC_RENDER) { tt_http_resp_render_destroy(&c->render); }
 
-    if (__done & __SC_BODY) {
-        tt_buf_destroy(&c->body);
-    }
+    if (__done & __SC_BODY) { tt_buf_destroy(&c->body); }
 
     return TT_FAIL;
 }
@@ -598,36 +562,36 @@ tt_bool_t __sconn_on_error(IN tt_http_sconn_t *c, IN tt_http_server_error_t e)
      */
 
     switch (e) {
-        case TT_HTTP_SERVER_NO_SPACE: {
-            if (!req->complete_line1) {
-                tt_http_resp_render_set_status(resp,
-                                               TT_HTTP_STATUS_URI_TOO_LONG);
-            } else if (!req->complete_header) {
-                tt_http_resp_render_set_status(
-                    resp, TT_HTTP_STATUS_REQUEST_HEADER_FIELDS_TOO_LARGE);
-            } else {
-                tt_http_resp_render_set_status(
-                    resp, TT_HTTP_STATUS_PAYLOAD_TOO_LARGE);
-            }
+    case TT_HTTP_SERVER_NO_SPACE: {
+        if (!req->complete_line1) {
+            tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_URI_TOO_LONG);
+        } else if (!req->complete_header) {
+            tt_http_resp_render_set_status(
+                resp, TT_HTTP_STATUS_REQUEST_HEADER_FIELDS_TOO_LARGE);
+        } else {
+            tt_http_resp_render_set_status(resp,
+                                           TT_HTTP_STATUS_PAYLOAD_TOO_LARGE);
+        }
 
-            tt_http_resp_render_set_conn(resp, TT_HTTP_CONN_CLOSE);
+        tt_http_resp_render_set_conn(resp, TT_HTTP_CONN_CLOSE);
 
-            shut_wr = TT_TRUE;
-            wait_eof = TT_TRUE;
-        } break;
+        shut_wr = TT_TRUE;
+        wait_eof = TT_TRUE;
+    } break;
 
-        default: {
-            static tt_http_status_t status_errmap[TT_HTTP_SERVER_ERROR_NUM] = {
-                TT_HTTP_STATUS_INVALID, TT_HTTP_STATUS_BAD_REQUEST,
-            };
+    default: {
+        static tt_http_status_t status_errmap[TT_HTTP_SERVER_ERROR_NUM] = {
+            TT_HTTP_STATUS_INVALID,
+            TT_HTTP_STATUS_BAD_REQUEST,
+        };
 
-            tt_http_resp_render_set_status(resp, status_errmap[e]);
+        tt_http_resp_render_set_status(resp, status_errmap[e]);
 
-            tt_http_resp_render_set_conn(resp, TT_HTTP_CONN_CLOSE);
+        tt_http_resp_render_set_conn(resp, TT_HTTP_CONN_CLOSE);
 
-            shut_wr = TT_TRUE;
-            wait_eof = TT_TRUE;
-        } break;
+        shut_wr = TT_TRUE;
+        wait_eof = TT_TRUE;
+    } break;
     }
 
     if (!TT_OK(__sconn_send_resp_hdr(c))) {
@@ -635,9 +599,7 @@ tt_bool_t __sconn_on_error(IN tt_http_sconn_t *c, IN tt_http_server_error_t e)
         wait_eof = TT_FALSE;
     }
 
-    if (shut_wr) {
-        ((__sconn_itf_t *)c->itf)->shut(c, TT_HTTP_SHUT_WR);
-    }
+    if (shut_wr) { ((__sconn_itf_t *)c->itf)->shut(c, TT_HTTP_SHUT_WR); }
 
     return wait_eof;
 }
@@ -672,8 +634,7 @@ tt_result_t __sconn_send_resp_hdr(IN tt_http_sconn_t *c)
     }
 
     if (!TT_OK(tt_http_svcmgr_on_resp_header(&c->svcmgr,
-                                             TT_COND(req->complete_header,
-                                                     req,
+                                             TT_COND(req->complete_header, req,
                                                      NULL),
                                              resp))) {
         tt_http_resp_render_set_status(resp,
@@ -688,9 +649,7 @@ tt_result_t __sconn_send_resp_hdr(IN tt_http_sconn_t *c)
         tt_http_resp_render_set_content_len(resp, 0);
     }
 
-    if (!TT_OK(tt_http_resp_render(resp, &data, &len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_http_resp_render(resp, &data, &len))) { return TT_FAIL; }
 
     // todo: send timeout
     ((__sconn_itf_t *)c->itf)->send(c, (tt_u8_t *)data, len, NULL);
@@ -723,16 +682,11 @@ tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c)
     tt_buf_clear(&c->body);
     do {
         action = tt_http_svcmgr_get_body(&c->svcmgr, req, resp, &c->body);
-        if (action <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
-            return TT_FAIL;
-        }
+        if (action <= TT_HTTP_INSERV_ACT_SHUTDOWN) { return TT_FAIL; }
 
         if (!tt_buf_empty(&c->body) &&
-            !TT_OK(tt_http_svcmgr_on_resp_body(&c->svcmgr,
-                                               &c->parser,
-                                               &c->render,
-                                               &c->body,
-                                               &buf))) {
+            !TT_OK(tt_http_svcmgr_on_resp_body(&c->svcmgr, &c->parser,
+                                               &c->render, &c->body, &buf))) {
             return TT_FAIL;
         }
         if ((buf != NULL) && !tt_buf_empty(buf)) {
@@ -800,8 +754,7 @@ void __sconn_clear(IN tt_http_sconn_t *c, IN tt_bool_t clear_recv_buf)
     tt_http_resp_render_clear(&c->render);
 }
 
-tt_result_t __sconn_send(IN tt_http_sconn_t *c,
-                         IN tt_u8_t *data,
+tt_result_t __sconn_send(IN tt_http_sconn_t *c, IN tt_u8_t *data,
                          IN tt_u32_t len)
 {
     __sconn_itf_t *itf = (__sconn_itf_t *)c->itf;
@@ -816,33 +769,26 @@ tt_result_t __sconn_send(IN tt_http_sconn_t *c,
 // socket
 // ========================================
 
-tt_result_t __skt_send(IN tt_http_sconn_t *c,
-                       IN tt_u8_t *buf,
-                       IN tt_u32_t len,
+tt_result_t __skt_send(IN tt_http_sconn_t *c, IN tt_u8_t *buf, IN tt_u32_t len,
                        OUT tt_u32_t *sent)
 {
     return tt_skt_send((tt_skt_t *)c->itf_opaque, buf, len, sent);
 }
 
-tt_result_t __skt_recv(IN tt_http_sconn_t *c,
-                       OUT tt_u8_t *buf,
-                       IN tt_u32_t len,
-                       OUT tt_u32_t *recvd,
-                       OUT tt_fiber_ev_t **p_fev,
+tt_result_t __skt_recv(IN tt_http_sconn_t *c, OUT tt_u8_t *buf, IN tt_u32_t len,
+                       OUT tt_u32_t *recvd, OUT tt_fiber_ev_t **p_fev,
                        OUT tt_tmr_t **p_tmr)
 {
-    return tt_skt_recv((tt_skt_t *)c->itf_opaque,
-                       buf,
-                       len,
-                       recvd,
-                       p_fev,
+    return tt_skt_recv((tt_skt_t *)c->itf_opaque, buf, len, recvd, p_fev,
                        p_tmr);
 }
 
 tt_result_t __skt_shut(IN tt_http_sconn_t *c, IN tt_http_shut_t shut)
 {
     static tt_skt_shut_t shut_map[TT_HTTP_SHUT_NUM] = {
-        TT_SKT_SHUT_RD, TT_SKT_SHUT_WR, TT_SKT_SHUT_RDWR,
+        TT_SKT_SHUT_RD,
+        TT_SKT_SHUT_WR,
+        TT_SKT_SHUT_RDWR,
     };
     return tt_skt_shutdown((tt_skt_t *)c->itf_opaque, shut_map[shut]);
 }
@@ -856,33 +802,26 @@ void __skt_destroy(IN tt_http_sconn_t *c)
 // ssl
 // ========================================
 
-tt_result_t __ssl_send(IN tt_http_sconn_t *c,
-                       IN tt_u8_t *buf,
-                       IN tt_u32_t len,
+tt_result_t __ssl_send(IN tt_http_sconn_t *c, IN tt_u8_t *buf, IN tt_u32_t len,
                        OUT tt_u32_t *sent)
 {
     return tt_ssl_send((tt_ssl_t *)c->itf_opaque, buf, len, sent);
 }
 
-tt_result_t __ssl_recv(IN tt_http_sconn_t *c,
-                       OUT tt_u8_t *buf,
-                       IN tt_u32_t len,
-                       OUT tt_u32_t *recvd,
-                       OUT tt_fiber_ev_t **p_fev,
+tt_result_t __ssl_recv(IN tt_http_sconn_t *c, OUT tt_u8_t *buf, IN tt_u32_t len,
+                       OUT tt_u32_t *recvd, OUT tt_fiber_ev_t **p_fev,
                        OUT tt_tmr_t **p_tmr)
 {
-    return tt_ssl_recv((tt_ssl_t *)c->itf_opaque,
-                       buf,
-                       len,
-                       recvd,
-                       p_fev,
+    return tt_ssl_recv((tt_ssl_t *)c->itf_opaque, buf, len, recvd, p_fev,
                        p_tmr);
 }
 
 tt_result_t __ssl_shut(IN tt_http_sconn_t *c, IN tt_http_shut_t shut)
 {
     static tt_ssl_shut_t shut_map[TT_HTTP_SHUT_NUM] = {
-        TT_SSL_SHUT_RD, TT_SSL_SHUT_WR, TT_SSL_SHUT_RDWR,
+        TT_SSL_SHUT_RD,
+        TT_SSL_SHUT_WR,
+        TT_SSL_SHUT_RDWR,
     };
     return tt_ssl_shutdown((tt_ssl_t *)c->itf_opaque, shut_map[shut]);
 }

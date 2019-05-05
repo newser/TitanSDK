@@ -43,7 +43,8 @@ this file defines ts platform component
 struct tt_component_s;
 struct tt_profile_s;
 
-typedef enum {
+typedef enum
+{
     // never change the order of component id, which
     // determines components dependencies
 
@@ -157,8 +158,7 @@ typedef struct tt_component_s
 // params of component may be expanded
 tt_export void tt_component_init(IN tt_component_t *comp,
                                  IN tt_component_id_t cid,
-                                 IN const tt_char_t *name,
-                                 IN void *opaque,
+                                 IN const tt_char_t *name, IN void *opaque,
                                  IN tt_component_itf_t *itf);
 
 tt_export void tt_component_register(IN tt_component_t *comp);

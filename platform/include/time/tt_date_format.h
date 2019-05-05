@@ -72,13 +72,11 @@ this file specifies date format interfaces
  %Z    time zone, ISO8601 (Z, +08:00, ...)
  */
 tt_export tt_u32_t tt_date_render(IN tt_date_t *date,
-                                  IN const tt_char_t *format,
-                                  IN tt_char_t *buf,
+                                  IN const tt_char_t *format, IN tt_char_t *buf,
                                   IN tt_u32_t len);
 
 tt_inline tt_u32_t tt_date_render_now(IN const tt_char_t *format,
-                                      IN tt_char_t *buf,
-                                      IN tt_u32_t len)
+                                      IN tt_char_t *buf, IN tt_u32_t len)
 {
     tt_date_t d;
     tt_date_now(&d);

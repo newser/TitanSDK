@@ -139,8 +139,7 @@ tt_export void tt_http_parser_attr_default(IN tt_http_parser_attr_t *attr);
 tt_export void tt_http_parser_clear(IN tt_http_parser_t *hp,
                                     IN tt_bool_t clear_recv_buf);
 
-tt_inline void tt_http_parser_wpos(IN tt_http_parser_t *hp,
-                                   OUT tt_u8_t **addr,
+tt_inline void tt_http_parser_wpos(IN tt_http_parser_t *hp, OUT tt_u8_t **addr,
                                    OUT tt_u32_t *len)
 {
     *addr = TT_BUF_WPOS(&hp->buf);
@@ -220,8 +219,7 @@ tt_export tt_http_hdr_t *tt_http_parser_get_set_cookie(IN tt_http_parser_t *hp);
 // helper
 // ========================================
 
-tt_export void tt_http_parse_weight(IN OUT tt_char_t **s,
-                                    IN OUT tt_u32_t *len,
+tt_export void tt_http_parse_weight(IN OUT tt_char_t **s, IN OUT tt_u32_t *len,
                                     OUT tt_float_t *q);
 
 #endif /* __TT_HTTP_PARSER__ */

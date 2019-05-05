@@ -46,13 +46,14 @@ static const tt_char_t __pwd_info[] = "show current shell path";
 
 static const tt_char_t __pwd_usage[] = "testing pwd";
 
-static tt_u32_t __pwd_run(IN tt_shell_t *sh,
-                          IN tt_u32_t argc,
-                          IN tt_char_t *arv[],
-                          OUT tt_buf_t *output);
+static tt_u32_t __pwd_run(IN tt_shell_t *sh, IN tt_u32_t argc,
+                          IN tt_char_t *arv[], OUT tt_buf_t *output);
 
 tt_shcmd_t tt_g_shcmd_pwd = {
-    TT_SHCMD_NAME_PWD, __pwd_info, __pwd_usage, __pwd_run,
+    TT_SHCMD_NAME_PWD,
+    __pwd_info,
+    __pwd_usage,
+    __pwd_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -63,9 +64,7 @@ tt_shcmd_t tt_g_shcmd_pwd = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __pwd_run(IN tt_shell_t *sh,
-                   IN tt_u32_t argc,
-                   IN tt_char_t *argv[],
+tt_u32_t __pwd_run(IN tt_shell_t *sh, IN tt_u32_t argc, IN tt_char_t *argv[],
                    OUT tt_buf_t *output)
 {
     tt_u32_t rp, wp;

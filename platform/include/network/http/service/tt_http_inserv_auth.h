@@ -43,10 +43,8 @@ this file defines http incoming service: auth auth
 
 typedef struct
 {
-    tt_result_t (*get_pwd)(IN tt_char_t *username,
-                           IN tt_u32_t username_len,
-                           IN void *param,
-                           OUT tt_char_t **pwd,
+    tt_result_t (*get_pwd)(IN tt_char_t *username, IN tt_u32_t username_len,
+                           IN void *param, OUT tt_char_t **pwd,
                            OUT tt_u32_t *pwd_len);
     union
     {

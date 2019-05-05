@@ -61,14 +61,12 @@ void tt_tmr_mgr_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __tmr_mgr_component_init, __tmr_mgr_component_exit,
+        __tmr_mgr_component_init,
+        __tmr_mgr_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_TIMER_MGR,
-                      "Timer Manager",
-                      NULL,
+    tt_component_init(&comp, TT_COMPONENT_TIMER_MGR, "Timer Manager", NULL,
                       &itf);
 
     // register component
@@ -116,9 +114,7 @@ tt_s64_t tt_tmr_mgr_run(IN tt_tmr_mgr_t *mgr)
 
     while ((head = (tt_tmr_t *)tt_ptrheap_head(tmr_heap)) != NULL) {
         if (head->status == TT_TMR_ACTIVE) {
-            if (now == 0) {
-                now = tt_time_ref();
-            }
+            if (now == 0) { now = tt_time_ref(); }
         again:
             if (head->absolute_ref <= now) {
                 tt_ptrheap_pop(tmr_heap);

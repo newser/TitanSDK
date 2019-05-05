@@ -51,7 +51,6 @@ struct tt_file_s;
 ////////////////////////////////////////////////////////////
 
 tt_export tt_result_t tt_http_file_etag(IN struct tt_file_s *f,
-                                        OUT tt_char_t *etag,
-                                        IN tt_u32_t len);
+                                        OUT tt_char_t *etag, IN tt_u32_t len);
 
 #endif /* __TT_HTTP_UTIL__ */

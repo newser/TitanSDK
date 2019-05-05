@@ -45,15 +45,13 @@ struct tt_dtnode_s;
 typedef void (*tt_dtnode_destroy_t)(IN struct tt_dtnode_s *dtn);
 
 typedef tt_result_t (*tt_dtnode_read_t)(IN struct tt_dtnode_s *dtn,
-                                        OUT tt_u8_t **p,
-                                        OUT tt_u32_t *len);
+                                        OUT tt_u8_t **p, OUT tt_u32_t *len);
 
 typedef void (*tt_dtnode_read_update_t)(IN struct tt_dtnode_s *dtn,
                                         IN tt_u32_t len);
 
 typedef tt_result_t (*tt_dtnode_write_t)(IN struct tt_dtnode_s *dtn,
-                                         IN tt_u8_t *p,
-                                         IN tt_u32_t len,
+                                         IN tt_u8_t *p, IN tt_u32_t len,
                                          OUT OPT tt_u32_t *write_len);
 
 typedef struct tt_dtnode_itf_s
@@ -82,8 +80,7 @@ tt_export tt_dtnode_t *tt_dtnode_create(IN tt_u32_t size,
 
 tt_export void tt_dtnode_destroy(IN tt_dtnode_t *dtn);
 
-tt_inline tt_result_t tt_dtnode_read(IN tt_dtnode_t *dtn,
-                                     OUT tt_u8_t **p,
+tt_inline tt_result_t tt_dtnode_read(IN tt_dtnode_t *dtn, OUT tt_u8_t **p,
                                      OUT tt_u32_t *len)
 {
     if (dtn->itf->read != NULL) {
@@ -95,13 +92,10 @@ tt_inline tt_result_t tt_dtnode_read(IN tt_dtnode_t *dtn,
 
 tt_inline void tt_dtnode_read_update(IN tt_dtnode_t *dtn, IN tt_u32_t len)
 {
-    if (dtn->itf->read != NULL) {
-        dtn->itf->read_update(dtn, len);
-    }
+    if (dtn->itf->read != NULL) { dtn->itf->read_update(dtn, len); }
 }
 
-tt_inline tt_result_t tt_dtnode_write(IN tt_dtnode_t *dtn,
-                                      IN tt_u8_t *p,
+tt_inline tt_result_t tt_dtnode_write(IN tt_dtnode_t *dtn, IN tt_u8_t *p,
                                       IN tt_u32_t len,
                                       OUT OPT tt_u32_t *write_len)
 {

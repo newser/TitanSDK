@@ -44,12 +44,13 @@
 
 static tt_result_t __bool_read(IN tt_param_t *p, OUT tt_buf_t *output);
 
-static tt_result_t __bool_write(IN tt_param_t *p,
-                                IN tt_u8_t *val,
+static tt_result_t __bool_write(IN tt_param_t *p, IN tt_u8_t *val,
                                 IN tt_u32_t val_len);
 
 static tt_param_itf_t __bool_itf = {
-    NULL, __bool_read, __bool_write,
+    NULL,
+    __bool_read,
+    __bool_write,
 };
 
 ////////////////////////////////////////////////////////////
@@ -60,8 +61,7 @@ static tt_param_itf_t __bool_itf = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
-                                 IN tt_bool_t *p_val,
+tt_param_t *tt_param_bool_create(IN const tt_char_t *name, IN tt_bool_t *p_val,
                                  IN OPT tt_param_attr_t *attr,
                                  IN OPT tt_param_bool_cb_t *cb)
 {
@@ -72,15 +72,9 @@ tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
     tt_param_bool_t *pb;
     tt_param_bs4select_t *bs4_sel;
 
-    p = tt_param_create(sizeof(tt_param_bool_t),
-                        TT_PARAM_BOOL,
-                        name,
-                        &__bool_itf,
-                        p_val,
-                        attr);
-    if (p == NULL) {
-        return NULL;
-    }
+    p = tt_param_create(sizeof(tt_param_bool_t), TT_PARAM_BOOL, name,
+                        &__bool_itf, p_val, attr);
+    if (p == NULL) { return NULL; }
 
     pb = TT_PARAM_CAST(p, tt_param_bool_t);
 
@@ -130,8 +124,7 @@ tt_result_t __bool_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
          0)) {
         bool_val = TT_TRUE;
     } else if ((val_len == __PARBOOL_FALSE_LEN) &&
-               (tt_strncmp((tt_char_t *)val,
-                           __PARBOOL_FALSE,
+               (tt_strncmp((tt_char_t *)val, __PARBOOL_FALSE,
                            __PARBOOL_FALSE_LEN) == 0)) {
         bool_val = TT_FALSE;
     } else {
@@ -144,9 +137,7 @@ tt_result_t __bool_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
 
     *(tt_bool_t *)p->opaque = bool_val;
 
-    if (pb->cb.post_set != NULL) {
-        pb->cb.post_set(p, bool_val);
-    }
+    if (pb->cb.post_set != NULL) { pb->cb.post_set(p, bool_val); }
 
     return TT_SUCCESS;
 }

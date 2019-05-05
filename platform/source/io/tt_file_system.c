@@ -69,14 +69,12 @@ void tt_fs_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __fs_component_init, __fs_component_exit,
+        __fs_component_init,
+        __fs_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_FILE_SYSTEM,
-                      "File System",
-                      NULL,
+    tt_component_init(&comp, TT_COMPONENT_FILE_SYSTEM, "File System", NULL,
                       &itf);
 
     // register component
@@ -97,9 +95,7 @@ void tt_fs_status_dump(IN tt_u32_t flag)
                   tt_atomic_s32_get(&__dir_opened));
     }
 
-    if (flag & TT_FS_STATUS_NATIVE) {
-        tt_fs_status_dump_ntv(flag);
-    }
+    if (flag & TT_FS_STATUS_NATIVE) { tt_fs_status_dump_ntv(flag); }
 }
 
 void tt_file_attr_default(IN tt_file_attr_t *attr)
@@ -140,9 +136,7 @@ tt_result_t tt_fcreate_temp(IN OUT tt_char_t *path, IN OPT tt_file_attr_t *attr)
     TT_ASSERT(path != NULL);
 
     x = path + tt_strlen(path) - 1;
-    while ((x >= path) && (*x == 'X')) {
-        --x;
-    }
+    while ((x >= path) && (*x == 'X')) { --x; }
     ++x;
 
     if (*x == 'X') {
@@ -158,9 +152,7 @@ tt_result_t tt_fcreate_temp(IN OUT tt_char_t *path, IN OPT tt_file_attr_t *attr)
         p = x;
         ntry = 3;
         while (ntry-- != 0) {
-            while (*p == 'X') {
-                *p++ = t[tt_rand_u32() % sizeof(t)];
-            }
+            while (*p == 'X') { *p++ = t[tt_rand_u32() % sizeof(t)]; }
 
             result = tt_fcreate(path, attr);
             if (TT_OK(result)) {
@@ -182,10 +174,8 @@ tt_result_t tt_fremove(IN const tt_char_t *path)
     return tt_fremove_ntv(path);
 }
 
-tt_result_t tt_fopen(IN tt_file_t *file,
-                     IN const tt_char_t *path,
-                     IN tt_u32_t flag,
-                     IN OPT tt_file_attr_t *attr)
+tt_result_t tt_fopen(IN tt_file_t *file, IN const tt_char_t *path,
+                     IN tt_u32_t flag, IN OPT tt_file_attr_t *attr)
 {
     tt_file_attr_t __attr;
     tt_char_t *parent;
@@ -199,9 +189,7 @@ tt_result_t tt_fopen(IN tt_file_t *file,
         attr = &__attr;
     }
 
-    if ((flag & TT_FO_RLOCK) & (flag & TT_FO_WLOCK)) {
-        flag &= ~TT_FO_RLOCK;
-    }
+    if ((flag & TT_FO_RLOCK) & (flag & TT_FO_WLOCK)) { flag &= ~TT_FO_RLOCK; }
 
     if ((flag & TT_FO_CREAT_DIR) && ((parent = __parent_dir(path)) != NULL)) {
         result = tt_dcreate(parent, NULL);
@@ -242,9 +230,7 @@ tt_u8_t *tt_fcontent(IN const tt_char_t *path, OUT OPT tt_u64_t *size)
 
     TT_ASSERT(path != NULL);
 
-    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
-        return NULL;
-    }
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) { return NULL; }
 
     if (!TT_OK(tt_fseek(&f, TT_FSEEK_END, 0, &len))) {
         tt_fclose(&f);
@@ -278,18 +264,14 @@ tt_result_t tt_fcontent_buf(IN const tt_char_t *path, OUT tt_buf_t *buf)
     TT_ASSERT(path != NULL);
     TT_ASSERT(buf != NULL);
 
-    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) { return TT_FAIL; }
 
     if (!TT_OK(tt_fseek(&f, TT_FSEEK_END, 0, &len))) {
         tt_fclose(&f);
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_buf_reserve(buf, (tt_u32_t)len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_buf_reserve(buf, (tt_u32_t)len))) { return TT_FAIL; }
 
     if (!TT_OK(tt_fseek(&f, TT_FSEEK_BEGIN, 0, NULL)) ||
         !TT_OK(tt_fread(&f, TT_BUF_WPOS(buf), (tt_u32_t)len, NULL))) {
@@ -308,18 +290,12 @@ tt_result_t tt_fsize(IN tt_file_t *file, OUT tt_u64_t *size)
 
     // to be investigated whether a fstat is slower than 3 fseek...
 
-    if (!TT_OK(tt_fseek(file, TT_FSEEK_CUR, 0, &pos))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_fseek(file, TT_FSEEK_CUR, 0, &pos))) { return TT_FAIL; }
 
-    if (!TT_OK(tt_fseek(file, TT_FSEEK_END, 0, size))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_fseek(file, TT_FSEEK_END, 0, size))) { return TT_FAIL; }
 
     // restore the pos
-    if (!TT_OK(tt_fseek(file, TT_FSEEK_BEGIN, pos, NULL))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_fseek(file, TT_FSEEK_BEGIN, pos, NULL))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -332,9 +308,7 @@ tt_result_t tt_fsize_path(IN const tt_char_t *path, OUT tt_u64_t *size)
     TT_ASSERT(path != NULL);
     TT_ASSERT(size != NULL);
 
-    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) { return TT_FAIL; }
 
     if (!TT_OK(tt_fseek(&f, TT_FSEEK_END, 0, &len))) {
         tt_fclose(&f);
@@ -355,9 +329,7 @@ tt_result_t tt_fstat_path(IN const tt_char_t *path, OUT tt_fstat_t *fstat)
     TT_ASSERT(fstat != NULL);
 
     result = tt_fopen(&f, path, TT_FO_READ, NULL);
-    if (!TT_OK(result)) {
-        return result;
-    }
+    if (!TT_OK(result)) { return result; }
 
     result = tt_fstat(&f, fstat);
     if (!TT_OK(result)) {
@@ -369,8 +341,7 @@ tt_result_t tt_fstat_path(IN const tt_char_t *path, OUT tt_fstat_t *fstat)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_futime(IN tt_file_t *file,
-                      IN OPT tt_date_t *accessed,
+tt_result_t tt_futime(IN tt_file_t *file, IN OPT tt_date_t *accessed,
                       IN OPT tt_date_t *modified)
 {
     tt_date_t a, m;
@@ -421,9 +392,7 @@ tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
 
     len = (tt_u32_t)tt_strlen(path);
     p = tt_zalloc(len + 1);
-    if (p == NULL) {
-        return TT_E_NOMEM;
-    }
+    if (p == NULL) { return TT_E_NOMEM; }
 
     pos = 0;
     prev = path;
@@ -477,9 +446,7 @@ tt_result_t tt_dcreate_temp(IN OUT tt_char_t *path, IN OPT tt_dir_attr_t *attr)
     TT_ASSERT(path != NULL);
 
     x = path + tt_strlen(path) - 1;
-    while ((x >= path) && (*x == 'X')) {
-        --x;
-    }
+    while ((x >= path) && (*x == 'X')) { --x; }
     ++x;
 
     if (*x == 'X') {
@@ -495,9 +462,7 @@ tt_result_t tt_dcreate_temp(IN OUT tt_char_t *path, IN OPT tt_dir_attr_t *attr)
         p = x;
         ntry = 3;
         while (ntry-- != 0) {
-            while (*p == 'X') {
-                *p++ = t[tt_rand_u32() % sizeof(t)];
-            }
+            while (*p == 'X') { *p++ = t[tt_rand_u32() % sizeof(t)]; }
 
             result = tt_dcreate(path, attr);
             if (TT_OK(result)) {
@@ -519,8 +484,7 @@ tt_result_t tt_dremove(IN const tt_char_t *path)
     return tt_dremove_ntv(path);
 }
 
-tt_result_t tt_dopen(IN tt_dir_t *dir,
-                     IN const tt_char_t *path,
+tt_result_t tt_dopen(IN tt_dir_t *dir, IN const tt_char_t *path,
                      IN tt_dir_attr_t *attr)
 {
     tt_dir_attr_t __attr;
@@ -587,8 +551,7 @@ tt_result_t tt_fs_symlink(IN const tt_char_t *path, IN const tt_char_t *link)
     return tt_fs_symlink_ntv(path, link);
 }
 
-tt_result_t tt_fs_readlink(IN const tt_char_t *link,
-                           OUT tt_char_t *path,
+tt_result_t tt_fs_readlink(IN const tt_char_t *link, OUT tt_char_t *path,
                            IN tt_u32_t len)
 {
     TT_ASSERT(link != NULL);
@@ -597,8 +560,7 @@ tt_result_t tt_fs_readlink(IN const tt_char_t *link,
     return tt_fs_readlink_ntv(link, path, len);
 }
 
-tt_result_t tt_fs_realpath(IN const tt_char_t *path,
-                           OUT tt_char_t *resolved,
+tt_result_t tt_fs_realpath(IN const tt_char_t *path, OUT tt_char_t *resolved,
                            IN tt_u32_t len)
 {
     TT_ASSERT(path != NULL);
@@ -615,9 +577,7 @@ tt_result_t tt_fs_realpath(IN const tt_char_t *path,
 tt_result_t __fs_component_init(IN tt_component_t *comp,
                                 IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_fs_component_init_ntv())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_fs_component_init_ntv())) { return TT_FAIL; }
 
     tt_atomic_s32_set(&__file_opened, 0);
     tt_atomic_s32_set(&__dir_opened, 0);
@@ -639,9 +599,7 @@ tt_char_t *__parent_dir(IN const tt_char_t *path)
 
     p = tt_strrchr(path, '/');
 #if TT_ENV_OS_IS_WINDOWS
-    if (p == NULL) {
-        p = tt_strrchr(path, '\\');
-    }
+    if (p == NULL) { p = tt_strrchr(path, '\\'); }
 #endif
 
     if ((p == NULL) || ((p == (path + 1)) && (path[0] == '.')) ||

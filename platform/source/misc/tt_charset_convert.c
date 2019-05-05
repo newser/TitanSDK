@@ -87,8 +87,7 @@ static __parse_prepare_t __parse_prepare[TT_CHARSET_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_chsetconv_create(IN tt_chsetconv_t *csconv,
-                                IN tt_charset_t from,
+tt_result_t tt_chsetconv_create(IN tt_chsetconv_t *csconv, IN tt_charset_t from,
                                 IN tt_charset_t to,
                                 IN OPT tt_chsetconv_attr_t *attr)
 {
@@ -115,9 +114,7 @@ tt_result_t tt_chsetconv_create(IN tt_chsetconv_t *csconv,
 
     // sys csconv
     if (csconv->from != csconv->to) {
-        if (!TT_OK(tt_chsetconv_create_ntv(csconv))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(tt_chsetconv_create_ntv(csconv))) { return TT_FAIL; }
     } else {
         tt_memset(&csconv->sys_csconv, 0, sizeof(tt_chsetconv_ntv_t));
     }
@@ -130,9 +127,7 @@ void tt_chsetconv_destroy(IN tt_chsetconv_t *csconv)
     TT_ASSERT(csconv != NULL);
 
     // sys csconv
-    if (csconv->from != csconv->to) {
-        tt_chsetconv_destroy_ntv(csconv);
-    }
+    if (csconv->from != csconv->to) { tt_chsetconv_destroy_ntv(csconv); }
 
     tt_buf_destroy(&csconv->converted);
 }
@@ -144,16 +139,13 @@ void tt_chsetconv_attr_default(IN tt_chsetconv_attr_t *attr)
     tt_memset(attr, 0, sizeof(tt_chsetconv_attr_t));
 }
 
-tt_result_t tt_chsetconv_input(IN tt_chsetconv_t *csconv,
-                               IN void *input,
+tt_result_t tt_chsetconv_input(IN tt_chsetconv_t *csconv, IN void *input,
                                IN tt_u32_t input_len)
 {
     TT_ASSERT(csconv != NULL);
     TT_ASSERT(input != NULL);
 
-    if (input_len == 0) {
-        return TT_SUCCESS;
-    }
+    if (input_len == 0) { return TT_SUCCESS; }
 
     if ((__parse_prepare[csconv->from] != NULL) &&
         (!TT_OK(__parse_prepare[csconv->from](csconv, &input, &input_len)))) {
@@ -187,8 +179,7 @@ tt_result_t tt_chsetconv_input(IN tt_chsetconv_t *csconv,
     return TT_SUCCESS;
 }
 
-void tt_chsetconv_output(IN tt_chsetconv_t *csconv,
-                         OUT OPT void *output,
+void tt_chsetconv_output(IN tt_chsetconv_t *csconv, OUT OPT void *output,
                          IN OUT tt_u32_t *output_len)
 {
     TT_ASSERT(csconv != NULL);
@@ -199,9 +190,7 @@ void tt_chsetconv_output(IN tt_chsetconv_t *csconv,
         tt_u32_t __output_len;
 
         __output_len = TT_BUF_RLEN(converted);
-        if (__output_len > *output_len) {
-            __output_len = *output_len;
-        }
+        if (__output_len > *output_len) { __output_len = *output_len; }
 
         tt_buf_get(converted, output, __output_len);
         *output_len = __output_len;
@@ -216,8 +205,7 @@ void tt_chsetconv_output(IN tt_chsetconv_t *csconv,
 }
 
 void tt_chsetconv_output_ptr(IN tt_chsetconv_t *csconv,
-                             OUT OPT tt_u8_t **output,
-                             OUT tt_u32_t *output_len)
+                             OUT OPT tt_u8_t **output, OUT tt_u32_t *output_len)
 {
     tt_u32_t len;
 
@@ -238,9 +226,7 @@ void tt_chsetconv_reset(IN tt_chsetconv_t *csconv)
 {
     TT_ASSERT(csconv != NULL);
 
-    if (csconv->from != csconv->to) {
-        tt_chsetconv_reset_ntv(csconv);
-    }
+    if (csconv->from != csconv->to) { tt_chsetconv_reset_ntv(csconv); }
 
     csconv->head_len = 0;
     csconv->tail_len = 0;
@@ -270,8 +256,7 @@ tt_u32_t __utf8_len(tt_u8_t first_byte)
         return 0; // illegal
 }
 
-tt_result_t __parse_prepare_utf8(IN tt_chsetconv_t *csconv,
-                                 IN OUT void **from,
+tt_result_t __parse_prepare_utf8(IN tt_chsetconv_t *csconv, IN OUT void **from,
                                  IN OUT tt_u32_t *from_len)
 {
     tt_u8_t *__from = *from, *pos;
@@ -301,18 +286,14 @@ tt_result_t __parse_prepare_utf8(IN tt_chsetconv_t *csconv,
         __from_len -= len;
     }
 
-    if (__from_len == 0) {
-        goto done;
-    }
+    if (__from_len == 0) { goto done; }
 
     // put ending bytes to csconv->tail if from ends with some
     // incomplete multibyte char
     pos = __from + __from_len - 1;
     while (pos >= __from) {
         // find first byte that is not 10xxxxxx
-        if ((*pos & 0xC0) != 0x80) {
-            break;
-        }
+        if ((*pos & 0xC0) != 0x80) { break; }
 
         --pos;
     }
@@ -390,9 +371,7 @@ tt_result_t __parse_prepare_utf16le(IN tt_chsetconv_t *csconv,
         }
     }
 
-    if (__from_len == 0) {
-        goto done;
-    }
+    if (__from_len == 0) { goto done; }
 
     // put ending bytes to csconv->tail if from ends with some
     // incomplete multibyte char
@@ -478,9 +457,7 @@ tt_result_t __parse_prepare_utf16be(IN tt_chsetconv_t *csconv,
         }
     }
 
-    if (__from_len == 0) {
-        goto done;
-    }
+    if (__from_len == 0) { goto done; }
 
     // put ending bytes to csconv->tail if from ends with some
     // incomplete multibyte char
@@ -522,8 +499,7 @@ done:
     return TT_SUCCESS;
 }
 
-tt_result_t __parse_prepare_utf32(IN tt_chsetconv_t *csconv,
-                                  IN OUT void **from,
+tt_result_t __parse_prepare_utf32(IN tt_chsetconv_t *csconv, IN OUT void **from,
                                   IN OUT tt_u32_t *from_len)
 {
     tt_u8_t *__from = *from;
@@ -546,9 +522,7 @@ tt_result_t __parse_prepare_utf32(IN tt_chsetconv_t *csconv,
         TT_ASSERT_CS(csconv->head_len <= 4);
     }
 
-    if (__from_len == 0) {
-        goto done;
-    }
+    if (__from_len == 0) { goto done; }
 
     // put ending bytes to csconv->tail if from ends with some
     // incomplete multibyte char

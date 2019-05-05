@@ -61,15 +61,13 @@ void tt_ver_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __ver_component_init, __ver_component_exit,
+        __ver_component_init,
+        __ver_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_VERSION_INFO,
-                      "Version Infomation",
-                      NULL,
-                      &itf);
+    tt_component_init(&comp, TT_COMPONENT_VERSION_INFO, "Version Infomation",
+                      NULL, &itf);
 
     // register component
     tt_component_register(&comp);
@@ -93,8 +91,7 @@ tt_ver_t tt_ver_revision()
 const tt_char_t *tt_version_cstr()
 {
     if (tt_g_version_cstr[0] == 0) {
-        tt_ver_format(tt_g_version_cstr,
-                      sizeof(tt_g_version_cstr),
+        tt_ver_format(tt_g_version_cstr, sizeof(tt_g_version_cstr),
                       TT_VER_FORMAT_FULL);
     }
     return tt_g_version_cstr;
@@ -108,31 +105,18 @@ void tt_ver_format(IN tt_char_t *buf, IN tt_u32_t buf_len, IN tt_u32_t how)
     tt_memset(buf, 0, buf_len);
 
     switch (how) {
-        case TT_VER_FORMAT_BASIC: {
-            tt_snprintf(buf,
-                        buf_len - 1,
-                        "%u.%u",
-                        tt_ver_major(),
-                        tt_ver_minor());
-        } break;
-        case TT_VER_FORMAT_FULL: {
-            tt_snprintf(buf,
-                        buf_len - 1,
-                        "%u.%u.%u(%s)",
-                        tt_ver_major(),
-                        tt_ver_minor(),
-                        tt_ver_revision(),
-                        TT_VERSION_BUILD);
-        } break;
-        case TT_VER_FORMAT_STANDARD:
-        default: {
-            tt_snprintf(buf,
-                        buf_len - 1,
-                        "%u.%u.%u",
-                        tt_ver_major(),
-                        tt_ver_minor(),
-                        tt_ver_revision());
-        } break;
+    case TT_VER_FORMAT_BASIC: {
+        tt_snprintf(buf, buf_len - 1, "%u.%u", tt_ver_major(), tt_ver_minor());
+    } break;
+    case TT_VER_FORMAT_FULL: {
+        tt_snprintf(buf, buf_len - 1, "%u.%u.%u(%s)", tt_ver_major(),
+                    tt_ver_minor(), tt_ver_revision(), TT_VERSION_BUILD);
+    } break;
+    case TT_VER_FORMAT_STANDARD:
+    default: {
+        tt_snprintf(buf, buf_len - 1, "%u.%u.%u", tt_ver_major(),
+                    tt_ver_minor(), tt_ver_revision());
+    } break;
     }
 }
 
@@ -155,8 +139,7 @@ void __ver_component_exit(IN tt_component_t *comp)
 tt_result_t tt_ver_require_major(IN tt_ver_t major)
 {
     if (major != tt_ver_major()) {
-        TT_ERROR("[Error] required major number: %d but: %d\n",
-                 major,
+        TT_ERROR("[Error] required major number: %d but: %d\n", major,
                  tt_ver_major());
         return TT_FAIL;
     }
@@ -167,8 +150,7 @@ tt_result_t tt_ver_require_major(IN tt_ver_t major)
 tt_result_t tt_ver_require_minor(IN tt_ver_t minor)
 {
     if (minor != tt_ver_minor()) {
-        TT_ERROR("[Error] required minor number: %d, but: %d\n",
-                 minor,
+        TT_ERROR("[Error] required minor number: %d, but: %d\n", minor,
                  tt_ver_minor());
         return TT_FAIL;
     }
@@ -178,13 +160,9 @@ tt_result_t tt_ver_require_minor(IN tt_ver_t minor)
 
 tt_result_t tt_ver_require(IN tt_ver_t major, IN tt_ver_t minor)
 {
-    if (!TT_OK(tt_ver_require_major(major))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_ver_require_major(major))) { return TT_FAIL; }
 
-    if (!TT_OK(tt_ver_require_minor(minor))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_ver_require_minor(minor))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }

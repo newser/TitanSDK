@@ -93,8 +93,7 @@ tt_export void tt_fpath_destroy(IN tt_fpath_t *fp);
 
 tt_export void tt_fpath_clear(IN tt_fpath_t *fp);
 
-tt_export tt_result_t tt_fpath_parse_n(IN tt_fpath_t *fp,
-                                       const tt_char_t *path,
+tt_export tt_result_t tt_fpath_parse_n(IN tt_fpath_t *fp, const tt_char_t *path,
                                        IN tt_u32_t path_len);
 
 tt_inline tt_result_t tt_fpath_parse(IN tt_fpath_t *fp, const tt_char_t *path)
@@ -217,8 +216,7 @@ tt_inline tt_bool_t tt_fpath_empty(IN tt_fpath_t *fp)
 tt_export const tt_char_t *tt_fpath_get_name(IN tt_fpath_t *fp,
                                              IN tt_u32_t idx);
 
-tt_export tt_result_t tt_fpath_set_name(IN tt_fpath_t *fp,
-                                        IN tt_u32_t idx,
+tt_export tt_result_t tt_fpath_set_name(IN tt_fpath_t *fp, IN tt_u32_t idx,
                                         IN const tt_char_t *name);
 
 tt_inline void tt_fpath_iter(IN tt_fpath_t *fp, OUT tt_fpath_iter_t *iter)
@@ -229,15 +227,12 @@ tt_inline void tt_fpath_iter(IN tt_fpath_t *fp, OUT tt_fpath_iter_t *iter)
 
 tt_export const tt_char_t *tt_fpath_iter_next(IN OUT tt_fpath_iter_t *iter);
 
-tt_export tt_result_t tt_fpath_get_sub(IN tt_fpath_t *fp,
-                                       IN tt_u32_t from,
-                                       IN tt_u32_t num,
-                                       OUT tt_fpath_t *sub);
+tt_export tt_result_t tt_fpath_get_sub(IN tt_fpath_t *fp, IN tt_u32_t from,
+                                       IN tt_u32_t num, OUT tt_fpath_t *sub);
 
 tt_export tt_result_t tt_fpath_normalize(IN tt_fpath_t *fp);
 
-tt_export tt_result_t tt_fpath_resolve(IN tt_fpath_t *fp,
-                                       IN tt_fpath_t *other,
+tt_export tt_result_t tt_fpath_resolve(IN tt_fpath_t *fp, IN tt_fpath_t *other,
                                        OUT tt_fpath_t *resolved);
 
 tt_export tt_result_t tt_fpath_relativize(IN tt_fpath_t *fp,
@@ -247,8 +242,7 @@ tt_export tt_result_t tt_fpath_relativize(IN tt_fpath_t *fp,
 tt_export tt_u32_t tt_fpath_pctencode_len(IN tt_fpath_t *fp,
                                           IN tt_char_t *enc_tbl);
 
-tt_export tt_u32_t tt_fpath_pctencode(IN tt_fpath_t *fp,
-                                      IN tt_char_t *enc_tbl,
+tt_export tt_u32_t tt_fpath_pctencode(IN tt_fpath_t *fp, IN tt_char_t *enc_tbl,
                                       OUT tt_char_t *dst);
 
 #endif // __TT_FPATH__

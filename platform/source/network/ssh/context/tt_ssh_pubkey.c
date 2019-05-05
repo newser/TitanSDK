@@ -64,8 +64,7 @@ void tt_sshpubk_destroy(IN tt_sshpubk_t *pubk)
     tt_buf_destroy(&pubk->signature);
 }
 
-void tt_sshpubk_setalg(IN tt_sshpubk_t *pubk,
-                       IN tt_ssh_pubkey_alg_t alg,
+void tt_sshpubk_setalg(IN tt_sshpubk_t *pubk, IN tt_ssh_pubkey_alg_t alg,
                        IN void *key)
 {
     TT_ASSERT(TT_SSH_PUBKEY_ALG_VALID(alg));
@@ -73,23 +72,20 @@ void tt_sshpubk_setalg(IN tt_sshpubk_t *pubk,
     pubk->alg_u.key = key;
 }
 
-tt_result_t tt_sshpubk_sign(IN tt_sshpubk_t *pubk,
-                            IN tt_u8_t *data,
+tt_result_t tt_sshpubk_sign(IN tt_sshpubk_t *pubk, IN tt_u8_t *data,
                             IN tt_u32_t data_len)
 {
     switch (pubk->alg) {
-        case TT_SSH_PUBKEY_ALG_RSA: {
-            TT_ASSERT(pubk->alg_u.key != NULL);
+    case TT_SSH_PUBKEY_ALG_RSA: {
+        TT_ASSERT(pubk->alg_u.key != NULL);
 
-            tt_buf_reset_rwp(&pubk->signature);
-            return tt_rsa_sign_buf(pubk->alg_u.rsa,
-                                   data,
-                                   data_len,
-                                   &pubk->signature);
-        } break;
+        tt_buf_reset_rwp(&pubk->signature);
+        return tt_rsa_sign_buf(pubk->alg_u.rsa, data, data_len,
+                               &pubk->signature);
+    } break;
 
-        default: {
-            return TT_FAIL;
-        } break;
+    default: {
+        return TT_FAIL;
+    } break;
     }
 }

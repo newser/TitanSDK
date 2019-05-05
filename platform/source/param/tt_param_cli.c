@@ -54,8 +54,7 @@ tt_result_t __param_cli_dir_ls(IN tt_param_dir_t *pd,
                                IN const tt_char_t *line_sep,
                                OUT tt_buf_t *output);
 
-tt_result_t __param_cli_line(IN tt_param_t *p,
-                             IN OPT const tt_char_t *col_sep,
+tt_result_t __param_cli_line(IN tt_param_t *p, IN OPT const tt_char_t *col_sep,
                              IN OPT tt_u32_t max_name_len,
                              OUT tt_buf_t *output);
 
@@ -67,24 +66,17 @@ static tt_result_t __line_type(IN tt_param_t *p, OUT tt_buf_t *output);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_param_cli_ls(IN tt_param_t *p,
-                            IN OPT const tt_char_t *col_sep,
+tt_result_t tt_param_cli_ls(IN tt_param_t *p, IN OPT const tt_char_t *col_sep,
                             IN OPT const tt_char_t *line_sep,
                             OUT tt_buf_t *output)
 {
-    if (col_sep == NULL) {
-        col_sep = __DEFAULT_COL_SEP;
-    }
+    if (col_sep == NULL) { col_sep = __DEFAULT_COL_SEP; }
 
-    if (line_sep == NULL) {
-        line_sep = __DEFAULT_LINE_SEP;
-    }
+    if (line_sep == NULL) { line_sep = __DEFAULT_LINE_SEP; }
 
     if (p->type == TT_PARAM_DIR) {
-        return __param_cli_dir_ls(TT_PARAM_CAST(p, tt_param_dir_t),
-                                  col_sep,
-                                  line_sep,
-                                  output);
+        return __param_cli_dir_ls(TT_PARAM_CAST(p, tt_param_dir_t), col_sep,
+                                  line_sep, output);
     } else {
         return __param_cli_line(p, col_sep, 0, output);
     }
@@ -114,10 +106,8 @@ tt_result_t __param_cli_dir_ls(IN tt_param_dir_t *pd,
     return TT_SUCCESS;
 }
 
-tt_result_t __param_cli_line(IN tt_param_t *p,
-                             IN OPT const tt_char_t *col_sep,
-                             IN OPT tt_u32_t max_name_len,
-                             OUT tt_buf_t *output)
+tt_result_t __param_cli_line(IN tt_param_t *p, IN OPT const tt_char_t *col_sep,
+                             IN OPT tt_u32_t max_name_len, OUT tt_buf_t *output)
 {
     tt_u32_t n, name_len;
 
@@ -125,9 +115,7 @@ tt_result_t __param_cli_line(IN tt_param_t *p,
     TT_ASSERT(output != NULL);
     TT_ASSERT(p->itf != NULL);
 
-    if (col_sep == NULL) {
-        col_sep = __DEFAULT_COL_SEP;
-    }
+    if (col_sep == NULL) { col_sep = __DEFAULT_COL_SEP; }
 
     // permissions
     __line_perm(p, output);

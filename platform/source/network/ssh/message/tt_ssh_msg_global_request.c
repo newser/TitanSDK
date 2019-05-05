@@ -57,12 +57,9 @@ static tt_result_t __glbreq_parse(IN struct tt_sshmsg_s *msg,
                                   IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __glbreq_op = {
-    __glbreq_create,
-    __glbreq_destroy,
-    NULL,
+    __glbreq_create,         __glbreq_destroy, NULL,
 
-    __glbreq_render_prepare,
-    __glbreq_render,
+    __glbreq_render_prepare, __glbreq_render,
 
     __glbreq_parse,
 };
@@ -78,8 +75,7 @@ static tt_sshmsg_itf_t __glbreq_op = {
 tt_sshmsg_t *tt_sshmsg_glbreq_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_GLOBAL_REQUEST,
-                            sizeof(tt_sshmsg_glbreq_t),
-                            &__glbreq_op);
+                            sizeof(tt_sshmsg_glbreq_t), &__glbreq_op);
 }
 
 tt_result_t tt_sshmsg_glbreq_set_reqname(IN tt_sshmsg_t *msg,

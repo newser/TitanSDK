@@ -57,10 +57,7 @@ tt_inline tt_result_t tt_skt_set_ipv6only_ntv(IN tt_skt_ntv_t *skt,
                                               IN tt_bool_t ipv6only)
 {
     DWORD val = ipv6only ? 1 : 0;
-    if (setsockopt(skt->s,
-                   IPPROTO_IPV6,
-                   IPV6_V6ONLY,
-                   (char *)&val,
+    if (setsockopt(skt->s, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&val,
                    (int)sizeof(DWORD)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -88,10 +85,7 @@ tt_inline tt_result_t tt_skt_set_reuseaddr_ntv(IN tt_skt_ntv_t *skt,
                                                IN tt_bool_t reuse_addr)
 {
     BOOL val = reuse_addr ? TRUE : FALSE;
-    if (setsockopt(skt->s,
-                   SOL_SOCKET,
-                   SO_REUSEADDR,
-                   (char *)&val,
+    if (setsockopt(skt->s, SOL_SOCKET, SO_REUSEADDR, (char *)&val,
                    (int)sizeof(BOOL)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -133,10 +127,7 @@ tt_inline tt_result_t tt_skt_set_nodelay_ntv(IN tt_skt_ntv_t *skt,
                                              IN tt_bool_t nodelay)
 {
     BOOL val = nodelay ? TRUE : FALSE;
-    if (setsockopt(skt->s,
-                   IPPROTO_TCP,
-                   TCP_NODELAY,
-                   (char *)&val,
+    if (setsockopt(skt->s, IPPROTO_TCP, TCP_NODELAY, (char *)&val,
                    (int)sizeof(int)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -178,10 +169,7 @@ tt_inline tt_result_t tt_skt_set_linger_ntv(IN tt_skt_ntv_t *skt,
     LINGER linger;
     linger.l_onoff = TT_COND(enable, 1, 0);
     linger.l_linger = linger_sec;
-    if (setsockopt(skt->s,
-                   SOL_SOCKET,
-                   SO_LINGER,
-                   (char *)&linger,
+    if (setsockopt(skt->s, SOL_SOCKET, SO_LINGER, (char *)&linger,
                    (int)sizeof(LINGER)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -210,10 +198,7 @@ tt_inline tt_result_t tt_skt_set_keepalive_ntv(IN tt_skt_ntv_t *skt,
                                                IN tt_bool_t keepalive)
 {
     int val = keepalive ? 1 : 0;
-    if (setsockopt(skt->s,
-                   SOL_SOCKET,
-                   SO_KEEPALIVE,
-                   (char *)&val,
+    if (setsockopt(skt->s, SOL_SOCKET, SO_KEEPALIVE, (char *)&val,
                    sizeof(int)) == 0) {
         return TT_SUCCESS;
     } else {

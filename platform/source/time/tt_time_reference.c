@@ -59,14 +59,12 @@ void tt_time_ref_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __time_ref_component_init, __time_ref_component_exit,
+        __time_ref_component_init,
+        __time_ref_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_TIME_REF,
-                      "Time Reference",
-                      NULL,
+    tt_component_init(&comp, TT_COMPONENT_TIME_REF, "Time Reference", NULL,
                       &itf);
 
     // register component
@@ -76,9 +74,7 @@ void tt_time_ref_component_register()
 tt_result_t __time_ref_component_init(IN tt_component_t *comp,
                                       IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_time_ref_component_init_ntv())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_time_ref_component_init_ntv())) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }

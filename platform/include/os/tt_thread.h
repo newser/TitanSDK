@@ -73,7 +73,8 @@ typedef struct tt_thread_attr_s
     tt_bool_t enable_fiber : 1;
 } tt_thread_attr_t;
 
-typedef enum {
+typedef enum
+{
     TT_THREAD_LOG_DEFAULT,
     TT_THREAD_LOG_PRINTF,
     TT_THREAD_LOG_NONE,
@@ -226,9 +227,7 @@ tt_inline tt_thread_t *tt_current_thread()
 
 tt_inline tt_thread_log_t tt_thread_get_log(IN tt_thread_t *thread)
 {
-    if (thread == NULL) {
-        thread = tt_current_thread();
-    }
+    if (thread == NULL) { thread = tt_current_thread(); }
     return TT_COND(thread != NULL, thread->log, TT_THREAD_LOG_PRINTF);
 }
 
@@ -236,9 +235,7 @@ tt_inline tt_thread_log_t tt_thread_set_log(IN tt_thread_t *thread,
                                             IN tt_thread_log_t l)
 {
     tt_thread_log_t org = TT_THREAD_LOG_PRINTF;
-    if (thread == NULL) {
-        thread = tt_current_thread();
-    }
+    if (thread == NULL) { thread = tt_current_thread(); }
     if (thread != NULL) {
         org = thread->log;
         thread->log = l;

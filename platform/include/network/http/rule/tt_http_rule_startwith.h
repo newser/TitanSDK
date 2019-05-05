@@ -57,19 +57,15 @@ typedef struct tt_http_rule_startwith_s
 ////////////////////////////////////////////////////////////
 
 tt_export tt_http_rule_t *tt_http_rule_startwith_create_n(
-    IN const tt_char_t *prefix,
-    IN tt_u32_t prefix_len,
-    IN OPT const tt_char_t *replace,
-    IN tt_u32_t replace_len,
+    IN const tt_char_t *prefix, IN tt_u32_t prefix_len,
+    IN OPT const tt_char_t *replace, IN tt_u32_t replace_len,
     IN tt_http_rule_result_t default_result);
 
 tt_inline tt_http_rule_t *tt_http_rule_startwith_create(
-    IN const tt_char_t *prefix,
-    IN OPT const tt_char_t *replace,
+    IN const tt_char_t *prefix, IN OPT const tt_char_t *replace,
     IN tt_http_rule_result_t default_result)
 {
-    return tt_http_rule_startwith_create_n(prefix,
-                                           (tt_u32_t)tt_strlen(prefix),
+    return tt_http_rule_startwith_create_n(prefix, (tt_u32_t)tt_strlen(prefix),
                                            replace,
                                            TT_COND(replace != NULL,
                                                    (tt_u32_t)tt_strlen(replace),

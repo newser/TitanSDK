@@ -63,7 +63,7 @@ struct entry
     const char *content;
     uint32_t seqno;
     uint32_t line;
-    level level;
+    enum level level;
 };
 
 ////////////////////////////////////////////////////////////

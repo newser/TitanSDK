@@ -74,8 +74,7 @@ void tt_netif_addr_destroy(IN tt_netif_addr_t *netif_addr)
     tt_free(netif_addr);
 }
 
-void tt_netif_addr_dump(IN tt_netif_t *netif,
-                        IN tt_netif_addr_t *netif_addr,
+void tt_netif_addr_dump(IN tt_netif_t *netif, IN tt_netif_addr_t *netif_addr,
                         IN const tt_char_t *prefix)
 {
     tt_net_family_t af = tt_sktaddr_get_family(&netif_addr->addr);
@@ -93,22 +92,15 @@ void tt_netif_addr_dump(IN tt_netif_t *netif,
         if (af == TT_NET_AF_INET) {
             TT_INFO("%sinet %s --> %s netmask %s", prefix, buf1, buf3, buf2);
         } else if (af == TT_NET_AF_INET6) {
-            TT_INFO("%sinet6 %s scopeid %x",
-                    prefix,
-                    buf1,
+            TT_INFO("%sinet6 %s scopeid %x", prefix, buf1,
                     tt_sktaddr_get_scope(&netif_addr->addr));
         }
     } else {
         if (af == TT_NET_AF_INET) {
-            TT_INFO("%sinet %s netmask %s broadcast %s",
-                    prefix,
-                    buf1,
-                    buf2,
+            TT_INFO("%sinet %s netmask %s broadcast %s", prefix, buf1, buf2,
                     buf3);
         } else if (af == TT_NET_AF_INET6) {
-            TT_INFO("%sinet6 %s scopeid %x",
-                    prefix,
-                    buf1,
+            TT_INFO("%sinet6 %s scopeid %x", prefix, buf1,
                     tt_sktaddr_get_scope(&netif_addr->addr));
         }
     }

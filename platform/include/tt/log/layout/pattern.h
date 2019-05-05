@@ -48,8 +48,6 @@ namespace tt {
 
 namespace log {
 
-namespace layout {
-
 class pattern: public i_layout
 {
 public:
@@ -63,7 +61,7 @@ public:
 private:
     std::unique_ptr<char[]> format_;
     size_t len_{0}; // includes ending 0
-    std::list<std::unique_ptr<placeholder>> placeholders_;
+    std::list<std::unique_ptr<placeholder::base>> placeholders_;
 };
 
 ////////////////////////////////////////////////////////////
@@ -73,8 +71,6 @@ private:
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
-
-}
 
 }
 

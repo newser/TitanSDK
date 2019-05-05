@@ -110,14 +110,8 @@ static void __get_str(IN tt_fiber_ev_t *fev);
 static void __set_str(IN tt_fiber_ev_t *fev);
 
 static void (*__handle_pmmsg[PMMSG_NUM])(IN tt_fiber_ev_t *fev) = {
-    __get_bool,
-    __set_bool,
-    __get_u32,
-    __set_u32,
-    __get_s32,
-    __set_s32,
-    __get_str,
-    __set_str,
+    __get_bool, __set_bool, __get_u32, __set_u32,
+    __get_s32,  __set_s32,  __get_str, __set_str,
 };
 
 ////////////////////////////////////////////////////////////
@@ -129,10 +123,8 @@ static tt_result_t __param_mgr_component_init(IN tt_component_t *comp,
 
 static void __param_mgr_component_exit(IN tt_component_t *comp);
 
-static void __gs_param_init(IN __gs_param_t *gsp,
-                            IN tt_u32_t ev,
-                            IN const tt_char_t *path,
-                            IN tt_u32_t len);
+static void __gs_param_init(IN __gs_param_t *gsp, IN tt_u32_t ev,
+                            IN const tt_char_t *path, IN tt_u32_t len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -143,22 +135,19 @@ void tt_param_mgr_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __param_mgr_component_init, __param_mgr_component_exit,
+        __param_mgr_component_init,
+        __param_mgr_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_PARAM_MANAGER,
-                      "Parameter Manager",
-                      NULL,
-                      &itf);
+    tt_component_init(&comp, TT_COMPONENT_PARAM_MANAGER, "Parameter Manager",
+                      NULL, &itf);
 
     // register component
     tt_component_register(&comp);
 }
 
-tt_result_t tt_param_mgr_create(IN tt_param_mgr_t *pm,
-                                IN tt_param_t *root,
+tt_result_t tt_param_mgr_create(IN tt_param_mgr_t *pm, IN tt_param_t *root,
                                 IN OPT tt_param_mgr_attr_t *attr)
 {
     tt_param_mgr_attr_t __attr;
@@ -184,8 +173,7 @@ void tt_param_mgr_attr_default(IN tt_param_mgr_attr_t *attr)
     TT_ASSERT(attr != NULL);
 }
 
-tt_param_t *tt_param_mgr_find_n(IN tt_param_mgr_t *pm,
-                                IN const tt_char_t *path,
+tt_param_t *tt_param_mgr_find_n(IN tt_param_mgr_t *pm, IN const tt_char_t *path,
                                 IN tt_u32_t len)
 {
     return tt_param_path_p2n(pm->root, pm->root, path, len);
@@ -215,8 +203,7 @@ tt_result_t tt_param_mgr_fiber_routine(IN void *param)
 }
 
 tt_result_t tt_param_mgr_get_bool(IN tt_param_mgr_t *pm,
-                                  IN const tt_char_t *path,
-                                  IN tt_u32_t len,
+                                  IN const tt_char_t *path, IN tt_u32_t len,
                                   OUT tt_bool_t *val)
 {
     tt_param_t *p = tt_param_mgr_find_n(pm, path, len);
@@ -231,8 +218,7 @@ tt_result_t tt_param_mgr_get_bool(IN tt_param_mgr_t *pm,
 }
 
 tt_result_t tt_param_mgr_set_bool(IN tt_param_mgr_t *pm,
-                                  IN const tt_char_t *path,
-                                  IN tt_u32_t len,
+                                  IN const tt_char_t *path, IN tt_u32_t len,
                                   IN tt_bool_t val)
 {
     tt_param_t *p = tt_param_mgr_find_n(pm, path, len);
@@ -247,8 +233,7 @@ tt_result_t tt_param_mgr_set_bool(IN tt_param_mgr_t *pm,
 }
 
 tt_result_t tt_param_mgr_get_u32(IN tt_param_mgr_t *pm,
-                                 IN const tt_char_t *path,
-                                 IN tt_u32_t len,
+                                 IN const tt_char_t *path, IN tt_u32_t len,
                                  OUT tt_u32_t *val)
 {
     tt_param_t *p = tt_param_mgr_find_n(pm, path, len);
@@ -263,8 +248,7 @@ tt_result_t tt_param_mgr_get_u32(IN tt_param_mgr_t *pm,
 }
 
 tt_result_t tt_param_mgr_set_u32(IN tt_param_mgr_t *pm,
-                                 IN const tt_char_t *path,
-                                 IN tt_u32_t len,
+                                 IN const tt_char_t *path, IN tt_u32_t len,
                                  IN tt_u32_t val)
 {
     tt_param_t *p = tt_param_mgr_find_n(pm, path, len);
@@ -279,8 +263,7 @@ tt_result_t tt_param_mgr_set_u32(IN tt_param_mgr_t *pm,
 }
 
 tt_result_t tt_param_mgr_get_s32(IN tt_param_mgr_t *pm,
-                                 IN const tt_char_t *path,
-                                 IN tt_u32_t len,
+                                 IN const tt_char_t *path, IN tt_u32_t len,
                                  OUT tt_s32_t *val)
 {
     tt_param_t *p = tt_param_mgr_find_n(pm, path, len);
@@ -295,8 +278,7 @@ tt_result_t tt_param_mgr_get_s32(IN tt_param_mgr_t *pm,
 }
 
 tt_result_t tt_param_mgr_set_s32(IN tt_param_mgr_t *pm,
-                                 IN const tt_char_t *path,
-                                 IN tt_u32_t len,
+                                 IN const tt_char_t *path, IN tt_u32_t len,
                                  IN tt_s32_t val)
 {
     tt_param_t *p = tt_param_mgr_find_n(pm, path, len);
@@ -311,8 +293,7 @@ tt_result_t tt_param_mgr_set_s32(IN tt_param_mgr_t *pm,
 }
 
 tt_result_t tt_param_mgr_get_str(IN tt_param_mgr_t *pm,
-                                 IN const tt_char_t *path,
-                                 IN tt_u32_t len,
+                                 IN const tt_char_t *path, IN tt_u32_t len,
                                  OUT tt_string_t *val)
 {
     tt_param_t *p = tt_param_mgr_find_n(pm, path, len);
@@ -321,17 +302,14 @@ tt_result_t tt_param_mgr_get_str(IN tt_param_mgr_t *pm,
     } else if (p->type != TT_PARAM_STRING) {
         return TT_E_BADARG;
     } else {
-        return TT_COND(tt_param_get_str(p, val) != NULL,
-                       TT_SUCCESS,
+        return TT_COND(tt_param_get_str(p, val) != NULL, TT_SUCCESS,
                        TT_E_NOMEM);
     }
 }
 
 tt_result_t tt_param_mgr_set_str(IN tt_param_mgr_t *pm,
-                                 IN const tt_char_t *path,
-                                 IN tt_u32_t len,
-                                 IN const tt_char_t *val,
-                                 IN tt_u32_t val_len)
+                                 IN const tt_char_t *path, IN tt_u32_t len,
+                                 IN const tt_char_t *val, IN tt_u32_t val_len)
 {
     tt_param_t *p = tt_param_mgr_find_n(pm, path, len);
     if (p == NULL) {
@@ -343,8 +321,7 @@ tt_result_t tt_param_mgr_set_str(IN tt_param_mgr_t *pm,
     }
 }
 
-tt_result_t tt_get_param_bool(IN const tt_char_t *path,
-                              IN tt_u32_t len,
+tt_result_t tt_get_param_bool(IN const tt_char_t *path, IN tt_u32_t len,
                               OUT tt_bool_t *val)
 {
     __gs_param_t gsp;
@@ -356,8 +333,7 @@ tt_result_t tt_get_param_bool(IN const tt_char_t *path,
     return gsp.result;
 }
 
-tt_result_t tt_set_param_bool(IN const tt_char_t *path,
-                              IN tt_u32_t len,
+tt_result_t tt_set_param_bool(IN const tt_char_t *path, IN tt_u32_t len,
                               IN tt_bool_t val)
 {
     __gs_param_t gsp;
@@ -369,8 +345,7 @@ tt_result_t tt_set_param_bool(IN const tt_char_t *path,
     return gsp.result;
 }
 
-tt_result_t tt_get_param_u32(IN const tt_char_t *path,
-                             IN tt_u32_t len,
+tt_result_t tt_get_param_u32(IN const tt_char_t *path, IN tt_u32_t len,
                              OUT tt_u32_t *val)
 {
     __gs_param_t gsp;
@@ -382,8 +357,7 @@ tt_result_t tt_get_param_u32(IN const tt_char_t *path,
     return gsp.result;
 }
 
-tt_result_t tt_set_param_u32(IN const tt_char_t *path,
-                             IN tt_u32_t len,
+tt_result_t tt_set_param_u32(IN const tt_char_t *path, IN tt_u32_t len,
                              IN tt_u32_t val)
 {
     __gs_param_t gsp;
@@ -395,8 +369,7 @@ tt_result_t tt_set_param_u32(IN const tt_char_t *path,
     return gsp.result;
 }
 
-tt_result_t tt_get_param_s32(IN const tt_char_t *path,
-                             IN tt_u32_t len,
+tt_result_t tt_get_param_s32(IN const tt_char_t *path, IN tt_u32_t len,
                              OUT tt_s32_t *val)
 {
     __gs_param_t gsp;
@@ -408,8 +381,7 @@ tt_result_t tt_get_param_s32(IN const tt_char_t *path,
     return gsp.result;
 }
 
-tt_result_t tt_set_param_s32(IN const tt_char_t *path,
-                             IN tt_u32_t len,
+tt_result_t tt_set_param_s32(IN const tt_char_t *path, IN tt_u32_t len,
                              IN tt_s32_t val)
 {
     __gs_param_t gsp;
@@ -421,8 +393,7 @@ tt_result_t tt_set_param_s32(IN const tt_char_t *path,
     return gsp.result;
 }
 
-tt_result_t tt_get_param_str(IN const tt_char_t *path,
-                             IN tt_u32_t len,
+tt_result_t tt_get_param_str(IN const tt_char_t *path, IN tt_u32_t len,
                              OUT tt_string_t *val)
 {
     __gs_param_t gsp;
@@ -434,10 +405,8 @@ tt_result_t tt_get_param_str(IN const tt_char_t *path,
     return gsp.result;
 }
 
-tt_result_t tt_set_param_str(IN const tt_char_t *path,
-                             IN tt_u32_t len,
-                             IN const tt_char_t *val,
-                             IN tt_u32_t val_len)
+tt_result_t tt_set_param_str(IN const tt_char_t *path, IN tt_u32_t len,
+                             IN const tt_char_t *val, IN tt_u32_t val_len)
 {
     __gs_param_t gsp;
 
@@ -484,10 +453,8 @@ tt_result_t __param_mgr_component_init(IN tt_component_t *comp,
     // create fiber
     tt_fiber_attr_default(&fb_attr);
 
-    if (!TT_OK(tt_task_add_fiber(&tt_s_param_mgr_task,
-                                 "Parameter Manager",
-                                 tt_param_mgr_fiber_routine,
-                                 &tt_g_param_mgr,
+    if (!TT_OK(tt_task_add_fiber(&tt_s_param_mgr_task, "Parameter Manager",
+                                 tt_param_mgr_fiber_routine, &tt_g_param_mgr,
                                  &fb_attr)) ||
         !TT_OK(tt_task_run(&tt_s_param_mgr_task))) {
         return TT_FAIL;
@@ -515,10 +482,8 @@ void __param_mgr_component_exit(IN tt_component_t *comp)
     }
 }
 
-void __gs_param_init(IN __gs_param_t *gsp,
-                     IN tt_u32_t ev,
-                     IN const tt_char_t *path,
-                     IN tt_u32_t len)
+void __gs_param_init(IN __gs_param_t *gsp, IN tt_u32_t ev,
+                     IN const tt_char_t *path, IN tt_u32_t len)
 {
     tt_fiber_ev_init(&gsp->fev, ev);
     gsp->path = path;
@@ -530,9 +495,7 @@ void __get_bool(IN tt_fiber_ev_t *fev)
 {
     __gs_param_t *gsp = TT_CONTAINER(fev, __gs_param_t, fev);
 
-    gsp->result = tt_param_mgr_get_bool(&tt_g_param_mgr,
-                                        gsp->path,
-                                        gsp->len,
+    gsp->result = tt_param_mgr_get_bool(&tt_g_param_mgr, gsp->path, gsp->len,
                                         &gsp->val_bool);
 }
 
@@ -540,9 +503,7 @@ void __set_bool(IN tt_fiber_ev_t *fev)
 {
     __gs_param_t *gsp = TT_CONTAINER(fev, __gs_param_t, fev);
 
-    gsp->result = tt_param_mgr_set_bool(&tt_g_param_mgr,
-                                        gsp->path,
-                                        gsp->len,
+    gsp->result = tt_param_mgr_set_bool(&tt_g_param_mgr, gsp->path, gsp->len,
                                         gsp->val_bool);
 }
 
@@ -550,9 +511,7 @@ void __get_u32(IN tt_fiber_ev_t *fev)
 {
     __gs_param_t *gsp = TT_CONTAINER(fev, __gs_param_t, fev);
 
-    gsp->result = tt_param_mgr_get_u32(&tt_g_param_mgr,
-                                       gsp->path,
-                                       gsp->len,
+    gsp->result = tt_param_mgr_get_u32(&tt_g_param_mgr, gsp->path, gsp->len,
                                        &gsp->val_u32);
 }
 
@@ -560,9 +519,7 @@ void __set_u32(IN tt_fiber_ev_t *fev)
 {
     __gs_param_t *gsp = TT_CONTAINER(fev, __gs_param_t, fev);
 
-    gsp->result = tt_param_mgr_set_u32(&tt_g_param_mgr,
-                                       gsp->path,
-                                       gsp->len,
+    gsp->result = tt_param_mgr_set_u32(&tt_g_param_mgr, gsp->path, gsp->len,
                                        gsp->val_u32);
 }
 
@@ -570,9 +527,7 @@ void __get_s32(IN tt_fiber_ev_t *fev)
 {
     __gs_param_t *gsp = TT_CONTAINER(fev, __gs_param_t, fev);
 
-    gsp->result = tt_param_mgr_get_s32(&tt_g_param_mgr,
-                                       gsp->path,
-                                       gsp->len,
+    gsp->result = tt_param_mgr_get_s32(&tt_g_param_mgr, gsp->path, gsp->len,
                                        &gsp->val_s32);
 }
 
@@ -580,9 +535,7 @@ void __set_s32(IN tt_fiber_ev_t *fev)
 {
     __gs_param_t *gsp = TT_CONTAINER(fev, __gs_param_t, fev);
 
-    gsp->result = tt_param_mgr_set_s32(&tt_g_param_mgr,
-                                       gsp->path,
-                                       gsp->len,
+    gsp->result = tt_param_mgr_set_s32(&tt_g_param_mgr, gsp->path, gsp->len,
                                        gsp->val_s32);
 }
 
@@ -590,9 +543,7 @@ void __get_str(IN tt_fiber_ev_t *fev)
 {
     __gs_param_t *gsp = TT_CONTAINER(fev, __gs_param_t, fev);
 
-    gsp->result = tt_param_mgr_get_str(&tt_g_param_mgr,
-                                       gsp->path,
-                                       gsp->len,
+    gsp->result = tt_param_mgr_get_str(&tt_g_param_mgr, gsp->path, gsp->len,
                                        gsp->val_str);
 }
 
@@ -600,9 +551,6 @@ void __set_str(IN tt_fiber_ev_t *fev)
 {
     __gs_param_t *gsp = TT_CONTAINER(fev, __gs_param_t, fev);
 
-    gsp->result = tt_param_mgr_set_str(&tt_g_param_mgr,
-                                       gsp->path,
-                                       gsp->len,
-                                       gsp->val_cstr.p,
-                                       gsp->val_cstr.len);
+    gsp->result = tt_param_mgr_set_str(&tt_g_param_mgr, gsp->path, gsp->len,
+                                       gsp->val_cstr.p, gsp->val_cstr.len);
 }

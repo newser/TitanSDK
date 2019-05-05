@@ -52,8 +52,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_dll_create_ntv(IN tt_dll_ntv_t *dll,
-                              IN const tt_char_t *path,
+tt_result_t tt_dll_create_ntv(IN tt_dll_ntv_t *dll, IN const tt_char_t *path,
                               IN OPT tt_dll_attr_t *attr)
 {
     void *handle;
@@ -67,9 +66,7 @@ tt_result_t tt_dll_create_ntv(IN tt_dll_ntv_t *dll,
     // dwFlags |= ...;
 
     w_path = tt_wchar_create(path, 0, NULL);
-    if (w_path == NULL) {
-        return TT_FAIL;
-    }
+    if (w_path == NULL) { return TT_FAIL; }
 
     handle = LoadLibraryExW(w_path, NULL, dwFlags);
     tt_wchar_destroy(w_path);

@@ -89,14 +89,12 @@ void tt_memory_tag_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __mtag_component_init, __mtag_component_exit,
+        __mtag_component_init,
+        __mtag_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_MEMORY_TAG,
-                      "Memory Alloc",
-                      NULL,
+    tt_component_init(&comp, TT_COMPONENT_MEMORY_TAG, "Memory Alloc", NULL,
                       &itf);
 
     // register component
@@ -117,9 +115,7 @@ void tt_memory_status_dump(IN tt_u32_t flag)
         return;
     }
 
-    if (!__mtag_initialized) {
-        return;
-    }
+    if (!__mtag_initialized) { return; }
 
     tt_mutex_acquire(&__mtag_lock);
 
@@ -130,14 +126,11 @@ void tt_memory_status_dump(IN tt_u32_t flag)
 
         if (flag & TT_MEMORY_STATUS_TAG) {
             tt_printf("%s[%p][%d bytes] from [%s:%d]\n",
-                      TT_COND(flag & TT_MEMORY_STATUS_PREFIX,
-                              "<<Memory>> ",
+                      TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "<<Memory>> ",
                               ""),
-                      mtag->addr,
-                      (tt_s32_t)mtag->size,
+                      mtag->addr, (tt_s32_t)mtag->size,
                       // mtag->file,
-                      mtag->function,
-                      mtag->line);
+                      mtag->function, mtag->line);
         }
 
         ++block;
@@ -149,8 +142,7 @@ void tt_memory_status_dump(IN tt_u32_t flag)
     if (flag & TT_MEMORY_STATUS_TOTAL) {
         tt_printf("%s[%d blocks][%d bytes] are allocated\n",
                   TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "<<Memory>> ", ""),
-                  block,
-                  (tt_s32_t)size);
+                  block, (tt_s32_t)size);
     }
 #else
     tt_printf("%s[0 blocks][0 bytes] are allocated\n",
@@ -171,10 +163,8 @@ void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param)
 
 #ifdef TT_MEMORY_TAG_ENABLE
 
-void *tt_malloc_tag(IN size_t size,
-                    IN const tt_char_t *file,
-                    IN const tt_char_t *function,
-                    IN const tt_u32_t line)
+void *tt_malloc_tag(IN size_t size, IN const tt_char_t *file,
+                    IN const tt_char_t *function, IN const tt_u32_t line)
 {
     void *p = tt_c_malloc(sizeof(__mtag_t) + size);
     if (p != NULL) {
@@ -189,9 +179,7 @@ void *tt_malloc_tag(IN size_t size,
 
         if (__mtag_initialized) {
             tt_mutex_acquire(&__mtag_lock);
-            tt_hmap_add(&__mtag_map,
-                        (tt_u8_t *)&mtag->addr,
-                        sizeof(void *),
+            tt_hmap_add(&__mtag_map, (tt_u8_t *)&mtag->addr, sizeof(void *),
                         &mtag->hnode);
             tt_mutex_release(&__mtag_lock);
         }
@@ -219,11 +207,8 @@ void tt_free_tag(IN void *p)
     }
 }
 
-void *tt_realloc_tag(IN OPT void *ptr,
-                     IN size_t size,
-                     IN const tt_char_t *file,
-                     IN const tt_char_t *function,
-                     IN const tt_u32_t line)
+void *tt_realloc_tag(IN OPT void *ptr, IN size_t size, IN const tt_char_t *file,
+                     IN const tt_char_t *function, IN const tt_u32_t line)
 {
     void *p = tt_malloc_tag(size, file, function, line);
     if (p != NULL) {

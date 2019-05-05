@@ -76,15 +76,8 @@ static tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
 static tt_bool_t __dns_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
 
 static __io_handler_t __io_handler[TT_IO_NUM] = {
-    __worker_io,
-    __poller_io,
-    NULL,
-    __skt_io,
-    __ipc_io,
-    NULL,
-    __dns_io,
-    NULL,
-    NULL,
+    __worker_io, __poller_io, NULL, __skt_io, __ipc_io,
+    NULL,        __dns_io,    NULL, NULL,
 };
 
 static tt_io_ev_t __s_poller_io_ev;
@@ -155,35 +148,21 @@ tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
     sys_iop->kq = kq;
     __done |= __PC_KQ;
 
-    EV_SET(&kev,
-           TT_IO_POLLER,
-           EVFILT_USER,
-           EV_ADD | EV_CLEAR,
-           0,
-           0,
+    EV_SET(&kev, TT_IO_POLLER, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0,
            &__s_poller_io_ev);
 again_p:
     if (kevent(kq, &kev, 1, NULL, 0, NULL) != 0) {
-        if (errno == EINTR) {
-            goto again_p;
-        }
+        if (errno == EINTR) { goto again_p; }
 
         TT_ERROR_NTV("fail to add rd thread ev mark");
         goto fail;
     }
 
-    EV_SET(&kev,
-           TT_IO_WORKER,
-           EVFILT_USER,
-           EV_ADD | EV_CLEAR,
-           0,
-           0,
+    EV_SET(&kev, TT_IO_WORKER, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0,
            &__s_worker_io_ev);
 again_w:
     if (kevent(kq, &kev, 1, NULL, 0, NULL) != 0) {
-        if (errno == EINTR) {
-            goto again_w;
-        }
+        if (errno == EINTR) { goto again_w; }
 
         TT_ERROR_NTV("fail to add rd thread ev mark");
         goto fail;
@@ -192,17 +171,11 @@ again_w:
     return TT_SUCCESS;
 
 fail:
-    if (__done & __PC_KQ) {
-        __RETRY_IF_EINTR(close(sys_iop->kq) != 0);
-    }
+    if (__done & __PC_KQ) { __RETRY_IF_EINTR(close(sys_iop->kq) != 0); }
 
-    if (__done & __PC_W_LOCK) {
-        tt_spinlock_destroy(&sys_iop->worker_lock);
-    }
+    if (__done & __PC_W_LOCK) { tt_spinlock_destroy(&sys_iop->worker_lock); }
 
-    if (__done & __PC_P_LOCK) {
-        tt_spinlock_destroy(&sys_iop->poller_lock);
-    }
+    if (__done & __PC_P_LOCK) { tt_spinlock_destroy(&sys_iop->poller_lock); }
 
     return TT_FAIL;
 }
@@ -222,9 +195,7 @@ void tt_io_poller_destroy_ntv(IN tt_io_poller_ntv_t *sys_iop)
         }
         // we do not know how to handle other events
     }
-    if (n != 0) {
-        TT_FATAL("%d poller_ev list is lost", n);
-    }
+    if (n != 0) { TT_FATAL("%d poller_ev list is lost", n); }
 
     if (!tt_dlist_empty(&sys_iop->worker_ev)) {
         TT_FATAL("poller worker_ev list is not empty");
@@ -269,9 +240,7 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
 
             io_ev->kev_flags = flags;
 
-            if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
-                return TT_FALSE;
-            }
+            if (!__io_handler[io_ev->io](io_ev, sys_iop)) { return TT_FALSE; }
         }
     } else if ((nev != 0) && (errno != EINTR)) {
         TT_ERROR_NTV("kevent fail");
@@ -298,12 +267,7 @@ tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
     tt_dlist_push_tail(&sys_iop->poller_ev, &io_ev->node);
     tt_spinlock_release(&sys_iop->poller_lock);
 
-    EV_SET(&kev,
-           TT_IO_POLLER,
-           EVFILT_USER,
-           0,
-           NOTE_TRIGGER,
-           0,
+    EV_SET(&kev, TT_IO_POLLER, EVFILT_USER, 0, NOTE_TRIGGER, 0,
            &__s_poller_io_ev);
 again:
     if (kevent(sys_iop->kq, &kev, 1, NULL, 0, NULL) == 0) {
@@ -326,12 +290,7 @@ tt_result_t tt_io_poller_finish_ntv(IN tt_io_poller_ntv_t *sys_iop,
     tt_dlist_push_tail(&sys_iop->worker_ev, &io_ev->node);
     tt_spinlock_release(&sys_iop->worker_lock);
 
-    EV_SET(&kev,
-           TT_IO_WORKER,
-           EVFILT_USER,
-           0,
-           NOTE_TRIGGER,
-           0,
+    EV_SET(&kev, TT_IO_WORKER, EVFILT_USER, 0, NOTE_TRIGGER, 0,
            &__s_worker_io_ev);
 again:
     if (kevent(sys_iop->kq, &kev, 1, NULL, 0, NULL) == 0) {
@@ -353,12 +312,7 @@ tt_result_t tt_io_poller_send_ntv(IN tt_io_poller_ntv_t *sys_iop,
     tt_dlist_push_tail(&sys_iop->poller_ev, &io_ev->node);
     tt_spinlock_release(&sys_iop->poller_lock);
 
-    EV_SET(&kev,
-           TT_IO_POLLER,
-           EVFILT_USER,
-           0,
-           NOTE_TRIGGER,
-           0,
+    EV_SET(&kev, TT_IO_POLLER, EVFILT_USER, 0, NOTE_TRIGGER, 0,
            &__s_poller_io_ev);
 again:
     if (kevent(sys_iop->kq, &kev, 1, NULL, 0, NULL) == 0) {
@@ -419,9 +373,7 @@ tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
             tt_fiber_t *dst = io_ev->dst;
             TT_ASSERT(&dst->fs->thread->task->iop.sys_iop == sys_iop);
             tt_dlist_push_tail(&dst->ev, &io_ev->node);
-            if (dst->recving) {
-                tt_fiber_resume(dst, TT_FALSE);
-            }
+            if (dst->recving) { tt_fiber_resume(dst, TT_FALSE); }
         } else {
             TT_ASSERT(io_ev->io == TT_IO_TASK);
             tt_task_poller_io(io_ev);

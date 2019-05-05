@@ -76,10 +76,8 @@ tt_inline void tt_http_accenc_init(IN tt_http_accenc_t *ha)
 
 // @has indicate whether the encoding exist
 // @weight: nega val means unexist
-tt_inline void tt_http_accenc_set(IN tt_http_accenc_t *ha,
-                                  IN tt_http_enc_t enc,
-                                  IN tt_bool_t has,
-                                  IN tt_float_t weight)
+tt_inline void tt_http_accenc_set(IN tt_http_accenc_t *ha, IN tt_http_enc_t enc,
+                                  IN tt_bool_t has, IN tt_float_t weight)
 {
     weight = TT_MIN(weight, 1.0f);
 
@@ -88,8 +86,7 @@ tt_inline void tt_http_accenc_set(IN tt_http_accenc_t *ha,
 }
 
 tt_inline void tt_http_accenc_set_aster(IN tt_http_accenc_t *ha,
-                                        IN tt_bool_t has,
-                                        IN tt_float_t weight)
+                                        IN tt_bool_t has, IN tt_float_t weight)
 {
     weight = TT_MIN(weight, 1.0f);
 

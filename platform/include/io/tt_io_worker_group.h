@@ -73,8 +73,7 @@ tt_export tt_iowg_t tt_g_fs_iowg;
 
 tt_export void tt_iowg_component_register();
 
-tt_export tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
-                                     IN OPT tt_u32_t min_num,
+tt_export tt_result_t tt_iowg_create(IN tt_iowg_t *wg, IN OPT tt_u32_t min_num,
                                      IN OPT tt_u32_t max_num,
                                      IN OPT tt_iowg_attr_t *attr);
 

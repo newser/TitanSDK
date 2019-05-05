@@ -90,8 +90,7 @@ void tt_sktaddr_set_ip_n_ntv(IN tt_sktaddr_ntv_t *addr, IN tt_sktaddr_ip_t *na)
             ((struct sockaddr_in6 *)addr)->sin6_addr = in6addr_any;
         } else {
             tt_memcpy(((struct sockaddr_in6 *)addr)->sin6_addr.s6_addr,
-                      na->a128.__u8,
-                      16);
+                      na->a128.__u8, 16);
         }
     }
 }
@@ -104,14 +103,12 @@ void tt_sktaddr_get_ip_n_ntv(IN tt_sktaddr_ntv_t *addr, OUT tt_sktaddr_ip_t *na)
     } else {
         TT_ASSERT_SA(addr->ss_family == AF_INET6);
         tt_memcpy(na->a128.__u8,
-                  ((struct sockaddr_in6 *)addr)->sin6_addr.s6_addr,
-                  16);
+                  ((struct sockaddr_in6 *)addr)->sin6_addr.s6_addr, 16);
     }
 }
 
 tt_result_t tt_sktaddr_ip_n2p_ntv(IN tt_net_family_t family,
-                                  IN tt_sktaddr_ip_t *na,
-                                  OUT tt_char_t *buf,
+                                  IN tt_sktaddr_ip_t *na, OUT tt_char_t *buf,
                                   IN tt_u32_t buf_len)
 {
     if (family == TT_NET_AF_INET) {
@@ -262,9 +259,7 @@ tt_bool_t tt_sktaddr_ipv4mapped_ntv(IN tt_sktaddr_ntv_t *addr)
 {
     unsigned char *uc6 = ((struct sockaddr_in6 *)addr)->sin6_addr.s6_addr;
 
-    if (addr->ss_family != AF_INET6) {
-        return TT_FALSE;
-    }
+    if (addr->ss_family != AF_INET6) { return TT_FALSE; }
 
     if ((*((uint32_t *)&uc6[0]) != 0) || (*((uint32_t *)&uc6[4]) != 0) ||
         (*((uint16_t *)&uc6[8]) != 0) || (*((uint16_t *)&uc6[10]) != 0xFFFF)) {

@@ -62,14 +62,12 @@ void tt_crash_trace_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __ct_component_init, __ct_component_exit,
+        __ct_component_init,
+        __ct_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_CRASH_TRACE,
-                      "Crash Trace",
-                      NULL,
+    tt_component_init(&comp, TT_COMPONENT_CRASH_TRACE, "Crash Trace", NULL,
                       &itf);
 
     // register component

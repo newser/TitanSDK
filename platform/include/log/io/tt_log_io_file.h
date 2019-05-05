@@ -43,7 +43,8 @@ this file defines log io file output
 
 struct tt_logio_s;
 
-typedef enum {
+typedef enum
+{
     TT_LOGFILE_SUFFIX_INDEX,
     TT_LOGFILE_SUFFIX_DATE,
 
@@ -51,7 +52,8 @@ typedef enum {
 } tt_logfile_suffix_t;
 #define TT_LOGFILE_SUFFIX_VALID(n) ((n) < TT_LOGFILE_SUFFIX_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_LOGFILE_ARCHIVE_NONE,
     TT_LOGFILE_ARCHIVE_ZIP,
 
@@ -59,7 +61,8 @@ typedef enum {
 } tt_logfile_archive_t;
 #define TT_LOGFILE_ARCHIVE_VALID(n) ((n) < TT_LOGFILE_ARCHIVE_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_LOGFILE_PURGE_NONE,
     TT_LOGFILE_PURGE_REMOVE,
     TT_LOGFILE_PURGE_SFTP,
@@ -128,8 +131,7 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 tt_export struct tt_logio_s *tt_logio_file_create(
-    IN const tt_char_t *log_path,
-    IN const tt_char_t *archive_path,
+    IN const tt_char_t *log_path, IN const tt_char_t *archive_path,
     IN OPT tt_logio_file_attr_t *attr);
 
 tt_export void tt_logio_file_attr_default(IN tt_logio_file_attr_t *attr);

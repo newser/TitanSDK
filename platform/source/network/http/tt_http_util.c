@@ -49,8 +49,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_http_file_etag(IN struct tt_file_s *f,
-                              OUT tt_char_t *etag,
+tt_result_t tt_http_file_etag(IN struct tt_file_s *f, OUT tt_char_t *etag,
                               IN tt_u32_t len)
 {
     tt_fstat_t fstat;
@@ -58,11 +57,8 @@ tt_result_t tt_http_file_etag(IN struct tt_file_s *f,
     TT_ASSERT((etag != NULL) && (len > 0));
 
     if (TT_OK(tt_fstat(f, &fstat))) {
-        tt_snprintf(etag,
-                    len - 1,
-                    "%" TT_PRIx64 "%" TT_PRIx64,
-                    tt_date_diff_epoch_second(&fstat.modified),
-                    fstat.size);
+        tt_snprintf(etag, len - 1, "%" TT_PRIx64 "%" TT_PRIx64,
+                    tt_date_diff_epoch_second(&fstat.modified), fstat.size);
         etag[len - 1] = 0;
         return TT_SUCCESS;
     } else {

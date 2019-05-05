@@ -55,12 +55,9 @@ static tt_result_t __kexdh_init_parse(IN struct tt_sshmsg_s *msg,
                                       IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __kexdh_init_op = {
-    __kexdh_init_create,
-    __kexdh_init_destroy,
-    NULL,
+    __kexdh_init_create,         __kexdh_init_destroy, NULL,
 
-    __kexdh_init_render_prepare,
-    __kexdh_init_render,
+    __kexdh_init_render_prepare, __kexdh_init_render,
 
     __kexdh_init_parse,
 };
@@ -76,8 +73,7 @@ static tt_sshmsg_itf_t __kexdh_init_op = {
 tt_sshmsg_t *tt_sshmsg_kexdh_init_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_KEXDH_INIT,
-                            sizeof(tt_sshmsg_kexdh_init_t),
-                            &__kexdh_init_op);
+                            sizeof(tt_sshmsg_kexdh_init_t), &__kexdh_init_op);
 }
 
 tt_result_t __kexdh_init_create(IN struct tt_sshmsg_s *msg)

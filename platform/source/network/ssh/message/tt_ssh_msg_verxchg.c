@@ -58,18 +58,17 @@ static tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg,
                                    IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __verxchg_op = {
-    __verxchg_create,
-    __verxchg_destroy,
-    NULL,
+    __verxchg_create,         __verxchg_destroy, NULL,
 
-    __verxchg_render_prepare,
-    __verxchg_render,
+    __verxchg_render_prepare, __verxchg_render,
 
     __verxchg_parse,
 };
 
 static const tt_char_t *__ssh_protover_name[TT_SSH_VER_NUM] = {
-    "SSH-1.0", "SSH-1.99", "SSH-2.0",
+    "SSH-1.0",
+    "SSH-1.99",
+    "SSH-2.0",
 };
 
 ////////////////////////////////////////////////////////////
@@ -82,8 +81,7 @@ static const tt_char_t *__ssh_protover_name[TT_SSH_VER_NUM] = {
 
 tt_sshmsg_t *tt_sshms_verxchg_create()
 {
-    return tt_sshmsg_create(TT_SSH_MSGID_VERXCHG,
-                            sizeof(tt_sshms_verxchg_t),
+    return tt_sshmsg_create(TT_SSH_MSGID_VERXCHG, sizeof(tt_sshms_verxchg_t),
                             &__verxchg_op);
 }
 
@@ -189,9 +187,7 @@ tt_result_t __verxchg_render_prepare(IN struct tt_sshmsg_s *msg,
     msg_len += 1 + vx->swver.len;
 
     // comments
-    if (vx->comment.len != 0) {
-        msg_len += 1 + vx->comment.len;
-    }
+    if (vx->comment.len != 0) { msg_len += 1 + vx->comment.len; }
 
     // cr lf
     msg_len += 2;
@@ -209,8 +205,7 @@ tt_result_t __verxchg_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
 
     // protocol version
     TT_ASSERT_SSH(TT_SSH_VER_VALID(vx->protover));
-    TT_DO(tt_buf_put(buf,
-                     (tt_u8_t *)__ssh_protover_name[vx->protover],
+    TT_DO(tt_buf_put(buf, (tt_u8_t *)__ssh_protover_name[vx->protover],
                      (tt_u32_t)tt_strlen(__ssh_protover_name[vx->protover])));
 
     // software version
@@ -229,7 +224,6 @@ tt_result_t __verxchg_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
 
     return TT_SUCCESS;
 }
-
 
 tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
 {
@@ -250,17 +244,13 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
      */
 
     data_len = TT_BUF_RLEN(data);
-    if (data_len < 4) {
-        return TT_E_BUF_NOBUFS;
-    }
+    if (data_len < 4) { return TT_E_BUF_NOBUFS; }
 
     // find "SSH-"
     pos = 0;
     end_pos = data_len - 4;
     while (pos <= end_pos) {
-        if (tt_memcmp(&data->p[pos], "SSH-", 4) == 0) {
-            break;
-        }
+        if (tt_memcmp(&data->p[pos], "SSH-", 4) == 0) { break; }
         ++pos;
     }
     if (pos > end_pos) {
@@ -290,9 +280,7 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
     // find "\n"
     end_pos = data_len - 1;
     while (pos <= end_pos) {
-        if (data->p[pos] == '\n') {
-            break;
-        }
+        if (data->p[pos] == '\n') { break; }
         ++pos;
     }
     if (pos > end_pos) {

@@ -50,10 +50,8 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_memspg_init(IN tt_memspg_t *mspg,
-                    IN tt_u32_t min_extend,
-                    IN tt_u32_t max_extend,
-                    IN tt_u32_t max_limit)
+void tt_memspg_init(IN tt_memspg_t *mspg, IN tt_u32_t min_extend,
+                    IN tt_u32_t max_extend, IN tt_u32_t max_limit)
 {
     TT_ASSERT(min_extend > 0);
     TT_ASSERT(min_extend < max_extend);
@@ -64,10 +62,8 @@ void tt_memspg_init(IN tt_memspg_t *mspg,
     mspg->max_limit = max_limit;
 }
 
-tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg,
-                                IN OUT tt_u8_t **p,
-                                IN OUT tt_u32_t *size,
-                                IN tt_u32_t to_size,
+tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg, IN OUT tt_u8_t **p,
+                                IN OUT tt_u32_t *size, IN tt_u32_t to_size,
                                 IN tt_u32_t flag)
 {
     tt_u32_t new_size;
@@ -78,9 +74,7 @@ tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg,
     new_size = *size;
     do {
         new_size = tt_memspg_next_size(mspg, new_size);
-        if (new_size == 0) {
-            return TT_FAIL;
-        }
+        if (new_size == 0) { return TT_FAIL; }
         TT_ASSERT(new_size > *size);
     } while (new_size < to_size);
 
@@ -97,9 +91,7 @@ tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg,
             tt_memset(TT_PTR_INC(void, new_p, *size), 0, new_size - *size);
         }
 
-        if (!(flag & TT_MSPGEXT_NOFREE)) {
-            tt_free(*p);
-        }
+        if (!(flag & TT_MSPGEXT_NOFREE)) { tt_free(*p); }
     }
     *p = new_p;
     *size = new_size;
@@ -107,10 +99,8 @@ tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg,
-                               IN OUT tt_u8_t **p,
-                               IN OUT tt_u32_t *size,
-                               IN tt_u32_t to_size)
+tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg, IN OUT tt_u8_t **p,
+                               IN OUT tt_u32_t *size, IN tt_u32_t to_size)
 {
     tt_u8_t *new_p = NULL;
 
@@ -133,10 +123,8 @@ tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_memspg_compress_range(IN tt_memspg_t *mspg,
-                                     IN OUT tt_u8_t **p,
-                                     IN OUT tt_u32_t *size,
-                                     IN tt_u32_t from,
+tt_result_t tt_memspg_compress_range(IN tt_memspg_t *mspg, IN OUT tt_u8_t **p,
+                                     IN OUT tt_u32_t *size, IN tt_u32_t from,
                                      IN tt_u32_t to)
 {
     tt_u8_t *new_p = NULL;
@@ -167,9 +155,7 @@ tt_u32_t tt_memspg_next_size(IN tt_memspg_t *mspg, IN tt_u32_t size)
     tt_u32_t next_size;
 
     // set to min_extend if less than min_extend
-    if (size < mspg->min_extend) {
-        return mspg->min_extend;
-    }
+    if (size < mspg->min_extend) { return mspg->min_extend; }
 
     // extend twice if less than max_extend
     if (size <= mspg->max_extend) {

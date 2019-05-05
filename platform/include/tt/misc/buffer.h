@@ -24,8 +24,8 @@ this file defines buf_t addr structure and related operations.
 
 */
 
-#ifndef __TT_MISC_BUFFER_CPP__
-#define __TT_MISC_BUFFER_CPP__
+#ifndef __TT_BUFFER_CPP__
+#define __TT_BUFFER_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -82,79 +82,62 @@ public:
     bool empty() const { return rp_ == wp_; }
 
     void *r() const { return base::addr_ + rp_; }
-    buf_t &r(void *addr)
+    void r(void *addr)
     {
         TT_INVALID_ARG_IF(addr < base::addr_ || addr >= w(), "invalid r_addr");
         rp_ = (uint8_t *)addr - base::addr_;
-        return *this;
     }
     size_t r_size() const { return wp_ - rp_; }
-    buf_t &r_inc(size_t n)
+    void r_inc(size_t n)
     {
         TT_INVALID_ARG_IF(n > r_size(), "invalid r_inc");
         rp_ += n;
-        return *this;
     }
-    buf_t &r_dec(size_t n)
+    void r_dec(size_t n)
     {
         TT_INVALID_ARG_IF(rp_ < n, "invalid r_dec");
         rp_ -= n;
-        return *this;
     }
-    buf_t &r_clear()
-    {
-        rp_ = 0;
-        return *this;
-    }
+    void r_clear() { rp_ = 0; }
 
     void *w() const { return base::addr_ + wp_; }
-    buf_t &w(void *addr)
+    void w(void *addr)
     {
         TT_INVALID_ARG_IF(addr < r() || addr > end_addr(), "invalid w");
         wp_ = (uint8_t *)addr - base::addr_;
-        return *this;
     }
     size_t w_size() const { return base::size_ - wp_; }
-    buf_t &w_inc(size_t n)
+    void w_inc(size_t n)
     {
         TT_INVALID_ARG_IF(n > w_size(), "invalid w_inc");
         wp_ += n;
-        return *this;
     }
-    buf_t &w_dec(size_t n)
+    void w_dec(size_t n)
     {
         TT_INVALID_ARG_IF(n > r_size(), "invalid w_dec");
         wp_ -= n;
-        return *this;
     }
-    buf_t &clear()
-    {
-        rp_ = wp_ = 0;
-        return *this;
-    }
+    void clear() { rp_ = wp_ = 0; }
 
     void *end_addr() const { return base::addr_ + base::size_; }
 
     rwp rwpos() const { return std::make_pair(rp_, wp_); }
-    buf_t &rwpos(const rwp &rwp)
+    void rwpos(const rwp &rwp)
     {
         rp_ = rwp.first;
         wp_ = rwp.second;
-        return *this;
     }
 
-    buf_t &refine()
+    void refine()
     {
         size_t n = r_size();
         memmove(base::addr_, r(), n);
         rp_ = 0;
         wp_ = rp_ + n;
-        return *this;
     }
-    buf_t &refine(size_t threshold)
+    void refine(size_t threshold)
     {
         if (refinable() >= threshold) { refine(); }
-        return *this;
     }
     size_t refinable() const { return rp_; }
 
@@ -176,36 +159,33 @@ public:
     }
 
     // debug
-    buf_t &std_dump(int flag = 0) const;
-    buf_t &std_dump_hex(int flag = 0) const;
-    buf_t &std_dump_cstr(int flag = 0);
+    void std_dump(int flag = 0) const;
+    void std_dump_hex(int flag = 0) const;
+    void std_dump_cstr(int flag = 0);
 
     ////////////////////////////////////////////////////////////
     // read, write
     ////////////////////////////////////////////////////////////
 
-    buf_t &write(const void *data, size_t len)
+    void write(const void *data, size_t len)
     {
         void *p = reserve(len);
         memcpy(p, data, len);
         w_inc(len);
-        return *this;
     }
-    buf_t &write_head(const void *data, size_t len)
+    void write_head(const void *data, size_t len)
     {
         void *p = reserve_head(len);
         memcpy(p, data, len);
         r_dec(len);
-        return *this;
     }
-    buf_t &write_rep(size_t num, uint8_t byte)
+    void write_rep(size_t num, uint8_t byte)
     {
         void *p = reserve(num);
         memset(p, byte, num);
         w_inc(num);
-        return *this;
     }
-    buf_t &write_rand(size_t num);
+    void write_rand(size_t num);
 
     template<int t_retry = 10>
     bool write_f(const char *fmt, ...)
@@ -248,20 +228,18 @@ public:
     }
 
     template<typename T>
-    buf_t &write(T val)
+    void write(T val)
     {
         write(&val, sizeof(T));
-        return *this;
     }
     template<typename T>
-    buf_t &write_h2n(T val)
+    void write_h2n(T val)
     {
         T v = h2n(val);
         write(&v, sizeof(T));
-        return *this;
     }
-    buf_t &write(const char *s) { return write(s, strlen(s)); }
-    buf_t &write(const buf_t &b) { return write(b.r(), b.r_size()); }
+    void write(const char *s) { write(s, strlen(s)); }
+    void write(const buf_t &b) { write(b.r(), b.r_size()); }
 
     bool read(OUT void *data, size_t len)
     {
@@ -320,28 +298,25 @@ public:
         std::swap(wp_, b.wp_);
     }
 
-    buf_t &set(const void *addr, size_t len)
+    void set(const void *addr, size_t len)
     {
         clear();
         write(addr, len);
-        return *this;
     }
-    buf_t &set(const buf_t &b)
+    void set(const buf_t &b)
     {
         if (this != &b) { set(b.r(), b.r_size()); }
-        return *this;
     }
-    buf_t &set(const char *s) { return set(s, strlen(s)); }
+    void set(const char *s) { set(s, strlen(s)); }
 
-    buf_t &cat(OPT const void *addr, size_t len)
+    void cat(OPT const void *addr, size_t len)
     {
         void *p = reserve(len);
         memcpy(p, addr, len);
         w_inc(len);
-        return *this;
     }
-    buf_t &cat(const char *s) { return cat(s, strlen(s)); }
-    buf_t &cat(const buf_t &b) { return cat(b.r(), b.r_size()); }
+    void cat(const char *s) { cat(s, strlen(s)); }
+    void cat(const buf_t &b) { cat(b.r(), b.r_size()); }
 
     ssize_t cmp(const void *addr, size_t len) const
     {
@@ -375,7 +350,7 @@ public:
     }
     bool endwith(const char *s) const { return endwith(s, strlen(s)); }
 
-    buf_t &remove(size_t from, size_t len)
+    void remove(size_t from, size_t len)
     {
         TT_OVERFLOW_IF(from + len < len, "remove overflow");
         TT_INVALID_ARG_IF(from > r_size() || (from + len) > r_size(),
@@ -385,39 +360,32 @@ public:
         size_t tail = from + len;
         memmove(p + from, p + tail, r_size() - tail);
         w_dec(len);
-        return *this;
     }
-    buf_t &remove_to(size_t to) { return remove(0, to); }
-    buf_t &remove_from(size_t from) { return remove(from, r_size() - from); }
-    buf_t &remove_head(size_t len) { return remove(0, len); }
-    buf_t &remove_tail(size_t len) { return remove(r_size() - len, len); }
+    void remove_to(size_t to) { remove(0, to); }
+    void remove_from(size_t from) { remove(from, r_size() - from); }
+    void remove_head(size_t len) { remove(0, len); }
+    void remove_tail(size_t len) { remove(r_size() - len, len); }
 
-    buf_t &replace(size_t from, const void *addr, size_t len)
+    void replace(size_t from, const void *addr, size_t len)
     {
-        return replace(from, len, addr, len);
+        replace(from, len, addr, len);
     }
-    buf_t &replace(size_t from, size_t n, const void *addr, size_t len);
+    void replace(size_t from, size_t n, const void *addr, size_t len);
 
-    buf_t &insert(size_t from, const void *addr, size_t len)
+    void insert(size_t from, const void *addr, size_t len)
     {
-        return replace(from, 0, addr, len);
+        replace(from, 0, addr, len);
     }
-    buf_t &insert(size_t from, const char *s)
+    void insert(size_t from, const char *s) { insert(from, s, strlen(s)); }
+    void insert_head(const void *addr, size_t len) { insert(0, addr, len); }
+    void insert_head(const char *s) { insert(0, s); }
+    void insert_tail(const void *addr, size_t len)
     {
-        return insert(from, s, strlen(s));
+        insert(r_size(), addr, len);
     }
-    buf_t &insert_head(const void *addr, size_t len)
-    {
-        return insert(0, addr, len);
-    }
-    buf_t &insert_head(const char *s) { return insert(0, s); }
-    buf_t &insert_tail(const void *addr, size_t len)
-    {
-        return insert(r_size(), addr, len);
-    }
-    buf_t &insert_tail(const char *s) { return insert(r_size(), s); }
+    void insert_tail(const char *s) { insert(r_size(), s); }
 
-    buf_t &trim_head(const std::function<bool(uint8_t)> &_if = [](uint8_t b) {
+    void trim_head(const std::function<bool(uint8_t)> &_if = [](uint8_t b) {
         return std::isspace(b);
     })
     {
@@ -427,9 +395,8 @@ public:
             while ((pos < wp_) && _if(p[pos])) { ++pos; }
             rp_ = pos;
         }
-        return *this;
     }
-    buf_t &trim_tail(const std::function<bool(uint8_t)> &_if = [](uint8_t b) {
+    void trim_tail(const std::function<bool(uint8_t)> &_if = [](uint8_t b) {
         return std::isspace(b);
     })
     {
@@ -439,14 +406,13 @@ public:
             while ((pos > rp_) && _if(p[pos])) { --pos; }
             wp_ = pos + 1;
         }
-
-        return *this;
     }
-    buf_t &trim(const std::function<bool(uint8_t)> &_if = [](uint8_t b) {
+    void trim(const std::function<bool(uint8_t)> &_if = [](uint8_t b) {
         return std::isspace(b);
     })
     {
-        return trim_head(_if).trim_tail(_if);
+        trim_head(_if);
+        trim_tail(_if);
     }
 
     bool operator==(const buf_t &b) const { return cmp(b) == 0; }
@@ -467,11 +433,27 @@ public:
     bool operator>=(const buf_t &b) const { return cmp(b) >= 0; }
     bool operator>=(const char *s) const { return cmp(s) >= 0; }
 
-    buf_t &operator+=(const buf_t &b) { return cat(b.r(), b.r_size()); }
-    buf_t &operator+=(const char *s) { return cat(s, strlen(s)); }
+    buf_t &operator+=(const buf_t &b)
+    {
+        cat(b.r(), b.r_size());
+        return *this;
+    }
+    buf_t &operator+=(const char *s)
+    {
+        cat(s, strlen(s));
+        return *this;
+    }
 
-    const buf_t &operator=(const buf_t &b) { return set(b); }
-    const buf_t &operator=(const char *s) { return set(s); }
+    const buf_t &operator=(const buf_t &b)
+    {
+        set(b);
+        return *this;
+    }
+    const buf_t &operator=(const char *s)
+    {
+        set(s);
+        return *this;
+    }
 
 private:
     size_t rp_{0};
@@ -489,8 +471,8 @@ using buf = buf_t<>;
 ////////////////////////////////////////////////////////////
 
 template<size_t t_init, size_t t_high, size_t t_max>
-buf_t<t_init, t_high, t_max> &buf_t<t_init, t_high, t_max>::replace(
-    size_t from, size_t n, const void *addr, size_t len)
+void buf_t<t_init, t_high, t_max>::replace(size_t from, size_t n,
+                                           const void *addr, size_t len)
 {
     TT_OVERFLOW_IF(rp_ + from < from || rp_ + from + n < n, "rwpos overflow");
     TT_INVALID_ARG_IF(rp_ + from > wp_ || rp_ + from + n > wp_,
@@ -514,10 +496,8 @@ buf_t<t_init, t_high, t_max> &buf_t<t_init, t_high, t_max>::replace(
         memcpy(p, addr, len);
         wp_ -= less_bytes;
     }
-
-    return *this;
 }
 
 }
 
-#endif /* __TT_MISC_BUFFER_CPP__ */
+#endif /* __TT_BUFFER_CPP__ */

@@ -66,8 +66,7 @@ typedef struct
 } tt_http_outserv_itf_t;
 
 typedef tt_result_t (*tt_http_outserv_on_header_t)(
-    IN struct tt_http_outserv_s *s,
-    IN struct tt_http_parser_s *req,
+    IN struct tt_http_outserv_s *s, IN struct tt_http_parser_s *req,
     IN OUT struct tt_http_resp_render_s *resp);
 
 typedef struct
@@ -82,7 +81,8 @@ typedef struct tt_http_outserv_s
     tt_atomic_s32_t ref;
 } tt_http_outserv_t;
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_OUTSERV_DEFAULT,
 
     TT_HTTP_OUTSERV_ID_NUM
@@ -98,30 +98,24 @@ typedef enum {
 ////////////////////////////////////////////////////////////
 
 tt_export tt_http_outserv_t *tt_http_outserv_create(
-    IN tt_u32_t extra_size,
-    IN tt_http_outserv_itf_t *itf,
+    IN tt_u32_t extra_size, IN tt_http_outserv_itf_t *itf,
     IN tt_http_outserv_cb_t *cb);
 
 tt_inline void __http_outserv_destroy(IN tt_http_outserv_t *s)
 {
-    if (s->itf->destroy != NULL) {
-        s->itf->destroy(s);
-    }
+    if (s->itf->destroy != NULL) { s->itf->destroy(s); }
 
     tt_free(s);
 }
 
 tt_inline void tt_http_outserv_clear(IN tt_http_outserv_t *s)
 {
-    if (s->itf->clear != NULL) {
-        s->itf->clear(s);
-    }
+    if (s->itf->clear != NULL) { s->itf->clear(s); }
 }
 
-tt_inline tt_result_t
-tt_http_outserv_on_header(IN tt_http_outserv_t *s,
-                          IN struct tt_http_parser_s *req,
-                          IN OUT struct tt_http_resp_render_s *resp)
+tt_inline tt_result_t tt_http_outserv_on_header(
+    IN tt_http_outserv_t *s, IN struct tt_http_parser_s *req,
+    IN OUT struct tt_http_resp_render_s *resp)
 {
     if (s->cb->on_header != NULL) {
         return s->cb->on_header(s, req, resp);

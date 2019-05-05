@@ -55,9 +55,7 @@ tt_result_t tt_logmgr_create(IN tt_logmgr_t *lmgr,
     tt_logmgr_attr_t __attr;
     tt_u32_t i;
 
-    if (lmgr == NULL) {
-        return TT_FAIL;
-    }
+    if (lmgr == NULL) { return TT_FAIL; }
 
     if (attr == NULL) {
         tt_logmgr_attr_default(&__attr);
@@ -81,9 +79,7 @@ tt_result_t tt_logmgr_create(IN tt_logmgr_t *lmgr,
         if (!TT_OK(
                 tt_logctx_create(&lmgr->ctx[i], i, NULL, &attr->ctx_attr[i]))) {
             tt_u32_t j;
-            for (j = 0; j < i; ++j) {
-                tt_logctx_destroy(&lmgr->ctx[j]);
-            }
+            for (j = 0; j < i; ++j) { tt_logctx_destroy(&lmgr->ctx[j]); }
             tt_mutex_destroy(&lmgr->lock);
             return TT_FAIL;
         }
@@ -96,26 +92,20 @@ void tt_logmgr_destroy(IN tt_logmgr_t *lmgr)
 {
     tt_u32_t i;
 
-    if (lmgr == NULL) {
-        return;
-    }
+    if (lmgr == NULL) { return; }
 
     tt_mutex_destroy(&lmgr->lock);
 
     tt_buf_destroy(&lmgr->buf);
 
-    for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
-        tt_logctx_destroy(&lmgr->ctx[i]);
-    }
+    for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) { tt_logctx_destroy(&lmgr->ctx[i]); }
 }
 
 void tt_logmgr_attr_default(IN tt_logmgr_attr_t *attr)
 {
     tt_u32_t i;
 
-    if (attr == NULL) {
-        return;
-    }
+    if (attr == NULL) { return; }
 
     tt_mutex_attr_default(&attr->lock_attr);
 
@@ -126,8 +116,7 @@ void tt_logmgr_attr_default(IN tt_logmgr_attr_t *attr)
     }
 }
 
-void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
-                          IN tt_log_level_t level,
+void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr, IN tt_log_level_t level,
                           IN TO struct tt_loglyt_s *lyt)
 {
     if (TT_LOG_LEVEL_VALID(level)) {
@@ -158,8 +147,7 @@ tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,
     }
 }
 
-tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
-                                IN tt_log_level_t level,
+tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr, IN tt_log_level_t level,
                                 IN TO struct tt_logio_s *lio)
 {
     if (TT_LOG_LEVEL_VALID(level)) {
@@ -175,20 +163,15 @@ tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
     }
 }
 
-tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
-                             IN tt_log_level_t level,
-                             IN const tt_char_t *func,
-                             IN tt_u32_t line,
-                             IN const tt_char_t *format,
-                             IN va_list ap)
+tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr, IN tt_log_level_t level,
+                             IN const tt_char_t *func, IN tt_u32_t line,
+                             IN const tt_char_t *format, IN va_list ap)
 {
     tt_log_entry_t entry = {0};
     tt_buf_t *buf = &lmgr->buf;
     tt_result_t result = TT_FAIL;
 
-    if (level < lmgr->level) {
-        return TT_SUCCESS;
-    }
+    if (level < lmgr->level) { return TT_SUCCESS; }
 
     entry.seq_num = lmgr->seq_num++;
     entry.logger = lmgr->logger;

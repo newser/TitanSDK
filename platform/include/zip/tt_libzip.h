@@ -61,7 +61,8 @@ typedef zip_source_t tt_zipsrc_t;
 
 typedef zip_t tt_zip_t;
 
-typedef enum {
+typedef enum
+{
     TT_ZIP_CIPHER_NONE = ZIP_EM_NONE,
     TT_ZIP_CIPHER_AES128 = ZIP_EM_AES_128,
     TT_ZIP_CIPHER_AES192 = ZIP_EM_AES_192,

@@ -46,12 +46,12 @@ TT_TEST_ROUTINE_DECLARE(case_hmac)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_md_case)
 
-TT_TEST_CASE(
-    "case_md", "crypto: message digest", case_md, NULL, NULL, NULL, NULL, NULL)
+TT_TEST_CASE("case_md", "crypto: message digest", case_md, NULL, NULL, NULL,
+             NULL, NULL)
 ,
 
-    TT_TEST_CASE(
-        "case_hmac", "crypto: HMAC", case_hmac, NULL, NULL, NULL, NULL, NULL),
+    TT_TEST_CASE("case_hmac", "crypto: HMAC", case_hmac, NULL, NULL, NULL, NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_md_case)
     // =========================================
@@ -97,8 +97,9 @@ static __md_tv_t __md_tv[] = {
          "730e109bd7a8a32b1cb9d9a09aa2325d2430587ddbc0c38bad911525",
          /* sha256 */
          "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592",
-         /* sha384 */ "ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c49"
-                      "4011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1",
+         /* sha384 */
+         "ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c49"
+         "4011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1",
          /* sha512 */
          "07e547d9586f6a73f73fbac0435ed76951218fb7d0c8d788a309d785436bbb64"
          "2e93a252a954f23912547d1e8a3b5ed6e1bfd7097821233fa0538f3db854fee6",
@@ -115,8 +116,9 @@ static __md_tv_t __md_tv[] = {
             "3628b402254caa96827e3c79c0a559e4558da8ee2b65f1496578137d",
             /* sha256 */
             "077b18fe29036ada4890bdec192186e10678597a67880290521df70df4bac9ab",
-            /* sha384 */ "388bb2d487de48740f45fcb44152b0b665428c49def1aaf7"
-                         "c7f09a40c10aff1cd7c3fe3325193c4dd35d4eaa032f49b0",
+            /* sha384 */
+            "388bb2d487de48740f45fcb44152b0b665428c49def1aaf7"
+            "c7f09a40c10aff1cd7c3fe3325193c4dd35d4eaa032f49b0",
             /* sha512 */
             "09fb898bc97319a243a63f6971747f8e102481fb8d5346c55cb44855adc2e0e9"
             "8f304e552b0db1d4eeba8a5c8779f6a3010f0e1a2beb5b9547a13b6edca11e8a",
@@ -134,8 +136,9 @@ static __md_tv_t __md_tv[] = {
             "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f",
             /* sha256 */
             "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            /* sha384 */ "38b060a751ac96384cd9327eb1b1e36a21fdb71114be0743"
-                         "4c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b",
+            /* sha384 */
+            "38b060a751ac96384cd9327eb1b1e36a21fdb71114be0743"
+            "4c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b",
             /* sha512 */
             "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce"
             "47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
@@ -239,11 +242,13 @@ static __hmac_tv_t __hmac_tv[] =
              "bbd45ab4133630d2961c50841b726912897f7577201100eed55e852a",
              /* sha256 */
              "e907e328a41edacf6db73aef949786cfc444cef3b5e1b86ad591764be1550735",
-             /* sha384 */ "7d9988b833a67fd9fdacc40dbfb8dc9b3fef141e480cbbbeb582"
-                          "4b39b7a67f1ba5441132ad7b1bdc72b79ee30e69bfd3",
-             /* sha512 */ "57c10479e1a758145934c10936a704937b24f0423c6ce160a45a"
-                          "312d0848024de84178eb5ea36876412eeff1bfbb6a642cfd8288"
-                          "3fa6e9fa98c768707abebb61",
+             /* sha384 */
+             "7d9988b833a67fd9fdacc40dbfb8dc9b3fef141e480cbbbeb582"
+             "4b39b7a67f1ba5441132ad7b1bdc72b79ee30e69bfd3",
+             /* sha512 */
+             "57c10479e1a758145934c10936a704937b24f0423c6ce160a45a"
+             "312d0848024de84178eb5ea36876412eeff1bfbb6a642cfd8288"
+             "3fa6e9fa98c768707abebb61",
              /* ripemd160 */ "cd65fa5ea9c609431ad4b2aa5ceb6fa7ddca748d",
          },
      },
@@ -299,9 +304,7 @@ TT_TEST_ROUTINE_DEFINE(case_hmac)
             tt_buf_clear(&expect);
             tt_buf_put_cstr2hex(&expect, tv->out[t]);
 
-            ret = tt_hmac_create(&hmac,
-                                 t,
-                                 (tt_u8_t *)tv->key,
+            ret = tt_hmac_create(&hmac, t, (tt_u8_t *)tv->key,
                                  (tt_u32_t)tt_strlen(tv->key));
             TT_UT_SUCCESS(ret, "");
 
@@ -333,12 +336,8 @@ TT_TEST_ROUTINE_DEFINE(case_hmac)
 
             tt_buf_clear(&output);
             tt_buf_reserve(&output, TT_BUF_RLEN(&expect));
-            ret = tt_hmac(t,
-                          (tt_u8_t *)tv->key,
-                          (tt_u32_t)tt_strlen(tv->key),
-                          (tt_u8_t *)tv->in,
-                          len,
-                          TT_BUF_RPOS(&output));
+            ret = tt_hmac(t, (tt_u8_t *)tv->key, (tt_u32_t)tt_strlen(tv->key),
+                          (tt_u8_t *)tv->in, len, TT_BUF_RPOS(&output));
             TT_UT_SUCCESS(ret, "");
             tt_buf_inc_wp(&output, TT_BUF_RLEN(&expect));
             TT_UT_EQUAL(tt_buf_cmp(&output, &expect), 0, "");

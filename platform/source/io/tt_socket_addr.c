@@ -67,8 +67,7 @@ tt_result_t tt_sktaddr_set_ip_p(IN tt_sktaddr_t *addr,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_sktaddr_get_ip_p(IN tt_sktaddr_t *addr,
-                                OUT tt_char_t *buf,
+tt_result_t tt_sktaddr_get_ip_p(IN tt_sktaddr_t *addr, OUT tt_char_t *buf,
                                 IN tt_u32_t buf_len)
 {
     tt_sktaddr_ip_t ip;

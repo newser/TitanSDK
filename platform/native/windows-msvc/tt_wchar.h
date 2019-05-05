@@ -56,23 +56,20 @@ to make program able to be distributed to different area, it should:
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern wchar_t *tt_wchar_create(IN const tt_char_t *utf8_str,
-                                IN tt_u32_t len,
+extern wchar_t *tt_wchar_create(IN const tt_char_t *utf8_str, IN tt_u32_t len,
                                 OUT OPT tt_u32_t *wchar_bytes);
 
 extern wchar_t *tt_wchar_create_ex(IN const tt_char_t *utf8_str,
                                    IN tt_u32_t len,
                                    OUT OPT tt_u32_t *wchar_bytes,
-                                   IN tt_u32_t flag,
-                                   IN void *val);
+                                   IN tt_u32_t flag, IN void *val);
 // returned wchar string has more space as specified by val, and the extra
 // size are filled with 0
 #define TT_WCHAR_CREATE_LONGER (1 << 0)
 
 extern void tt_wchar_destroy(IN wchar_t *wchar_str);
 
-extern tt_char_t *tt_utf8_create(IN wchar_t *wchar_str,
-                                 IN tt_u32_t len,
+extern tt_char_t *tt_utf8_create(IN wchar_t *wchar_str, IN tt_u32_t len,
                                  OUT OPT tt_u32_t *utf8_bytes);
 
 extern void tt_utf8_destroy(IN tt_char_t *utf8_str);

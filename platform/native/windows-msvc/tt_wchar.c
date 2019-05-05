@@ -51,8 +51,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-wchar_t *tt_wchar_create(IN const tt_char_t *utf8_str,
-                         IN tt_u32_t len,
+wchar_t *tt_wchar_create(IN const tt_char_t *utf8_str, IN tt_u32_t len,
                          OUT OPT tt_u32_t *wchar_bytes)
 {
     wchar_t *wchar_str;
@@ -76,11 +75,7 @@ wchar_t *tt_wchar_create(IN const tt_char_t *utf8_str,
         return NULL;
     }
 
-    char_num = MultiByteToWideChar(CP_UTF8,
-                                   0,
-                                   utf8_str,
-                                   cbMultiByte,
-                                   wchar_str,
+    char_num = MultiByteToWideChar(CP_UTF8, 0, utf8_str, cbMultiByte, wchar_str,
                                    char_num);
     if (char_num == 0) {
         TT_ERROR_NTV("fail to convert to wchar");
@@ -93,10 +88,8 @@ wchar_t *tt_wchar_create(IN const tt_char_t *utf8_str,
     return wchar_str;
 }
 
-wchar_t *tt_wchar_create_ex(IN const tt_char_t *utf8_str,
-                            IN tt_u32_t len,
-                            OUT OPT tt_u32_t *wchar_bytes,
-                            IN tt_u32_t flag,
+wchar_t *tt_wchar_create_ex(IN const tt_char_t *utf8_str, IN tt_u32_t len,
+                            OUT OPT tt_u32_t *wchar_bytes, IN tt_u32_t flag,
                             IN void *val)
 {
     wchar_t *wchar_str;
@@ -125,11 +118,7 @@ wchar_t *tt_wchar_create_ex(IN const tt_char_t *utf8_str,
     }
     memset(wchar_str, 0, byte_num);
 
-    char_num = MultiByteToWideChar(CP_UTF8,
-                                   0,
-                                   utf8_str,
-                                   cbMultiByte,
-                                   wchar_str,
+    char_num = MultiByteToWideChar(CP_UTF8, 0, utf8_str, cbMultiByte, wchar_str,
                                    char_num);
     if (char_num == 0) {
         TT_ERROR_NTV("fail to convert to wchar");
@@ -147,8 +136,7 @@ void tt_wchar_destroy(IN wchar_t *wchar_str)
     tt_free(wchar_str);
 }
 
-tt_char_t *tt_utf8_create(IN wchar_t *wchar_str,
-                          IN tt_u32_t len,
+tt_char_t *tt_utf8_create(IN wchar_t *wchar_str, IN tt_u32_t len,
                           OUT OPT tt_u32_t *utf8_bytes)
 {
     tt_char_t *utf8_str;
@@ -159,14 +147,8 @@ tt_char_t *tt_utf8_create(IN wchar_t *wchar_str,
     // string, including the terminating null character. Therefore, the
     // resulting character string has a terminating null character, and
     // the length returned by the function includes this character.
-    char_num = WideCharToMultiByte(CP_UTF8,
-                                   0,
-                                   wchar_str,
-                                   cchWideChar,
-                                   NULL,
-                                   0,
-                                   NULL,
-                                   NULL);
+    char_num = WideCharToMultiByte(CP_UTF8, 0, wchar_str, cchWideChar, NULL, 0,
+                                   NULL, NULL);
     if (char_num == 0) {
         TT_ERROR_NTV("fail to get utf8 len");
         return NULL;
@@ -178,14 +160,8 @@ tt_char_t *tt_utf8_create(IN wchar_t *wchar_str,
         return NULL;
     }
 
-    char_num = WideCharToMultiByte(CP_UTF8,
-                                   0,
-                                   wchar_str,
-                                   cchWideChar,
-                                   utf8_str,
-                                   char_num,
-                                   NULL,
-                                   NULL);
+    char_num = WideCharToMultiByte(CP_UTF8, 0, wchar_str, cchWideChar, utf8_str,
+                                   char_num, NULL, NULL);
     if (char_num == 0) {
         TT_ERROR_NTV("fail to convert to wchar");
 

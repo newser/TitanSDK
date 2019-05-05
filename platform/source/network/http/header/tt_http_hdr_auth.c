@@ -93,8 +93,7 @@ typedef struct
 
 static void __auth_destroy(IN tt_http_hdr_t *h);
 
-static tt_result_t __auth_parse(IN tt_http_hdr_t *h,
-                                IN const tt_char_t *val,
+static tt_result_t __auth_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                                 IN tt_u32_t len);
 
 static tt_u32_t __auth_render_len(IN tt_http_hdr_t *h);
@@ -113,46 +112,30 @@ static tt_bool_t __check_auth(IN tt_http_auth_t *ha);
 
 static void __set_auth(IN tt_http_auth_t *dst, IN tt_http_auth_t *src);
 
-static tt_result_t __parse_param(IN __auth_int_t *ai,
-                                 IN const tt_char_t *name,
-                                 IN tt_u32_t name_len,
-                                 IN const tt_char_t *val,
+static tt_result_t __parse_param(IN __auth_int_t *ai, IN const tt_char_t *name,
+                                 IN tt_u32_t name_len, IN const tt_char_t *val,
                                  IN tt_u32_t val_len);
 
-static tt_result_t __parse_qop(IN __auth_int_t *ai,
-                               IN const tt_char_t *val,
+static tt_result_t __parse_qop(IN __auth_int_t *ai, IN const tt_char_t *val,
                                IN tt_u32_t val_len);
 
-static tt_result_t __calc_md5(IN tt_md_t *md,
-                              IN tt_http_auth_t *ha,
-                              IN void *password,
-                              IN tt_u32_t password_len,
-                              IN tt_u32_t qop,
-                              IN void *method,
-                              IN tt_u32_t method_len,
-                              IN OPT void *body,
-                              IN tt_u32_t body_len,
-                              OUT tt_char_t *response);
+static tt_result_t __calc_md5(IN tt_md_t *md, IN tt_http_auth_t *ha,
+                              IN void *password, IN tt_u32_t password_len,
+                              IN tt_u32_t qop, IN void *method,
+                              IN tt_u32_t method_len, IN OPT void *body,
+                              IN tt_u32_t body_len, OUT tt_char_t *response);
 
-static tt_result_t __calc_md5_sess(IN tt_md_t *md,
-                                   IN tt_http_auth_t *ha,
-                                   IN void *password,
-                                   IN tt_u32_t password_len,
-                                   IN tt_u32_t qop,
-                                   IN void *method,
-                                   IN tt_u32_t method_len,
-                                   IN OPT void *body,
+static tt_result_t __calc_md5_sess(IN tt_md_t *md, IN tt_http_auth_t *ha,
+                                   IN void *password, IN tt_u32_t password_len,
+                                   IN tt_u32_t qop, IN void *method,
+                                   IN tt_u32_t method_len, IN OPT void *body,
                                    IN tt_u32_t body_len,
                                    OUT tt_char_t *response);
 
-static tt_result_t __calc_md5_resp(IN tt_char_t *s_a1,
-                                   IN tt_md_t *md,
-                                   IN tt_http_auth_t *ha,
-                                   IN tt_u32_t qop,
-                                   IN void *method,
-                                   IN tt_u32_t method_len,
-                                   IN OPT void *body,
-                                   IN tt_u32_t body_len,
+static tt_result_t __calc_md5_resp(IN tt_char_t *s_a1, IN tt_md_t *md,
+                                   IN tt_http_auth_t *ha, IN tt_u32_t qop,
+                                   IN void *method, IN tt_u32_t method_len,
+                                   IN OPT void *body, IN tt_u32_t body_len,
                                    OUT tt_char_t *response);
 
 ////////////////////////////////////////////////////////////
@@ -164,12 +147,9 @@ tt_http_hdr_t *tt_http_hdr_www_auth_create()
     tt_http_hdr_t *h;
     __auth_int_t *ai;
 
-    h = tt_http_hdr_create_csq(sizeof(__auth_int_t),
-                               TT_HTTP_HDR_WWW_AUTH,
+    h = tt_http_hdr_create_csq(sizeof(__auth_int_t), TT_HTTP_HDR_WWW_AUTH,
                                &__auth_itf);
-    if (h == NULL) {
-        return NULL;
-    }
+    if (h == NULL) { return NULL; }
 
     ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
 
@@ -198,12 +178,9 @@ tt_http_hdr_t *tt_http_hdr_auth_create()
     tt_http_hdr_t *h;
     __auth_int_t *ai;
 
-    h = tt_http_hdr_create_csq(sizeof(__auth_int_t),
-                               TT_HTTP_HDR_AUTH,
+    h = tt_http_hdr_create_csq(sizeof(__auth_int_t), TT_HTTP_HDR_AUTH,
                                &__auth_itf);
-    if (h == NULL) {
-        return NULL;
-    }
+    if (h == NULL) { return NULL; }
 
     ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
 
@@ -233,11 +210,8 @@ tt_http_hdr_t *tt_http_hdr_proxy_authenticate_create()
     __auth_int_t *ai;
 
     h = tt_http_hdr_create_csq(sizeof(__auth_int_t),
-                               TT_HTTP_HDR_PROXY_AUTHENTICATE,
-                               &__auth_itf);
-    if (h == NULL) {
-        return NULL;
-    }
+                               TT_HTTP_HDR_PROXY_AUTHENTICATE, &__auth_itf);
+    if (h == NULL) { return NULL; }
 
     ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
 
@@ -267,11 +241,8 @@ tt_http_hdr_t *tt_http_hdr_proxy_authorization_create()
     __auth_int_t *ai;
 
     h = tt_http_hdr_create_csq(sizeof(__auth_int_t),
-                               TT_HTTP_HDR_PROXY_AUTHORIZATION,
-                               &__auth_itf);
-    if (h == NULL) {
-        return NULL;
-    }
+                               TT_HTTP_HDR_PROXY_AUTHORIZATION, &__auth_itf);
+    if (h == NULL) { return NULL; }
 
     ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
 
@@ -305,8 +276,7 @@ tt_http_auth_t *tt_http_hdr_auth_get(IN tt_http_hdr_t *h)
     return &ai->auth;
 }
 
-tt_result_t tt_http_hdr_auth_set(IN tt_http_hdr_t *h,
-                                 IN tt_http_auth_t *auth,
+tt_result_t tt_http_hdr_auth_set(IN tt_http_hdr_t *h, IN tt_http_auth_t *auth,
                                  IN tt_bool_t shallow_copy)
 {
     __auth_int_t *ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
@@ -362,10 +332,8 @@ tt_bool_t tt_http_auth_valid(IN tt_http_auth_t *ha)
 void tt_http_auth_shallow_copy(IN tt_http_auth_t *dst, IN tt_http_auth_t *src)
 {
 #define __SHALLOW_CP(member)                                                   \
-    tt_blobex_set(&dst->member,                                                \
-                  tt_blobex_addr(&src->member),                                \
-                  tt_blobex_len(&src->member),                                 \
-                  TT_FALSE)
+    tt_blobex_set(&dst->member, tt_blobex_addr(&src->member),                  \
+                  tt_blobex_len(&src->member), TT_FALSE)
     __SHALLOW_CP(realm);
     __SHALLOW_CP(domain);
     __SHALLOW_CP(nonce);
@@ -414,17 +382,12 @@ void tt_http_auth_ctx_init(IN tt_http_auth_ctx_t *ctx)
 
 void tt_http_auth_ctx_destroy(IN tt_http_auth_ctx_t *ctx)
 {
-    if (ctx->type != TT_MD_TYPE_NUM) {
-        tt_md_destroy(&ctx->md);
-    }
+    if (ctx->type != TT_MD_TYPE_NUM) { tt_md_destroy(&ctx->md); }
 }
 
 void tt_http_auth_ctx_new_nonce(IN tt_http_auth_ctx_t *ctx)
 {
-    tt_snprintf(ctx->nonce,
-                sizeof(ctx->nonce),
-                "%x%x",
-                tt_rand_u32(),
+    tt_snprintf(ctx->nonce, sizeof(ctx->nonce), "%x%x", tt_rand_u32(),
                 (tt_u32_t)tt_time_ref());
     ctx->nonce_len = (tt_u32_t)tt_strlen(ctx->nonce);
 }
@@ -436,14 +399,10 @@ tt_u32_t tt_http_auth_ctx_digest_len(IN tt_http_auth_ctx_t *ctx)
 }
 
 tt_result_t tt_http_auth_ctx_calc(IN tt_http_auth_ctx_t *ctx,
-                                  IN tt_http_auth_t *ha,
-                                  IN void *password,
-                                  IN tt_u32_t password_len,
-                                  IN tt_u32_t qop,
-                                  IN void *method,
-                                  IN tt_u32_t method_len,
-                                  IN OPT void *body,
-                                  IN tt_u32_t body_len,
+                                  IN tt_http_auth_t *ha, IN void *password,
+                                  IN tt_u32_t password_len, IN tt_u32_t qop,
+                                  IN void *method, IN tt_u32_t method_len,
+                                  IN OPT void *body, IN tt_u32_t body_len,
                                   OUT tt_char_t *response)
 {
     static tt_md_type_t map[TT_HTTP_AUTH_ALG_NUM] = {TT_MD5, TT_MD5};
@@ -452,9 +411,7 @@ tt_result_t tt_http_auth_ctx_calc(IN tt_http_auth_ctx_t *ctx,
     tt_md_type_t md_type;
     tt_md_t *md;
 
-    if (!tt_http_auth_valid(ha)) {
-        return TT_E_BADARG;
-    }
+    if (!tt_http_auth_valid(ha)) { return TT_E_BADARG; }
 
     alg = ha->alg;
     md_type = map[alg];
@@ -471,27 +428,11 @@ tt_result_t tt_http_auth_ctx_calc(IN tt_http_auth_ctx_t *ctx,
     }
 
     if (alg == TT_HTTP_AUTH_MD5) {
-        return __calc_md5(md,
-                          ha,
-                          password,
-                          password_len,
-                          qop,
-                          method,
-                          method_len,
-                          body,
-                          body_len,
-                          response);
+        return __calc_md5(md, ha, password, password_len, qop, method,
+                          method_len, body, body_len, response);
     } else if (alg == TT_HTTP_AUTH_MD5_SESS) {
-        return __calc_md5_sess(md,
-                               ha,
-                               password,
-                               password_len,
-                               qop,
-                               method,
-                               method_len,
-                               body,
-                               body_len,
-                               response);
+        return __calc_md5_sess(md, ha, password, password_len, qop, method,
+                               method_len, body, body_len, response);
     } else {
         TT_ASSERT(0);
         return TT_E_BADARG;
@@ -515,10 +456,8 @@ void __set_auth(IN tt_http_auth_t *dst, IN tt_http_auth_t *src)
     tt_memcpy(dst, src, sizeof(tt_http_auth_t));
 }
 
-tt_result_t __parse_param(IN __auth_int_t *ai,
-                          IN const tt_char_t *name,
-                          IN tt_u32_t name_len,
-                          IN const tt_char_t *val,
+tt_result_t __parse_param(IN __auth_int_t *ai, IN const tt_char_t *name,
+                          IN tt_u32_t name_len, IN const tt_char_t *val,
                           IN tt_u32_t val_len)
 {
     tt_http_auth_t *ha = &ai->auth;
@@ -590,8 +529,7 @@ tt_result_t __parse_param(IN __auth_int_t *ai,
     return TT_SUCCESS;
 }
 
-tt_result_t __parse_qop(IN __auth_int_t *ai,
-                        IN const tt_char_t *val,
+tt_result_t __parse_qop(IN __auth_int_t *ai, IN const tt_char_t *val,
                         IN tt_u32_t val_len)
 {
     tt_http_auth_t *ha = &ai->auth;
@@ -634,8 +572,7 @@ void __auth_destroy(IN tt_http_hdr_t *h)
     tt_http_auth_destroy(&ai->auth);
 }
 
-tt_result_t __auth_parse(IN tt_http_hdr_t *h,
-                         IN const tt_char_t *val,
+tt_result_t __auth_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                          IN tt_u32_t len)
 {
     __auth_int_t *ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
@@ -776,8 +713,7 @@ tt_u32_t __auth_render_len(IN tt_http_hdr_t *h)
             len += TT_COND(qop_mask & TT_HTTP_QOP_AUTH, sizeof(__QOP_AUTH), 0);
             // "auth-int,"
             len += TT_COND(qop_mask & TT_HTTP_QOP_AUTH_INT,
-                           sizeof(__QOP_AUTH_INT),
-                           0);
+                           sizeof(__QOP_AUTH_INT), 0);
             --len;
         } else {
             // qop[=, ]
@@ -897,9 +833,7 @@ tt_u32_t __auth_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
     if (qop_mask != 0) {
         if (ai->qop_list) {
             __CPCSTR("qop=\"");
-            if (qop_mask & TT_HTTP_QOP_AUTH) {
-                __CPCSTR(__QOP_AUTH ",");
-            }
+            if (qop_mask & TT_HTTP_QOP_AUTH) { __CPCSTR(__QOP_AUTH ","); }
             if (qop_mask & TT_HTTP_QOP_AUTH_INT) {
                 __CPCSTR(__QOP_AUTH_INT ",");
             }
@@ -939,24 +873,17 @@ tt_u32_t __auth_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
     }
 
     // "\r\n"
-    if (!empty) {
-        p -= 2;
-    }
+    if (!empty) { p -= 2; }
     *p++ = '\r';
     *p++ = '\n';
 
     return (tt_u32_t)(p - dst);
 }
 
-tt_result_t __calc_md5(IN tt_md_t *md,
-                       IN tt_http_auth_t *ha,
-                       IN void *password,
-                       IN tt_u32_t password_len,
-                       IN tt_u32_t qop,
-                       IN void *method,
-                       IN tt_u32_t method_len,
-                       IN OPT void *body,
-                       IN tt_u32_t body_len,
+tt_result_t __calc_md5(IN tt_md_t *md, IN tt_http_auth_t *ha, IN void *password,
+                       IN tt_u32_t password_len, IN tt_u32_t qop,
+                       IN void *method, IN tt_u32_t method_len,
+                       IN OPT void *body, IN tt_u32_t body_len,
                        OUT tt_char_t *response)
 {
     tt_u8_t a1[__MD5_DLEN];
@@ -964,8 +891,7 @@ tt_result_t __calc_md5(IN tt_md_t *md,
 
     // HA1 = MD5(username:realm:password)
     tt_md_reset(md);
-    tt_md_update(md,
-                 tt_blobex_addr(&ha->username),
+    tt_md_update(md, tt_blobex_addr(&ha->username),
                  tt_blobex_len(&ha->username));
     tt_md_update(md, (tt_u8_t *)":", 1);
     tt_md_update(md, tt_blobex_addr(&ha->realm), tt_blobex_len(&ha->realm));
@@ -975,35 +901,22 @@ tt_result_t __calc_md5(IN tt_md_t *md,
 
     tt_hex2str(a1, __MD5_DLEN, s_a1);
 
-    return __calc_md5_resp(s_a1,
-                           md,
-                           ha,
-                           qop,
-                           method,
-                           method_len,
-                           body,
-                           body_len,
-                           response);
+    return __calc_md5_resp(s_a1, md, ha, qop, method, method_len, body,
+                           body_len, response);
 }
 
-tt_result_t __calc_md5_sess(IN tt_md_t *md,
-                            IN tt_http_auth_t *ha,
-                            IN void *password,
-                            IN tt_u32_t password_len,
-                            IN tt_u32_t qop,
-                            IN void *method,
-                            IN tt_u32_t method_len,
-                            IN OPT void *body,
-                            IN tt_u32_t body_len,
-                            OUT tt_char_t *response)
+tt_result_t __calc_md5_sess(IN tt_md_t *md, IN tt_http_auth_t *ha,
+                            IN void *password, IN tt_u32_t password_len,
+                            IN tt_u32_t qop, IN void *method,
+                            IN tt_u32_t method_len, IN OPT void *body,
+                            IN tt_u32_t body_len, OUT tt_char_t *response)
 {
     tt_u8_t a1[__MD5_DLEN];
     tt_char_t s_a1[__MD5_DLEN * 2];
 
     // HA1 = MD5(MD5(username:realm:password):nonce:cnonce)
     tt_md_reset(md);
-    tt_md_update(md,
-                 tt_blobex_addr(&ha->username),
+    tt_md_update(md, tt_blobex_addr(&ha->username),
                  tt_blobex_len(&ha->username));
     tt_md_update(md, (tt_u8_t *)":", 1);
     tt_md_update(md, tt_blobex_addr(&ha->realm), tt_blobex_len(&ha->realm));
@@ -1021,25 +934,14 @@ tt_result_t __calc_md5_sess(IN tt_md_t *md,
 
     tt_hex2str(a1, __MD5_DLEN, s_a1);
 
-    return __calc_md5_resp(s_a1,
-                           md,
-                           ha,
-                           qop,
-                           method,
-                           method_len,
-                           body,
-                           body_len,
-                           response);
+    return __calc_md5_resp(s_a1, md, ha, qop, method, method_len, body,
+                           body_len, response);
 }
 
-tt_result_t __calc_md5_resp(IN tt_char_t *s_a1,
-                            IN tt_md_t *md,
-                            IN tt_http_auth_t *ha,
-                            IN tt_u32_t qop,
-                            IN void *method,
-                            IN tt_u32_t method_len,
-                            IN OPT void *body,
-                            IN tt_u32_t body_len,
+tt_result_t __calc_md5_resp(IN tt_char_t *s_a1, IN tt_md_t *md,
+                            IN tt_http_auth_t *ha, IN tt_u32_t qop,
+                            IN void *method, IN tt_u32_t method_len,
+                            IN OPT void *body, IN tt_u32_t body_len,
                             OUT tt_char_t *response)
 {
     tt_u8_t a2[__MD5_DLEN], resp[__MD5_DLEN];
@@ -1083,12 +985,10 @@ tt_result_t __calc_md5_resp(IN tt_char_t *s_a1,
         tt_md_update(md, (tt_u8_t *)":", 1);
         tt_md_update(md, tt_blobex_addr(&ha->nc), tt_blobex_len(&ha->nc));
         tt_md_update(md, (tt_u8_t *)":", 1);
-        tt_md_update(md,
-                     tt_blobex_addr(&ha->cnonce),
+        tt_md_update(md, tt_blobex_addr(&ha->cnonce),
                      tt_blobex_len(&ha->cnonce));
         tt_md_update(md, (tt_u8_t *)":", 1);
-        tt_md_update(md,
-                     tt_blobex_addr(&ha->raw_qop),
+        tt_md_update(md, tt_blobex_addr(&ha->raw_qop),
                      tt_blobex_len(&ha->raw_qop));
         tt_md_update(md, (tt_u8_t *)":", 1);
         tt_md_update(md, (tt_u8_t *)s_a2, __MD5_DLEN * 2);

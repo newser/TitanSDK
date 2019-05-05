@@ -46,13 +46,14 @@ static const tt_char_t __help_info[] = "show command or entry usage";
 
 static const tt_char_t __help_usage[] = "";
 
-static tt_u32_t __help_run(IN tt_shell_t *sh,
-                           IN tt_u32_t argc,
-                           IN tt_char_t *arv[],
-                           OUT tt_buf_t *output);
+static tt_u32_t __help_run(IN tt_shell_t *sh, IN tt_u32_t argc,
+                           IN tt_char_t *arv[], OUT tt_buf_t *output);
 
 tt_shcmd_t tt_g_shcmd_help = {
-    TT_SHCMD_NAME_HELP, __help_info, __help_usage, __help_run,
+    TT_SHCMD_NAME_HELP,
+    __help_info,
+    __help_usage,
+    __help_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,22 +62,17 @@ tt_shcmd_t tt_g_shcmd_help = {
 
 static tt_u32_t __help_all(IN tt_shell_t *sh, OUT tt_buf_t *output);
 
-static tt_u32_t __help_single(IN tt_shell_t *sh,
-                              IN tt_char_t *name,
+static tt_u32_t __help_single(IN tt_shell_t *sh, IN tt_char_t *name,
                               OUT tt_buf_t *output);
 
-static tt_u32_t __help_multiple(IN tt_shell_t *sh,
-                                IN tt_char_t *name[],
-                                IN tt_u32_t path_num,
-                                OUT tt_buf_t *output);
+static tt_u32_t __help_multiple(IN tt_shell_t *sh, IN tt_char_t *name[],
+                                IN tt_u32_t path_num, OUT tt_buf_t *output);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __help_run(IN tt_shell_t *sh,
-                    IN tt_u32_t argc,
-                    IN tt_char_t *argv[],
+tt_u32_t __help_run(IN tt_shell_t *sh, IN tt_u32_t argc, IN tt_char_t *argv[],
                     OUT tt_buf_t *output)
 {
     if (argc == 0) {
@@ -111,16 +107,13 @@ tt_u32_t __help_all(IN tt_shell_t *sh, OUT tt_buf_t *output)
         tt_buf_put_cstr(output, cmd->name);
         tt_buf_put_rep(output, ' ', max_len - len);
         tt_buf_put_cstr(output, TT_COND(cmd->info != NULL, cmd->info, ""));
-        if (i != (TT_SHCMD_NUM - 1)) {
-            TT_SH_NEWLINE(output);
-        }
+        if (i != (TT_SHCMD_NUM - 1)) { TT_SH_NEWLINE(output); }
     }
 
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __help_single(IN tt_shell_t *sh,
-                       IN tt_char_t *name,
+tt_u32_t __help_single(IN tt_shell_t *sh, IN tt_char_t *name,
                        OUT tt_buf_t *output)
 {
     tt_shcmd_t *cmd;
@@ -132,9 +125,7 @@ tt_u32_t __help_single(IN tt_shell_t *sh,
         return TT_CLIOC_OUT;
     }
 
-    p = tt_param_path_p2n(sh->root,
-                          sh->current,
-                          name,
+    p = tt_param_path_p2n(sh->root, sh->current, name,
                           (tt_u32_t)tt_strlen(name));
     if (p != NULL) {
         tt_buf_put_cstr(output, tt_param_detail(p));
@@ -145,10 +136,8 @@ tt_u32_t __help_single(IN tt_shell_t *sh,
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __help_multiple(IN tt_shell_t *sh,
-                         IN tt_char_t *name[],
-                         IN tt_u32_t path_num,
-                         OUT tt_buf_t *output)
+tt_u32_t __help_multiple(IN tt_shell_t *sh, IN tt_char_t *name[],
+                         IN tt_u32_t path_num, OUT tt_buf_t *output)
 {
     return __help_single(sh, name[0], output);
 }

@@ -42,7 +42,8 @@ this file defines public key APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_RSA,
     TT_ECKEY,
 
@@ -67,12 +68,10 @@ tt_export void tt_pk_init(IN tt_pk_t *pk);
 
 tt_export void tt_pk_destroy(IN tt_pk_t *pk);
 
-tt_export tt_result_t tt_pk_load_public(IN tt_pk_t *pk,
-                                        IN tt_u8_t *key,
+tt_export tt_result_t tt_pk_load_public(IN tt_pk_t *pk, IN tt_u8_t *key,
                                         IN tt_u32_t len);
 
-tt_export tt_result_t tt_pk_load_private(IN tt_pk_t *pk,
-                                         IN tt_u8_t *key,
+tt_export tt_result_t tt_pk_load_private(IN tt_pk_t *pk, IN tt_u8_t *key,
                                          IN tt_u32_t key_len,
                                          IN OPT tt_u8_t *pwd,
                                          IN tt_u32_t pwd_len);

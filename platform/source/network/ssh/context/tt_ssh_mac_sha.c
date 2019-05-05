@@ -53,8 +53,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_sshmac_sha1_create(IN struct tt_sshmac_s *mac,
-                                  IN tt_u8_t *key,
+tt_result_t tt_sshmac_sha1_create(IN struct tt_sshmac_s *mac, IN tt_u8_t *key,
                                   IN tt_u32_t key_len)
 {
     tt_blob_t kb;
@@ -78,10 +77,8 @@ void tt_sshmac_sha1_destroy(IN struct tt_sshmac_s *mac)
 }
 
 tt_result_t tt_sshmac_sha1_sign(IN struct tt_sshmac_s *mac,
-                                IN tt_u32_t seq_number,
-                                IN tt_u8_t *data,
-                                IN tt_u32_t data_len,
-                                OUT tt_u8_t *signature,
+                                IN tt_u32_t seq_number, IN tt_u8_t *data,
+                                IN tt_u32_t data_len, OUT tt_u8_t *signature,
                                 IN tt_u32_t signature_len)
 {
     tt_u32_t n;
@@ -91,27 +88,21 @@ tt_result_t tt_sshmac_sha1_sign(IN struct tt_sshmac_s *mac,
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_hmac_reset(&mac->hmac))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_hmac_reset(&mac->hmac))) { return TT_FAIL; }
 
     // mac = MAC(key, sequence_number || unencrypted_packet)
     n = tt_hton32(seq_number);
     if (!TT_OK(tt_hmac_update(&mac->hmac, (tt_u8_t *)&n, sizeof(n)))) {
         return TT_FAIL;
     }
-    if (!TT_OK(tt_hmac_update(&mac->hmac, data, data_len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_hmac_update(&mac->hmac, data, data_len))) { return TT_FAIL; }
 
     return tt_hmac_final(&mac->hmac, signature);
 }
 
 tt_result_t tt_sshmac_sha1_verify(IN struct tt_sshmac_s *mac,
-                                  IN tt_u32_t seq_number,
-                                  IN tt_u8_t *data,
-                                  IN tt_u32_t data_len,
-                                  OUT tt_u8_t *signature,
+                                  IN tt_u32_t seq_number, IN tt_u8_t *data,
+                                  IN tt_u32_t data_len, OUT tt_u8_t *signature,
                                   IN tt_u32_t signature_len)
 {
     tt_u32_t n;
@@ -122,22 +113,16 @@ tt_result_t tt_sshmac_sha1_verify(IN struct tt_sshmac_s *mac,
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_hmac_reset(&mac->hmac))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_hmac_reset(&mac->hmac))) { return TT_FAIL; }
 
     // mac = MAC(key, sequence_number || unencrypted_packet)
     n = tt_hton32(seq_number);
     if (!TT_OK(tt_hmac_update(&mac->hmac, (tt_u8_t *)&n, sizeof(n)))) {
         return TT_FAIL;
     }
-    if (!TT_OK(tt_hmac_update(&mac->hmac, data, data_len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_hmac_update(&mac->hmac, data, data_len))) { return TT_FAIL; }
 
-    if (!TT_OK(tt_hmac_final(&mac->hmac, sig))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_hmac_final(&mac->hmac, sig))) { return TT_FAIL; }
     if (tt_memcmp(sig, signature, signature_len) == 0) {
         return TT_SUCCESS;
     } else {

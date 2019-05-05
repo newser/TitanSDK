@@ -77,25 +77,20 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __render_dir(IN tt_param_bs4content_t *ct,
-                                IN tt_param_t *p,
+static tt_result_t __render_dir(IN tt_param_bs4content_t *ct, IN tt_param_t *p,
                                 IN tt_param_bs4level_t lv,
-                                IN OUT tt_bool_t *group0,
-                                OUT tt_buf_t *buf);
+                                IN OUT tt_bool_t *group0, OUT tt_buf_t *buf);
 
 static tt_bool_t __param_group_head(IN tt_param_dir_t *dir,
-                                    OUT tt_param_t **pp1,
-                                    OUT tt_param_t **pp2,
+                                    OUT tt_param_t **pp1, OUT tt_param_t **pp2,
                                     IN tt_param_bs4level_t lv);
 
 static tt_bool_t __param_group_next(IN OUT tt_param_t **pp1,
                                     IN OUT tt_param_t **pp2,
                                     IN tt_param_bs4level_t lv);
 
-static tt_bool_t __param_pair(IN tt_param_t *pos,
-                              IN OUT tt_param_t **pp1,
-                              OUT tt_param_t **pp2,
-                              IN tt_param_bs4level_t lv);
+static tt_bool_t __param_pair(IN tt_param_t *pos, IN OUT tt_param_t **pp1,
+                              OUT tt_param_t **pp2, IN tt_param_bs4level_t lv);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -123,14 +118,10 @@ tt_result_t tt_param_bs4content_render(IN tt_param_bs4content_t *ct,
     tt_bool_t group0 = TT_TRUE;
 
     // only render content for directory
-    if (param->type != TT_PARAM_DIR) {
-        return TT_SUCCESS;
-    }
+    if (param->type != TT_PARAM_DIR) { return TT_SUCCESS; }
     dir = TT_PARAM_CAST(param, tt_param_dir_t);
 
-    TT_DO(tt_buf_putf(buf,
-                      __C_START,
-                      tt_param_name(param),
+    TT_DO(tt_buf_putf(buf, __C_START, tt_param_name(param),
                       TT_COND(ct->hide, "style=\"display:none\"", "")));
 
     // render child non-dir params
@@ -143,10 +134,7 @@ tt_result_t tt_param_bs4content_render(IN tt_param_bs4content_t *ct,
         }
     }
 
-    TT_DO(tt_buf_putf(buf,
-                      __BUTTONS,
-                      ct->btn_class,
-                      ct->btn_class,
+    TT_DO(tt_buf_putf(buf, __BUTTONS, ct->btn_class, ct->btn_class,
                       ct->btn_class));
 
     TT_DO(__PUT_CSTR(buf, __C_END));
@@ -154,10 +142,8 @@ tt_result_t tt_param_bs4content_render(IN tt_param_bs4content_t *ct,
     return TT_SUCCESS;
 }
 
-tt_result_t __render_dir(IN tt_param_bs4content_t *ct,
-                         IN tt_param_t *p,
-                         IN tt_param_bs4level_t lv,
-                         IN OUT tt_bool_t *group0,
+tt_result_t __render_dir(IN tt_param_bs4content_t *ct, IN tt_param_t *p,
+                         IN tt_param_bs4level_t lv, IN OUT tt_bool_t *group0,
                          OUT tt_buf_t *buf)
 {
     tt_param_dir_t *dir;
@@ -173,16 +159,11 @@ tt_result_t __render_dir(IN tt_param_bs4content_t *ct,
     }
 
     if ((ct->group0_class != NULL) && (ct->group1_class != NULL)) {
-        TT_DO(tt_buf_putf(buf,
-                          __GROUP_START,
-                          ct->group_class,
+        TT_DO(tt_buf_putf(buf, __GROUP_START, ct->group_class,
                           TT_COND(g0, ct->group0_class, ct->group1_class),
                           tt_param_name(p)));
     } else {
-        TT_DO(tt_buf_putf(buf,
-                          __GROUP_START,
-                          ct->group_class,
-                          "",
+        TT_DO(tt_buf_putf(buf, __GROUP_START, ct->group_class, "",
                           tt_param_name(p)));
     }
     *group0 = !g0;
@@ -207,16 +188,13 @@ tt_result_t __render_dir(IN tt_param_bs4content_t *ct,
     return TT_SUCCESS;
 }
 
-tt_bool_t __param_group_head(IN tt_param_dir_t *dir,
-                             OUT tt_param_t **pp1,
-                             OUT tt_param_t **pp2,
-                             IN tt_param_bs4level_t lv)
+tt_bool_t __param_group_head(IN tt_param_dir_t *dir, OUT tt_param_t **pp1,
+                             OUT tt_param_t **pp2, IN tt_param_bs4level_t lv)
 {
     return __param_pair(tt_param_dir_head(dir), pp1, pp2, lv);
 }
 
-tt_bool_t __param_group_next(IN OUT tt_param_t **pp1,
-                             IN OUT tt_param_t **pp2,
+tt_bool_t __param_group_next(IN OUT tt_param_t **pp1, IN OUT tt_param_t **pp2,
                              IN tt_param_bs4level_t lv)
 {
     tt_param_t *pos;
@@ -231,18 +209,14 @@ tt_bool_t __param_group_next(IN OUT tt_param_t **pp1,
     return __param_pair(pos, pp1, pp2, lv);
 }
 
-tt_bool_t __param_pair(IN tt_param_t *pos,
-                       IN OUT tt_param_t **pp1,
-                       OUT tt_param_t **pp2,
-                       IN tt_param_bs4level_t lv)
+tt_bool_t __param_pair(IN tt_param_t *pos, IN OUT tt_param_t **pp1,
+                       OUT tt_param_t **pp2, IN tt_param_bs4level_t lv)
 {
 #define __HIDDEN(p, lv) (tt_param_bs4display(p, lv) == TT_PARAM_BS4_DISP_HIDE)
 
     tt_param_t *p1, *p2;
 
-    if (pos == NULL) {
-        return TT_FALSE;
-    }
+    if (pos == NULL) { return TT_FALSE; }
 
     p1 = pos;
     TT_ASSERT(p1 != NULL);

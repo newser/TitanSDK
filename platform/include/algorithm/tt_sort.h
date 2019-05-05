@@ -50,9 +50,7 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_qsort(IN void *p,
-                        IN tt_u32_t obj_num,
-                        IN tt_u32_t obj_width,
+tt_inline void tt_qsort(IN void *p, IN tt_u32_t obj_num, IN tt_u32_t obj_width,
                         IN tt_cmp_t cmp)
 {
     typedef int (*compar_t)(const void *, const void *);

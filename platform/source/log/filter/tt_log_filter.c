@@ -54,14 +54,10 @@ tt_logfltr_t *tt_logfltr_create(IN tt_u32_t size, IN tt_logfltr_itf_t *itf)
 {
     tt_logfltr_t *lf;
 
-    if ((itf == NULL) || (itf->input == NULL)) {
-        return NULL;
-    }
+    if ((itf == NULL) || (itf->input == NULL)) { return NULL; }
 
     lf = tt_malloc(sizeof(tt_logfltr_t) + size);
-    if (lf == NULL) {
-        return NULL;
-    }
+    if (lf == NULL) { return NULL; }
 
     lf->itf = itf;
     tt_ptrq_init(&lf->io_q, NULL);
@@ -74,13 +70,9 @@ void __logfltr_destroy(IN tt_logfltr_t *lf)
 {
     tt_logio_t *lio;
 
-    if (lf == NULL) {
-        return;
-    }
+    if (lf == NULL) { return; }
 
-    if (lf->itf->destroy != NULL) {
-        lf->itf->destroy(lf);
-    }
+    if (lf->itf->destroy != NULL) { lf->itf->destroy(lf); }
 
     while ((lio = (tt_logio_t *)tt_ptrq_pop_head(&lf->io_q)) != NULL) {
         tt_logio_release(lio);
@@ -93,9 +85,7 @@ void __logfltr_destroy(IN tt_logfltr_t *lf)
 tt_result_t tt_logfltr_append_io(IN tt_logfltr_t *lf,
                                  IN TO struct tt_logio_s *lio)
 {
-    if ((lf == NULL) || (lio == NULL)) {
-        return TT_E_BADARG;
-    }
+    if ((lf == NULL) || (lio == NULL)) { return TT_E_BADARG; }
 
     if (TT_OK(tt_ptrq_push_tail(&lf->io_q, lio))) {
         tt_logio_ref(lio);
@@ -105,8 +95,7 @@ tt_result_t tt_logfltr_append_io(IN tt_logfltr_t *lf,
     }
 }
 
-tt_u32_t tt_logfltr_input(IN tt_logfltr_t *lf,
-                          IN tt_log_entry_t *entry,
+tt_u32_t tt_logfltr_input(IN tt_logfltr_t *lf, IN tt_log_entry_t *entry,
                           IN OUT tt_buf_t *buf)
 {
     tt_u32_t io = lf->itf->input(lf, entry, buf);
@@ -117,8 +106,7 @@ tt_u32_t tt_logfltr_input(IN tt_logfltr_t *lf,
 
         tt_ptrq_iter(&lf->io_q, &i);
         while ((lio = (tt_logio_t *)tt_ptrq_iter_next(&i)) != NULL) {
-            tt_logio_output(lio,
-                            (tt_char_t *)TT_BUF_RPOS(buf),
+            tt_logio_output(lio, (tt_char_t *)TT_BUF_RPOS(buf),
                             TT_BUF_RLEN(buf));
         }
     }

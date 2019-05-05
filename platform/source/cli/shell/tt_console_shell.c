@@ -41,10 +41,8 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __csh_send(IN struct tt_cli_s *cli,
-                              IN void *param,
-                              IN tt_u8_t *ev,
-                              IN tt_u32_t ev_num);
+static tt_result_t __csh_send(IN struct tt_cli_s *cli, IN void *param,
+                              IN tt_u8_t *ev, IN tt_u32_t ev_num);
 
 static tt_cli_itf_t __csh_itf = {
     NULL,
@@ -56,16 +54,14 @@ static tt_cli_itf_t __csh_itf = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __csh_ev_handler(IN void *param,
-                                    IN tt_cons_ev_t ev,
+static tt_result_t __csh_ev_handler(IN void *param, IN tt_cons_ev_t ev,
                                     IN tt_cons_ev_data_t *ev_data);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_console_sh_create(IN tt_shell_t *sh,
-                                 IN tt_cli_mode_t mode,
+tt_result_t tt_console_sh_create(IN tt_shell_t *sh, IN tt_cli_mode_t mode,
                                  IN OPT tt_sh_attr_t *attr)
 {
     return tt_sh_create(sh, tt_g_param_root, mode, &__csh_itf, attr);
@@ -82,9 +78,7 @@ tt_result_t tt_console_sh_run(IN tt_shell_t *sh, IN tt_bool_t local)
     return TT_SUCCESS;
 }
 
-tt_result_t __csh_send(IN struct tt_cli_s *cli,
-                       IN void *param,
-                       IN tt_u8_t *ev,
+tt_result_t __csh_send(IN struct tt_cli_s *cli, IN void *param, IN tt_u8_t *ev,
                        IN tt_u32_t ev_num)
 {
     tt_u32_t i;
@@ -95,9 +89,7 @@ tt_result_t __csh_send(IN struct tt_cli_s *cli,
         if (TT_CLI_EV_VALID(e)) {
             switch (e) {
 #define __EVMAP(from, to)                                                      \
-    case from:                                                                 \
-        ev[i] = to;                                                            \
-        break
+    case from: ev[i] = to; break
                 __EVMAP(TT_CLI_EV_UP, TT_CONS_EXTKEY_UP);
                 __EVMAP(TT_CLI_EV_DOWN, TT_CONS_EXTKEY_DOWN);
                 __EVMAP(TT_CLI_EV_RIGHT, TT_CONS_EXTKEY_RIGHT);
@@ -108,8 +100,7 @@ tt_result_t __csh_send(IN struct tt_cli_s *cli,
                 __EVMAP(TT_CLI_EV_ENTER, TT_CONS_EXTKEY_CRLF);
                 __EVMAP(TT_CLI_EV_TAB, TT_CONS_EXTKEY_TAB);
 #undef __EVMAP
-                default:
-                    break;
+            default: break;
             }
         }
     }
@@ -119,8 +110,7 @@ tt_result_t __csh_send(IN struct tt_cli_s *cli,
     return tt_console_send(TT_CONS_EV_KEY, &ev_data);
 }
 
-tt_result_t __csh_ev_handler(IN void *param,
-                             IN tt_cons_ev_t ev,
+tt_result_t __csh_ev_handler(IN void *param, IN tt_cons_ev_t ev,
                              IN tt_cons_ev_data_t *ev_data)
 {
     tt_cons_ev_key_t *ev_key;
@@ -128,9 +118,7 @@ tt_result_t __csh_ev_handler(IN void *param,
     tt_shell_t *sh = (tt_shell_t *)param;
     tt_cli_t *cli = &sh->cli;
 
-    if (ev != TT_CONS_EV_KEY) {
-        return TT_SUCCESS;
-    }
+    if (ev != TT_CONS_EV_KEY) { return TT_SUCCESS; }
 
     ev_key = &ev_data->key;
     for (i = 0; i < ev_key->key_num; ++i) {
@@ -138,9 +126,7 @@ tt_result_t __csh_ev_handler(IN void *param,
         if (TT_CONS_KEY_IS_EXTENDED(k)) {
             switch (k) {
 #define __EVMAP(from, to)                                                      \
-    case from:                                                                 \
-        ev_key->key[i] = to;                                                   \
-        break
+    case from: ev_key->key[i] = to; break
                 __EVMAP(TT_CONS_EXTKEY_UP, TT_CLI_EV_UP);
                 __EVMAP(TT_CONS_EXTKEY_DOWN, TT_CLI_EV_DOWN);
                 __EVMAP(TT_CONS_EXTKEY_RIGHT, TT_CLI_EV_RIGHT);
@@ -151,8 +137,7 @@ tt_result_t __csh_ev_handler(IN void *param,
                 __EVMAP(TT_CONS_EXTKEY_CRLF, TT_CLI_EV_ENTER);
                 __EVMAP(TT_CONS_EXTKEY_TAB, TT_CLI_EV_TAB);
 #undef __EVMAP
-                default:
-                    break;
+            default: break;
             }
         }
     }

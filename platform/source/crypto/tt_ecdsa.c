@@ -104,9 +104,7 @@ tt_result_t tt_ecdsa_generate(IN tt_ecdsa_t *dsa, IN tt_ecgrp_t g)
 
     ctx = &dsa->ctx;
 
-    e = mbedtls_ecdsa_genkey(ctx,
-                             tt_g_ecgrp_map[g],
-                             tt_ctr_drbg,
+    e = mbedtls_ecdsa_genkey(ctx, tt_g_ecgrp_map[g], tt_ctr_drbg,
                              tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to generate ecdsa");
@@ -116,12 +114,9 @@ tt_result_t tt_ecdsa_generate(IN tt_ecdsa_t *dsa, IN tt_ecgrp_t g)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa,
-                          IN tt_u8_t *input,
-                          IN tt_u32_t len,
-                          IN tt_md_type_t md_type,
-                          IN tt_md_type_t sig_md,
-                          OUT tt_u8_t *sig,
+tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa, IN tt_u8_t *input,
+                          IN tt_u32_t len, IN tt_md_type_t md_type,
+                          IN tt_md_type_t sig_md, OUT tt_u8_t *sig,
                           IN OUT tt_u32_t *sig_len)
 {
     mbedtls_ecdsa_context *ctx = &dsa->ctx;
@@ -137,13 +132,8 @@ tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa,
     mbedtls_md(md_type_info, input, len, hash);
     hashlen = mbedtls_md_get_size(md_type_info);
 
-    e = mbedtls_ecdsa_write_signature(ctx,
-                                      tt_g_md_type_map[sig_md],
-                                      hash,
-                                      hashlen,
-                                      sig,
-                                      &slen,
-                                      tt_ctr_drbg,
+    e = mbedtls_ecdsa_write_signature(ctx, tt_g_md_type_map[sig_md], hash,
+                                      hashlen, sig, &slen, tt_ctr_drbg,
                                       tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("ecdsa sign failed");
@@ -154,12 +144,9 @@ tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ecdsa_verify(IN tt_ecdsa_t *dsa,
-                            IN tt_u8_t *input,
-                            IN tt_u32_t len,
-                            IN tt_md_type_t md_type,
-                            IN tt_u8_t *sig,
-                            IN tt_u32_t sig_len)
+tt_result_t tt_ecdsa_verify(IN tt_ecdsa_t *dsa, IN tt_u8_t *input,
+                            IN tt_u32_t len, IN tt_md_type_t md_type,
+                            IN tt_u8_t *sig, IN tt_u32_t sig_len)
 {
     mbedtls_ecdsa_context *ctx = &dsa->ctx;
     mbedtls_md_type_t t;

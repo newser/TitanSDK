@@ -43,19 +43,19 @@
 
 static void __r_auth_destroy(IN tt_http_rule_t *r);
 
-static tt_bool_t __r_auth_match(IN tt_http_rule_t *r,
-                                IN tt_http_uri_t *uri,
+static tt_bool_t __r_auth_match(IN tt_http_rule_t *r, IN tt_http_uri_t *uri,
                                 IN tt_string_t *path,
                                 IN tt_http_inserv_host_ctx_t *ctx);
 
-static tt_http_rule_result_t __r_auth_pre(IN tt_http_rule_t *r,
-                                          IN OUT tt_http_uri_t *uri,
-                                          IN OUT tt_string_t *path,
-                                          IN OUT
-                                              tt_http_inserv_host_ctx_t *ctx);
+static tt_http_rule_result_t __r_auth_pre(
+    IN tt_http_rule_t *r, IN OUT tt_http_uri_t *uri, IN OUT tt_string_t *path,
+    IN OUT tt_http_inserv_host_ctx_t *ctx);
 
 static tt_http_rule_itf_t __r_auth_itf = {
-    __r_auth_destroy, __r_auth_match, __r_auth_pre, NULL,
+    __r_auth_destroy,
+    __r_auth_match,
+    __r_auth_pre,
+    NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -78,11 +78,8 @@ tt_http_rule_t *tt_http_rule_auth_create_n(IN const tt_char_t *prefix,
     TT_ASSERT((auth != NULL) && (auth->type == TT_HTTP_INSERV_AUTH));
 
     r = tt_http_rule_create(sizeof(tt_http_rule_auth_t) + prefix_len,
-                            &__r_auth_itf,
-                            TT_HTTP_RULE_NEXT);
-    if (r == NULL) {
-        return NULL;
-    }
+                            &__r_auth_itf, TT_HTTP_RULE_NEXT);
+    if (r == NULL) { return NULL; }
 
     ra = TT_HTTP_RULE_CAST(r, tt_http_rule_auth_t);
 
@@ -104,8 +101,7 @@ void __r_auth_destroy(IN tt_http_rule_t *r)
     tt_http_inserv_release(ra->auth);
 }
 
-tt_bool_t __r_auth_match(IN tt_http_rule_t *r,
-                         IN tt_http_uri_t *uri,
+tt_bool_t __r_auth_match(IN tt_http_rule_t *r, IN tt_http_uri_t *uri,
                          IN tt_string_t *path,
                          IN tt_http_inserv_host_ctx_t *ctx)
 {

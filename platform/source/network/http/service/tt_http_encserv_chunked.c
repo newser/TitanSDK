@@ -56,8 +56,7 @@ static tt_result_t __s_chunked_post_body(IN tt_http_encserv_t *s,
                                          IN OUT tt_buf_t *input,
                                          OUT tt_buf_t **output);
 
-static tt_http_encserv_cb_t s_chunked_cb = {NULL,
-                                            __s_chunked_on_body,
+static tt_http_encserv_cb_t s_chunked_cb = {NULL, __s_chunked_on_body,
                                             __s_chunked_post_body};
 
 ////////////////////////////////////////////////////////////
@@ -72,9 +71,7 @@ tt_result_t tt_http_encserv_chunked_component_init(
     IN struct tt_component_s *comp, IN struct tt_profile_s *profile)
 {
     tt_g_http_encserv_chunked = tt_http_encserv_chunked_create();
-    if (tt_g_http_encserv_chunked == NULL) {
-        return TT_FAIL;
-    }
+    if (tt_g_http_encserv_chunked == NULL) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -92,8 +89,7 @@ tt_http_encserv_t *tt_http_encserv_chunked_create()
 tt_result_t __s_chunked_on_body(IN tt_http_encserv_t *s,
                                 IN struct tt_http_parser_s *req,
                                 IN struct tt_http_resp_render_s *resp,
-                                IN OUT tt_buf_t *input,
-                                OUT tt_buf_t **output)
+                                IN OUT tt_buf_t *input, OUT tt_buf_t **output)
 {
     tt_char_t tmp[20] = {0};
 
@@ -110,8 +106,7 @@ tt_result_t __s_chunked_on_body(IN tt_http_encserv_t *s,
 tt_result_t __s_chunked_post_body(IN tt_http_encserv_t *s,
                                   IN struct tt_http_parser_s *req,
                                   IN struct tt_http_resp_render_s *resp,
-                                  IN OUT tt_buf_t *input,
-                                  OUT tt_buf_t **output)
+                                  IN OUT tt_buf_t *input, OUT tt_buf_t **output)
 {
     TT_DO(tt_buf_put_head(input, (tt_u8_t *)"0\r\n\r\n", 5));
 

@@ -91,33 +91,27 @@ tt_export void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param);
 
 #ifdef TT_MEMORY_TAG_ENABLE
 
-tt_export void *tt_malloc_tag(IN size_t size,
-                              IN const tt_char_t *file,
+tt_export void *tt_malloc_tag(IN size_t size, IN const tt_char_t *file,
                               IN const tt_char_t *function,
                               IN const tt_u32_t line);
 
 tt_export void tt_free_tag(IN void *p);
 
-tt_export void *tt_realloc_tag(IN OPT void *ptr,
-                               IN size_t size,
+tt_export void *tt_realloc_tag(IN OPT void *ptr, IN size_t size,
                                IN const tt_char_t *file,
                                IN const tt_char_t *function,
                                IN const tt_u32_t line);
 
-tt_inline void *tt_zalloc_tag(IN tt_size_t size,
-                              IN const tt_char_t *file,
+tt_inline void *tt_zalloc_tag(IN tt_size_t size, IN const tt_char_t *file,
                               IN const tt_char_t *function,
                               IN const tt_u32_t line)
 {
     void *p = tt_malloc_tag(size, file, function, line);
-    if (p != NULL) {
-        tt_memset(p, 0, size);
-    }
+    if (p != NULL) { tt_memset(p, 0, size); }
     return p;
 }
 
-tt_inline void *tt_xmalloc_tag(IN size_t size,
-                               IN const tt_char_t *file,
+tt_inline void *tt_xmalloc_tag(IN size_t size, IN const tt_char_t *file,
                                IN const tt_char_t *function,
                                IN const tt_u32_t line)
 {
@@ -135,9 +129,7 @@ tt_export void *tt_realloc_tag(IN OPT void *ptr, IN size_t size);
 tt_inline void *tt_zalloc_tag(IN tt_size_t size)
 {
     void *p = tt_malloc_tag(size);
-    if (p != NULL) {
-        tt_memset(p, 0, size);
-    }
+    if (p != NULL) { tt_memset(p, 0, size); }
     return p;
 }
 

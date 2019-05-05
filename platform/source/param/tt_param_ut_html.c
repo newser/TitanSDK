@@ -68,24 +68,12 @@ TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_ctrl_render)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(param_html_case)
 
-TT_TEST_CASE("case_param_html_bs4_nav",
-             "param html: nav",
-             case_param_html_bs4_nav,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_param_html_bs4_nav", "param html: nav",
+             case_param_html_bs4_nav, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_param_html_bs4_sidebar",
-                 "param html: sidebar",
-                 case_param_html_bs4_sidebar,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_html_bs4_sidebar", "param html: sidebar",
+                 case_param_html_bs4_sidebar, NULL, NULL, NULL, NULL, NULL),
 
 #if 0
     TT_TEST_CASE("case_param_html_bs4_content",
@@ -98,41 +86,18 @@ TT_TEST_CASE("case_param_html_bs4_nav",
                  NULL),
 #endif
 
-    TT_TEST_CASE("case_param_html_bs4_page",
-                 "param html: page",
-                 case_param_html_bs4_page,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_html_bs4_page", "param html: page",
+                 case_param_html_bs4_page, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_param_html_bs4_spa",
-                 "param html: single page app",
-                 case_param_html_bs4_spa,
-                 NULL,
-                 __ut_html_spa_enter,
-                 NULL,
-                 __ut_html_spa_exit,
-                 NULL),
+    TT_TEST_CASE("case_param_html_bs4_spa", "param html: single page app",
+                 case_param_html_bs4_spa, NULL, __ut_html_spa_enter, NULL,
+                 __ut_html_spa_exit, NULL),
 
-    TT_TEST_CASE("case_param_html_bs4_ctrl",
-                 "param html: contrl",
-                 case_param_html_bs4_ctrl,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_html_bs4_ctrl", "param html: contrl",
+                 case_param_html_bs4_ctrl, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_param_html_bs4_ctrl_render",
-                 "param html: contrl render",
-                 case_param_html_bs4_ctrl_render,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_html_bs4_ctrl_render", "param html: contrl render",
+                 case_param_html_bs4_ctrl_render, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(param_html_case)
     // =========================================
@@ -427,7 +392,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_content)
     tt_param_dir_add(TT_PARAM_CAST(pm, tt_param_dir_t), d2);
     tt_buf_clear(&b);
     TT_UT_SUCCESS(tt_param_bs4content_render(&h, pm, lv, &b), "");
-// TT_UT_EQUAL(tt_buf_cmp_cstr(&b, __c4_xx), 0, "");
+    // TT_UT_EQUAL(tt_buf_cmp_cstr(&b, __c4_xx), 0, "");
 
 #define __c5_2dir                                                              \
     "<div class=\"col-md-10 px-4\"><div class=\"container-fluid "              \
@@ -550,18 +515,12 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
 
     tt_param_bs4page_init(&pg);
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4page_render(&pg,
-                                          pm,
-                                          p1,
-                                          TT_PARAM_BS4_LV_USER,
+    TT_UT_SUCCESS(tt_param_bs4page_render(&pg, pm, p1, TT_PARAM_BS4_LV_USER,
                                           &b),
                   "");
 
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4page_render(&pg,
-                                          pm,
-                                          p1,
-                                          TT_PARAM_BS4_LV_ADMIN,
+    TT_UT_SUCCESS(tt_param_bs4page_render(&pg, pm, p1, TT_PARAM_BS4_LV_ADMIN,
                                           &b),
                   "");
 
@@ -570,10 +529,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
     pg.js_extra = "<script src=\"/js/tt.js\"></script>";
     pg.content.hide = TT_TRUE;
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4page_render(&pg,
-                                          pm,
-                                          p1,
-                                          TT_PARAM_BS4_LV_ADMIN,
+    TT_UT_SUCCESS(tt_param_bs4page_render(&pg, pm, p1, TT_PARAM_BS4_LV_ADMIN,
                                           &b),
                   "");
 
@@ -669,9 +625,7 @@ void __ut_html_spa_enter(void *enter_param)
 
 void __ut_html_spa_exit(void *enter_param)
 {
-    if (__html_spa_param != NULL) {
-        tt_param_destroy(__html_spa_param);
-    }
+    if (__html_spa_param != NULL) { tt_param_destroy(__html_spa_param); }
 
     tt_string_destroy(&val_str);
 }
@@ -822,11 +776,8 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl_render)
     tt_param_bs4input_set_step(i, 1);
 
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4ctrl_render_pair(&ct,
-                                               p1,
-                                               p2,
-                                               TT_PARAM_BS4_LV_ADMIN,
-                                               &b),
+    TT_UT_SUCCESS(tt_param_bs4ctrl_render_pair(&ct, p1, p2,
+                                               TT_PARAM_BS4_LV_ADMIN, &b),
                   "");
     tt_buf_put_u8(&b, 0);
     s = (tt_char_t *)TT_BUF_RPOS(&b);
@@ -872,9 +823,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl_render)
         tt_param_bs4select_set_option(sl, opt_val, opt, 3);
 
         tt_buf_clear(&b);
-        TT_UT_SUCCESS(tt_param_bs4ctrl_render(&ct,
-                                              p2,
-                                              TT_PARAM_BS4_LV_ADMIN,
+        TT_UT_SUCCESS(tt_param_bs4ctrl_render(&ct, p2, TT_PARAM_BS4_LV_ADMIN,
                                               &b),
                       NULL);
         tt_buf_put_u8(&b, 0);
@@ -894,9 +843,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl_render)
         ta = &p2->bs4_ctrl.textarea;
 
         tt_buf_clear(&b);
-        TT_UT_SUCCESS(tt_param_bs4ctrl_render(&ct,
-                                              p2,
-                                              TT_PARAM_BS4_LV_ADMIN,
+        TT_UT_SUCCESS(tt_param_bs4ctrl_render(&ct, p2, TT_PARAM_BS4_LV_ADMIN,
                                               &b),
                       NULL);
         tt_buf_put_u8(&b, 0);
@@ -906,9 +853,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl_render)
 
         tt_param_bs4textarea_set_rows(ta, 255);
         tt_buf_clear(&b);
-        TT_UT_SUCCESS(tt_param_bs4ctrl_render(&ct,
-                                              p2,
-                                              TT_PARAM_BS4_LV_ADMIN,
+        TT_UT_SUCCESS(tt_param_bs4ctrl_render(&ct, p2, TT_PARAM_BS4_LV_ADMIN,
                                               &b),
                       NULL);
         tt_buf_put_u8(&b, 0);

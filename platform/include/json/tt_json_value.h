@@ -152,25 +152,19 @@ tt_export void tt_jval_set_double(IN tt_jval_t *jv, IN tt_double_t val);
 // string
 // ========================================
 
-tt_export void tt_jval_init_strn(IN tt_jval_t *jv,
-                                 IN const tt_char_t *val,
-                                 IN tt_u32_t len,
-                                 IN struct tt_jdoc_s *jd);
+tt_export void tt_jval_init_strn(IN tt_jval_t *jv, IN const tt_char_t *val,
+                                 IN tt_u32_t len, IN struct tt_jdoc_s *jd);
 
-tt_inline void tt_jval_init_str(IN tt_jval_t *jv,
-                                IN const tt_char_t *val,
+tt_inline void tt_jval_init_str(IN tt_jval_t *jv, IN const tt_char_t *val,
                                 IN struct tt_jdoc_s *jd)
 {
     tt_jval_init_strn(jv, val, (tt_u32_t)tt_strlen(val), jd);
 }
 
-tt_export void tt_jval_create_strn(IN tt_jval_t *jv,
-                                   IN const tt_char_t *val,
-                                   IN tt_u32_t len,
-                                   IN struct tt_jdoc_s *jd);
+tt_export void tt_jval_create_strn(IN tt_jval_t *jv, IN const tt_char_t *val,
+                                   IN tt_u32_t len, IN struct tt_jdoc_s *jd);
 
-tt_inline void tt_jval_create_str(IN tt_jval_t *jv,
-                                  IN const tt_char_t *val,
+tt_inline void tt_jval_create_str(IN tt_jval_t *jv, IN const tt_char_t *val,
                                   IN struct tt_jdoc_s *jd)
 {
     tt_jval_create_strn(jv, val, (tt_u32_t)tt_strlen(val), jd);
@@ -180,8 +174,7 @@ tt_export tt_bool_t tt_jval_is_str(IN tt_jval_t *jv);
 
 tt_export const tt_char_t *tt_jval_get_str(IN tt_jval_t *jv);
 
-tt_export void tt_jval_set_strn(IN tt_jval_t *jv,
-                                IN const tt_char_t *val,
+tt_export void tt_jval_set_strn(IN tt_jval_t *jv, IN const tt_char_t *val,
                                 IN tt_u32_t len);
 
 tt_inline void tt_jval_set_str(IN tt_jval_t *jv, IN const tt_char_t *val)
@@ -189,13 +182,10 @@ tt_inline void tt_jval_set_str(IN tt_jval_t *jv, IN const tt_char_t *val)
     tt_jval_set_strn(jv, val, (tt_u32_t)tt_strlen(val));
 }
 
-tt_export void tt_jval_copy_strn(IN tt_jval_t *jv,
-                                 IN const tt_char_t *val,
-                                 IN tt_u32_t len,
-                                 IN struct tt_jdoc_s *jd);
+tt_export void tt_jval_copy_strn(IN tt_jval_t *jv, IN const tt_char_t *val,
+                                 IN tt_u32_t len, IN struct tt_jdoc_s *jd);
 
-tt_inline void tt_jval_copy_str(IN tt_jval_t *jv,
-                                IN const tt_char_t *val,
+tt_inline void tt_jval_copy_str(IN tt_jval_t *jv, IN const tt_char_t *val,
                                 IN struct tt_jdoc_s *jd)
 {
     tt_jval_copy_strn(jv, val, (tt_u32_t)tt_strlen(val), jd);
@@ -219,12 +209,10 @@ tt_export tt_u32_t tt_jarray_count(IN tt_jval_t *jv);
 
 tt_export tt_u32_t tt_jarray_capacity(IN tt_jval_t *jv);
 
-tt_export void tt_jarray_reserve(IN tt_jval_t *jv,
-                                 IN tt_u32_t num,
+tt_export void tt_jarray_reserve(IN tt_jval_t *jv, IN tt_u32_t num,
                                  IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jarray_push(IN tt_jval_t *jv,
-                              IN TO tt_jval_t *val,
+tt_export void tt_jarray_push(IN tt_jval_t *jv, IN TO tt_jval_t *val,
                               IN struct tt_jdoc_s *jd);
 
 tt_export void tt_jarray_pop(IN tt_jval_t *jv);
@@ -242,40 +230,30 @@ tt_export void tt_jarray_remove(IN tt_jval_t *jv,
 
 tt_export void tt_jarray_push_null(IN tt_jval_t *jv, IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jarray_push_bool(IN tt_jval_t *jv,
-                                   IN tt_bool_t val,
+tt_export void tt_jarray_push_bool(IN tt_jval_t *jv, IN tt_bool_t val,
                                    IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jarray_push_u32(IN tt_jval_t *jv,
-                                  IN tt_u32_t val,
+tt_export void tt_jarray_push_u32(IN tt_jval_t *jv, IN tt_u32_t val,
                                   IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jarray_push_s32(IN tt_jval_t *jv,
-                                  IN tt_s32_t val,
+tt_export void tt_jarray_push_s32(IN tt_jval_t *jv, IN tt_s32_t val,
                                   IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jarray_push_u64(IN tt_jval_t *jv,
-                                  IN tt_u64_t val,
+tt_export void tt_jarray_push_u64(IN tt_jval_t *jv, IN tt_u64_t val,
                                   IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jarray_push_s64(IN tt_jval_t *jv,
-                                  IN tt_s64_t val,
+tt_export void tt_jarray_push_s64(IN tt_jval_t *jv, IN tt_s64_t val,
                                   IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jarray_push_double(IN tt_jval_t *jv,
-                                     IN tt_double_t val,
+tt_export void tt_jarray_push_double(IN tt_jval_t *jv, IN tt_double_t val,
                                      IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jarray_push_strn(IN tt_jval_t *jv,
-                                   IN const tt_char_t *val,
-                                   IN tt_u32_t len,
-                                   IN tt_bool_t copy,
+tt_export void tt_jarray_push_strn(IN tt_jval_t *jv, IN const tt_char_t *val,
+                                   IN tt_u32_t len, IN tt_bool_t copy,
                                    IN struct tt_jdoc_s *jd);
 
-tt_inline void tt_jarray_push_str(IN tt_jval_t *jv,
-                                  IN const tt_char_t *val,
-                                  IN tt_bool_t copy,
-                                  IN struct tt_jdoc_s *jd)
+tt_inline void tt_jarray_push_str(IN tt_jval_t *jv, IN const tt_char_t *val,
+                                  IN tt_bool_t copy, IN struct tt_jdoc_s *jd)
 {
     tt_jarray_push_strn(jv, val, (tt_u32_t)tt_strlen(val), copy, jd);
 }
@@ -298,82 +276,52 @@ tt_export tt_u32_t tt_jobj_member_count(IN tt_jval_t *jv);
 
 tt_export tt_u32_t tt_jobj_capacity(IN tt_jval_t *jv);
 
-tt_export void tt_jobj_reserve(IN tt_jval_t *jv,
-                               IN tt_u32_t num,
+tt_export void tt_jobj_reserve(IN tt_jval_t *jv, IN tt_u32_t num,
                                IN struct tt_jdoc_s *jd);
 
 tt_export tt_jval_t *tt_jobj_find(IN tt_jval_t *jv, IN const tt_char_t *name);
 
 tt_export tt_bool_t tt_jobj_contain(IN tt_jval_t *jv, IN const tt_char_t *name);
 
-tt_export void tt_jobj_add(IN tt_jval_t *jv,
-                           IN const tt_char_t *name,
-                           IN tt_u32_t name_len,
-                           IN tt_bool_t copy_name,
-                           IN TO tt_jval_t *val,
-                           IN struct tt_jdoc_s *jd);
+tt_export void tt_jobj_add(IN tt_jval_t *jv, IN const tt_char_t *name,
+                           IN tt_u32_t name_len, IN tt_bool_t copy_name,
+                           IN TO tt_jval_t *val, IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jobj_add_nv(IN tt_jval_t *jv,
-                              IN TO tt_jval_t *name,
-                              IN TO tt_jval_t *val,
-                              IN struct tt_jdoc_s *jd);
+tt_export void tt_jobj_add_nv(IN tt_jval_t *jv, IN TO tt_jval_t *name,
+                              IN TO tt_jval_t *val, IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jobj_add_null(IN tt_jval_t *jv,
-                                IN const tt_char_t *name,
-                                IN tt_u32_t name_len,
-                                IN tt_bool_t copy_name,
+tt_export void tt_jobj_add_null(IN tt_jval_t *jv, IN const tt_char_t *name,
+                                IN tt_u32_t name_len, IN tt_bool_t copy_name,
                                 IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jobj_add_bool(IN tt_jval_t *jv,
-                                IN const tt_char_t *name,
-                                IN tt_u32_t name_len,
-                                IN tt_bool_t copy_name,
-                                IN tt_bool_t val,
-                                IN struct tt_jdoc_s *jd);
+tt_export void tt_jobj_add_bool(IN tt_jval_t *jv, IN const tt_char_t *name,
+                                IN tt_u32_t name_len, IN tt_bool_t copy_name,
+                                IN tt_bool_t val, IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jobj_add_u32(IN tt_jval_t *jv,
-                               IN const tt_char_t *name,
-                               IN tt_u32_t name_len,
-                               IN tt_bool_t copy_name,
-                               IN tt_u32_t val,
-                               IN struct tt_jdoc_s *jd);
+tt_export void tt_jobj_add_u32(IN tt_jval_t *jv, IN const tt_char_t *name,
+                               IN tt_u32_t name_len, IN tt_bool_t copy_name,
+                               IN tt_u32_t val, IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jobj_add_s32(IN tt_jval_t *jv,
-                               IN const tt_char_t *name,
-                               IN tt_u32_t name_len,
-                               IN tt_bool_t copy_name,
-                               IN tt_s32_t val,
-                               IN struct tt_jdoc_s *jd);
+tt_export void tt_jobj_add_s32(IN tt_jval_t *jv, IN const tt_char_t *name,
+                               IN tt_u32_t name_len, IN tt_bool_t copy_name,
+                               IN tt_s32_t val, IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jobj_add_u64(IN tt_jval_t *jv,
-                               IN const tt_char_t *name,
-                               IN tt_u32_t name_len,
-                               IN tt_bool_t copy_name,
-                               IN tt_u64_t val,
-                               IN struct tt_jdoc_s *jd);
+tt_export void tt_jobj_add_u64(IN tt_jval_t *jv, IN const tt_char_t *name,
+                               IN tt_u32_t name_len, IN tt_bool_t copy_name,
+                               IN tt_u64_t val, IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jobj_add_s64(IN tt_jval_t *jv,
-                               IN const tt_char_t *name,
-                               IN tt_u32_t name_len,
-                               IN tt_bool_t copy_name,
-                               IN tt_s64_t val,
-                               IN struct tt_jdoc_s *jd);
+tt_export void tt_jobj_add_s64(IN tt_jval_t *jv, IN const tt_char_t *name,
+                               IN tt_u32_t name_len, IN tt_bool_t copy_name,
+                               IN tt_s64_t val, IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jobj_add_double(IN tt_jval_t *jv,
-                                  IN const tt_char_t *name,
-                                  IN tt_u32_t name_len,
-                                  IN tt_bool_t copy_name,
-                                  IN tt_double_t val,
-                                  IN struct tt_jdoc_s *jd);
+tt_export void tt_jobj_add_double(IN tt_jval_t *jv, IN const tt_char_t *name,
+                                  IN tt_u32_t name_len, IN tt_bool_t copy_name,
+                                  IN tt_double_t val, IN struct tt_jdoc_s *jd);
 
-tt_export void tt_jobj_add_strn(IN tt_jval_t *jv,
-                                IN const tt_char_t *name,
-                                IN tt_u32_t name_len,
-                                IN tt_bool_t copy_name,
-                                IN const tt_char_t *val,
-                                IN tt_u32_t val_len,
-                                IN tt_bool_t copy_val,
-                                IN struct tt_jdoc_s *jd);
+tt_export void tt_jobj_add_strn(IN tt_jval_t *jv, IN const tt_char_t *name,
+                                IN tt_u32_t name_len, IN tt_bool_t copy_name,
+                                IN const tt_char_t *val, IN tt_u32_t val_len,
+                                IN tt_bool_t copy_val, IN struct tt_jdoc_s *jd);
 
 tt_export void tt_jobj_remove(IN tt_jval_t *jv, IN const tt_char_t *name);
 

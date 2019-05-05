@@ -80,8 +80,7 @@ tt_export void tt_cline_destroy(IN tt_cline_t *cline);
 
 tt_export void tt_cline_attr_default(IN tt_cline_attr_t *attr);
 
-tt_export tt_result_t tt_cline_input(IN tt_cline_t *cline,
-                                     IN tt_u8_t *ev,
+tt_export tt_result_t tt_cline_input(IN tt_cline_t *cline, IN tt_u8_t *ev,
                                      IN tt_u32_t ev_num);
 
 tt_inline tt_result_t tt_cline_input_ev(IN tt_cline_t *cline, IN tt_u8_t ev)

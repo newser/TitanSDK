@@ -44,8 +44,7 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __contenc_parse(IN tt_http_hdr_t *h,
-                                   IN const tt_char_t *val,
+static tt_result_t __contenc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                                    IN tt_u32_t len);
 
 static tt_u32_t __contenc_render_len(IN tt_http_hdr_t *h);
@@ -70,19 +69,14 @@ tt_http_hdr_t *tt_http_hdr_contenc_create()
     __hdr_contenc_t *hc;
     tt_u32_t i;
 
-    h = tt_http_hdr_create_cs(sizeof(__hdr_contenc_t),
-                              TT_HTTP_HDR_CONTENC,
+    h = tt_http_hdr_create_cs(sizeof(__hdr_contenc_t), TT_HTTP_HDR_CONTENC,
                               &__contenc_itf);
-    if (h == NULL) {
-        return NULL;
-    }
+    if (h == NULL) { return NULL; }
 
     hc = TT_HTTP_HDR_CAST(h, __hdr_contenc_t);
 
     hc->enc_num = 0;
-    for (i = 0; i < TT_HTTP_ENC_NUM; ++i) {
-        hc->enc[i] = TT_HTTP_ENC_NUM;
-    }
+    for (i = 0; i < TT_HTTP_ENC_NUM; ++i) { hc->enc[i] = TT_HTTP_ENC_NUM; }
 
     return h;
 }
@@ -94,14 +88,11 @@ tt_u32_t tt_http_hdr_contenc_get(IN tt_http_hdr_t *h, OUT tt_u8_t *contenc)
 
     TT_ASSERT(h->name == TT_HTTP_HDR_CONTENC);
 
-    for (i = 0; i < hc->enc_num; ++i) {
-        contenc[i] = (tt_u8_t)hc->enc[i];
-    }
+    for (i = 0; i < hc->enc_num; ++i) { contenc[i] = (tt_u8_t)hc->enc[i]; }
     return hc->enc_num;
 }
 
-void tt_http_hdr_contenc_set(IN tt_http_hdr_t *h,
-                             IN tt_http_enc_t *contenc,
+void tt_http_hdr_contenc_set(IN tt_http_hdr_t *h, IN tt_http_enc_t *contenc,
                              IN tt_u32_t num)
 {
     __hdr_contenc_t *hc = TT_HTTP_HDR_CAST(h, __hdr_contenc_t);
@@ -110,14 +101,11 @@ void tt_http_hdr_contenc_set(IN tt_http_hdr_t *h,
     TT_ASSERT(h->name == TT_HTTP_HDR_CONTENC);
     TT_ASSERT(num <= TT_HTTP_ENC_NUM);
 
-    for (i = 0; i < num; ++i) {
-        hc->enc[i] = (tt_u8_t)contenc[i];
-    }
+    for (i = 0; i < num; ++i) { hc->enc[i] = (tt_u8_t)contenc[i]; }
     hc->enc_num = num;
 }
 
-tt_result_t __contenc_parse(IN tt_http_hdr_t *h,
-                            IN const tt_char_t *val,
+tt_result_t __contenc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                             IN tt_u32_t len)
 {
     __hdr_contenc_t *hc = TT_HTTP_HDR_CAST(h, __hdr_contenc_t);
@@ -147,9 +135,7 @@ tt_u32_t __contenc_render_len(IN tt_http_hdr_t *h)
     __hdr_contenc_t *hc = TT_HTTP_HDR_CAST(h, __hdr_contenc_t);
     tt_u32_t n, i;
 
-    if (hc->enc_num == 0) {
-        return 0;
-    }
+    if (hc->enc_num == 0) { return 0; }
 
     // "Content-Encoding: "
     n = tt_g_http_hname_len[TT_HTTP_HDR_CONTENC] + 2;
@@ -168,9 +154,7 @@ tt_u32_t __contenc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
     tt_char_t *p;
     tt_u32_t n, i;
 
-    if (hc->enc_num == 0) {
-        return 0;
-    }
+    if (hc->enc_num == 0) { return 0; }
 
     // "Content-Encoding: "
     p = dst;

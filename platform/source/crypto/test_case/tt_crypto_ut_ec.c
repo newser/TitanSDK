@@ -75,24 +75,12 @@ TT_TEST_ROUTINE_DECLARE(case_crypto_ecdsa)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_ecdh_case)
 
-TT_TEST_CASE("case_crypto_ecdh",
-             "crypto: ecdh",
-             case_crypto_ecdh,
-             NULL,
-             __ec_prepare,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_crypto_ecdh", "crypto: ecdh", case_crypto_ecdh, NULL,
+             __ec_prepare, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_crypto_ecdsa",
-                 "crypto: ecdsa",
-                 case_crypto_ecdsa,
-                 NULL,
-                 __ec_prepare,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_crypto_ecdsa", "crypto: ecdsa", case_crypto_ecdsa, NULL,
+                 __ec_prepare, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_ecdh_case)
     // =========================================
@@ -355,9 +343,7 @@ void __ec_prepare(void *p)
 {
     tt_file_t f;
 
-    if (has_ec) {
-        return;
-    }
+    if (has_ec) { return; }
 
 #if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
     {
@@ -378,16 +364,12 @@ void __ec_prepare(void *p)
 #endif
 
     // gen rsa pub
-    if (!TT_OK(tt_fopen(&f,
-                        __EC_PUB_PK8_FILE,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
-                        NULL))) {
+    if (!TT_OK(tt_fopen(&f, __EC_PUB_PK8_FILE,
+                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC, NULL))) {
         TT_ERROR("fail to open %s", __EC_PUB_PK8_FILE);
         return;
     }
-    if (!TT_OK(tt_fwrite(&f,
-                         (tt_u8_t *)__ec_pub_pk8,
-                         sizeof(__ec_pub_pk8) - 1,
+    if (!TT_OK(tt_fwrite(&f, (tt_u8_t *)__ec_pub_pk8, sizeof(__ec_pub_pk8) - 1,
                          NULL))) {
         TT_ERROR("fail to write %s", __EC_PUB_PK8_FILE);
         return;
@@ -395,17 +377,13 @@ void __ec_prepare(void *p)
     tt_fclose(&f);
 
     // gen rsa priv
-    if (!TT_OK(tt_fopen(&f,
-                        __EC_PRIV_PK8_FILE,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
-                        NULL))) {
+    if (!TT_OK(tt_fopen(&f, __EC_PRIV_PK8_FILE,
+                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC, NULL))) {
         TT_ERROR("fail to open %s", __EC_PRIV_PK8_FILE);
         return;
     }
-    if (!TT_OK(tt_fwrite(&f,
-                         (tt_u8_t *)__ec_priv_pk8,
-                         sizeof(__ec_priv_pk8) - 1,
-                         NULL))) {
+    if (!TT_OK(tt_fwrite(&f, (tt_u8_t *)__ec_priv_pk8,
+                         sizeof(__ec_priv_pk8) - 1, NULL))) {
         TT_ERROR("fail to write %s", __EC_PRIV_PK8_FILE);
         return;
     }

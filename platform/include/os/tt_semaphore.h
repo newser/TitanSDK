@@ -131,8 +131,7 @@ create a semaphore
 - TT_SUCCESS, if the semaphore is created
 - TT_FAIL, otherwise
 */
-tt_export tt_result_t tt_sem_create(IN tt_sem_t *sem,
-                                    IN tt_u32_t count,
+tt_export tt_result_t tt_sem_create(IN tt_sem_t *sem, IN tt_u32_t count,
                                     IN OPT tt_sem_attr_t *attr);
 
 /**
@@ -172,14 +171,13 @@ wait a semaphore
 - TT_SUCCESS, if the semaphore is waited successfully
 - TT_E_TIMEOUT, if the semaphore is not waited and time specified expires
 */
-tt_inline tt_bool_t tt_sem_acquire_tag(IN tt_sem_t *sem,
-                                       IN tt_s64_t wait_ms
+tt_inline tt_bool_t tt_sem_acquire_tag(IN tt_sem_t *sem, IN tt_s64_t wait_ms
 #if (TT_SEM_DEBUG_OPT & TT_SEM_DEBUG_TAG)
                                        ,
                                        IN const tt_char_t *function,
                                        IN tt_u32_t line
 #endif
-                                       )
+)
 {
     return tt_sem_acquire_ntv(&sem->sys_sem, wait_ms);
 }
@@ -200,7 +198,7 @@ tt_inline tt_bool_t tt_sem_try_acquire_tag(IN tt_sem_t *sem
                                            IN const tt_char_t *function,
                                            IN tt_u32_t line
 #endif
-                                           )
+)
 {
     return tt_sem_try_acquire_ntv(&sem->sys_sem);
 }

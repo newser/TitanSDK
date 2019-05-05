@@ -65,11 +65,8 @@ static void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
 static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
-static tt_http_inserv_itf_t s_file_itf = {NULL,
-                                          NULL,
-                                          __create_ctx,
-                                          __destroy_ctx,
-                                          __clear_ctx};
+static tt_http_inserv_itf_t s_file_itf = {NULL, NULL, __create_ctx,
+                                          __destroy_ctx, __clear_ctx};
 
 static tt_http_inserv_action_t __s_file_on_hdr(IN tt_http_inserv_t *s,
                                                IN void *ctx,
@@ -77,9 +74,7 @@ static tt_http_inserv_action_t __s_file_on_hdr(IN tt_http_inserv_t *s,
                                                OUT tt_http_resp_render_t *resp);
 
 static tt_http_inserv_action_t __s_file_on_complete(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
+    IN tt_http_inserv_t *s, IN void *ctx, IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
 static tt_http_inserv_action_t __s_file_get_body(IN tt_http_inserv_t *s,
@@ -108,9 +103,7 @@ tt_result_t tt_http_inserv_file_component_init(IN struct tt_component_s *comp,
     tt_http_inserv_file_attr_default(&attr);
 
     tt_g_http_inserv_file = tt_http_inserv_file_create(&attr);
-    if (tt_g_http_inserv_file == NULL) {
-        return TT_FAIL;
-    }
+    if (tt_g_http_inserv_file == NULL) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -133,12 +126,9 @@ tt_http_inserv_t *tt_http_inserv_file_create(
     }
 
     s = tt_http_inserv_create(TT_HTTP_INSERV_FILE,
-                              sizeof(tt_http_inserv_file_t),
-                              &s_file_itf,
+                              sizeof(tt_http_inserv_file_t), &s_file_itf,
                               &s_file_cb);
-    if (s == NULL) {
-        return NULL;
-    }
+    if (s == NULL) { return NULL; }
 
     sf = TT_HTTP_INSERV_CAST(s, tt_http_inserv_file_t);
 
@@ -176,9 +166,7 @@ void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx)
 {
     tt_http_inserv_file_ctx_t *c = (tt_http_inserv_file_ctx_t *)ctx;
 
-    if (c->f_valid) {
-        tt_fclose(&c->f);
-    }
+    if (c->f_valid) { tt_fclose(&c->f); }
 }
 
 void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
@@ -193,8 +181,7 @@ void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
     }
 }
 
-tt_http_inserv_action_t __s_file_on_hdr(IN tt_http_inserv_t *s,
-                                        IN void *ctx,
+tt_http_inserv_action_t __s_file_on_hdr(IN tt_http_inserv_t *s, IN void *ctx,
                                         IN tt_http_parser_t *req,
                                         OUT tt_http_resp_render_t *resp)
 {
@@ -210,9 +197,7 @@ tt_http_inserv_action_t __s_file_on_hdr(IN tt_http_inserv_t *s,
     mtd = tt_http_parser_get_method(req);
     if (mtd == TT_HTTP_MTD_GET) {
     } else if (mtd == TT_HTTP_MTD_POST) {
-        if (!sf->process_post) {
-            return TT_HTTP_INSERV_ACT_PASS;
-        }
+        if (!sf->process_post) { return TT_HTTP_INSERV_ACT_PASS; }
     } else {
         return TT_HTTP_INSERV_ACT_PASS;
     }
@@ -277,8 +262,7 @@ tt_http_inserv_action_t __s_file_on_complete(IN tt_http_inserv_t *s,
 
     if ((sf->chunk_size != 0) && (size >= sf->chunk_size)) {
         tt_http_txenc_t txenc[1] = {TT_HTTP_TXENC_CHUNKED};
-        tt_http_resp_render_set_txenc(resp,
-                                      txenc,
+        tt_http_resp_render_set_txenc(resp, txenc,
                                       sizeof(txenc) / sizeof(txenc[0]));
         // keep sf->size -1 to indicate it's not using content-length
     } else {
@@ -298,9 +282,7 @@ tt_http_inserv_action_t __s_file_on_complete(IN tt_http_inserv_t *s,
         fp = TT_COND(uri != NULL, tt_http_uri_get_path(uri), NULL);
         ext = TT_COND(fp != NULL, tt_fpath_get_extension(fp), "");
         e = tt_http_contype_map_find_ext(sf->contype_map, ext);
-        if (e != NULL) {
-            tt_http_resp_render_set_contype(resp, e->type);
-        }
+        if (e != NULL) { tt_http_resp_render_set_contype(resp, e->type); }
     }
 
     if (sf->enable_etag) {
@@ -313,8 +295,7 @@ tt_http_inserv_action_t __s_file_on_complete(IN tt_http_inserv_t *s,
     return TT_COND(size > 0, TT_HTTP_INSERV_ACT_BODY, TT_HTTP_INSERV_ACT_PASS);
 }
 
-tt_http_inserv_action_t __s_file_get_body(IN tt_http_inserv_t *s,
-                                          IN void *ctx,
+tt_http_inserv_action_t __s_file_get_body(IN tt_http_inserv_t *s, IN void *ctx,
                                           IN tt_http_parser_t *req,
                                           IN tt_http_resp_render_t *resp,
                                           OUT tt_buf_t *buf)

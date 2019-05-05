@@ -106,10 +106,8 @@ tt_export tt_result_t tt_ipc_accept(IN tt_ipc_t *ipc,
                                     OUT tt_fiber_ev_t **p_fev,
                                     OUT struct tt_tmr_s **p_tmr);
 
-tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc,
-                                  IN tt_u8_t *buf,
-                                  IN tt_u32_t len,
-                                  OUT OPT tt_u32_t *sent)
+tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc, IN tt_u8_t *buf,
+                                  IN tt_u32_t len, OUT OPT tt_u32_t *sent)
 {
     if (len != 0) {
         return tt_ipc_send_ntv(&ipc->sys_ipc, buf, len, sent);
@@ -120,10 +118,8 @@ tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc,
 }
 
 // windows can not receive skt via this function, try tt_ipc_recv_ev() instead
-tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
-                                  OUT tt_u8_t *buf,
-                                  IN tt_u32_t len,
-                                  OUT OPT tt_u32_t *recvd,
+tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc, OUT tt_u8_t *buf,
+                                  IN tt_u32_t len, OUT OPT tt_u32_t *recvd,
                                   OUT tt_fiber_ev_t **p_fev,
                                   OUT struct tt_tmr_s **p_tmr,
                                   OUT struct tt_skt_s **p_skt)

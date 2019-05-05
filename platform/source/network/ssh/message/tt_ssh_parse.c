@@ -59,8 +59,7 @@ tt_result_t tt_ssh_boolean_parse(IN tt_buf_t *buf, OUT tt_bool_t *boolean_val)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf,
-                                OUT tt_u8_t **string_val,
+tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf, OUT tt_u8_t **string_val,
                                 OUT tt_u32_t *string_len)
 {
     tt_u32_t len;
@@ -72,8 +71,7 @@ tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ssh_mpint_parse(IN tt_buf_t *buf,
-                               OUT tt_u8_t **mpint,
+tt_result_t tt_ssh_mpint_parse(IN tt_buf_t *buf, OUT tt_u8_t **mpint,
                                OUT tt_u32_t *mpint_len)
 {
     tt_u32_t len;
@@ -97,9 +95,7 @@ tt_result_t tt_ssh_namelist_parse(IN tt_buf_t *buf,
     tt_char_t *name;
 
     TT_DO(tt_buf_get_u32_h(buf, &len));
-    if (len == 0) {
-        return TT_SUCCESS;
-    }
+    if (len == 0) { return TT_SUCCESS; }
 
     p = (tt_char_t *)TT_BUF_RPOS(buf);
     TT_DO(tt_buf_inc_rp(buf, len));
@@ -128,10 +124,7 @@ tt_result_t tt_ssh_namelist_parse(IN tt_buf_t *buf,
         TT_ERROR("namelist can not end with ,");
         return TT_FAIL;
     }
-    if (!TT_OK(cb(name, (tt_u32_t)(p - name), cb_param))) {
-        return TT_FAIL;
-    }
-
+    if (!TT_OK(cb(name, (tt_u32_t)(p - name), cb_param))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }

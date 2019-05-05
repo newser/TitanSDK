@@ -56,119 +56,107 @@ public:
     mgr() = default;
     mgr(const char *logger): logger_(logger) {}
 
-    mgr &debug_v(const char *func, size_t line, const char *format, va_list ap)
+    void debug_v(const char *func, size_t line, const char *format, va_list ap)
     {
-        if (level() > e_debug) { return *this; }
-        write(e_debug, func, line, format, ap);
-        return *this;
+        if (level() <= e_debug) { write(e_debug, func, line, format, ap); }
     }
-    mgr &debug_f(const char *func, size_t line, const char *format, ...)
+    void debug_f(const char *func, size_t line, const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         debug_v(func, line, format, ap);
         va_end(ap);
-        return *this;
     }
-    mgr &debug(const char *format, ...)
+    void debug(const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         debug_v(nullptr, 0, format, ap);
         va_end(ap);
-        return *this;
     }
 
-    mgr &info_v(const char *func, size_t line, const char *format, va_list ap)
+    void info_v(const char *func, size_t line, const char *format, va_list ap)
     {
-        if (level() > log::e_info) { return *this; }
-        write(log::e_info, func, line, format, ap);
-        return *this;
+        if (level() <= log::e_info) {
+            write(log::e_info, func, line, format, ap);
+        }
     }
-    mgr &info_f(const char *func, size_t line, const char *format, ...)
+    void info_f(const char *func, size_t line, const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         info_v(func, line, format, ap);
         va_end(ap);
-        return *this;
     }
-    mgr &info(const char *format, ...)
+    void info(const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         info_v(nullptr, 0, format, ap);
         va_end(ap);
-        return *this;
     }
 
-    mgr &warn_v(const char *func, size_t line, const char *format, va_list ap)
+    void warn_v(const char *func, size_t line, const char *format, va_list ap)
     {
-        if (level() > log::e_warn) { return *this; }
-        write(log::e_warn, func, line, format, ap);
-        return *this;
+        if (level() <= log::e_warn) {
+            write(log::e_warn, func, line, format, ap);
+        }
     }
-    mgr &warn_f(const char *func, size_t line, const char *format, ...)
+    void warn_f(const char *func, size_t line, const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         warn_v(func, line, format, ap);
         va_end(ap);
-        return *this;
     }
-    mgr &warn(const char *format, ...)
+    void warn(const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         warn_v(nullptr, 0, format, ap);
         va_end(ap);
-        return *this;
     }
 
-    mgr &error_v(const char *func, size_t line, const char *format, va_list ap)
+    void error_v(const char *func, size_t line, const char *format, va_list ap)
     {
-        if (level() > log::e_error) { return *this; }
-        write(log::e_error, func, line, format, ap);
-        return *this;
+        if (level() <= log::e_error) {
+            write(log::e_error, func, line, format, ap);
+        }
     }
-    mgr &error_f(const char *func, size_t line, const char *format, ...)
+    void error_f(const char *func, size_t line, const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         error_v(func, line, format, ap);
         va_end(ap);
-        return *this;
     }
-    mgr &error(const char *format, ...)
+    void error(const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         error_v(nullptr, 0, format, ap);
         va_end(ap);
-        return *this;
     }
 
-    mgr &fatal_v(const char *func, size_t line, const char *format, va_list ap)
+    void fatal_v(const char *func, size_t line, const char *format, va_list ap)
     {
-        if (level() > log::e_fatal) { return *this; }
-        write(log::e_fatal, func, line, format, ap);
-        return *this;
+        if (level() <= log::e_fatal) {
+            write(log::e_fatal, func, line, format, ap);
+        }
     }
-    mgr &fatal_f(const char *func, size_t line, const char *format, ...)
+    void fatal_f(const char *func, size_t line, const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         fatal_v(func, line, format, ap);
         va_end(ap);
-        return *this;
     }
-    mgr &fatal(const char *format, ...)
+    void fatal(const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
         fatal_v(nullptr, 0, format, ap);
         va_end(ap);
-        return *this;
     }
 
     const char *logger() const
@@ -176,42 +164,31 @@ public:
         std::lock_guard<std::mutex> lk(lock_);
         return logger_;
     }
-    mgr &logger(const char *logger)
+    void logger(const char *logger)
     {
         std::lock_guard<std::mutex> lk(lock_);
         logger_ = logger;
-        return *this;
     }
 
-    level level() const { return (enum level)level_.load(); }
-    mgr &level(enum level level)
-    {
-        level_.store(level);
-        return *this;
-    }
+    enum level level() const { return (enum level)level_.load(); }
+    void level(enum level lv) { level_.store(lv); }
 
     uint32_t seqno() const { return seqno_.load(); }
-    mgr &seqno(uint32_t seqno)
-    {
-        seqno_.store(seqno);
-        return *this;
-    }
+    void seqno(uint32_t seqno) { seqno_.store(seqno); }
 
-    mgr &layout(enum level lv, std::shared_ptr<i_layout> &layout)
+    void layout(enum level lv, std::shared_ptr<i_layout> &layout)
     {
         std::lock_guard<std::mutex> lk(lock_);
-        assert(lv < log::level_num);
+        assert((lv < log::level_num));
         ctx_[lv].layout(std::forward<std::shared_ptr<i_layout>>(layout));
-        return *this;
     }
-    mgr &layout(enum level lv, std::shared_ptr<i_layout> &&layout)
+    void layout(enum level lv, std::shared_ptr<i_layout> &&layout)
     {
         std::lock_guard<std::mutex> lk(lock_);
-        assert(lv < log::level_num);
+        assert((lv < log::level_num));
         ctx_[lv].layout(std::forward<std::shared_ptr<i_layout>>(layout));
-        return *this;
     }
-    mgr &layout(std::shared_ptr<i_layout> &layout)
+    void layout(std::shared_ptr<i_layout> &layout)
     {
         std::lock_guard<std::mutex> lk(lock_);
         ctx_[e_debug].layout(std::forward<std::shared_ptr<i_layout>>(layout));
@@ -219,9 +196,8 @@ public:
         ctx_[e_warn].layout(std::forward<std::shared_ptr<i_layout>>(layout));
         ctx_[e_error].layout(std::forward<std::shared_ptr<i_layout>>(layout));
         ctx_[e_fatal].layout(std::forward<std::shared_ptr<i_layout>>(layout));
-        return *this;
     }
-    mgr &layout(std::shared_ptr<i_layout> &&layout)
+    void layout(std::shared_ptr<i_layout> &&layout)
     {
         std::lock_guard<std::mutex> lk(lock_);
         ctx_[e_debug].layout(std::forward<std::shared_ptr<i_layout>>(layout));
@@ -229,24 +205,21 @@ public:
         ctx_[e_warn].layout(std::forward<std::shared_ptr<i_layout>>(layout));
         ctx_[e_error].layout(std::forward<std::shared_ptr<i_layout>>(layout));
         ctx_[e_fatal].layout(std::forward<std::shared_ptr<i_layout>>(layout));
-        return *this;
     }
 
-    mgr &append_io(enum level lv, std::shared_ptr<log::i_io> &io)
+    void append_io(enum level lv, std::shared_ptr<log::i_io> &io)
     {
         std::lock_guard<std::mutex> lk(lock_);
-        assert(lv < log::level_num);
+        assert((lv < log::level_num));
         ctx_[lv].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
-        return *this;
     }
-    mgr &append_io(enum level lv, std::shared_ptr<log::i_io> &&io)
+    void append_io(enum level lv, std::shared_ptr<log::i_io> &&io)
     {
         std::lock_guard<std::mutex> lk(lock_);
-        assert(lv < log::level_num);
+        assert((lv < log::level_num));
         ctx_[lv].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
-        return *this;
     }
-    mgr &append_io(std::shared_ptr<log::i_io> &io)
+    void append_io(std::shared_ptr<log::i_io> &io)
     {
         std::lock_guard<std::mutex> lk(lock_);
         ctx_[e_debug].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
@@ -254,9 +227,8 @@ public:
         ctx_[e_warn].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
         ctx_[e_error].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
         ctx_[e_fatal].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
-        return *this;
     }
-    mgr &append_io(std::shared_ptr<log::i_io> &&io)
+    void append_io(std::shared_ptr<log::i_io> &&io)
     {
         std::lock_guard<std::mutex> lk(lock_);
         ctx_[e_debug].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
@@ -264,7 +236,6 @@ public:
         ctx_[e_warn].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
         ctx_[e_error].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
         ctx_[e_fatal].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
-        return *this;
     }
 
 private:
@@ -296,23 +267,19 @@ private:
     log::ctx ctx_[log::level_num];
 };
 
-namespace init {
-
-class mgr: public component
+class log_component: public component
 {
 public:
-    static mgr &instance() { return s_instance; }
+    static log_component &instance() { return s_instance; }
 
 private:
-    static mgr s_instance;
+    static log_component s_instance;
 
-    mgr(): component(component::e_log_mgr, "default log manager") {}
+    log_component(): component(component::e_log, "default log manager") {}
 
     bool do_start(void *reserved) override;
     void do_stop() override;
 };
-
-}
 
 ////////////////////////////////////////////////////////////
 // global variants

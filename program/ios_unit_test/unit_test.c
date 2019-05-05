@@ -139,9 +139,7 @@ int app_ut_main(int argc, char *argv[])
 
     // setlocale(LC_ALL, "chs");
 
-    for (i = 0; i < argc; ++i) {
-        printf("argv[%d]: %s\n", i, argv[i]);
-    }
+    for (i = 0; i < argc; ++i) { printf("argv[%d]: %s\n", i, argv[i]); }
 
     if (argc > 1) {
         if (strcmp(argv[1], "process") == 0) {

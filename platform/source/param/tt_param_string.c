@@ -41,12 +41,13 @@ static void __str_on_destroy(IN tt_param_t *p);
 
 static tt_result_t __str_read(IN tt_param_t *p, OUT tt_buf_t *output);
 
-static tt_result_t __str_write(IN tt_param_t *p,
-                               IN tt_u8_t *val,
+static tt_result_t __str_write(IN tt_param_t *p, IN tt_u8_t *val,
                                IN tt_u32_t val_len);
 
 static tt_param_itf_t __str_itf = {
-    __str_on_destroy, __str_read, __str_write,
+    __str_on_destroy,
+    __str_read,
+    __str_write,
 };
 
 ////////////////////////////////////////////////////////////
@@ -57,23 +58,16 @@ static tt_param_itf_t __str_itf = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_param_t *tt_param_str_create(IN const tt_char_t *name,
-                                IN tt_string_t *p_val,
+tt_param_t *tt_param_str_create(IN const tt_char_t *name, IN tt_string_t *p_val,
                                 IN OPT tt_param_attr_t *attr,
                                 IN OPT tt_param_str_cb_t *cb)
 {
     tt_param_t *p;
     tt_param_str_t *ps;
 
-    p = tt_param_create(sizeof(tt_param_str_t),
-                        TT_PARAM_STRING,
-                        name,
-                        &__str_itf,
-                        p_val,
-                        attr);
-    if (p == NULL) {
-        return NULL;
-    }
+    p = tt_param_create(sizeof(tt_param_str_t), TT_PARAM_STRING, name,
+                        &__str_itf, p_val, attr);
+    if (p == NULL) { return NULL; }
 
     ps = TT_PARAM_CAST(p, tt_param_str_t);
 
@@ -102,8 +96,7 @@ const tt_char_t *tt_param_get_str(IN tt_param_t *p, OUT tt_string_t *val)
     }
 }
 
-tt_result_t tt_param_set_str_n(IN tt_param_t *p,
-                               IN const tt_char_t *val,
+tt_result_t tt_param_set_str_n(IN tt_param_t *p, IN const tt_char_t *val,
                                IN tt_u32_t len)
 {
     TT_ASSERT(p->type == TT_PARAM_STRING);
@@ -144,9 +137,7 @@ tt_result_t __str_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
         return TT_E_UNSUPPORT;
     }
 
-    if (!TT_OK(tt_string_set_sub((tt_string_t *)p->opaque,
-                                 (tt_char_t *)val,
-                                 0,
+    if (!TT_OK(tt_string_set_sub((tt_string_t *)p->opaque, (tt_char_t *)val, 0,
                                  val_len))) {
         return TT_FAIL;
     }

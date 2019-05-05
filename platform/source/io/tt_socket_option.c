@@ -118,8 +118,7 @@ tt_result_t tt_skt_set_nonblock(IN tt_skt_t *skt, IN tt_bool_t nonblock)
     return tt_skt_set_nonblock_ntv(&skt->sys_skt, nonblock);
 }
 
-tt_result_t tt_skt_set_linger(IN tt_skt_t *skt,
-                              IN tt_bool_t enable,
+tt_result_t tt_skt_set_linger(IN tt_skt_t *skt, IN tt_bool_t enable,
                               IN tt_u16_t linger_sec)
 {
     TT_ASSERT(skt != NULL);
@@ -127,8 +126,7 @@ tt_result_t tt_skt_set_linger(IN tt_skt_t *skt,
     return tt_skt_set_linger_ntv(&skt->sys_skt, enable, linger_sec);
 }
 
-tt_result_t tt_skt_get_linger(IN tt_skt_t *skt,
-                              OUT tt_bool_t *enable,
+tt_result_t tt_skt_get_linger(IN tt_skt_t *skt, OUT tt_bool_t *enable,
                               OUT tt_u16_t *linger_sec)
 {
     TT_ASSERT(skt != NULL);
@@ -151,8 +149,7 @@ tt_result_t tt_skt_get_keepalive(IN tt_skt_t *skt, OUT tt_bool_t *keepalive)
     return tt_skt_get_keepalive_ntv(&skt->sys_skt, keepalive);
 }
 
-tt_result_t tt_skt_set_ttl(IN tt_skt_t *skt,
-                           IN tt_net_family_t family,
+tt_result_t tt_skt_set_ttl(IN tt_skt_t *skt, IN tt_net_family_t family,
                            IN tt_u8_t ttl)
 {
     TT_ASSERT(skt != NULL);
@@ -161,8 +158,7 @@ tt_result_t tt_skt_set_ttl(IN tt_skt_t *skt,
     return tt_skt_set_ttl_ntv(&skt->sys_skt, family, ttl);
 }
 
-tt_result_t tt_skt_get_ttl(IN tt_skt_t *skt,
-                           IN tt_net_family_t family,
+tt_result_t tt_skt_get_ttl(IN tt_skt_t *skt, IN tt_net_family_t family,
                            OUT tt_u8_t *ttl)
 {
     TT_ASSERT(skt != NULL);
@@ -258,8 +254,7 @@ tt_result_t tt_skt_get_recvtime(IN tt_skt_t *skt, OUT tt_u32_t *ms)
     return tt_skt_get_recvtime_ntv(&skt->sys_skt, ms);
 }
 
-tt_result_t tt_skt_set_mcast_loop(IN tt_skt_t *skt,
-                                  IN tt_net_family_t family,
+tt_result_t tt_skt_set_mcast_loop(IN tt_skt_t *skt, IN tt_net_family_t family,
                                   IN tt_bool_t loop)
 {
     TT_ASSERT(skt != NULL);
@@ -268,8 +263,7 @@ tt_result_t tt_skt_set_mcast_loop(IN tt_skt_t *skt,
     return tt_skt_set_mcast_loop_ntv(&skt->sys_skt, family, loop);
 }
 
-tt_result_t tt_skt_get_mcast_loop(IN tt_skt_t *skt,
-                                  IN tt_net_family_t family,
+tt_result_t tt_skt_get_mcast_loop(IN tt_skt_t *skt, IN tt_net_family_t family,
                                   OUT tt_bool_t *loop)
 {
     TT_ASSERT(skt != NULL);
@@ -278,8 +272,7 @@ tt_result_t tt_skt_get_mcast_loop(IN tt_skt_t *skt,
     return tt_skt_get_mcast_loop_ntv(&skt->sys_skt, family, loop);
 }
 
-tt_result_t tt_skt_set_mcast_ttl(IN tt_skt_t *skt,
-                                 IN tt_net_family_t family,
+tt_result_t tt_skt_set_mcast_ttl(IN tt_skt_t *skt, IN tt_net_family_t family,
                                  IN tt_u8_t ttl)
 {
     TT_ASSERT(skt != NULL);
@@ -288,8 +281,7 @@ tt_result_t tt_skt_set_mcast_ttl(IN tt_skt_t *skt,
     return tt_skt_set_mcast_ttl_ntv(&skt->sys_skt, family, ttl);
 }
 
-tt_result_t tt_skt_get_mcast_ttl(IN tt_skt_t *skt,
-                                 IN tt_net_family_t family,
+tt_result_t tt_skt_get_mcast_ttl(IN tt_skt_t *skt, IN tt_net_family_t family,
                                  OUT tt_u8_t *ttl)
 {
     TT_ASSERT(skt != NULL);

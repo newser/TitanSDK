@@ -201,10 +201,7 @@ tt_inline tt_result_t tt_skt_set_linger_ntv(IN tt_skt_ntv_t *skt,
     struct linger linger;
     linger.l_onoff = TT_COND(enable, 1, 0);
     linger.l_linger = linger_sec;
-    if (setsockopt(skt->s,
-                   SOL_SOCKET,
-                   SO_LINGER,
-                   &linger,
+    if (setsockopt(skt->s, SOL_SOCKET, SO_LINGER, &linger,
                    sizeof(struct linger)) == 0) {
         return TT_SUCCESS;
     } else {

@@ -108,21 +108,15 @@ tt_result_t tt_dh_load_param_file(IN tt_dh_t *dh, IN const tt_char_t *path)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh,
-                               IN tt_u32_t priv_size,
-                               OUT tt_u8_t *pub,
-                               IN OUT tt_u32_t len)
+tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh, IN tt_u32_t priv_size,
+                               OUT tt_u8_t *pub, IN OUT tt_u32_t len)
 {
     int e;
 
     TT_ASSERT(dh != NULL);
     TT_ASSERT(pub != NULL);
 
-    e = mbedtls_dhm_make_public(&dh->ctx,
-                                priv_size,
-                                pub,
-                                len,
-                                tt_ctr_drbg,
+    e = mbedtls_dhm_make_public(&dh->ctx, priv_size, pub, len, tt_ctr_drbg,
                                 tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to generate dh pub");
@@ -132,9 +126,7 @@ tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_dh_get_pub(IN tt_dh_t *dh,
-                          IN tt_bool_t local,
-                          OUT tt_u8_t *pub,
+tt_result_t tt_dh_get_pub(IN tt_dh_t *dh, IN tt_bool_t local, OUT tt_u8_t *pub,
                           IN tt_u32_t len)
 {
     int e;
@@ -142,8 +134,7 @@ tt_result_t tt_dh_get_pub(IN tt_dh_t *dh,
     TT_ASSERT(dh != NULL);
     TT_ASSERT(pub != NULL);
 
-    e = mbedtls_mpi_write_binary(TT_COND(local, &dh->ctx.GX, &dh->ctx.GY),
-                                 pub,
+    e = mbedtls_mpi_write_binary(TT_COND(local, &dh->ctx.GX, &dh->ctx.GY), pub,
                                  len);
     if (e != 0) {
         tt_crypto_error("fail to get dh pub");
@@ -169,8 +160,7 @@ tt_result_t tt_dh_set_pub(IN tt_dh_t *dh, IN tt_u8_t *pub, IN tt_u32_t len)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_dh_derive(IN tt_dh_t *dh,
-                         OUT tt_u8_t *secret,
+tt_result_t tt_dh_derive(IN tt_dh_t *dh, OUT tt_u8_t *secret,
                          IN OUT tt_u32_t *len)
 {
     size_t olen;
@@ -180,12 +170,8 @@ tt_result_t tt_dh_derive(IN tt_dh_t *dh,
     TT_ASSERT(secret != NULL);
     TT_ASSERT(len != NULL);
 
-    e = mbedtls_dhm_calc_secret(&dh->ctx,
-                                secret,
-                                (size_t)len,
-                                &olen,
-                                tt_ctr_drbg,
-                                tt_current_ctr_drbg());
+    e = mbedtls_dhm_calc_secret(&dh->ctx, secret, (size_t)len, &olen,
+                                tt_ctr_drbg, tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to drive dh secret");
         return TT_FAIL;
@@ -195,8 +181,7 @@ tt_result_t tt_dh_derive(IN tt_dh_t *dh,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_dh_get_secret(IN tt_dh_t *dh,
-                             OUT tt_u8_t *secret,
+tt_result_t tt_dh_get_secret(IN tt_dh_t *dh, OUT tt_u8_t *secret,
                              IN tt_u32_t len)
 {
     int e;

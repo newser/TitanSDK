@@ -57,8 +57,7 @@ typedef void (*tt_logio_destroy_t)(IN struct tt_logio_s *lio);
 
 // - data must be null terminated string, len equals tt_strlen(data)
 typedef void (*tt_logio_output_t)(IN struct tt_logio_s *lio,
-                                  IN const tt_char_t *data,
-                                  IN tt_u32_t len);
+                                  IN const tt_char_t *data, IN tt_u32_t len);
 
 typedef struct
 {
@@ -88,8 +87,7 @@ tt_export tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf);
 
 tt_export void __logio_destroy(IN tt_logio_t *lio);
 
-tt_export void tt_logio_output(IN tt_logio_t *lio,
-                               IN const tt_char_t *data,
+tt_export void tt_logio_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                                IN tt_u32_t len);
 
 #endif /* __TT_LOG_IO__ */

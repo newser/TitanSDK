@@ -73,9 +73,7 @@ tt_fiber_ev_t *tt_fiber_ev_create(IN tt_u32_t ev, IN tt_u32_t size)
     tt_fiber_ev_t *fev;
 
     fev = tt_malloc(sizeof(tt_fiber_ev_t) + size);
-    if (fev != NULL) {
-        tt_io_ev_init(fev, TT_IO_FIBER, ev);
-    }
+    if (fev != NULL) { tt_io_ev_init(fev, TT_IO_FIBER, ev); }
 
     return fev;
 }
@@ -85,8 +83,7 @@ void tt_fiber_ev_destroy(IN tt_fiber_ev_t *fev)
     tt_free(fev);
 }
 
-void tt_fiber_send_ev(IN tt_fiber_t *dst,
-                      IN tt_fiber_ev_t *fev,
+void tt_fiber_send_ev(IN tt_fiber_t *dst, IN tt_fiber_ev_t *fev,
                       IN tt_bool_t wait)
 {
     tt_fiber_t *cfb = tt_current_fiber();
@@ -101,9 +98,7 @@ void tt_fiber_send_ev(IN tt_fiber_t *dst,
         // cross task fiber event
         fev->dst = dst;
         tt_io_poller_send(&dst->fs->thread->task->iop, fev);
-        if (wait) {
-            tt_fiber_suspend();
-        }
+        if (wait) { tt_fiber_suspend(); }
     }
 }
 
@@ -144,9 +139,7 @@ void tt_fiber_send_timer(IN tt_fiber_t *dst, IN tt_tmr_t *tmr)
     TT_ASSERT_FEV(tmr->node.lst == &dst->unexpired_tmr);
     tt_list_remove(&tmr->node);
     tt_list_push_tail(&dst->expired_tmr, &tmr->node);
-    if (dst->recving) {
-        tt_fiber_resume(dst, TT_FALSE);
-    }
+    if (dst->recving) { tt_fiber_resume(dst, TT_FALSE); }
 }
 
 tt_tmr_t *tt_fiber_recv_timer(IN tt_fiber_t *current, IN tt_bool_t wait)
@@ -168,10 +161,8 @@ again:
     }
 }
 
-tt_bool_t tt_fiber_recv(IN tt_fiber_t *current,
-                        IN tt_bool_t wait,
-                        OUT tt_fiber_ev_t **p_fev,
-                        OUT tt_tmr_t **p_tmr)
+tt_bool_t tt_fiber_recv(IN tt_fiber_t *current, IN tt_bool_t wait,
+                        OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr)
 {
     tt_dnode_t *fev_node;
     tt_lnode_t *tmr_node;

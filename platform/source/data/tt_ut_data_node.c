@@ -45,14 +45,8 @@ TT_TEST_ROUTINE_DECLARE(case_dtn_blob)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dtnode_case)
 
-TT_TEST_CASE("case_dtn_blob",
-             "data node: blob",
-             case_dtn_blob,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_dtn_blob", "data node: blob", case_dtn_blob, NULL, NULL,
+             NULL, NULL, NULL)
 ,
 
     TT_TEST_CASE_LIST_DEFINE_END(dtnode_case)

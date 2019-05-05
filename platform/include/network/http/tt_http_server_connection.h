@@ -74,19 +74,16 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_http_sconn_create(IN tt_http_sconn_t *c,
-                                           IN void *itf,
+tt_export tt_result_t tt_http_sconn_create(IN tt_http_sconn_t *c, IN void *itf,
                                            IN void *itf_opaque,
                                            IN OPT tt_http_sconn_attr_t *attr);
 
 tt_export tt_result_t
-tt_http_sconn_create_skt(IN tt_http_sconn_t *c,
-                         IN TO struct tt_skt_s *s,
+tt_http_sconn_create_skt(IN tt_http_sconn_t *c, IN TO struct tt_skt_s *s,
                          IN OPT tt_http_sconn_attr_t *attr);
 
 tt_export tt_result_t
-tt_http_sconn_create_ssl(IN tt_http_sconn_t *c,
-                         IN TO struct tt_ssl_s *s,
+tt_http_sconn_create_ssl(IN tt_http_sconn_t *c, IN TO struct tt_ssl_s *s,
                          IN OPT tt_http_sconn_attr_t *attr);
 
 tt_export void tt_http_sconn_destroy(IN tt_http_sconn_t *c);
@@ -112,8 +109,7 @@ tt_export tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c);
 // true if received eof
 tt_export tt_bool_t tt_http_sconn_wait_eof(IN tt_http_sconn_t *c);
 
-tt_export tt_result_t tt_http_sconn_send(IN tt_http_sconn_t *c,
-                                         IN tt_u8_t *buf,
+tt_export tt_result_t tt_http_sconn_send(IN tt_http_sconn_t *c, IN tt_u8_t *buf,
                                          IN tt_u32_t len,
                                          OUT OPT tt_u32_t *sent);
 

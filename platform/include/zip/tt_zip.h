@@ -60,8 +60,7 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_zip_t *tt_zip_create(IN tt_zipsrc_t *z,
-                                  IN tt_u32_t flag,
+tt_export tt_zip_t *tt_zip_create(IN tt_zipsrc_t *z, IN tt_u32_t flag,
                                   IN OPT tt_zip_attr_t *attr);
 #define TT_ZA_CREAT ZIP_CREATE
 #define TT_ZA_EXCL ZIP_EXCL
@@ -69,15 +68,12 @@ tt_export tt_zip_t *tt_zip_create(IN tt_zipsrc_t *z,
 #define TT_ZA_TRUNCATE ZIP_TRUNCATE
 #define TT_ZA_RDONLY ZIP_RDONLY
 
-tt_export tt_zip_t *tt_zip_create_blob(IN void *p,
-                                       IN tt_u32_t len,
-                                       IN tt_bool_t free,
-                                       IN tt_u32_t flag,
+tt_export tt_zip_t *tt_zip_create_blob(IN void *p, IN tt_u32_t len,
+                                       IN tt_bool_t free, IN tt_u32_t flag,
                                        IN OPT tt_zip_attr_t *attr);
 
 tt_export tt_zip_t *tt_zip_create_file(IN const tt_char_t *path,
-                                       IN tt_u64_t from,
-                                       IN tt_u64_t len,
+                                       IN tt_u64_t from, IN tt_u64_t len,
                                        IN tt_u32_t flag,
                                        IN OPT tt_zip_attr_t *attr);
 
@@ -90,10 +86,8 @@ tt_inline const tt_char_t *tt_zip_strerror(IN tt_zip_t *z)
     return zip_error_strerror(zip_get_error(z));
 }
 
-tt_inline tt_u32_t tt_zip_add_file(IN tt_zip_t *z,
-                                   IN const tt_char_t *name,
-                                   IN tt_zipsrc_t *zs,
-                                   IN tt_u32_t flag)
+tt_inline tt_u32_t tt_zip_add_file(IN tt_zip_t *z, IN const tt_char_t *name,
+                                   IN tt_zipsrc_t *zs, IN tt_u32_t flag)
 {
     zip_int64_t i = zip_file_add(z, name, zs, flag);
     if (i >= 0) {
@@ -104,8 +98,7 @@ tt_inline tt_u32_t tt_zip_add_file(IN tt_zip_t *z,
     }
 }
 
-tt_inline tt_u32_t tt_zip_add_dir(IN tt_zip_t *z,
-                                  IN const tt_char_t *name,
+tt_inline tt_u32_t tt_zip_add_dir(IN tt_zip_t *z, IN const tt_char_t *name,
                                   IN tt_u32_t flag)
 {
     zip_int64_t i = zip_dir_add(z, name, flag);
@@ -117,14 +110,11 @@ tt_inline tt_u32_t tt_zip_add_dir(IN tt_zip_t *z,
     }
 }
 
-tt_export tt_u32_t tt_zip_find(IN tt_zip_t *z,
-                               IN const tt_char_t *name,
+tt_export tt_u32_t tt_zip_find(IN tt_zip_t *z, IN const tt_char_t *name,
                                IN tt_u32_t flag);
 
-tt_inline tt_result_t tt_zip_replace(IN tt_zip_t *z,
-                                     IN tt_u32_t index,
-                                     IN tt_zipsrc_t *zs,
-                                     IN tt_u32_t flag)
+tt_inline tt_result_t tt_zip_replace(IN tt_zip_t *z, IN tt_u32_t index,
+                                     IN tt_zipsrc_t *zs, IN tt_u32_t flag)
 {
     if (zip_file_replace(z, index, zs, flag) == 0) {
         return TT_SUCCESS;
@@ -134,10 +124,8 @@ tt_inline tt_result_t tt_zip_replace(IN tt_zip_t *z,
     }
 }
 
-tt_inline tt_result_t tt_zip_rename(IN tt_zip_t *z,
-                                    IN tt_u32_t index,
-                                    IN const tt_char_t *name,
-                                    IN tt_u32_t flag)
+tt_inline tt_result_t tt_zip_rename(IN tt_zip_t *z, IN tt_u32_t index,
+                                    IN const tt_char_t *name, IN tt_u32_t flag)
 {
     if (zip_file_rename(z, index, name, flag) == 0) {
         return TT_SUCCESS;
@@ -206,10 +194,8 @@ tt_inline tt_result_t tt_zip_set_comment(IN tt_zip_t *z,
                                          IN const tt_char_t *comment,
                                          IN tt_u32_t len)
 {
-    if (zip_set_archive_comment(z,
-                                comment,
-                                TT_COND(len != 0,
-                                        len,
+    if (zip_set_archive_comment(z, comment,
+                                TT_COND(len != 0, len,
                                         (zip_uint16_t)tt_strlen(comment))) ==
         0) {
         return TT_SUCCESS;
@@ -219,8 +205,7 @@ tt_inline tt_result_t tt_zip_set_comment(IN tt_zip_t *z,
     }
 }
 
-tt_inline const tt_char_t *tt_zip_get_fname(IN tt_zip_t *z,
-                                            IN tt_u32_t index,
+tt_inline const tt_char_t *tt_zip_get_fname(IN tt_zip_t *z, IN tt_u32_t index,
                                             IN tt_u32_t flag)
 {
     return zip_get_name(z, index, flag);
@@ -233,17 +218,12 @@ tt_inline const tt_char_t *tt_zip_get_fcomment(IN tt_zip_t *z,
     return zip_file_get_comment(z, index, NULL, flag);
 }
 
-tt_inline tt_result_t tt_zip_set_fcomment(IN tt_zip_t *z,
-                                          IN tt_u32_t index,
+tt_inline tt_result_t tt_zip_set_fcomment(IN tt_zip_t *z, IN tt_u32_t index,
                                           IN const tt_char_t *comment,
-                                          IN tt_u32_t len,
-                                          IN tt_u32_t flag)
+                                          IN tt_u32_t len, IN tt_u32_t flag)
 {
-    if (zip_file_set_comment(z,
-                             index,
-                             comment,
-                             TT_COND(len != 0,
-                                     len,
+    if (zip_file_set_comment(z, index, comment,
+                             TT_COND(len != 0, len,
                                      (zip_uint16_t)tt_strlen(comment)),
                              flag) == 0) {
         return TT_SUCCESS;
@@ -253,8 +233,7 @@ tt_inline tt_result_t tt_zip_set_fcomment(IN tt_zip_t *z,
     }
 }
 
-tt_inline tt_result_t tt_zip_set_fcipher(IN tt_zip_t *z,
-                                         IN tt_u32_t index,
+tt_inline tt_result_t tt_zip_set_fcipher(IN tt_zip_t *z, IN tt_u32_t index,
                                          IN tt_zip_cipher_t cipher,
                                          IN const tt_char_t *password)
 {
@@ -266,13 +245,10 @@ tt_inline tt_result_t tt_zip_set_fcipher(IN tt_zip_t *z,
     }
 }
 
-tt_inline tt_result_t tt_zip_set_fmtime(IN tt_zip_t *z,
-                                        IN tt_u32_t index,
+tt_inline tt_result_t tt_zip_set_fmtime(IN tt_zip_t *z, IN tt_u32_t index,
                                         IN tt_date_t *date)
 {
-    if (zip_file_set_mtime(z,
-                           index,
-                           (time_t)tt_date_diff_epoch_second(date),
+    if (zip_file_set_mtime(z, index, (time_t)tt_date_diff_epoch_second(date),
                            0) == 0) {
         return TT_SUCCESS;
     } else {

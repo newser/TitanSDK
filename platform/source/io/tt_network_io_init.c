@@ -62,7 +62,8 @@ void tt_network_io_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __network_io_component_init, __network_io_component_exit,
+        __network_io_component_init,
+        __network_io_component_exit,
     };
 
     // init component

@@ -34,16 +34,11 @@
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-extern int __a_parse(IN const unsigned char *abuf,
-                     IN int alen,
-                     OUT tt_s64_t *ttl,
-                     OUT tt_dns_rrlist_t *rrl);
+extern int __a_parse(IN const unsigned char *abuf, IN int alen,
+                     OUT tt_s64_t *ttl, OUT tt_dns_rrlist_t *rrl);
 
-extern int __aaaa_parse(IN const unsigned char *abuf,
-                        IN int alen,
-                        OUT tt_s64_t *ttl,
-                        OUT tt_dns_rrlist_t *rrl);
-
+extern int __aaaa_parse(IN const unsigned char *abuf, IN int alen,
+                        OUT tt_s64_t *ttl, OUT tt_dns_rrlist_t *rrl);
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -60,36 +55,18 @@ TT_TEST_ROUTINE_DECLARE(case_dns_parse_aaaa)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_rr_case)
 
-TT_TEST_CASE(
-    "case_dns_rr_a", "dns rr a", case_dns_rr_a, NULL, NULL, NULL, NULL, NULL)
+TT_TEST_CASE("case_dns_rr_a", "dns rr a", case_dns_rr_a, NULL, NULL, NULL, NULL,
+             NULL)
 ,
 
-    TT_TEST_CASE("case_dns_rr_aaaa",
-                 "dns rr aaaa",
-                 case_dns_rr_aaaa,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_dns_rr_aaaa", "dns rr aaaa", case_dns_rr_aaaa, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_dns_parse_a",
-                 "dns parse a",
-                 case_dns_parse_a,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_dns_parse_a", "dns parse a", case_dns_parse_a, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_dns_parse_aaaa",
-                 "dns parse aaaa",
-                 case_dns_parse_aaaa,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_dns_parse_aaaa", "dns parse aaaa", case_dns_parse_aaaa,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(dns_rr_case)
     // =========================================
@@ -497,13 +474,9 @@ TT_TEST_ROUTINE_DEFINE(case_dns_parse_a)
         tt_u32_t k = tt_rand_u32() % sizeof(resp_2_answer);
         tt_u32_t len = tt_rand_u32() % (sizeof(resp_2_answer) - k);
         tt_memcpy(resp_rand, resp_2_answer, sizeof(resp_2_answer));
-        while (len-- != 0) {
-            resp_rand[k++] = (tt_u8_t)tt_rand_u32();
-        }
+        while (len-- != 0) { resp_rand[k++] = (tt_u8_t)tt_rand_u32(); }
         status = __a_parse(resp_rand, sizeof(resp_rand), &ttl, &rrl);
-        if (status == 0) {
-            tt_dns_rrlist_clear(&rrl);
-        }
+        if (status == 0) { tt_dns_rrlist_clear(&rrl); }
     }
 
     // test end
@@ -658,13 +631,9 @@ TT_TEST_ROUTINE_DEFINE(case_dns_parse_aaaa)
         tt_u32_t k = tt_rand_u32() % sizeof(resp_2_answer);
         tt_u32_t len = tt_rand_u32() % (sizeof(resp_2_answer) - k);
         tt_memcpy(resp_rand, resp_2_answer, sizeof(resp_2_answer));
-        while (len-- != 0) {
-            resp_rand[k++] = (tt_u8_t)tt_rand_u32();
-        }
+        while (len-- != 0) { resp_rand[k++] = (tt_u8_t)tt_rand_u32(); }
         status = __aaaa_parse(resp_rand, sizeof(resp_rand), &ttl, &rrl);
-        if (status == 0) {
-            tt_dns_rrlist_clear(&rrl);
-        }
+        if (status == 0) { tt_dns_rrlist_clear(&rrl); }
     }
 
     // test end

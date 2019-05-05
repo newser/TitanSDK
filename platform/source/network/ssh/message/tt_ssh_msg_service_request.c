@@ -77,8 +77,7 @@ static tt_sshmsg_itf_t __servreq_op = {
 tt_sshmsg_t *tt_sshmsg_servreq_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_SERVICE_REQUEST,
-                            sizeof(tt_sshmsg_servreq_t),
-                            &__servreq_op);
+                            sizeof(tt_sshmsg_servreq_t), &__servreq_op);
 }
 
 void tt_sshmsg_servreq_set_service(IN tt_sshmsg_t *msg,
@@ -168,8 +167,7 @@ tt_result_t __servreq_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
 
     // string
     TT_DO(
-        tt_ssh_string_render(buf,
-                             (tt_u8_t *)tt_g_ssh_serv_name[sshserv],
+        tt_ssh_string_render(buf, (tt_u8_t *)tt_g_ssh_serv_name[sshserv],
                              (tt_u32_t)tt_strlen(tt_g_ssh_serv_name[sshserv])));
 
     return TT_SUCCESS;

@@ -45,8 +45,7 @@
 
 static void __lio_winev_destroy(IN tt_logio_t *lio);
 
-static void __lio_winev_output(IN tt_logio_t *lio,
-                               IN const tt_char_t *data,
+static void __lio_winev_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                                IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_winev_itf = {
@@ -66,8 +65,7 @@ static tt_logio_itf_t tt_s_logio_winev_itf = {
 ////////////////////////////////////////////////////////////
 
 tt_logio_t *tt_logio_winev_create(IN const tt_char_t *source,
-                                  IN tt_winev_type_t type,
-                                  IN tt_u32_t category,
+                                  IN tt_winev_type_t type, IN tt_u32_t category,
                                   IN tt_u32_t ev_id,
                                   IN OPT tt_logio_winev_attr_t *attr)
 {
@@ -81,9 +79,7 @@ tt_logio_t *tt_logio_winev_create(IN const tt_char_t *source,
     }
 
     lio = tt_logio_create(sizeof(tt_logio_winev_t), &tt_s_logio_winev_itf);
-    if (lio == NULL) {
-        return NULL;
-    }
+    if (lio == NULL) { return NULL; }
 
     lio_winev = TT_LOGIO_CAST(lio, tt_logio_winev_t);
 
@@ -119,22 +115,14 @@ void __lio_winev_destroy(IN tt_logio_t *lio)
 #endif
 }
 
-void __lio_winev_output(IN tt_logio_t *lio,
-                        IN const tt_char_t *data,
+void __lio_winev_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                         IN tt_u32_t data_len)
 {
     tt_logio_winev_t *lio_winev = TT_LOGIO_CAST(lio, tt_logio_winev_t);
 
 #ifdef TT_HAVE_WINDOWS_EVENT_LOG
-    if (!ReportEventA(lio_winev->source,
-                      lio_winev->type,
-                      lio_winev->category,
-                      lio_winev->ev_id,
-                      NULL,
-                      1,
-                      0,
-                      &data,
-                      NULL)) {
+    if (!ReportEventA(lio_winev->source, lio_winev->type, lio_winev->category,
+                      lio_winev->ev_id, NULL, 1, 0, &data, NULL)) {
         TT_ERROR_NTV("fail to report event: %s", data);
     }
 #endif

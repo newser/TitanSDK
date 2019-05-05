@@ -61,8 +61,7 @@ tt_export tt_zipfile_t *tt_zipfile_open(IN tt_zip_t *z,
                                         IN tt_u32_t flag,
                                         IN OPT tt_zipfile_attr_t *attr);
 
-tt_export tt_zipfile_t *tt_zipfile_open_index(IN tt_zip_t *z,
-                                              IN tt_u32_t index,
+tt_export tt_zipfile_t *tt_zipfile_open_index(IN tt_zip_t *z, IN tt_u32_t index,
                                               IN tt_u32_t flag,
                                               IN OPT tt_zipfile_attr_t *attr);
 
@@ -70,9 +69,7 @@ tt_export void tt_zipfile_close(IN tt_zipfile_t *zf);
 
 tt_export void tt_zipfile_attr_default(IN tt_zipfile_attr_t *attr);
 
-tt_export tt_result_t tt_zipfile_read(IN tt_zipfile_t *zf,
-                                      OUT tt_u8_t *buf,
-                                      IN tt_u32_t len,
-                                      OUT tt_u32_t *read_len);
+tt_export tt_result_t tt_zipfile_read(IN tt_zipfile_t *zf, OUT tt_u8_t *buf,
+                                      IN tt_u32_t len, OUT tt_u32_t *read_len);
 
 #endif /* __TT_ZIP_FILE__ */

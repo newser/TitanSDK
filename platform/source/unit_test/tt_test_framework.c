@@ -173,8 +173,7 @@ tt_result_t tt_test_item_add(IN tt_test_class_t *test_class,
 }
 
 tt_result_t tt_test_list(IN const tt_char_t *class_name,
-                         IN OUT tt_u32_t *succ_num,
-                         IN OUT tt_u32_t *fail_num)
+                         IN OUT tt_u32_t *succ_num, IN OUT tt_u32_t *fail_num)
 {
     tt_test_class_t *test_class = s_test_class_head;
 
@@ -199,8 +198,7 @@ tt_result_t tt_test_list(IN const tt_char_t *class_name,
     } else {
         // list matching class
         while (test_class != NULL) {
-            if (tt_strncmp(class_name,
-                           test_class->name,
+            if (tt_strncmp(class_name, test_class->name,
                            TT_TEST_CLASS_NAME_LEN) == 0) {
                 tt_test_list_class(test_class, succ_num, fail_num);
             }
@@ -247,25 +245,16 @@ tt_result_t tt_test_run(IN const tt_char_t *name)
     }
 }
 
-void tt_test_error_info(IN tt_test_item_t *item,
-                        IN const tt_char_t *function,
-                        IN const tt_u32_t line,
-                        IN const tt_char_t *error_info)
+void tt_test_error_info(IN tt_test_item_t *item, IN const tt_char_t *function,
+                        IN const tt_u32_t line, IN const tt_char_t *error_info)
 {
     tt_memset(item->info, 0, sizeof(item->info));
-    tt_snprintf(item->info,
-                TT_TEST_ITEM_INFO_LEN,
-                "error at <%s:%d>: %s",
-                function,
-                line,
-                error_info);
+    tt_snprintf(item->info, TT_TEST_ITEM_INFO_LEN, "error at <%s:%d>: %s",
+                function, line, error_info);
 }
 
-void tt_test_info(IN tt_test_item_t *item,
-                  IN const tt_char_t *function,
-                  IN tt_u32_t line,
-                  IN const tt_char_t *format,
-                  ...)
+void tt_test_info(IN tt_test_item_t *item, IN const tt_char_t *function,
+                  IN tt_u32_t line, IN const tt_char_t *format, ...)
 {
     va_list args;
 
@@ -305,9 +294,7 @@ tt_result_t tt_test_list_class(IN tt_test_class_t *test_class,
 {
     tt_test_item_t *item = test_class->head;
 
-    if (!(test_class->attribute & __TCLS_TOUCHED)) {
-        return TT_SUCCESS;
-    }
+    if (!(test_class->attribute & __TCLS_TOUCHED)) { return TT_SUCCESS; }
 
     TT_TEST_INFO("== class: %s\r\n", test_class->name);
 #if TT_ENV_OS_IS_IOS
@@ -329,9 +316,7 @@ tt_result_t tt_test_list_item(IN tt_test_item_t *item,
                               IN OUT tt_u32_t *succ_num,
                               IN OUT tt_u32_t *fail_num)
 {
-    if (item->test_result == TT_E_PROCEED) {
-        return TT_SUCCESS;
-    }
+    if (item->test_result == TT_E_PROCEED) { return TT_SUCCESS; }
 
     TT_TEST_INFO("   |-- case:    %s", item->name);
     TT_TEST_INFO("   |   comment: %s", item->comment);
@@ -344,9 +329,7 @@ tt_result_t tt_test_list_item(IN tt_test_item_t *item,
     __ios_display(__ios_buf);
     snprintf(__ios_buf, __IOS_BUF_SIZE, "   |   comment: %s\n", item->comment);
     __ios_display(__ios_buf);
-    snprintf(__ios_buf,
-             __IOS_BUF_SIZE,
-             "   |   result:  %s\n",
+    snprintf(__ios_buf, __IOS_BUF_SIZE, "   |   result:  %s\n",
              TT_OK(item->test_result) ? "OK" : "Fail");
     __ios_display(__ios_buf);
     snprintf(__ios_buf, __IOS_BUF_SIZE, "   |-- info:    %s\n\n", item->info);
@@ -427,9 +410,7 @@ tt_result_t tt_test_run_item(IN tt_test_item_t *item)
 #if TT_ENV_OS_IS_IOS
 void __ios_display(const char *str)
 {
-    if (g_ios_display != NULL) {
-        g_ios_display(str);
-    }
+    if (g_ios_display != NULL) { g_ios_display(str); }
 }
 #endif
 

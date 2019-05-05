@@ -63,8 +63,7 @@ tt_export void tt_rsa_destroy(IN tt_rsa_t *rsa);
 
 tt_export tt_result_t tt_rsa_load(IN tt_rsa_t *rsa, IN struct tt_pk_s *pk);
 
-tt_export tt_result_t tt_rsa_generate(OUT tt_rsa_t *rsa,
-                                      IN tt_u32_t bit_num,
+tt_export tt_result_t tt_rsa_generate(OUT tt_rsa_t *rsa, IN tt_u32_t bit_num,
                                       IN tt_u32_t exponent);
 
 tt_export tt_result_t tt_rsa_topub(IN tt_rsa_t *rsa, OUT tt_rsa_t *pub);
@@ -74,25 +73,21 @@ tt_export tt_result_t tt_rsa_check(IN tt_rsa_t *pub, IN tt_rsa_t *priv);
 // pkcs1 v1.5
 
 // length of output should be rsa block size
-tt_export tt_result_t tt_rsa_encrypt_pkcs1(IN tt_rsa_t *rsa,
-                                           IN tt_u8_t *input,
+tt_export tt_result_t tt_rsa_encrypt_pkcs1(IN tt_rsa_t *rsa, IN tt_u8_t *input,
                                            IN tt_u32_t ilen,
                                            IN tt_u8_t *output);
 
-tt_export tt_result_t tt_rsa_decrypt_pkcs1(IN tt_rsa_t *rsa,
-                                           IN tt_u8_t *input,
+tt_export tt_result_t tt_rsa_decrypt_pkcs1(IN tt_rsa_t *rsa, IN tt_u8_t *input,
                                            IN tt_u8_t *output,
                                            IN OUT tt_u32_t *olen);
 
 // length of signature buf should be rsa block size
-tt_export tt_result_t tt_rsa_sign_pkcs1(IN tt_rsa_t *rsa,
-                                        IN tt_u8_t *input,
+tt_export tt_result_t tt_rsa_sign_pkcs1(IN tt_rsa_t *rsa, IN tt_u8_t *input,
                                         IN tt_u32_t ilen,
                                         IN tt_md_type_t md_type,
                                         IN tt_u8_t *sig);
 
-tt_export tt_result_t tt_rsa_verify_pkcs1(IN tt_rsa_t *rsa,
-                                          IN tt_u8_t *input,
+tt_export tt_result_t tt_rsa_verify_pkcs1(IN tt_rsa_t *rsa, IN tt_u8_t *input,
                                           IN tt_u32_t ilen,
                                           IN tt_md_type_t md_type,
                                           IN tt_u8_t *sig);
@@ -100,16 +95,14 @@ tt_export tt_result_t tt_rsa_verify_pkcs1(IN tt_rsa_t *rsa,
 // pkcs1 v2.1
 
 // length of output should be rsa block size
-tt_export tt_result_t tt_rsa_encrypt_oaep(IN tt_rsa_t *rsa,
-                                          IN tt_u8_t *input,
+tt_export tt_result_t tt_rsa_encrypt_oaep(IN tt_rsa_t *rsa, IN tt_u8_t *input,
                                           IN tt_u32_t ilen,
                                           IN const tt_u8_t *label,
                                           IN tt_u32_t label_len,
                                           IN tt_md_type_t md_type,
                                           IN tt_u8_t *output);
 
-tt_export tt_result_t tt_rsa_decrypt_oaep(IN tt_rsa_t *rsa,
-                                          IN tt_u8_t *input,
+tt_export tt_result_t tt_rsa_decrypt_oaep(IN tt_rsa_t *rsa, IN tt_u8_t *input,
                                           IN const tt_u8_t *label,
                                           IN tt_u32_t label_len,
                                           IN tt_md_type_t md_type,
@@ -117,14 +110,11 @@ tt_export tt_result_t tt_rsa_decrypt_oaep(IN tt_rsa_t *rsa,
                                           IN tt_u32_t *olen);
 
 // length of signature buf should be rsa block size
-tt_export tt_result_t tt_rsa_sign_pss(IN tt_rsa_t *rsa,
-                                      IN tt_u8_t *input,
-                                      IN tt_u32_t ilen,
-                                      IN tt_md_type_t md_type,
+tt_export tt_result_t tt_rsa_sign_pss(IN tt_rsa_t *rsa, IN tt_u8_t *input,
+                                      IN tt_u32_t ilen, IN tt_md_type_t md_type,
                                       IN tt_u8_t *sig);
 
-tt_export tt_result_t tt_rsa_verify_pss(IN tt_rsa_t *rsa,
-                                        IN tt_u8_t *input,
+tt_export tt_result_t tt_rsa_verify_pss(IN tt_rsa_t *rsa, IN tt_u8_t *input,
                                         IN tt_u32_t ilen,
                                         IN tt_md_type_t md_type,
                                         IN tt_u8_t *sig);

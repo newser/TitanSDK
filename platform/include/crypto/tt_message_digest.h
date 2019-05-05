@@ -48,7 +48,8 @@ this file defines message digest APIs
 
 struct tt_buf_s;
 
-typedef enum {
+typedef enum
+{
     TT_MD2,
     TT_MD4,
     TT_MD5,
@@ -87,8 +88,7 @@ tt_inline tt_u32_t tt_md_size(IN tt_md_t *md)
     return (tt_u32_t)mbedtls_md_get_size(md->ctx.md_info);
 }
 
-tt_inline tt_result_t tt_md_update(IN tt_md_t *md,
-                                   IN tt_u8_t *input,
+tt_inline tt_result_t tt_md_update(IN tt_md_t *md, IN tt_u8_t *input,
                                    IN tt_u32_t len)
 {
     if (mbedtls_md_update(&md->ctx, input, len) == 0) {
@@ -122,15 +122,11 @@ tt_inline tt_result_t tt_md_reset(IN tt_md_t *md)
     }
 }
 
-tt_export tt_result_t tt_md_gather(IN tt_md_type_t type,
-                                   IN tt_blob_t *input,
-                                   IN tt_u32_t input_num,
-                                   OUT tt_u8_t *output);
+tt_export tt_result_t tt_md_gather(IN tt_md_type_t type, IN tt_blob_t *input,
+                                   IN tt_u32_t input_num, OUT tt_u8_t *output);
 
-tt_inline tt_result_t tt_md(IN tt_md_type_t type,
-                            IN tt_u8_t *input,
-                            IN tt_u32_t input_len,
-                            OUT tt_u8_t *output)
+tt_inline tt_result_t tt_md(IN tt_md_type_t type, IN tt_u8_t *input,
+                            IN tt_u32_t input_len, OUT tt_u8_t *output)
 {
     tt_blob_t b = {input, input_len};
     return tt_md_gather(type, &b, 1, output);

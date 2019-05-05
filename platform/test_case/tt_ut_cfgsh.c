@@ -64,87 +64,34 @@ TT_TEST_ROUTINE_DECLARE(case_cfgsh_exec)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(cfgsh_case)
 
-TT_TEST_CASE("case_cfgsh_parse_arg",
-             "testing shell: parse arguments",
-             case_cfgsh_parse_arg,
-             NULL,
-             __cfgsh_ut_enter,
-             NULL,
-             __cfgsh_ut_exit,
-             NULL)
+TT_TEST_CASE("case_cfgsh_parse_arg", "testing shell: parse arguments",
+             case_cfgsh_parse_arg, NULL, __cfgsh_ut_enter, NULL,
+             __cfgsh_ut_exit, NULL)
 ,
 
-    TT_TEST_CASE("case_cfgsh_ls",
-                 "testing shell: ls",
-                 case_cfgsh_ls,
-                 NULL,
-                 __cfgsh_ut_enter,
-                 NULL,
-                 __cfgsh_ut_exit,
-                 NULL),
+    TT_TEST_CASE("case_cfgsh_ls", "testing shell: ls", case_cfgsh_ls, NULL,
+                 __cfgsh_ut_enter, NULL, __cfgsh_ut_exit, NULL),
 
-    TT_TEST_CASE("case_cfgsh_help",
-                 "testing shell: help",
-                 case_cfgsh_help,
-                 NULL,
-                 __cfgsh_ut_enter,
-                 NULL,
-                 __cfgsh_ut_exit,
-                 NULL),
+    TT_TEST_CASE("case_cfgsh_help", "testing shell: help", case_cfgsh_help,
+                 NULL, __cfgsh_ut_enter, NULL, __cfgsh_ut_exit, NULL),
 
-    TT_TEST_CASE("case_cfgsh_pwd",
-                 "testing shell: pwd",
-                 case_cfgsh_pwd,
-                 NULL,
-                 __cfgsh_ut_enter,
-                 NULL,
-                 __cfgsh_ut_exit,
-                 NULL),
+    TT_TEST_CASE("case_cfgsh_pwd", "testing shell: pwd", case_cfgsh_pwd, NULL,
+                 __cfgsh_ut_enter, NULL, __cfgsh_ut_exit, NULL),
 
-    TT_TEST_CASE("case_cfgsh_cd",
-                 "testing shell: cd",
-                 case_cfgsh_cd,
-                 NULL,
-                 __cfgsh_ut_enter,
-                 NULL,
-                 __cfgsh_ut_exit,
-                 NULL),
+    TT_TEST_CASE("case_cfgsh_cd", "testing shell: cd", case_cfgsh_cd, NULL,
+                 __cfgsh_ut_enter, NULL, __cfgsh_ut_exit, NULL),
 
-    TT_TEST_CASE("case_cfgsh_get",
-                 "testing shell: get",
-                 case_cfgsh_get,
-                 NULL,
-                 __cfgsh_ut_enter,
-                 NULL,
-                 __cfgsh_ut_exit,
-                 NULL),
+    TT_TEST_CASE("case_cfgsh_get", "testing shell: get", case_cfgsh_get, NULL,
+                 __cfgsh_ut_enter, NULL, __cfgsh_ut_exit, NULL),
 
-    TT_TEST_CASE("case_cfgsh_set",
-                 "testing shell: set",
-                 case_cfgsh_set,
-                 NULL,
-                 __cfgsh_ut_enter,
-                 NULL,
-                 __cfgsh_ut_exit,
-                 NULL),
+    TT_TEST_CASE("case_cfgsh_set", "testing shell: set", case_cfgsh_set, NULL,
+                 __cfgsh_ut_enter, NULL, __cfgsh_ut_exit, NULL),
 
-    TT_TEST_CASE("case_cfgsh_quit",
-                 "testing shell: quit",
-                 case_cfgsh_quit,
-                 NULL,
-                 __cfgsh_ut_enter,
-                 NULL,
-                 __cfgsh_ut_exit,
-                 NULL),
+    TT_TEST_CASE("case_cfgsh_quit", "testing shell: quit", case_cfgsh_quit,
+                 NULL, __cfgsh_ut_enter, NULL, __cfgsh_ut_exit, NULL),
 
-    TT_TEST_CASE("case_cfgsh_exec",
-                 "testing shell: execute",
-                 case_cfgsh_exec,
-                 NULL,
-                 __cfgsh_ut_enter,
-                 NULL,
-                 __cfgsh_ut_exit,
-                 NULL),
+    TT_TEST_CASE("case_cfgsh_exec", "testing shell: execute", case_cfgsh_exec,
+                 NULL, __cfgsh_ut_enter, NULL, __cfgsh_ut_exit, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(cfgsh_case)
     // =========================================
@@ -204,10 +151,8 @@ static tt_s32_t __s32_val;
 static tt_buf_t __ut_buf_out;
 
 static tt_u32_t exec_mode;
-static tt_result_t __exec_run(IN struct tt_param_s *co,
-                              IN tt_u32_t argc,
-                              IN tt_char_t *argv[],
-                              OUT struct tt_buf_s *output,
+static tt_result_t __exec_run(IN struct tt_param_s *co, IN tt_u32_t argc,
+                              IN tt_char_t *argv[], OUT struct tt_buf_s *output,
                               OUT tt_u32_t *status)
 {
     if (exec_mode == 0) {
@@ -233,9 +178,7 @@ void __cfgsh_ut_enter(void *enter_param)
     tt_param_attr_t s32_attr;
     tt_param_attr_t exec_attr;
 
-    if (!__cfgsh_ut_init) {
-        return;
-    }
+    if (!__cfgsh_ut_init) { return; }
     __cfgsh_ut_init = TT_FALSE;
 
     /*
@@ -301,10 +244,8 @@ void __cfgsh_ut_exit(void *exit_param)
     tt_buf_destroy(&__ut_buf_out);
 }
 
-static tt_result_t __ut_cfgsh_send(IN struct tt_cli_s *cli,
-                                   IN void *param,
-                                   IN tt_u8_t *ev,
-                                   IN tt_u32_t ev_num)
+static tt_result_t __ut_cfgsh_send(IN struct tt_cli_s *cli, IN void *param,
+                                   IN tt_u8_t *ev, IN tt_u32_t ev_num)
 {
     tt_u32_t i;
 
@@ -432,8 +373,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_parse_arg)
         ret = __parse_arg(&sh, cmd);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(sh.arg_num, 1, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[0], " arg1 \"not param \" arg1.1   "),
-                    0,
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], " arg1 \"not param \" arg1.1   "), 0,
                     "");
     }
 

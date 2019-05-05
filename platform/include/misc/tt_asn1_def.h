@@ -73,12 +73,10 @@ this file includes ASN.1 definitions
     (((class) << 6) | ((pc) << 5) | (tag))
 
 #define TT_ASN1_TAG_UP(tag)                                                    \
-    TT_ASN1_MK_CLASS_PC_TAG(TT_ASN1_CLASS_UNIVERSAL,                           \
-                            TT_ASN1_PC_PRIMITIVE,                              \
+    TT_ASN1_MK_CLASS_PC_TAG(TT_ASN1_CLASS_UNIVERSAL, TT_ASN1_PC_PRIMITIVE,     \
                             (tag))
 #define TT_ASN1_TAG_UC(tag)                                                    \
-    TT_ASN1_MK_CLASS_PC_TAG(TT_ASN1_CLASS_UNIVERSAL,                           \
-                            TT_ASN1_PC_CONSTRUCTED,                            \
+    TT_ASN1_MK_CLASS_PC_TAG(TT_ASN1_CLASS_UNIVERSAL, TT_ASN1_PC_CONSTRUCTED,   \
                             (tag))
 
 #define TT_ASN1_BOOLEAN TT_ASN1_TAG_UP(TT_ASN1_TAG_BOOLEAN)

@@ -63,10 +63,8 @@ static const char *__charset_string[TT_CHARSET_NUM] = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __charset_iconv(IN iconv_t ic,
-                                   IN tt_u8_t *input,
-                                   IN tt_u32_t input_len,
-                                   IN tt_buf_t *output);
+static tt_result_t __charset_iconv(IN iconv_t ic, IN tt_u8_t *input,
+                                   IN tt_u32_t input_len, IN tt_buf_t *output);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -95,8 +93,7 @@ void tt_chsetconv_destroy_ntv(IN struct tt_chsetconv_s *csconv)
 }
 
 tt_result_t tt_chsetconv_input_ntv(IN struct tt_chsetconv_s *csconv,
-                                   IN tt_u8_t *input,
-                                   IN tt_u32_t input_len)
+                                   IN tt_u8_t *input, IN tt_u32_t input_len)
 {
     tt_buf_t *converted = &csconv->converted;
     iconv_t ic = csconv->sys_csconv.ic;
@@ -107,9 +104,7 @@ tt_result_t tt_chsetconv_input_ntv(IN struct tt_chsetconv_s *csconv,
 
         TT_DO(tt_buf_reserve(converted,
                              TT_CHARSET_MAX_MBCHAR_LEN + (input_len << 1)));
-        if (!TT_OK(__charset_iconv(ic,
-                                   csconv->head,
-                                   csconv->head_len,
+        if (!TT_OK(__charset_iconv(ic, csconv->head, csconv->head_len,
                                    converted))) {
             return TT_FAIL;
         }
@@ -137,10 +132,8 @@ void tt_chsetconv_reset_ntv(IN struct tt_chsetconv_s *csconv)
     iconv(csconv->sys_csconv.ic, NULL, 0, NULL, 0);
 }
 
-tt_result_t __charset_iconv(IN iconv_t ic,
-                            IN tt_u8_t *input,
-                            IN tt_u32_t input_len,
-                            IN tt_buf_t *output)
+tt_result_t __charset_iconv(IN iconv_t ic, IN tt_u8_t *input,
+                            IN tt_u32_t input_len, IN tt_buf_t *output)
 {
     char *inbuf = (char *)input;
     size_t inbytesleft = input_len;

@@ -46,33 +46,21 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-void *__short_bsearch(IN void *key,
-                      IN void *base,
-                      IN tt_u32_t num,
-                      IN tt_u32_t width,
-                      IN tt_cmp_t cmp);
+void *__short_bsearch(IN void *key, IN void *base, IN tt_u32_t num,
+                      IN tt_u32_t width, IN tt_cmp_t cmp);
 
-void *__short_bsearch_gteq(IN void *key,
-                           IN void *base,
-                           IN tt_u32_t num,
-                           IN tt_u32_t width,
-                           IN tt_cmp_t cmp);
+void *__short_bsearch_gteq(IN void *key, IN void *base, IN tt_u32_t num,
+                           IN tt_u32_t width, IN tt_cmp_t cmp);
 
-void *__short_bsearch_lteq(IN void *key,
-                           IN void *base,
-                           IN tt_u32_t num,
-                           IN tt_u32_t width,
-                           IN tt_cmp_t cmp);
+void *__short_bsearch_lteq(IN void *key, IN void *base, IN tt_u32_t num,
+                           IN tt_u32_t width, IN tt_cmp_t cmp);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void *tt_bsearch(IN void *key,
-                 IN void *base,
-                 IN tt_u32_t num,
-                 IN tt_u32_t width,
-                 IN tt_cmp_t cmp)
+void *tt_bsearch(IN void *key, IN void *base, IN tt_u32_t num,
+                 IN tt_u32_t width, IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *middle;
     tt_u32_t n;
@@ -118,11 +106,8 @@ sub_search:
     }
 }
 
-void *tt_bsearch_gteq(IN void *key,
-                      IN void *base,
-                      IN tt_u32_t num,
-                      IN tt_u32_t width,
-                      IN tt_cmp_t cmp)
+void *tt_bsearch_gteq(IN void *key, IN void *base, IN tt_u32_t num,
+                      IN tt_u32_t width, IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *middle;
     tt_u32_t n;
@@ -151,9 +136,7 @@ sub_search:
         if (cmp_ret < 0) {
             if (start < middle) {
                 end = middle - width;
-                if (cmp(key, end) > 0) {
-                    return middle;
-                }
+                if (cmp(key, end) > 0) { return middle; }
 
                 goto sub_search;
             } else {
@@ -172,11 +155,8 @@ sub_search:
     }
 }
 
-void *tt_bsearch_lteq(IN void *key,
-                      IN void *base,
-                      IN tt_u32_t num,
-                      IN tt_u32_t width,
-                      IN tt_cmp_t cmp)
+void *tt_bsearch_lteq(IN void *key, IN void *base, IN tt_u32_t num,
+                      IN tt_u32_t width, IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *middle;
     tt_u32_t n;
@@ -212,9 +192,7 @@ sub_search:
         } else if (cmp_ret > 0) {
             if (middle < end) {
                 start = middle + width;
-                if (cmp(key, start) < 0) {
-                    return middle;
-                }
+                if (cmp(key, start) < 0) { return middle; }
                 goto sub_search;
             } else {
                 return middle;
@@ -225,11 +203,8 @@ sub_search:
     }
 }
 
-void *__short_bsearch(IN void *key,
-                      IN void *base,
-                      IN tt_u32_t num,
-                      IN tt_u32_t width,
-                      IN tt_cmp_t cmp)
+void *__short_bsearch(IN void *key, IN void *base, IN tt_u32_t num,
+                      IN tt_u32_t width, IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *pos;
 
@@ -237,19 +212,14 @@ void *__short_bsearch(IN void *key,
     end = start + (num - 1) * width;
 
     for (pos = start; pos <= end; pos += width) {
-        if (cmp(key, pos) == 0) {
-            return pos;
-        }
+        if (cmp(key, pos) == 0) { return pos; }
     }
 
     return NULL;
 }
 
-void *__short_bsearch_gteq(IN void *key,
-                           IN void *base,
-                           IN tt_u32_t num,
-                           IN tt_u32_t width,
-                           IN tt_cmp_t cmp)
+void *__short_bsearch_gteq(IN void *key, IN void *base, IN tt_u32_t num,
+                           IN tt_u32_t width, IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *pos;
 
@@ -257,19 +227,14 @@ void *__short_bsearch_gteq(IN void *key,
     end = start + (num - 1) * width;
 
     for (pos = start; pos <= end; pos += width) {
-        if (cmp(key, pos) <= 0) {
-            return pos;
-        }
+        if (cmp(key, pos) <= 0) { return pos; }
     }
 
     return NULL;
 }
 
-void *__short_bsearch_lteq(IN void *key,
-                           IN void *base,
-                           IN tt_u32_t num,
-                           IN tt_u32_t width,
-                           IN tt_cmp_t cmp)
+void *__short_bsearch_lteq(IN void *key, IN void *base, IN tt_u32_t num,
+                           IN tt_u32_t width, IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *pos;
 
@@ -277,9 +242,7 @@ void *__short_bsearch_lteq(IN void *key,
     end = start + (num - 1) * width;
 
     for (pos = end; pos >= start; pos -= width) {
-        if (cmp(key, pos) >= 0) {
-            return pos;
-        }
+        if (cmp(key, pos) >= 0) { return pos; }
     }
 
     return NULL;

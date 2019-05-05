@@ -52,55 +52,25 @@ TT_TEST_ROUTINE_DECLARE(case_rwbuf_raw)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(rbuf_case)
 #if 1
-TT_TEST_CASE(
-    "case_rbuf", "testing read buffer", case_rbuf, NULL, NULL, NULL, NULL, NULL)
+TT_TEST_CASE("case_rbuf", "testing read buffer", case_rbuf, NULL, NULL, NULL,
+             NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_rbuf_stress",
-                 "testing read buffer stress test",
-                 case_rbuf_stress,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_rbuf_stress", "testing read buffer stress test",
+                 case_rbuf_stress, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_rbuf_excep",
-                 "testing read buffer exceptional test",
-                 case_rbuf_excep,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_rbuf_excep", "testing read buffer exceptional test",
+                 case_rbuf_excep, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_wbuf",
-                 "testing write buffer",
-                 case_wbuf,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_wbuf", "testing write buffer", case_wbuf, NULL, NULL,
+                 NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_rwbuf",
-                 "testing read write buffer",
-                 case_rwbuf,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_rwbuf", "testing read write buffer", case_rwbuf, NULL,
+                 NULL, NULL, NULL, NULL),
 #endif
 
-    TT_TEST_CASE("case_rwbuf_raw",
-                 "testing read write buffer, no enc/dec",
-                 case_rwbuf_raw,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_rwbuf_raw", "testing read write buffer, no enc/dec",
+                 case_rwbuf_raw, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(rbuf_case)
     // =========================================
@@ -144,17 +114,14 @@ static void __enc_rbuf(tt_buf_t *data, tt_buf_t *enc)
     tt_buf_get_rptr(data, &p, &len);
     while (n < len) {
         s = tt_rand_u32() % 10;
-        if ((n + s) > len) {
-            s = len - n;
-        }
+        if ((n + s) > len) { s = len - n; }
         tt_buf_put_u8(enc, s);
         tt_buf_put(enc, p + n, s);
         n += s;
     }
 }
 
-static tt_result_t __ut_dec_pre(IN tt_buf_t *raw,
-                                OUT tt_u32_t *len,
+static tt_result_t __ut_dec_pre(IN tt_buf_t *raw, OUT tt_u32_t *len,
                                 IN void *param)
 {
     tt_u8_t n;
@@ -168,10 +135,8 @@ static tt_result_t __ut_dec_pre(IN tt_buf_t *raw,
     return TT_SUCCESS;
 }
 
-static tt_result_t __ut_dec(IN tt_buf_t *raw,
-                            IN tt_u32_t len,
-                            OUT tt_buf_t *dec,
-                            IN void *param)
+static tt_result_t __ut_dec(IN tt_buf_t *raw, IN tt_u32_t len,
+                            OUT tt_buf_t *dec, IN void *param)
 {
     tt_u8_t n;
 
@@ -189,8 +154,7 @@ static tt_result_t __ut_dec(IN tt_buf_t *raw,
     }
 }
 
-static tt_result_t __ut_par_pre(IN tt_buf_t *buf,
-                                OUT tt_u32_t *len,
+static tt_result_t __ut_par_pre(IN tt_buf_t *buf, OUT tt_u32_t *len,
                                 IN void *param)
 {
     tt_u8_t n;
@@ -204,10 +168,8 @@ static tt_result_t __ut_par_pre(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
-static tt_result_t __ut_par(IN tt_buf_t *buf,
-                            IN tt_u32_t len,
-                            OUT void **parse_ret,
-                            IN void *param)
+static tt_result_t __ut_par(IN tt_buf_t *buf, IN tt_u32_t len,
+                            OUT void **parse_ret, IN void *param)
 {
     tt_u8_t n, i, v = 0, t;
     tt_uintptr_t ret;
@@ -218,9 +180,7 @@ static tt_result_t __ut_par(IN tt_buf_t *buf,
     TT_ASSERT(len == (n + 3));
 
     TT_DO(tt_buf_get_u8(buf, &t));
-    if (t != 0xaa) {
-        return TT_FAIL;
-    }
+    if (t != 0xaa) { return TT_FAIL; }
 
     for (i = 0; i < n; ++i) {
         TT_DO(tt_buf_get_u8(buf, &t));
@@ -232,9 +192,7 @@ static tt_result_t __ut_par(IN tt_buf_t *buf,
     }
 
     TT_DO(tt_buf_get_u8(buf, &t));
-    if (t != 0xbb) {
-        return TT_FAIL;
-    }
+    if (t != 0xbb) { return TT_FAIL; }
 
     if (v % 5 != 0) {
         ret = (tt_uintptr_t)v;
@@ -251,13 +209,9 @@ static tt_uintptr_t __ut_seq;
 static void __ut_par_done(IN void *parse_ret, IN void *param)
 {
     tt_uintptr_t v = (tt_uintptr_t)parse_ret;
-    if (__ut_seq % 5 == 0) {
-        ++__ut_seq;
-    }
+    if (__ut_seq % 5 == 0) { ++__ut_seq; }
 
-    if (v != __ut_seq) {
-        __ut_ret = TT_FAIL;
-    }
+    if (v != __ut_seq) { __ut_ret = TT_FAIL; }
     ++__ut_seq;
 }
 
@@ -279,9 +233,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbuf)
     tt_buf_init(&raw, NULL);
     tt_buf_init(&enc, NULL);
 
-    for (i = 0; i < 100; ++i) {
-        __gen_rbuf(&raw, i, i);
-    }
+    for (i = 0; i < 100; ++i) { __gen_rbuf(&raw, i, i); }
     __enc_rbuf(&raw, &enc);
 
     ret = tt_rbuf_reserve(&rbuf, TT_BUF_RLEN(&enc));
@@ -306,9 +258,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbuf)
     i = 0;
     while (i < len) {
         tt_u32_t s = tt_rand_u32() % 10;
-        if (i + s > len) {
-            s = len - i;
-        }
+        if (i + s > len) { s = len - i; }
 
         ret = tt_rbuf_reserve(&rbuf, s);
         TT_UT_SUCCESS(ret, "");
@@ -374,9 +324,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbuf_stress)
         k = 0;
         while (k < len) {
             tt_u32_t s = tt_rand_u32() % 50;
-            if (k + s > len) {
-                s = len - k;
-            }
+            if (k + s > len) { s = len - k; }
 
             ret = tt_rbuf_reserve(&rbuf, s);
             TT_UT_SUCCESS(ret, "");
@@ -435,9 +383,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbuf_excep)
             j = tt_rand_u32() % n;
             jn = tt_rand_u32() % (n - j);
             TT_ASSERT((j < n) && (j + jn <= n));
-            for (k = j; k < j + jn; ++k) {
-                p[k] = tt_rand_u32();
-            }
+            for (k = j; k < j + jn; ++k) { p[k] = tt_rand_u32(); }
 
             __enc_rbuf(&raw, &enc);
         } else {
@@ -448,9 +394,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbuf_excep)
             j = tt_rand_u32() % n;
             jn = tt_rand_u32() % (n - j);
             TT_ASSERT((j < n) && (j + jn <= n));
-            for (k = j; k < j + jn; ++k) {
-                p[k] = tt_rand_u32();
-            }
+            for (k = j; k < j + jn; ++k) { p[k] = tt_rand_u32(); }
         }
         // max len: 10000 bytes
 
@@ -458,9 +402,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbuf_excep)
         k = 0;
         while (k < len) {
             tt_u32_t s = tt_rand_u32() % 50;
-            if (k + s > len) {
-                s = len - k;
-            }
+            if (k + s > len) { s = len - k; }
 
             ret = tt_rbuf_reserve(&rbuf, s);
             TT_UT_SUCCESS(ret, "");
@@ -494,10 +436,8 @@ static tt_u32_t __ut_rdr_pre(IN void *to_render, IN void *param)
     return v + 3; // len, two magic
 }
 
-static tt_result_t __ut_rdr(IN tt_buf_t *buf,
-                            IN tt_u32_t len,
-                            IN void *to_render,
-                            IN void *param)
+static tt_result_t __ut_rdr(IN tt_buf_t *buf, IN tt_u32_t len,
+                            IN void *to_render, IN void *param)
 {
     tt_u8_t v = (tt_u8_t)(tt_uintptr_t)to_render;
 
@@ -514,8 +454,7 @@ static tt_result_t __ut_rdr(IN tt_buf_t *buf,
 
 static tt_bool_t enc_all;
 
-static tt_result_t __ut_enc_pre(IN tt_buf_t *raw,
-                                OUT tt_u32_t *len,
+static tt_result_t __ut_enc_pre(IN tt_buf_t *raw, OUT tt_u32_t *len,
                                 IN void *param)
 {
     tt_u32_t s;
@@ -536,10 +475,8 @@ static tt_result_t __ut_enc_pre(IN tt_buf_t *raw,
     }
 }
 
-static tt_result_t __ut_enc(IN tt_buf_t *raw,
-                            IN tt_u32_t len,
-                            OUT tt_buf_t *enc,
-                            IN void *param)
+static tt_result_t __ut_enc(IN tt_buf_t *raw, IN tt_u32_t len,
+                            OUT tt_buf_t *enc, IN void *param)
 {
     TT_ASSERT(param == (void *)0x3);
     TT_ASSERT(TT_BUF_RLEN(raw) >= len);
@@ -585,18 +522,14 @@ TT_TEST_ROUTINE_DEFINE(case_wbuf)
     enc_all = TT_FALSE;
     for (i = 0; i < 100; ++i) {
         tt_u8_t *rendered;
-        if (i == 99) {
-            enc_all = TT_TRUE;
-        }
+        if (i == 99) { enc_all = TT_TRUE; }
         ret = tt_wbuf_render(&wbuf, (void *)(tt_uintptr_t)i, &rendered, &len);
         if (TT_OK(ret)) {
             TT_UT_EQUAL(len, i + 3, "");
             TT_UT_EQUAL(rendered[0], i, "");
             TT_UT_EQUAL(rendered[1], 0xaa, "");
             TT_UT_EQUAL(rendered[len - 1], 0xbb, "");
-            if (len > 3) {
-                TT_UT_EQUAL(rendered[len - 2], i, "");
-            }
+            if (len > 3) { TT_UT_EQUAL(rendered[len - 2], i, ""); }
         } else {
             TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
         }
@@ -625,9 +558,7 @@ TT_TEST_ROUTINE_DEFINE(case_wbuf)
     i = 0;
     while (i < len) {
         tt_u32_t s = tt_rand_u32() % 10;
-        if (i + s > len) {
-            s = len - i;
-        }
+        if (i + s > len) { s = len - i; }
 
         ret = tt_rbuf_reserve(&rbuf, s);
         TT_UT_SUCCESS(ret, "");
@@ -685,18 +616,14 @@ TT_TEST_ROUTINE_DEFINE(case_rwbuf)
     enc_all = TT_FALSE;
     for (i = 0; i < 100; ++i) {
         tt_u8_t *rendered;
-        if (i == 99) {
-            enc_all = TT_TRUE;
-        }
+        if (i == 99) { enc_all = TT_TRUE; }
         ret = tt_wbuf_render(&wbuf, (void *)(tt_uintptr_t)i, &rendered, &len);
         if (TT_OK(ret)) {
             TT_UT_EQUAL(len, i + 3, "");
             TT_UT_EQUAL(rendered[0], i, "");
             TT_UT_EQUAL(rendered[1], 0xaa, "");
             TT_UT_EQUAL(rendered[len - 1], 0xbb, "");
-            if (len > 3) {
-                TT_UT_EQUAL(rendered[len - 2], i, "");
-            }
+            if (len > 3) { TT_UT_EQUAL(rendered[len - 2], i, ""); }
 
             // each time wbuf has data, pass to rbuf
             tt_wbuf_get_rptr(&wbuf, &wp, &wlen);
@@ -760,18 +687,14 @@ TT_TEST_ROUTINE_DEFINE(case_rwbuf_raw)
     enc_all = TT_FALSE;
     for (i = 0; i < 100; ++i) {
         tt_u8_t *rendered;
-        if (i == 99) {
-            enc_all = TT_TRUE;
-        }
+        if (i == 99) { enc_all = TT_TRUE; }
         ret = tt_wbuf_render(&wbuf, (void *)(tt_uintptr_t)i, &rendered, &len);
         if (TT_OK(ret)) {
             TT_UT_EQUAL(len, i + 3, "");
             TT_UT_EQUAL(rendered[0], i, "");
             TT_UT_EQUAL(rendered[1], 0xaa, "");
             TT_UT_EQUAL(rendered[len - 1], 0xbb, "");
-            if (len > 3) {
-                TT_UT_EQUAL(rendered[len - 2], i, "");
-            }
+            if (len > 3) { TT_UT_EQUAL(rendered[len - 2], i, ""); }
             tt_buf_put(&saved, rendered, len);
 
             // each time wbuf has data, pass to rbuf

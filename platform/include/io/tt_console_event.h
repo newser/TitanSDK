@@ -90,7 +90,8 @@ typedef struct tt_cons_ev_key_s
 // console event
 // ========================================
 
-typedef enum tt_cons_ev_s {
+typedef enum tt_cons_ev_s
+{
     TT_CONS_EV_KEY,
 
     TT_CONS_EV_NUM

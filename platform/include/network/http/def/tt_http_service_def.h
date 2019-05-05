@@ -46,7 +46,8 @@ this file defines http service type
 struct tt_http_inserv_s;
 struct tt_http_contype_map_s;
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_INSERV_HOST,
     TT_HTTP_INSERV_FILE,
     TT_HTTP_INSERV_CONDITIONAL,

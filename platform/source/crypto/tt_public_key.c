@@ -47,7 +47,8 @@
 ////////////////////////////////////////////////////////////
 
 static mbedtls_pk_type_t __pk_type_map[TT_PK_TYPE_NUM] = {
-    MBEDTLS_PK_RSA, MBEDTLS_PK_ECKEY,
+    MBEDTLS_PK_RSA,
+    MBEDTLS_PK_ECKEY,
 };
 
 ////////////////////////////////////////////////////////////
@@ -88,10 +89,8 @@ tt_result_t tt_pk_load_public(IN tt_pk_t *pk, IN tt_u8_t *key, IN tt_u32_t len)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_pk_load_private(IN tt_pk_t *pk,
-                               IN tt_u8_t *key,
-                               IN tt_u32_t key_len,
-                               IN OPT tt_u8_t *pwd,
+tt_result_t tt_pk_load_private(IN tt_pk_t *pk, IN tt_u8_t *key,
+                               IN tt_u32_t key_len, IN OPT tt_u8_t *pwd,
                                IN tt_u32_t pwd_len)
 {
     int e;
@@ -122,8 +121,7 @@ tt_result_t tt_pk_load_public_file(IN tt_pk_t *pk, IN const tt_char_t *path)
         return TT_FAIL;
     }
 
-    e = mbedtls_pk_parse_public_key(&pk->ctx,
-                                    TT_BUF_RPOS(&buf),
+    e = mbedtls_pk_parse_public_key(&pk->ctx, TT_BUF_RPOS(&buf),
                                     TT_BUF_RLEN(&buf));
     tt_buf_destroy(&buf);
     if (e != 0) {
@@ -134,8 +132,7 @@ tt_result_t tt_pk_load_public_file(IN tt_pk_t *pk, IN const tt_char_t *path)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_pk_load_private_file(IN tt_pk_t *pk,
-                                    IN const tt_char_t *path,
+tt_result_t tt_pk_load_private_file(IN tt_pk_t *pk, IN const tt_char_t *path,
                                     IN OPT const tt_u8_t *pwd,
                                     IN tt_u32_t pwd_len)
 {
@@ -151,11 +148,8 @@ tt_result_t tt_pk_load_private_file(IN tt_pk_t *pk,
         return TT_FAIL;
     }
 
-    e = mbedtls_pk_parse_key(&pk->ctx,
-                             TT_BUF_RPOS(&buf),
-                             TT_BUF_RLEN(&buf),
-                             pwd,
-                             pwd_len);
+    e = mbedtls_pk_parse_key(&pk->ctx, TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf),
+                             pwd, pwd_len);
     tt_buf_destroy(&buf);
     if (e != 0) {
         tt_crypto_error("fail to parse private key");
@@ -190,9 +184,7 @@ tt_pk_type_t tt_pk_get_type(IN tt_pk_t *pk)
 
     t = mbedtls_pk_get_type(&pk->ctx);
     for (i = 0; i < TT_PK_TYPE_NUM; ++i) {
-        if (__pk_type_map[i] == t) {
-            break;
-        }
+        if (__pk_type_map[i] == t) { break; }
     }
     return i;
 }

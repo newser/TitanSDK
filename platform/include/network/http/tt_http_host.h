@@ -48,8 +48,7 @@ struct tt_http_uri_s;
 struct tt_http_inserv_host_ctx_s;
 
 typedef tt_bool_t (*tt_http_host_match_t)(IN struct tt_http_host_s *h,
-                                          IN tt_char_t *s,
-                                          IN tt_u32_t len);
+                                          IN tt_char_t *s, IN tt_u32_t len);
 
 typedef struct tt_http_host_s
 {
@@ -82,10 +81,8 @@ tt_export void tt_http_host_component_exit(IN struct tt_component_s *comp);
 
 // set match to NULL to match any
 tt_export tt_http_host_t *tt_http_host_create_n(
-    IN OPT const tt_char_t *name,
-    IN tt_u32_t name_len,
-    IN OPT tt_http_host_match_t match,
-    IN OPT tt_http_host_attr_t *attr);
+    IN OPT const tt_char_t *name, IN tt_u32_t name_len,
+    IN OPT tt_http_host_match_t match, IN OPT tt_http_host_attr_t *attr);
 
 tt_inline tt_http_host_t *tt_http_host_create(IN const tt_char_t *name,
                                               IN OPT tt_http_host_match_t match,
@@ -99,8 +96,7 @@ tt_export void tt_http_host_attr_default(IN tt_http_host_attr_t *attr);
 tt_export void tt_http_host_destroy(IN tt_http_host_t *h);
 
 tt_export tt_http_rule_result_t
-tt_http_host_apply(IN tt_http_host_t *h,
-                   IN OUT struct tt_http_uri_s *uri,
+tt_http_host_apply(IN tt_http_host_t *h, IN OUT struct tt_http_uri_s *uri,
                    OUT struct tt_http_inserv_host_ctx_s *ctx);
 
 tt_inline void tt_http_host_add_rule(IN tt_http_host_t *h,
@@ -109,8 +105,7 @@ tt_inline void tt_http_host_add_rule(IN tt_http_host_t *h,
     tt_http_rule_add(h->root, rule);
 }
 
-tt_inline tt_bool_t tt_http_host_match(IN tt_http_host_t *h,
-                                       IN tt_char_t *s,
+tt_inline tt_bool_t tt_http_host_match(IN tt_http_host_t *h, IN tt_char_t *s,
                                        IN tt_u32_t len)
 {
     // NULL match always return true
@@ -122,7 +117,6 @@ tt_inline tt_bool_t tt_http_host_match(IN tt_http_host_t *h,
 // ========================================
 
 tt_export tt_bool_t tt_http_host_match_cmp(IN tt_http_host_t *h,
-                                           IN tt_char_t *s,
-                                           IN tt_u32_t len);
+                                           IN tt_char_t *s, IN tt_u32_t len);
 
 #endif /* __TT_HTTP_HOST__ */

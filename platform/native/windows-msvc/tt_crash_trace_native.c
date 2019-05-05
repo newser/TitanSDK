@@ -58,8 +58,7 @@ static LONG CALLBACK __on_crash(IN PEXCEPTION_POINTERS ExceptionInfo);
 
 static const tt_char_t *__ecode2str(IN DWORD ExceptionCode);
 
-static void __addr2sym(IN tt_uintptr_t addr,
-                       IN tt_char_t *buf,
+static void __addr2sym(IN tt_uintptr_t addr, IN tt_char_t *buf,
                        IN tt_u32_t len);
 
 ////////////////////////////////////////////////////////////
@@ -106,9 +105,7 @@ LONG CALLBACK __on_crash(IN PEXCEPTION_POINTERS ExceptionInfo)
     ecstr = __ecode2str(ExceptionInfo->ExceptionRecord->ExceptionCode);
     if (ecstr == NULL) {
         tt_memset(buf, 0, sizeof(buf));
-        tt_snprintf(buf,
-                    sizeof(buf) - 1,
-                    "%d",
+        tt_snprintf(buf, sizeof(buf) - 1, "%d",
                     ExceptionInfo->ExceptionRecord->ExceptionCode);
         ecstr = buf;
     }
@@ -135,8 +132,7 @@ LONG CALLBACK __on_crash(IN PEXCEPTION_POINTERS ExceptionInfo)
 const tt_char_t *__ecode2str(IN DWORD ExceptionCode)
 {
 #define __SE(e)                                                                \
-    case e:                                                                    \
-        return #e
+    case e: return #e
     switch (ExceptionCode) {
         __SE(EXCEPTION_ACCESS_VIOLATION);
         __SE(EXCEPTION_ARRAY_BOUNDS_EXCEEDED);
@@ -158,8 +154,7 @@ const tt_char_t *__ecode2str(IN DWORD ExceptionCode)
         __SE(EXCEPTION_PRIV_INSTRUCTION);
         __SE(EXCEPTION_SINGLE_STEP);
         __SE(EXCEPTION_STACK_OVERFLOW);
-        default:
-            return NULL;
+    default: return NULL;
     }
 #undef __SE
 }
@@ -184,20 +179,11 @@ void __addr2sym(IN tt_uintptr_t addr, IN tt_char_t *buf, IN tt_u32_t len)
         tt_snprintf(buf, len - 1, "%p", addr);
     } else if (!SymGetLineFromAddrW64(proc, addr, &disp2, &line) ||
                ((fname = tt_utf8_create(line.FileName, 0, NULL)) == NULL)) {
-        tt_snprintf(buf,
-                    len - 1,
-                    "%p in %s(+0x%x)",
-                    addr,
-                    sym->Name,
+        tt_snprintf(buf, len - 1, "%p in %s(+0x%x)", addr, sym->Name,
                     addr_disp);
     } else {
-        tt_snprintf(buf,
-                    len - 1,
-                    "%p in %s() at [%s:%d]",
-                    addr,
-                    sym->Name,
-                    fname,
-                    line.LineNumber);
+        tt_snprintf(buf, len - 1, "%p in %s() at [%s:%d]", addr, sym->Name,
+                    fname, line.LineNumber);
         tt_free(fname);
     }
 }

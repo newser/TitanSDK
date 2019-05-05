@@ -66,7 +66,8 @@ void tt_http_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __http_component_init, __http_component_exit,
+        __http_component_init,
+        __http_component_exit,
     };
 
     // init component
@@ -79,9 +80,7 @@ void tt_http_component_register()
 tt_result_t __http_component_init(IN tt_component_t *comp,
                                   IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_http_host_component_init(comp, profile))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_http_host_component_init(comp, profile))) { return TT_FAIL; }
 
     if (!TT_OK(tt_http_inserv_host_component_init(comp, profile))) {
         return TT_FAIL;

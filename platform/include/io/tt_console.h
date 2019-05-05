@@ -51,7 +51,8 @@ console api should be able to write:
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_CONSOLE_IMODE_DEFAULT,
     TT_CONSOLE_IMODE_RAW,
 
@@ -59,7 +60,8 @@ typedef enum {
 } tt_console_input_mode_t;
 #define TT_CONSOLE_IMODE_VALID(m) ((m) < TT_CONSOLE_IMODE_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_CONSOLE_OMODE_DEFAULT,
     TT_CONSOLE_OMODE_RAW,
 
@@ -74,11 +76,11 @@ typedef struct tt_console_attr_s
     tt_char_t unprintable_substitutor;
 } tt_console_attr_t;
 
-typedef tt_result_t (*tt_cons_ev_handler_t)(IN void *param,
-                                            IN tt_cons_ev_t ev,
+typedef tt_result_t (*tt_cons_ev_handler_t)(IN void *param, IN tt_cons_ev_t ev,
                                             IN tt_cons_ev_data_t *ev_data);
 
-typedef enum {
+typedef enum
+{
     TT_CONSOLE_COLOR_CURRENT,
 
     TT_CONSOLE_BLACK,
@@ -118,8 +120,7 @@ tt_export void tt_console_attr_default(IN tt_console_attr_t *attr);
 tt_export tt_result_t tt_console_config(IN tt_console_attr_t *attr);
 
 tt_export void tt_console_run(IN tt_cons_ev_handler_t ev_handler,
-                              IN void *param,
-                              IN tt_bool_t local);
+                              IN void *param, IN tt_bool_t local);
 
 tt_export tt_result_t tt_console_send(IN tt_cons_ev_t ev,
                                       IN tt_cons_ev_data_t *ev_data);

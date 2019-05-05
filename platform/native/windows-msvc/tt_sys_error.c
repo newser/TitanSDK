@@ -56,17 +56,9 @@ void tt_sys_err_show(IN DWORD err_no, IN LPSTR lpszFunction, IN int line)
 
     char MsgBuf[100] = {0};
 
-    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,
-                   NULL,
-                   err_no,
-                   LANG_USER_DEFAULT,
-                   MsgBuf,
-                   sizeof(MsgBuf) - 1,
-                   NULL);
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err_no, LANG_USER_DEFAULT,
+                   MsgBuf, sizeof(MsgBuf) - 1, NULL);
 
-    TT_ERROR("%s:%d failed with error %d: %s",
-             lpszFunction,
-             line,
-             err_no,
+    TT_ERROR("%s:%d failed with error %d: %s", lpszFunction, line, err_no,
              MsgBuf);
 }

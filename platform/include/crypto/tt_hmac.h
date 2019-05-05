@@ -45,7 +45,8 @@ this file defines HMAC APIs
 
 struct tt_buf_s;
 
-typedef enum {
+typedef enum
+{
     TT_HMAC_MD2,
     TT_HMAC_MD4,
     TT_HMAC_MD5,
@@ -73,10 +74,8 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_hmac_create(IN tt_hmac_t *hm,
-                                     IN tt_hmac_type_t type,
-                                     IN tt_u8_t *key,
-                                     IN tt_u32_t key_len);
+tt_export tt_result_t tt_hmac_create(IN tt_hmac_t *hm, IN tt_hmac_type_t type,
+                                     IN tt_u8_t *key, IN tt_u32_t key_len);
 
 tt_export void tt_hmac_destroy(IN tt_hmac_t *hm);
 
@@ -85,8 +84,7 @@ tt_inline tt_u32_t tt_hmac_size(IN tt_hmac_t *hm)
     return (tt_u32_t)mbedtls_md_get_size(hm->ctx.md_info);
 }
 
-tt_inline tt_result_t tt_hmac_update(IN tt_hmac_t *hm,
-                                     IN tt_u8_t *input,
+tt_inline tt_result_t tt_hmac_update(IN tt_hmac_t *hm, IN tt_u8_t *input,
                                      IN tt_u32_t len)
 {
     if (mbedtls_md_hmac_update(&hm->ctx, input, len) == 0) {
@@ -120,19 +118,14 @@ tt_inline tt_result_t tt_hmac_reset(IN tt_hmac_t *hm)
     }
 }
 
-tt_export tt_result_t tt_hmac_gather(IN tt_hmac_type_t type,
-                                     IN tt_u8_t *key,
-                                     IN tt_u32_t key_len,
-                                     IN tt_blob_t *input,
+tt_export tt_result_t tt_hmac_gather(IN tt_hmac_type_t type, IN tt_u8_t *key,
+                                     IN tt_u32_t key_len, IN tt_blob_t *input,
                                      IN tt_u32_t input_num,
                                      OUT tt_u8_t *output);
 
-tt_inline tt_result_t tt_hmac(IN tt_hmac_type_t type,
-                              IN tt_u8_t *key,
-                              IN tt_u32_t key_len,
-                              IN tt_u8_t *input,
-                              IN tt_u32_t input_len,
-                              OUT tt_u8_t *output)
+tt_inline tt_result_t tt_hmac(IN tt_hmac_type_t type, IN tt_u8_t *key,
+                              IN tt_u32_t key_len, IN tt_u8_t *input,
+                              IN tt_u32_t input_len, OUT tt_u8_t *output)
 {
     tt_blob_t b = {input, input_len};
     return tt_hmac_gather(type, key, key_len, &b, 1, output);

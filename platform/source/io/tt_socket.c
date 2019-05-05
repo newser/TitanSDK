@@ -102,9 +102,7 @@ void tt_skt_status_dump(IN tt_u32_t flag)
                   tt_atomic_s32_get(&__skt_peek_num));
     }
 
-    if (flag & TT_SKT_STATUS_NATIVE) {
-        tt_skt_status_dump_ntv(flag);
-    }
+    if (flag & TT_SKT_STATUS_NATIVE) { tt_skt_status_dump_ntv(flag); }
 }
 
 void tt_skt_status_dump_enable(IN tt_bool_t enable)
@@ -175,10 +173,8 @@ tt_result_t tt_skt_bind(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)
     return tt_skt_bind_ntv(&skt->sys_skt, addr);
 }
 
-tt_result_t tt_skt_bind_n(IN tt_skt_t *skt,
-                          IN tt_net_family_t family,
-                          IN tt_sktaddr_ip_t *ip,
-                          IN tt_u16_t port)
+tt_result_t tt_skt_bind_n(IN tt_skt_t *skt, IN tt_net_family_t family,
+                          IN tt_sktaddr_ip_t *ip, IN tt_u16_t port)
 {
     tt_sktaddr_t addr;
 
@@ -189,17 +185,13 @@ tt_result_t tt_skt_bind_n(IN tt_skt_t *skt,
     return tt_skt_bind(skt, &addr);
 }
 
-tt_result_t tt_skt_bind_p(IN tt_skt_t *skt,
-                          IN tt_net_family_t family,
-                          IN const tt_char_t *ip,
-                          IN tt_u16_t port)
+tt_result_t tt_skt_bind_p(IN tt_skt_t *skt, IN tt_net_family_t family,
+                          IN const tt_char_t *ip, IN tt_u16_t port)
 {
     tt_sktaddr_t addr;
 
     tt_sktaddr_init(&addr, family);
-    if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) { return TT_FAIL; }
     tt_sktaddr_set_port(&addr, port);
 
     return tt_skt_bind(skt, &addr);
@@ -212,10 +204,8 @@ tt_result_t tt_skt_listen(IN tt_skt_t *skt)
     return tt_skt_listen_ntv(&skt->sys_skt);
 }
 
-tt_result_t tt_skt_accept(IN tt_skt_t *skt,
-                          IN OPT tt_skt_attr_t *new_attr,
-                          IN OPT tt_sktaddr_t *addr,
-                          OUT tt_skt_t **new_skt,
+tt_result_t tt_skt_accept(IN tt_skt_t *skt, IN OPT tt_skt_attr_t *new_attr,
+                          IN OPT tt_sktaddr_t *addr, OUT tt_skt_t **new_skt,
                           OUT tt_fiber_ev_t **p_fev,
                           OUT struct tt_tmr_s **p_tmr)
 {
@@ -224,14 +214,10 @@ tt_result_t tt_skt_accept(IN tt_skt_t *skt,
 
     TT_ASSERT(skt != NULL);
 
-    if (addr == NULL) {
-        addr = &__addr;
-    }
+    if (addr == NULL) { addr = &__addr; }
 
     result = tt_skt_accept_ntv(&skt->sys_skt, addr, new_skt, p_fev, p_tmr);
-    if (TT_OK(result) && (*new_skt != NULL)) {
-        __skt_inc_num();
-    }
+    if (TT_OK(result) && (*new_skt != NULL)) { __skt_inc_num(); }
     return result;
 }
 
@@ -243,10 +229,8 @@ tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)
     return tt_skt_connect_ntv(&skt->sys_skt, addr);
 }
 
-tt_result_t tt_skt_connect_n(IN tt_skt_t *skt,
-                             IN tt_net_family_t family,
-                             IN tt_sktaddr_ip_t *ip,
-                             IN tt_u16_t port)
+tt_result_t tt_skt_connect_n(IN tt_skt_t *skt, IN tt_net_family_t family,
+                             IN tt_sktaddr_ip_t *ip, IN tt_u16_t port)
 {
     tt_sktaddr_t addr;
 
@@ -257,17 +241,13 @@ tt_result_t tt_skt_connect_n(IN tt_skt_t *skt,
     return tt_skt_connect(skt, &addr);
 }
 
-tt_result_t tt_skt_connect_p(IN tt_skt_t *skt,
-                             IN tt_net_family_t family,
-                             IN const tt_char_t *ip,
-                             IN tt_u16_t port)
+tt_result_t tt_skt_connect_p(IN tt_skt_t *skt, IN tt_net_family_t family,
+                             IN const tt_char_t *ip, IN tt_u16_t port)
 {
     tt_sktaddr_t addr;
 
     tt_sktaddr_init(&addr, family);
-    if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) { return TT_FAIL; }
     tt_sktaddr_set_port(&addr, port);
 
     return tt_skt_connect(skt, &addr);
@@ -321,8 +301,7 @@ void __skt_dec_num()
     TT_ASSERT(n >= 0);
 }
 
-tt_result_t tt_skt_join_mcast(IN tt_skt_t *skt,
-                              IN tt_net_family_t family,
+tt_result_t tt_skt_join_mcast(IN tt_skt_t *skt, IN tt_net_family_t family,
                               IN tt_sktaddr_ip_t *ip,
                               IN OPT const tt_char_t *itf)
 {
@@ -333,8 +312,7 @@ tt_result_t tt_skt_join_mcast(IN tt_skt_t *skt,
     return tt_skt_join_mcast_ntv(&skt->sys_skt, family, ip, itf);
 }
 
-tt_result_t tt_skt_leave_mcast(IN tt_skt_t *skt,
-                               IN tt_net_family_t family,
+tt_result_t tt_skt_leave_mcast(IN tt_skt_t *skt, IN tt_net_family_t family,
                                IN tt_sktaddr_ip_t *ip,
                                IN OPT const tt_char_t *itf)
 {
@@ -345,16 +323,13 @@ tt_result_t tt_skt_leave_mcast(IN tt_skt_t *skt,
     return tt_skt_leave_mcast_ntv(&skt->sys_skt, family, ip, itf);
 }
 
-tt_skt_t *tt_tcp_server(IN tt_net_family_t family,
-                        IN OPT tt_skt_attr_t *attr,
+tt_skt_t *tt_tcp_server(IN tt_net_family_t family, IN OPT tt_skt_attr_t *attr,
                         IN tt_sktaddr_t *addr)
 {
     tt_skt_t *skt;
 
     skt = tt_skt_create(family, TT_NET_PROTO_TCP, attr);
-    if (skt == NULL) {
-        return NULL;
-    }
+    if (skt == NULL) { return NULL; }
 
     tt_skt_set_reuseaddr(skt, TT_TRUE);
 
@@ -366,32 +341,25 @@ tt_skt_t *tt_tcp_server(IN tt_net_family_t family,
     return skt;
 }
 
-tt_skt_t *tt_tcp_server_p(IN tt_net_family_t family,
-                          IN OPT tt_skt_attr_t *attr,
-                          IN const tt_char_t *ip,
-                          IN tt_u16_t port)
+tt_skt_t *tt_tcp_server_p(IN tt_net_family_t family, IN OPT tt_skt_attr_t *attr,
+                          IN const tt_char_t *ip, IN tt_u16_t port)
 {
     tt_sktaddr_t addr;
 
     tt_sktaddr_init(&addr, family);
-    if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) {
-        return NULL;
-    }
+    if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) { return NULL; }
     tt_sktaddr_set_port(&addr, port);
 
     return tt_tcp_server(family, attr, &addr);
 }
 
-tt_skt_t *tt_udp_server(IN tt_net_family_t family,
-                        IN OPT tt_skt_attr_t *attr,
+tt_skt_t *tt_udp_server(IN tt_net_family_t family, IN OPT tt_skt_attr_t *attr,
                         IN tt_sktaddr_t *addr)
 {
     tt_skt_t *skt;
 
     skt = tt_skt_create(family, TT_NET_PROTO_UDP, attr);
-    if (skt == NULL) {
-        return NULL;
-    }
+    if (skt == NULL) { return NULL; }
 
     tt_skt_set_reuseaddr(skt, TT_TRUE);
 
@@ -403,17 +371,13 @@ tt_skt_t *tt_udp_server(IN tt_net_family_t family,
     return skt;
 }
 
-tt_skt_t *tt_udp_server_p(IN tt_net_family_t family,
-                          IN OPT tt_skt_attr_t *attr,
-                          IN const tt_char_t *ip,
-                          IN tt_u16_t port)
+tt_skt_t *tt_udp_server_p(IN tt_net_family_t family, IN OPT tt_skt_attr_t *attr,
+                          IN const tt_char_t *ip, IN tt_u16_t port)
 {
     tt_sktaddr_t addr;
 
     tt_sktaddr_init(&addr, family);
-    if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) {
-        return NULL;
-    }
+    if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) { return NULL; }
     tt_sktaddr_set_port(&addr, port);
 
     return tt_udp_server(family, attr, &addr);

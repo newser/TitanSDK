@@ -161,6 +161,7 @@ add_group_hdr(${PLATFORM_PATH}/include/tt/init init SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/init init SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/io io SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/tt/io io SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/io io SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/os os SRC_FILE)

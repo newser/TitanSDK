@@ -53,9 +53,7 @@ tt_dtnode_t *tt_dtnode_create(IN tt_u32_t size, IN tt_dtnode_itf_t *itf)
     tt_dtnode_t *dtn;
 
     dtn = (tt_dtnode_t *)tt_malloc(sizeof(tt_dtnode_t) + size);
-    if (dtn == NULL) {
-        return NULL;
-    }
+    if (dtn == NULL) { return NULL; }
 
     dtn->itf = itf;
 
@@ -64,9 +62,7 @@ tt_dtnode_t *tt_dtnode_create(IN tt_u32_t size, IN tt_dtnode_itf_t *itf)
 
 void tt_dtnode_destroy(IN tt_dtnode_t *dtn)
 {
-    if (dtn->itf->destroy != NULL) {
-        dtn->itf->destroy(dtn);
-    }
+    if (dtn->itf->destroy != NULL) { dtn->itf->destroy(dtn); }
 
     tt_free(dtn);
 }

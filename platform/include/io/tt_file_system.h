@@ -45,7 +45,8 @@ this file defines file system APIs
 
 struct tt_buf_s;
 
-typedef enum {
+typedef enum
+{
     TT_FS_TYPE_UNKNOWN,
     TT_FS_TYPE_FILE,
     TT_FS_TYPE_DIR,
@@ -196,10 +197,8 @@ open a file
   possibility that this function would fail due to file->opened_magic
   equaling some magic number accidentally
 */
-tt_export tt_result_t tt_fopen(OUT tt_file_t *file,
-                               IN const tt_char_t *path,
-                               IN tt_u32_t flag,
-                               IN OPT tt_file_attr_t *attr);
+tt_export tt_result_t tt_fopen(OUT tt_file_t *file, IN const tt_char_t *path,
+                               IN tt_u32_t flag, IN OPT tt_file_attr_t *attr);
 #define TT_FO_READ (1 << 0)
 #define TT_FO_WRITE (1 << 1)
 #define TT_FO_RDWR (TT_FO_READ | TT_FO_WRITE)
@@ -251,10 +250,8 @@ read a file
 - behavior of passing a file opened asynchronously to this function
   is undefined
 */
-tt_inline tt_result_t tt_fread(IN tt_file_t *file,
-                               OUT tt_u8_t *buf,
-                               IN tt_u32_t len,
-                               OUT tt_u32_t *read_len)
+tt_inline tt_result_t tt_fread(IN tt_file_t *file, OUT tt_u8_t *buf,
+                               IN tt_u32_t len, OUT tt_u32_t *read_len)
 {
     if (len != 0) {
         return tt_fread_ntv(&file->sys_file, buf, len, read_len);
@@ -285,10 +282,8 @@ write to a file
 - behavior of passing a file opened asynchronously to this function
   is undefined
 */
-tt_inline tt_result_t tt_fwrite(IN tt_file_t *file,
-                                IN tt_u8_t *buf,
-                                IN tt_u32_t len,
-                                OUT tt_u32_t *write_len)
+tt_inline tt_result_t tt_fwrite(IN tt_file_t *file, IN tt_u8_t *buf,
+                                IN tt_u32_t len, OUT tt_u32_t *write_len)
 {
     if (len != 0) {
         return tt_fwrite_ntv(&file->sys_file, buf, len, write_len);
@@ -298,8 +293,7 @@ tt_inline tt_result_t tt_fwrite(IN tt_file_t *file,
     }
 }
 
-tt_inline tt_result_t tt_fwrite_all(IN tt_file_t *file,
-                                    IN tt_u8_t *buf,
+tt_inline tt_result_t tt_fwrite_all(IN tt_file_t *file, IN tt_u8_t *buf,
                                     IN tt_u32_t len)
 {
     tt_u32_t n = 0;
@@ -332,10 +326,8 @@ move file pointer
 @note
 - do not use this api to change file opened with TT_FO_APPEND
 */
-tt_inline tt_result_t tt_fseek(IN tt_file_t *file,
-                               IN tt_u32_t whence,
-                               IN tt_s64_t offset,
-                               OUT tt_u64_t *location)
+tt_inline tt_result_t tt_fseek(IN tt_file_t *file, IN tt_u32_t whence,
+                               IN tt_s64_t offset, OUT tt_u64_t *location)
 {
     return tt_fseek_ntv(&file->sys_file, whence, offset, location);
 }
@@ -372,8 +364,7 @@ tt_inline tt_result_t tt_ftrunc(IN tt_file_t *file, IN tt_u64_t len)
     return tt_ftrunc_ntv(&file->sys_file, len);
 }
 
-tt_inline tt_result_t tt_fcopy(IN const tt_char_t *dst,
-                               IN const tt_char_t *src,
+tt_inline tt_result_t tt_fcopy(IN const tt_char_t *dst, IN const tt_char_t *src,
                                IN tt_u32_t flag)
 {
     TT_ASSERT(dst != NULL);
@@ -397,8 +388,7 @@ tt_inline tt_result_t tt_fdatasync(IN tt_file_t *file)
     return tt_fdatasync_ntv(&file->sys_file);
 }
 
-tt_export tt_result_t tt_futime(IN tt_file_t *file,
-                                IN OPT tt_date_t *accessed,
+tt_export tt_result_t tt_futime(IN tt_file_t *file, IN OPT tt_date_t *accessed,
                                 IN OPT tt_date_t *modified);
 
 #if TT_ENV_OS_IS_WINDOWS
@@ -484,8 +474,7 @@ tt_export tt_result_t tt_dremove(IN const tt_char_t *path);
  - this function can only open exsiting directory, it would fail if specified
  directory does not exist
  */
-tt_export tt_result_t tt_dopen(IN tt_dir_t *dir,
-                               IN const tt_char_t *path,
+tt_export tt_result_t tt_dopen(IN tt_dir_t *dir, IN const tt_char_t *path,
                                IN tt_dir_attr_t *attr);
 
 /**
@@ -532,8 +521,7 @@ tt_inline tt_result_t tt_dread(IN tt_dir_t *dir, OUT tt_dirent_t *entry)
     return tt_dread_ntv(&dir->sys_dir, entry);
 }
 
-tt_inline tt_result_t tt_dcopy(IN const tt_char_t *dst,
-                               IN const tt_char_t *src,
+tt_inline tt_result_t tt_dcopy(IN const tt_char_t *dst, IN const tt_char_t *src,
                                IN tt_u32_t flag)
 {
     TT_ASSERT((dst != NULL) && (*dst != 0));
@@ -555,11 +543,9 @@ tt_export tt_result_t tt_fs_symlink(IN const tt_char_t *path,
                                     IN const tt_char_t *link);
 
 tt_export tt_result_t tt_fs_readlink(IN const tt_char_t *link,
-                                     OUT tt_char_t *path,
-                                     IN tt_u32_t len);
+                                     OUT tt_char_t *path, IN tt_u32_t len);
 
 tt_export tt_result_t tt_fs_realpath(IN const tt_char_t *path,
-                                     OUT tt_char_t *resolved,
-                                     IN tt_u32_t len);
+                                     OUT tt_char_t *resolved, IN tt_u32_t len);
 
 #endif /* __TT_FILE_SYSTEM_FB__ */

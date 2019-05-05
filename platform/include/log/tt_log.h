@@ -90,29 +90,19 @@ print common fatal error log
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_log_debug(IN const tt_char_t *func,
-                            IN tt_u32_t line,
-                            IN const tt_char_t *format,
-                            ...);
+tt_export void tt_log_debug(IN const tt_char_t *func, IN tt_u32_t line,
+                            IN const tt_char_t *format, ...);
 
-tt_export void tt_log_info(IN const tt_char_t *func,
-                           IN tt_u32_t line,
-                           IN const tt_char_t *format,
-                           ...);
+tt_export void tt_log_info(IN const tt_char_t *func, IN tt_u32_t line,
+                           IN const tt_char_t *format, ...);
 
-tt_export void tt_log_warn(IN const tt_char_t *func,
-                           IN tt_u32_t line,
-                           IN const tt_char_t *format,
-                           ...);
+tt_export void tt_log_warn(IN const tt_char_t *func, IN tt_u32_t line,
+                           IN const tt_char_t *format, ...);
 
-tt_export void tt_log_error(IN const tt_char_t *func,
-                            IN tt_u32_t line,
-                            IN const tt_char_t *format,
-                            ...);
+tt_export void tt_log_error(IN const tt_char_t *func, IN tt_u32_t line,
+                            IN const tt_char_t *format, ...);
 
-tt_export void tt_log_fatal(IN const tt_char_t *func,
-                            IN tt_u32_t line,
-                            IN const tt_char_t *format,
-                            ...);
+tt_export void tt_log_fatal(IN const tt_char_t *func, IN tt_u32_t line,
+                            IN const tt_char_t *format, ...);
 
 #endif /* __TT_LOG__ */

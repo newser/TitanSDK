@@ -49,8 +49,7 @@ this file specifies zip source blob interfaces
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_zipsrc_t *tt_zipsrc_blob_create(IN void *p,
-                                             IN tt_u32_t len,
+tt_export tt_zipsrc_t *tt_zipsrc_blob_create(IN void *p, IN tt_u32_t len,
                                              IN tt_bool_t free);
 
 #endif /* __TT_ZIP_SOURCE_BLOB__ */

@@ -51,27 +51,15 @@ extern "C" {
 ////////////////////////////////////////////////////////////
 
 static tt_xnode_type_t __type_p2t[pugi::node_doctype + 1] = {
-    TT_XNODE_NULL,
-    TT_XNODE_DOCUMENT,
-    TT_XNODE_ELEMENT,
-    TT_XNODE_TEXT,
-    TT_XNODE_CDATA,
-    TT_XNODE_COMMENT,
-    TT_XNODE_PI,
-    TT_XNODE_DECLARATION,
-    TT_XNODE_DOCTYPE,
+    TT_XNODE_NULL, TT_XNODE_DOCUMENT,    TT_XNODE_ELEMENT,
+    TT_XNODE_TEXT, TT_XNODE_CDATA,       TT_XNODE_COMMENT,
+    TT_XNODE_PI,   TT_XNODE_DECLARATION, TT_XNODE_DOCTYPE,
 };
 
 static pugi::xml_node_type __type_t2p[TT_XNODE_TYPE_NUM] = {
-    pugi::node_null,
-    pugi::node_document,
-    pugi::node_element,
-    pugi::node_pcdata,
-    pugi::node_cdata,
-    pugi::node_comment,
-    pugi::node_pi,
-    pugi::node_declaration,
-    pugi::node_doctype,
+    pugi::node_null,   pugi::node_document,    pugi::node_element,
+    pugi::node_pcdata, pugi::node_cdata,       pugi::node_comment,
+    pugi::node_pi,     pugi::node_declaration, pugi::node_doctype,
 };
 
 ////////////////////////////////////////////////////////////
@@ -92,7 +80,8 @@ void tt_xnode_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __xnode_component_init, __xnode_component_exit,
+        __xnode_component_init,
+        __xnode_component_exit,
     };
 
     // init component
@@ -158,16 +147,14 @@ tt_xnode_t tt_xnode_prepend_child(IN tt_xnode_t xn, IN tt_xnode_type_t type)
     return TN(pn);
 }
 
-tt_xnode_t tt_xnode_insert_child_after(IN tt_xnode_t xn,
-                                       IN tt_xnode_t c,
+tt_xnode_t tt_xnode_insert_child_after(IN tt_xnode_t xn, IN tt_xnode_t c,
                                        IN tt_xnode_type_t type)
 {
     pugi::xml_node pn = PN(xn).insert_child_after(__type_t2p[type], PN(c));
     return TN(pn);
 }
 
-tt_xnode_t tt_xnode_insert_child_before(IN tt_xnode_t xn,
-                                        IN tt_xnode_t c,
+tt_xnode_t tt_xnode_insert_child_before(IN tt_xnode_t xn, IN tt_xnode_t c,
                                         IN tt_xnode_type_t type)
 {
     pugi::xml_node pn = PN(xn).insert_child_before(__type_t2p[type], PN(c));
@@ -252,16 +239,14 @@ tt_xattr_t tt_xnode_prepend_attr(IN tt_xnode_t xn, IN const tt_char_t *name)
     return TA(xa);
 }
 
-tt_xattr_t tt_xnode_insert_attr_after(IN tt_xnode_t xn,
-                                      IN tt_xattr_t xa,
+tt_xattr_t tt_xnode_insert_attr_after(IN tt_xnode_t xn, IN tt_xattr_t xa,
                                       IN const tt_char_t *name)
 {
     pugi::xml_attribute __xa = PN(xn).insert_attribute_after(name, PA(xa));
     return TA(__xa);
 }
 
-tt_xattr_t tt_xnode_insert_attr_before(IN tt_xnode_t xn,
-                                       IN tt_xattr_t xa,
+tt_xattr_t tt_xnode_insert_attr_before(IN tt_xnode_t xn, IN tt_xattr_t xa,
                                        IN const tt_char_t *name)
 {
     pugi::xml_attribute __xa = PN(xn).insert_attribute_before(name, PA(xa));
@@ -412,10 +397,8 @@ tt_result_t tt_xnode_set_double(IN tt_xnode_t xn, IN tt_double_t value)
 // xml path
 // ========================================
 
-void tt_xnode_select(IN tt_xnode_t xn,
-                     IN const tt_char_t *xp,
-                     IN OPT tt_xpvars_t *xpvs,
-                     OUT tt_xnode_t *o_xn,
+void tt_xnode_select(IN tt_xnode_t xn, IN const tt_char_t *xp,
+                     IN OPT tt_xpvars_t *xpvs, OUT tt_xnode_t *o_xn,
                      OUT tt_xattr_t *o_xa)
 {
     pugi::xpath_node p = PN(xn).select_node(xp, P_XPVS(xpvs));
@@ -427,18 +410,14 @@ void tt_xnode_select(IN tt_xnode_t xn,
     *o_xa = TA(pa);
 }
 
-void tt_xnode_select_all(IN tt_xnode_t xn,
-                         IN const tt_char_t *xp,
-                         IN OPT tt_xpvars_t *xpvs,
-                         OUT tt_xpnodes_t *xpns)
+void tt_xnode_select_all(IN tt_xnode_t xn, IN const tt_char_t *xp,
+                         IN OPT tt_xpvars_t *xpvs, OUT tt_xpnodes_t *xpns)
 {
     *P_XPNS(xpns) = PN(xn).select_nodes(xp, P_XPVS(xpvs));
 }
 
-void tt_xnode_selectxp(IN tt_xnode_t xn,
-                       IN struct tt_xpath_s *xp,
-                       OUT tt_xnode_t *o_xn,
-                       OUT tt_xattr_t *o_xa)
+void tt_xnode_selectxp(IN tt_xnode_t xn, IN struct tt_xpath_s *xp,
+                       OUT tt_xnode_t *o_xn, OUT tt_xattr_t *o_xa)
 {
     pugi::xpath_node p = PN(xn).select_node(*P_XP(xp));
 
@@ -449,8 +428,7 @@ void tt_xnode_selectxp(IN tt_xnode_t xn,
     *o_xa = TA(pa);
 }
 
-void tt_xnode_selectxp_all(IN tt_xnode_t xn,
-                           IN tt_xpath_t *xp,
+void tt_xnode_selectxp_all(IN tt_xnode_t xn, IN tt_xpath_t *xp,
                            OUT tt_xpnodes_t *xpns)
 {
     *P_XPNS(xpns) = PN(xn).select_nodes(*P_XP(xp));
@@ -470,10 +448,8 @@ tt_double_t tt_xnode_eval_number(IN tt_xnode_t xn, IN struct tt_xpath_s *xp)
     return P_XP(xp)->evaluate_number(PN(xn));
 }
 
-tt_u32_t tt_xnode_eval_cstr(IN tt_xnode_t xn,
-                            IN struct tt_xpath_s *xp,
-                            OUT tt_char_t *buf,
-                            IN tt_u32_t len)
+tt_u32_t tt_xnode_eval_cstr(IN tt_xnode_t xn, IN struct tt_xpath_s *xp,
+                            OUT tt_char_t *buf, IN tt_u32_t len)
 {
     return (tt_u32_t)P_XP(xp)->evaluate_string(buf, len, PN(xn));
 }
@@ -483,8 +459,7 @@ tt_result_t __xnode_component_init(IN tt_component_t *comp,
 {
     if (sizeof(tt_xnode_t) < sizeof(class pugi::xml_node)) {
         TT_ERROR("sizeof(tt_xnode_t)[%d] < sizeof(class xml_node)[%d]",
-                 sizeof(tt_xnode_t),
-                 sizeof(class pugi::xml_node));
+                 sizeof(tt_xnode_t), sizeof(class pugi::xml_node));
         return TT_FAIL;
     }
 

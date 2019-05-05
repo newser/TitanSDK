@@ -24,8 +24,8 @@ this file define all basic types
 
 */
 
-#ifndef __TT_COMPONENT_CPP__
-#define __TT_COMPONENT_CPP__
+#ifndef __TT_INIT_COMPONENT_CPP__
+#define __TT_INIT_COMPONENT_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -55,8 +55,7 @@ class component
 protected:
     enum
     {
-        e_log_mgr,
-        e_rng,
+        e_log,
         cid_num
     };
 
@@ -129,4 +128,4 @@ private:
 
 }
 
-#endif /* __TT_COMPONENT_CPP__ */
+#endif /* __TT_INIT_COMPONENT_CPP__ */

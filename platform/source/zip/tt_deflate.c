@@ -70,12 +70,9 @@ tt_result_t tt_deflate_create(IN tt_deflate_t *dfl,
 
     TT_ZSTREAM_INIT(&dfl->zs);
 
-    z_err = deflateInit2(&dfl->zs,
-                         attr->level,
-                         Z_DEFLATED,
-                         -(int)attr->window_bits,
-                         attr->mem_level,
-                         Z_DEFAULT_STRATEGY);
+    z_err =
+        deflateInit2(&dfl->zs, attr->level, Z_DEFLATED, -(int)attr->window_bits,
+                     attr->mem_level, Z_DEFAULT_STRATEGY);
     if (z_err != Z_OK) {
         TT_ERROR("fail to init deflate");
         return TT_FAIL;
@@ -98,14 +95,10 @@ void tt_deflate_attr_default(IN tt_deflate_attr_t *attr)
     attr->mem_level = 8;
 }
 
-tt_result_t tt_deflate_run(IN tt_deflate_t *dfl,
-                           IN tt_u8_t *ibuf,
-                           IN tt_u32_t ilen,
-                           OUT tt_u32_t *consumed_len,
-                           IN tt_u8_t *obuf,
-                           IN tt_u32_t olen,
-                           OUT tt_u32_t *produced_len,
-                           IN tt_bool_t finish)
+tt_result_t tt_deflate_run(IN tt_deflate_t *dfl, IN tt_u8_t *ibuf,
+                           IN tt_u32_t ilen, OUT tt_u32_t *consumed_len,
+                           IN tt_u8_t *obuf, IN tt_u32_t olen,
+                           OUT tt_u32_t *produced_len, IN tt_bool_t finish)
 {
     z_stream *zs = &dfl->zs;
     tt_u32_t il, ol;

@@ -40,7 +40,8 @@ this file includes parameter render definition
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_PARAM_BS4_LV_USER,
     TT_PARAM_BS4_LV_ADMIN,
 
@@ -48,7 +49,8 @@ typedef enum {
 } tt_param_bs4level_t;
 #define TT_PARAM_BS4_LV_VALID(l) ((l) < TT_PARAM_BS4_LV_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_PARAM_BS4_DISP_HIDE,
     TT_PARAM_BS4_DISP_RD,
     TT_PARAM_BS4_DISP_WR,

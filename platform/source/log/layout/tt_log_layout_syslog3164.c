@@ -56,12 +56,13 @@ typedef struct
 
 static void __lls_destroy(IN tt_loglyt_t *ll);
 
-static tt_result_t __lls_format(IN tt_loglyt_t *ll,
-                                IN tt_log_entry_t *entry,
+static tt_result_t __lls_format(IN tt_loglyt_t *ll, IN tt_log_entry_t *entry,
                                 OUT tt_buf_t *outbuf);
 
 static tt_loglyt_itf_t __lls_itf = {
-    NULL, __lls_destroy, __lls_format,
+    NULL,
+    __lls_destroy,
+    __lls_format,
 };
 
 ////////////////////////////////////////////////////////////
@@ -82,9 +83,7 @@ tt_loglyt_t *tt_loglyt_syslog3164_create(IN tt_syslog_facility_t f,
     tt_loglyt_syslog3164_t *lls;
 
     llp = tt_loglyt_pattern_create(pattern);
-    if (llp == NULL) {
-        return NULL;
-    }
+    if (llp == NULL) { return NULL; }
 
     ll = tt_loglyt_create(sizeof(tt_loglyt_syslog3164_t), &__lls_itf);
     if (ll == NULL) {
@@ -107,9 +106,7 @@ tt_loglyt_t *tt_loglyt_syslog3164_create(IN tt_syslog_facility_t f,
     lls->program_len = (tt_u32_t)tt_strlen(lls->program);
 
     tt_memset(lls->pri, 0, sizeof(lls->pri));
-    tt_snprintf(lls->pri,
-                sizeof(lls->pri) - 1,
-                "<%d>",
+    tt_snprintf(lls->pri, sizeof(lls->pri) - 1, "<%d>",
                 TT_SYSLOG_PRIORITY(f, l));
     lls->pri_len = (tt_u32_t)tt_strlen(lls->pri);
 
@@ -123,8 +120,7 @@ void __lls_destroy(IN tt_loglyt_t *ll)
     tt_loglyt_release(lls->pattern);
 }
 
-tt_result_t __lls_format(IN tt_loglyt_t *ll,
-                         IN tt_log_entry_t *entry,
+tt_result_t __lls_format(IN tt_loglyt_t *ll, IN tt_log_entry_t *entry,
                          OUT tt_buf_t *outbuf)
 {
     tt_loglyt_syslog3164_t *lls = TT_LOGLYT_CAST(ll, tt_loglyt_syslog3164_t);
@@ -142,8 +138,7 @@ tt_result_t __lls_format(IN tt_loglyt_t *ll,
 
     // Mmm dd hh:mm:ss
     TT_DO(tt_buf_reserve(outbuf, 16));
-    n = tt_date_render_now("%b %d %H:%M:%S ",
-                           (tt_char_t *)TT_BUF_WPOS(outbuf),
+    n = tt_date_render_now("%b %d %H:%M:%S ", (tt_char_t *)TT_BUF_WPOS(outbuf),
                            TT_BUF_WLEN(outbuf));
     tt_buf_inc_wp(outbuf, n);
 

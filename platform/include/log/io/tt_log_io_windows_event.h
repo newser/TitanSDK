@@ -42,7 +42,8 @@ this file defines log io windows event output
 
 struct tt_logio_s;
 
-typedef enum {
+typedef enum
+{
     TT_WINEV_SUCCESS,
     TT_WINEV_ERROR,
     TT_WINEV_WARNING,
@@ -78,11 +79,8 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 tt_export struct tt_logio_s *tt_logio_winev_create(
-    IN const tt_char_t *source,
-    IN tt_winev_type_t type,
-    IN tt_u32_t category,
-    IN tt_u32_t ev_id,
-    IN OPT tt_logio_winev_attr_t *attr);
+    IN const tt_char_t *source, IN tt_winev_type_t type, IN tt_u32_t category,
+    IN tt_u32_t ev_id, IN OPT tt_logio_winev_attr_t *attr);
 
 tt_export void tt_logio_winev_attr_default(IN tt_logio_winev_attr_t *attr);
 

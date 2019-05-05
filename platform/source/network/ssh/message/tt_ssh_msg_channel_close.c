@@ -73,8 +73,7 @@ static tt_sshmsg_itf_t __chclose_op = {
 tt_sshmsg_t *tt_sshmsg_chclose_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_CLOSE,
-                            sizeof(tt_sshmsg_chclose_t),
-                            &__chclose_op);
+                            sizeof(tt_sshmsg_chclose_t), &__chclose_op);
 }
 
 void tt_sshmsg_chclose_set_rcvchnum(IN tt_sshmsg_t *msg, IN tt_u32_t rcv_chnum)

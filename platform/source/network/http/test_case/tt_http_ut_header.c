@@ -75,159 +75,57 @@ TT_TEST_ROUTINE_DECLARE(case_http_misc)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(http_hdr_case)
 
-TT_TEST_CASE("case_http_hdr_basic",
-             "http header basic",
-             case_http_hdr_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_http_hdr_basic", "http header basic", case_http_hdr_basic,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_http_test_only",
-                 "http test only",
-                 case_http_test_only,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_test_only", "http test only", case_http_test_only,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_parse1",
-                 "http parse header",
-                 case_http_hdr_parse1,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_parse1", "http parse header",
+                 case_http_hdr_parse1, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_parse2",
-                 "http parse header 2",
-                 case_http_hdr_parse2,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_parse2", "http parse header 2",
+                 case_http_hdr_parse2, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_body",
-                 "http parse body",
-                 case_http_body,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_body", "http parse body", case_http_body, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_body2",
-                 "http parse body",
-                 case_http_body2,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_body2", "http parse body", case_http_body2, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_contype_map",
-                 "http content map ops",
-                 case_http_contype_map,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_contype_map", "http content map ops",
+                 case_http_contype_map, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_txenc",
-                 "http hdr: transfer-encoding",
-                 case_http_hdr_txenc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_txenc", "http hdr: transfer-encoding",
+                 case_http_hdr_txenc, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_contenc",
-                 "http hdr: content-encoding",
-                 case_http_hdr_contenc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_contenc", "http hdr: content-encoding",
+                 case_http_hdr_contenc, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_accenc",
-                 "http hdr: accept-encoding",
-                 case_http_hdr_accenc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_accenc", "http hdr: accept-encoding",
+                 case_http_hdr_accenc, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_etag",
-                 "http hdr: etag",
-                 case_http_hdr_etag,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_etag", "http hdr: etag", case_http_hdr_etag,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_ifmatch",
-                 "http hdr: ifmatch",
-                 case_http_hdr_ifmatch,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_ifmatch", "http hdr: ifmatch",
+                 case_http_hdr_ifmatch, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_ifnmatch",
-                 "http hdr: ifnmatch",
-                 case_http_hdr_ifnmatch,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_ifnmatch", "http hdr: ifnmatch",
+                 case_http_hdr_ifnmatch, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_auth",
-                 "http hdr: authorization",
-                 case_http_hdr_auth,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_auth", "http hdr: authorization",
+                 case_http_hdr_auth, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_cookie",
-                 "http hdr: cookie",
-                 case_http_hdr_cookie,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_cookie", "http hdr: cookie",
+                 case_http_hdr_cookie, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hdr_set_cookie",
-                 "http hdr: set-cookie",
-                 case_http_hdr_set_cookie,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hdr_set_cookie", "http hdr: set-cookie",
+                 case_http_hdr_set_cookie, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_misc",
-                 "http test misc things",
-                 case_http_misc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_misc", "http test misc things", case_http_misc,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(http_hdr_case)
     // =========================================
@@ -258,8 +156,7 @@ TT_TEST_CASE("case_http_hdr_basic",
     static tt_http_hdr_itf_t __hdr_cs_itf;
 
 static tt_result_t __hdr_cs_add_val(IN struct tt_http_hdr_s *h,
-                                    IN const tt_char_t *val,
-                                    IN tt_u32_t len)
+                                    IN const tt_char_t *val, IN tt_u32_t len)
 {
     *TT_PTR_INC(tt_u32_t, h, sizeof(struct tt_http_hdr_s)) += len;
     return TT_SUCCESS;
@@ -301,21 +198,16 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
 
     // header
 
-    h = tt_http_hdr_create(0,
-                           TT_HTTP_HDR_HOST,
-                           &tt_g_http_hdr_line_itf,
+    h = tt_http_hdr_create(0, TT_HTTP_HDR_HOST, &tt_g_http_hdr_line_itf,
                            &tt_g_http_hval_blob_itf);
     tt_http_hdr_clear(h);
     tt_http_hdr_destroy(h);
 
     {
-        h = tt_http_hdr_create(0,
-                               TT_HTTP_HDR_HOST,
-                               &tt_g_http_hdr_line_itf,
+        h = tt_http_hdr_create(0, TT_HTTP_HDR_HOST, &tt_g_http_hdr_line_itf,
                                &tt_g_http_hval_blob_itf);
 
-        TT_UT_SUCCESS(tt_http_hdr_parse_n(h,
-                                          "a,b,c,d,",
+        TT_UT_SUCCESS(tt_http_hdr_parse_n(h, "a,b,c,d,",
                                           sizeof("a,b,c,d,") - 1),
                       "");
         TT_UT_EQUAL(tt_dlist_count(&h->val), 1, "");
@@ -352,9 +244,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
     }
 
     {
-        h = tt_http_hdr_create(0,
-                               TT_HTTP_HDR_HOST,
-                               &tt_g_http_hdr_cs_itf,
+        h = tt_http_hdr_create(0, TT_HTTP_HDR_HOST, &tt_g_http_hdr_cs_itf,
                                &tt_g_http_hval_blob_itf);
 
         TT_UT_SUCCESS(tt_http_hdr_parse_n(h, ",,,,", sizeof(",,,,") - 1), "");
@@ -364,8 +254,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
         TT_UT_EQUAL(n2, sizeof("Host: \r\n") - 1, "");
         TT_UT_STREQ(buf, "Host: \r\n", "");
 
-        TT_UT_SUCCESS(tt_http_hdr_parse_n(h,
-                                          "a,b,c,d,",
+        TT_UT_SUCCESS(tt_http_hdr_parse_n(h, "a,b,c,d,",
                                           sizeof("a,b,c,d,") - 1),
                       "");
         TT_UT_EQUAL(tt_dlist_count(&h->val), 4, "");
@@ -377,8 +266,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
         TT_UT_STREQ(buf, "Host: a, b, c, d\r\n", "");
 
         // append
-        TT_UT_SUCCESS(tt_http_hdr_parse_n(h,
-                                          ",,xx,,yy,,",
+        TT_UT_SUCCESS(tt_http_hdr_parse_n(h, ",,xx,,yy,,",
                                           sizeof(",,xx,,yy,,") - 1),
                       "");
         TT_UT_EQUAL(tt_dlist_count(&h->val), 6, "");
@@ -424,14 +312,12 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
     {
         tt_http_hdr_t *p;
 
-        p = tt_http_hdr_create_cs(sizeof(tt_u32_t),
-                                  TT_HTTP_HDR_HOST,
+        p = tt_http_hdr_create_cs(sizeof(tt_u32_t), TT_HTTP_HDR_HOST,
                                   &__hdr_cs_i);
         TT_UT_NOT_NULL(p, "");
         tt_http_hdr_destroy(p);
 
-        p = tt_http_hdr_create_cs(sizeof(tt_u32_t),
-                                  TT_HTTP_HDR_HOST,
+        p = tt_http_hdr_create_cs(sizeof(tt_u32_t), TT_HTTP_HDR_HOST,
                                   &__hdr_cs_i);
         TT_UT_NOT_NULL(p, "");
         *TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)) = 0;
@@ -439,8 +325,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
         TT_UT_SUCCESS(tt_http_hdr_parse(p, " 1 "), "");
         TT_UT_SUCCESS(tt_http_hdr_parse(p, "22 "), "");
         TT_UT_SUCCESS(tt_http_hdr_parse(p, " 333"), "");
-        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)),
-                    1 + 2 + 3,
+        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)), 1 + 2 + 3,
                     "");
 
         tt_http_hdr_destroy(p);
@@ -449,8 +334,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
     {
         tt_http_hdr_t *p;
 
-        p = tt_http_hdr_create_csq(sizeof(tt_u32_t),
-                                   TT_HTTP_HDR_HOST,
+        p = tt_http_hdr_create_csq(sizeof(tt_u32_t), TT_HTTP_HDR_HOST,
                                    &__hdr_cs_i);
         TT_UT_NOT_NULL(p, "");
         *TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)) = 0;
@@ -462,13 +346,11 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
         TT_UT_SUCCESS(tt_http_hdr_parse(p, " \",\" ,, , \",,,   "), "");
         // 3 chars: [","]
         // 4 chars: [",,,], ending ws are trimned
-        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)),
-                    8 + 3 + 4,
+        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)), 8 + 3 + 4,
                     "");
         tt_http_hdr_destroy(p);
 
-        p = tt_http_hdr_create_csq(sizeof(tt_u32_t),
-                                   TT_HTTP_HDR_HOST,
+        p = tt_http_hdr_create_csq(sizeof(tt_u32_t), TT_HTTP_HDR_HOST,
                                    &__hdr_cs_i);
         TT_UT_NOT_NULL(p, "");
         *TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)) = 0;
@@ -476,8 +358,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
         TT_UT_SUCCESS(tt_http_hdr_parse(p, " 1 "), "");
         TT_UT_SUCCESS(tt_http_hdr_parse(p, "22 "), "");
         TT_UT_SUCCESS(tt_http_hdr_parse(p, " 333"), "");
-        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)),
-                    1 + 2 + 3,
+        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)), 1 + 2 + 3,
                     "");
 
         tt_http_hdr_destroy(p);
@@ -486,14 +367,12 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
     {
         tt_http_hdr_t *p;
 
-        p = tt_http_hdr_create_line(sizeof(tt_u32_t),
-                                    TT_HTTP_HDR_HOST,
+        p = tt_http_hdr_create_line(sizeof(tt_u32_t), TT_HTTP_HDR_HOST,
                                     &__hdr_cs_i);
         TT_UT_NOT_NULL(p, "");
         tt_http_hdr_destroy(p);
 
-        p = tt_http_hdr_create_line(sizeof(tt_u32_t),
-                                    TT_HTTP_HDR_HOST,
+        p = tt_http_hdr_create_line(sizeof(tt_u32_t), TT_HTTP_HDR_HOST,
                                     &__hdr_cs_i);
         TT_UT_NOT_NULL(p, "");
         *TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)) = 0;
@@ -508,14 +387,12 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
     {
         tt_http_hdr_t *p;
 
-        p = tt_http_hdr_create_scs(sizeof(tt_u32_t),
-                                   TT_HTTP_HDR_HOST,
+        p = tt_http_hdr_create_scs(sizeof(tt_u32_t), TT_HTTP_HDR_HOST,
                                    &__hdr_cs_i);
         TT_UT_NOT_NULL(p, "");
         tt_http_hdr_destroy(p);
 
-        p = tt_http_hdr_create_scs(sizeof(tt_u32_t),
-                                   TT_HTTP_HDR_HOST,
+        p = tt_http_hdr_create_scs(sizeof(tt_u32_t), TT_HTTP_HDR_HOST,
                                    &__hdr_cs_i);
         TT_UT_NOT_NULL(p, "");
         *TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)) = 0;
@@ -621,16 +498,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_test_only)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     http_parser hp;
     http_parser_settings set = {
-        __msg_beg,
-        __uri,
-        __status,
-        __hdr_field,
-        __hdr_val,
-        __hdr_comp,
-        __body,
-        __msg_comp,
-        __chunk_hdr,
-        __chunk_comp,
+        __msg_beg,  __uri,  __status,   __hdr_field, __hdr_val,
+        __hdr_comp, __body, __msg_comp, __chunk_hdr, __chunk_comp,
     };
     const char *s;
     tt_u32_t slen;
@@ -639,7 +508,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_test_only)
     // test start
 
     s = "POST /chunked_w_nonsense_after_length HTTP/1.1\r\n" // 48
-        //"Transfer-Encoding: chunked\r\n" // 28
+                                                             //"Transfer-Encoding:
+                                                             //chunked\r\n" //
+                                                             //28
         "\r\n" // 2
         "5; ilovew3;whattheluck=aretheseparametersfor\r\nhello\r\n" // 54
         "6; blahblah; blah\r\n world\r\n" // 28
@@ -735,8 +606,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_parse1)
             TT_UT_SUCCESS(tt_http_parser_run(&hp), "");
 
             if (i == 3) {
-                TT_UT_EQUAL(tt_http_parser_get_method(&hp),
-                            TT_HTTP_MTD_GET,
+                TT_UT_EQUAL(tt_http_parser_get_method(&hp), TT_HTTP_MTD_GET,
                             "");
             }
 
@@ -994,11 +864,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
 
             e = tt_http_etag_head(h);
             TT_UT_NOT_NULL(e, "");
-            TT_UT_EQUAL(
-                tt_blobex_strcmp(&e->etag,
-                                 "bfc13a64729c4290ef5b2c2730249c88ca92d82d"),
-                0,
-                "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&e->etag,
+                                         "bfc13a64729c4290ef5b2c2730249c88ca92d"
+                                         "82d"),
+                        0, "");
             TT_UT_FALSE(e->weak, "");
             TT_UT_FALSE(e->aster, "");
 
@@ -1077,24 +946,21 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             TT_UT_NOT_NULL(h, "");
             ha = tt_http_hdr_auth_get(h);
             TT_UT_NOT_NULL(ha, "");
-            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "WWW-Authenticate"),
-                        0,
+            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "WWW-Authenticate"), 0,
                         "");
 
             h = tt_http_parser_get_proxy_authorization(&hp);
             TT_UT_NOT_NULL(h, "");
             ha = tt_http_hdr_auth_get(h);
             TT_UT_NOT_NULL(ha, "");
-            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "Proxy-Authorization"),
-                        0,
+            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "Proxy-Authorization"), 0,
                         "");
 
             h = tt_http_parser_get_proxy_authenticate(&hp);
             TT_UT_NOT_NULL(h, "");
             ha = tt_http_hdr_auth_get(h);
             TT_UT_NOT_NULL(ha, "");
-            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "Proxy-Authenticate"),
-                        0,
+            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "Proxy-Authenticate"), 0,
                         "");
         }
 
@@ -1142,8 +1008,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             tt_http_uri_t *u = tt_http_parser_get_uri(&hp);
             TT_UT_NOT_NULL(u, "");
             TT_UT_STREQ(tt_http_uri_render(u), "/favicon.ico", "");
-            TT_UT_EQUAL(tt_http_uri_get_scheme(u),
-                        TT_HTTP_SCHEME_UNDEFINED,
+            TT_UT_EQUAL(tt_http_uri_get_scheme(u), TT_HTTP_SCHEME_UNDEFINED,
                         "");
         }
     }
@@ -1195,11 +1060,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_EQUAL(tt_http_parser_get_method(&hp), TT_HTTP_MTD_PATCH, "");
         TT_UT_EQUAL(tt_http_parser_get_version(&hp), TT_HTTP_V1_1, "");
 
-        TT_UT_EQUAL(tt_http_parser_get_contype(&hp),
-                    TT_HTTP_CONTYPE_APP_JS,
+        TT_UT_EQUAL(tt_http_parser_get_contype(&hp), TT_HTTP_CONTYPE_APP_JS,
                     "");
-        TT_UT_EQUAL(tt_http_parser_get_contype(&hp),
-                    TT_HTTP_CONTYPE_APP_JS,
+        TT_UT_EQUAL(tt_http_parser_get_contype(&hp), TT_HTTP_CONTYPE_APP_JS,
                     "");
         TT_UT_TRUE(hp.updated_contype, "");
         TT_UT_FALSE(hp.miss_contype, "");
@@ -1402,8 +1265,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_EQUAL(hp.body_counter, 2, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&hp.body,
                                      " is the data in the first chunk\r\n"),
-                    0,
-                    "");
+                    0, "");
         TT_UT_FALSE(hp.complete_message, "");
 
         // body: "\r"
@@ -1428,16 +1290,14 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_EQUAL(hp.body_counter, 3, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&hp.body,
                                      "and this is the second one\r\n"),
-                    0,
-                    "");
+                    0, "");
         TT_UT_FALSE(hp.complete_message, "");
 
         TT_UT_SUCCESS(tt_http_parser_run(&hp), "");
         TT_UT_EQUAL(hp.body_counter, 4, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&hp.body,
                                      "and this is the third1 one\r\n"),
-                    0,
-                    "");
+                    0, "");
         TT_UT_FALSE(hp.complete_message, "");
 
         TT_UT_EXP(TT_BUF_RLEN(&hp.buf) > 0, "");
@@ -1583,7 +1443,6 @@ TT_TEST_ROUTINE_DEFINE(case_http_body2)
         "\r\n"
         "1234567890";
 
-
     TT_TEST_CASE_ENTER()
     // test start
 
@@ -1620,22 +1479,17 @@ TT_TEST_ROUTINE_DEFINE(case_http_body2)
 
             if (!prev_uri && hp.complete_line1) {
                 if ((msg_num == 0) || (msg_num == 3)) {
-                    TT_UT_EQUAL(tt_http_parser_get_method(&hp),
-                                TT_HTTP_MTD_GET,
+                    TT_UT_EQUAL(tt_http_parser_get_method(&hp), TT_HTTP_MTD_GET,
                                 "");
-                    TT_UT_EQUAL(tt_blobex_strcmp(&hp.rawuri, "/favicon.ico"),
-                                0,
+                    TT_UT_EQUAL(tt_blobex_strcmp(&hp.rawuri, "/favicon.ico"), 0,
                                 "");
                 } else if ((msg_num == 1) || (msg_num == 4)) {
                     TT_UT_EQUAL(tt_http_parser_get_status(&hp),
-                                TT_HTTP_STATUS_OK,
-                                "");
+                                TT_HTTP_STATUS_OK, "");
                 } else if ((msg_num == 2) || (msg_num == 5)) {
                     TT_UT_EQUAL(tt_http_parser_get_method(&hp),
-                                TT_HTTP_MTD_PATCH,
-                                "");
-                    TT_UT_EQUAL(tt_blobex_strcmp(&hp.rawuri, "/file.txt"),
-                                0,
+                                TT_HTTP_MTD_PATCH, "");
+                    TT_UT_EQUAL(tt_blobex_strcmp(&hp.rawuri, "/file.txt"), 0,
                                 "");
                 }
             }
@@ -1743,9 +1597,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_parse2)
 
     while (tt_http_parser_rlen(&hp) > 0) {
         TT_UT_SUCCESS(tt_http_parser_run(&hp), "");
-        if (hp.complete_message) {
-            break;
-        }
+        if (hp.complete_message) { break; }
     }
 
     {
@@ -1794,10 +1646,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_contype_map)
 
     // null ext
     {
-        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
-                                              TT_HTTP_CONTYPE_TXT_HTML,
-                                              "app/html",
-                                              NULL),
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m, TT_HTTP_CONTYPE_TXT_HTML,
+                                              "app/html", NULL),
                       "");
 
         e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_HTML);
@@ -1839,25 +1689,17 @@ TT_TEST_ROUTINE_DEFINE(case_http_contype_map)
 
     // some ext
     {
-        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
-                                              TT_HTTP_CONTYPE_TXT_HTML,
-                                              "html",
-                                              ";"),
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m, TT_HTTP_CONTYPE_TXT_HTML,
+                                              "html", ";"),
                       "");
-        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
-                                              TT_HTTP_CONTYPE_TXT_PLAIN,
-                                              "plain",
-                                              ";a;b;c;"),
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m, TT_HTTP_CONTYPE_TXT_PLAIN,
+                                              "plain", ";a;b;c;"),
                       "");
-        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
-                                              TT_HTTP_CONTYPE_APP_JS,
-                                              "js",
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m, TT_HTTP_CONTYPE_APP_JS, "js",
                                               "1;2;3"),
                       "");
-        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
-                                              TT_HTTP_CONTYPE_TXT_CSS,
-                                              "css",
-                                              "xxx"),
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m, TT_HTTP_CONTYPE_TXT_CSS,
+                                              "css", "xxx"),
                       "");
 
         e = tt_http_contype_map_find_name(&m, "js");
@@ -1939,8 +1781,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_contype_map)
     {
         tt_http_contype_map_clear(&m);
 
-        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
-                                              TT_HTTP_CONTYPE_TXT_HTML,
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m, TT_HTTP_CONTYPE_TXT_HTML,
                                               "text/html",
                                               "htm;html;htx;xhtml"),
                       "");
@@ -1961,8 +1802,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_contype_map)
 
         tt_http_contype_map_set_static(&m, tt_g_http_contype_static);
 
-        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
-                                              TT_HTTP_CONTYPE_TXT_HTML,
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m, TT_HTTP_CONTYPE_TXT_HTML,
                                               "text/html",
                                               "htm;html;htx;xhtml"),
                       "");
@@ -2135,7 +1975,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_misc)
     tt_float_t q;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #define ut_parse_q(ss, pp, nn, qq)                                             \
     {                                                                          \
@@ -2213,8 +2053,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
     TT_UT_EXP(tt_http_hdr_render_len(h) >= sizeof("Accept-Encoding: \r\n") - 1,
               "");
     tt_memset(buf, 0, sizeof(buf));
-    TT_UT_EQUAL(tt_http_hdr_render(h, buf),
-                sizeof("Accept-Encoding: \r\n") - 1,
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf), sizeof("Accept-Encoding: \r\n") - 1,
                 "");
     TT_UT_STREQ(buf, "Accept-Encoding: \r\n", "");
 
@@ -2228,8 +2067,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
               "");
     tt_memset(buf, 0, sizeof(buf));
     TT_UT_EQUAL(tt_http_hdr_render(h, buf),
-                sizeof("Accept-Encoding: br\r\n") - 1,
-                "");
+                sizeof("Accept-Encoding: br\r\n") - 1, "");
     TT_UT_STREQ(buf, "Accept-Encoding: br\r\n", "");
 
     // 1 token with q
@@ -2240,8 +2078,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
               "");
     tt_memset(buf, 0, sizeof(buf));
     TT_UT_EQUAL(tt_http_hdr_render(h, buf),
-                sizeof("Accept-Encoding: br;q=0.2\r\n") - 1,
-                "");
+                sizeof("Accept-Encoding: br;q=0.2\r\n") - 1, "");
     TT_UT_STREQ(buf, "Accept-Encoding: br;q=0.2\r\n", "");
 
     // 2 token
@@ -2253,8 +2090,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
               "");
     tt_memset(buf, 0, sizeof(buf));
     TT_UT_EQUAL(tt_http_hdr_render(h, buf),
-                sizeof("Accept-Encoding: br;q=0.2, gzip\r\n") - 1,
-                "");
+                sizeof("Accept-Encoding: br;q=0.2, gzip\r\n") - 1, "");
     TT_UT_STREQ(buf, "Accept-Encoding: br;q=0.2, gzip\r\n", "");
 
     // 3 token
@@ -2283,8 +2119,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
                     "Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip, *\r\n") -
                     1,
                 "");
-    TT_UT_STREQ(buf,
-                "Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip, *\r\n",
+    TT_UT_STREQ(buf, "Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip, *\r\n",
                 "");
 
     // with aster weight
@@ -2319,16 +2154,14 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
               "");
     tt_memset(buf, 0, sizeof(buf));
     TT_UT_EQUAL(tt_http_hdr_render(h, buf),
-                sizeof("Accept-Encoding: *;q=1\r\n") - 1,
-                "");
+                sizeof("Accept-Encoding: *;q=1\r\n") - 1, "");
     TT_UT_STREQ(buf, "Accept-Encoding: *;q=1\r\n", "");
 
     // remove aster weight
     tt_http_accenc_set_aster(ha, TT_TRUE, -1.2);
     tt_memset(buf, 0, sizeof(buf));
     TT_UT_EQUAL(tt_http_hdr_render(h, buf),
-                sizeof("Accept-Encoding: *\r\n") - 1,
-                "");
+                sizeof("Accept-Encoding: *\r\n") - 1, "");
     TT_UT_STREQ(buf, "Accept-Encoding: *\r\n", "");
 
     {
@@ -2476,12 +2309,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_etag)
 
     TT_UT_SUCCESS(tt_http_hdr_etag_add(h, "22", TT_TRUE), "");
     TT_UT_EQUAL(tt_http_hdr_render_len(h),
-                sizeof("ETag: \"1\", W/\"22\"\r\n") - 1,
-                "");
+                sizeof("ETag: \"1\", W/\"22\"\r\n") - 1, "");
     tt_memset(tmp, 0, sizeof(tmp));
     TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
-                sizeof("ETag: \"1\", W/\"22\"\r\n") - 1,
-                "");
+                sizeof("ETag: \"1\", W/\"22\"\r\n") - 1, "");
     TT_UT_STREQ(tmp, "ETag: \"1\", W/\"22\"\r\n", "");
 
     tt_http_hdr_destroy(h);
@@ -2570,33 +2401,27 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_ifmatch)
     TT_UT_NOT_NULL(h, "");
 
     TT_UT_SUCCESS(tt_http_hdr_ifmatch_add(h, "1", TT_FALSE), "");
-    TT_UT_EQUAL(tt_http_hdr_render_len(h),
-                sizeof("If-Match: \"1\"\r\n") - 1,
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), sizeof("If-Match: \"1\"\r\n") - 1,
                 "");
     tt_memset(tmp, 0, sizeof(tmp));
-    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
-                sizeof("If-Match: \"1\"\r\n") - 1,
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp), sizeof("If-Match: \"1\"\r\n") - 1,
                 "");
     TT_UT_STREQ(tmp, "If-Match: \"1\"\r\n", "");
 
     TT_UT_SUCCESS(tt_http_hdr_ifmatch_add(h, "22", TT_TRUE), "");
     TT_UT_EQUAL(tt_http_hdr_render_len(h),
-                sizeof("If-Match: \"1\", W/\"22\"\r\n") - 1,
-                "");
+                sizeof("If-Match: \"1\", W/\"22\"\r\n") - 1, "");
     tt_memset(tmp, 0, sizeof(tmp));
     TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
-                sizeof("If-Match: \"1\", W/\"22\"\r\n") - 1,
-                "");
+                sizeof("If-Match: \"1\", W/\"22\"\r\n") - 1, "");
     TT_UT_STREQ(tmp, "If-Match: \"1\", W/\"22\"\r\n", "");
 
     TT_UT_SUCCESS(tt_http_hdr_ifmatch_add_aster(h), "");
     TT_UT_EQUAL(tt_http_hdr_render_len(h),
-                sizeof("If-Match: \"1\", W/\"22\", *\r\n") - 1,
-                "");
+                sizeof("If-Match: \"1\", W/\"22\", *\r\n") - 1, "");
     tt_memset(tmp, 0, sizeof(tmp));
     TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
-                sizeof("If-Match: \"1\", W/\"22\", *\r\n") - 1,
-                "");
+                sizeof("If-Match: \"1\", W/\"22\", *\r\n") - 1, "");
     TT_UT_STREQ(tmp, "If-Match: \"1\", W/\"22\", *\r\n", "");
 
     tt_http_hdr_destroy(h);
@@ -2619,12 +2444,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_ifnmatch)
     h = tt_http_hdr_ifnmatch_create();
     TT_UT_NOT_NULL(h, "");
     TT_UT_NULL(tt_http_etag_head(h), "");
-    TT_UT_EQUAL(tt_http_hdr_render_len(h),
-                sizeof("If-None-Match: \r\n") - 1,
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), sizeof("If-None-Match: \r\n") - 1,
                 "");
     tt_memset(tmp, 0, sizeof(tmp));
-    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
-                sizeof("If-None-Match: \r\n") - 1,
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp), sizeof("If-None-Match: \r\n") - 1,
                 "");
     TT_UT_STREQ(tmp, "If-None-Match: \r\n", "");
     tt_http_hdr_destroy(h);
@@ -2690,32 +2513,26 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_ifnmatch)
 
     TT_UT_SUCCESS(tt_http_hdr_ifnmatch_add(h, "1", TT_FALSE), "");
     TT_UT_EQUAL(tt_http_hdr_render_len(h),
-                sizeof("If-None-Match: \"1\"\r\n") - 1,
-                "");
+                sizeof("If-None-Match: \"1\"\r\n") - 1, "");
     tt_memset(tmp, 0, sizeof(tmp));
     TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
-                sizeof("If-None-Match: \"1\"\r\n") - 1,
-                "");
+                sizeof("If-None-Match: \"1\"\r\n") - 1, "");
     TT_UT_STREQ(tmp, "If-None-Match: \"1\"\r\n", "");
 
     TT_UT_SUCCESS(tt_http_hdr_ifnmatch_add(h, "22", TT_TRUE), "");
     TT_UT_EQUAL(tt_http_hdr_render_len(h),
-                sizeof("If-None-Match: \"1\", W/\"22\"\r\n") - 1,
-                "");
+                sizeof("If-None-Match: \"1\", W/\"22\"\r\n") - 1, "");
     tt_memset(tmp, 0, sizeof(tmp));
     TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
-                sizeof("If-None-Match: \"1\", W/\"22\"\r\n") - 1,
-                "");
+                sizeof("If-None-Match: \"1\", W/\"22\"\r\n") - 1, "");
     TT_UT_STREQ(tmp, "If-None-Match: \"1\", W/\"22\"\r\n", "");
 
     TT_UT_SUCCESS(tt_http_hdr_ifnmatch_add_aster(h), "");
     TT_UT_EQUAL(tt_http_hdr_render_len(h),
-                sizeof("If-None-Match: \"1\", W/\"22\", *\r\n") - 1,
-                "");
+                sizeof("If-None-Match: \"1\", W/\"22\", *\r\n") - 1, "");
     tt_memset(tmp, 0, sizeof(tmp));
     TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
-                sizeof("If-None-Match: \"1\", W/\"22\", *\r\n") - 1,
-                "");
+                sizeof("If-None-Match: \"1\", W/\"22\", *\r\n") - 1, "");
     TT_UT_STREQ(tmp, "If-None-Match: \"1\", W/\"22\", *\r\n", "");
 
     tt_http_hdr_destroy(h);
@@ -2852,8 +2669,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->cnonce, "cncn"), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->nc, "00000001"), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->raw_qop, " , , ,,, auth,  auth-int "),
-                    0,
-                    "");
+                    0, "");
         TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_DIGEST, "");
         TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_NUM, "");
         TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5_SESS, "");
@@ -2912,8 +2728,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(tt_blobex_len(&ha->cnonce), 0, "");
         TT_UT_EQUAL(tt_blobex_len(&ha->nc), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->raw_qop, " , , ,,, auth,  auth-int "),
-                    0,
-                    "");
+                    0, "");
         TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_BASIC, "");
         TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_TRUE, "");
         TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5, "");
@@ -2975,8 +2790,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->cnonce, "cncn"), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->nc, "00000001"), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->raw_qop, " , , ,,, auth,  auth-int "),
-                    0,
-                    "");
+                    0, "");
         TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_DIGEST, "");
         TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_NUM, "");
         TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5_SESS, "");
@@ -3034,8 +2848,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(tt_blobex_len(&ha->cnonce), 0, "");
         TT_UT_EQUAL(tt_blobex_len(&ha->nc), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->raw_qop, " , , ,,, auth,  auth-int "),
-                    0,
-                    "");
+                    0, "");
         TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_BASIC, "");
         TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_TRUE, "");
         TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5, "");
@@ -3078,29 +2891,19 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_INFO("nonce: %s", c.nonce);
         tt_http_auth_ctx_destroy(&c);
 
-        TT_UT_SUCCESS(tt_http_auth_ctx_calc(&c,
-                                            ha,
-                                            (tt_char_t *)pwd,
+        TT_UT_SUCCESS(tt_http_auth_ctx_calc(&c, ha, (tt_char_t *)pwd,
                                             (tt_u32_t)tt_strlen(pwd),
-                                            TT_HTTP_QOP_AUTH,
-                                            (tt_char_t *)mtd,
-                                            (tt_u32_t)tt_strlen(mtd),
-                                            NULL,
-                                            0,
+                                            TT_HTTP_QOP_AUTH, (tt_char_t *)mtd,
+                                            (tt_u32_t)tt_strlen(mtd), NULL, 0,
                                             resp),
                       "");
         TT_UT_STREQ(resp, "6629fae49393a05397450978507c4ef1", "");
 
         // again
-        TT_UT_SUCCESS(tt_http_auth_ctx_calc(&c,
-                                            ha,
-                                            (tt_char_t *)pwd,
+        TT_UT_SUCCESS(tt_http_auth_ctx_calc(&c, ha, (tt_char_t *)pwd,
                                             (tt_u32_t)tt_strlen(pwd),
-                                            TT_HTTP_QOP_AUTH,
-                                            (tt_char_t *)mtd,
-                                            (tt_u32_t)tt_strlen(mtd),
-                                            NULL,
-                                            0,
+                                            TT_HTTP_QOP_AUTH, (tt_char_t *)mtd,
+                                            (tt_u32_t)tt_strlen(mtd), NULL, 0,
                                             resp),
                       "");
         TT_UT_STREQ(resp, "6629fae49393a05397450978507c4ef1", "");

@@ -45,14 +45,8 @@ TT_TEST_ROUTINE_DECLARE(case_cipher)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_cipher_case)
 
-TT_TEST_CASE("case_cipher",
-             "crypto: message digest",
-             case_cipher,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_cipher", "crypto: message digest", case_cipher, NULL, NULL,
+             NULL, NULL, NULL)
 ,
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_cipher_case)
@@ -383,37 +377,25 @@ TT_TEST_ROUTINE_DEFINE(case_cipher)
         tt_buf_put_cstr2hex(&obuf, tv->out);
 
         tt_buf_clear(&adbuf);
-        if (tv->ad != NULL) {
-            tt_buf_put_cstr2hex(&adbuf, tv->ad);
-        }
+        if (tv->ad != NULL) { tt_buf_put_cstr2hex(&adbuf, tv->ad); }
 
         tt_buf_clear(&tagbuf);
-        if (tv->tag != NULL) {
-            tt_buf_put_cstr2hex(&tagbuf, tv->tag);
-        }
+        if (tv->tag != NULL) { tt_buf_put_cstr2hex(&tagbuf, tv->tag); }
 
         if (tv->iv != NULL) {
             tt_buf_clear(&ivbuf);
             tt_buf_put_cstr2hex(&ivbuf, tv->iv);
         }
 
-        if (tv->no_update) {
-            goto tag_auth;
-        }
+        if (tv->no_update) { goto tag_auth; }
 
         tt_cipher_init(&c);
         tt_cipher_init(&dec);
 
-        ret = tt_cipher_setup(&c,
-                              tv->type,
-                              TT_TRUE,
-                              TT_BUF_RPOS(&kbuf),
+        ret = tt_cipher_setup(&c, tv->type, TT_TRUE, TT_BUF_RPOS(&kbuf),
                               TT_BUF_RLEN(&kbuf));
         TT_UT_SUCCESS(ret, "");
-        ret = tt_cipher_setup(&dec,
-                              tv->type,
-                              TT_FALSE,
-                              TT_BUF_RPOS(&kbuf),
+        ret = tt_cipher_setup(&dec, tv->type, TT_FALSE, TT_BUF_RPOS(&kbuf),
                               TT_BUF_RLEN(&kbuf));
         TT_UT_SUCCESS(ret, "");
 
@@ -421,8 +403,7 @@ TT_TEST_ROUTINE_DEFINE(case_cipher)
             ret =
                 tt_cipher_set_iv(&c, TT_BUF_RPOS(&ivbuf), TT_BUF_RLEN(&ivbuf));
             TT_UT_SUCCESS(ret, "");
-            ret = tt_cipher_set_iv(&dec,
-                                   TT_BUF_RPOS(&ivbuf),
+            ret = tt_cipher_set_iv(&dec, TT_BUF_RPOS(&ivbuf),
                                    TT_BUF_RLEN(&ivbuf));
             TT_UT_SUCCESS(ret, "");
         }
@@ -432,8 +413,7 @@ TT_TEST_ROUTINE_DEFINE(case_cipher)
                 tt_cipher_set_aad(&c, TT_BUF_RPOS(&adbuf), TT_BUF_RLEN(&adbuf));
             TT_UT_SUCCESS(ret, "");
 
-            ret = tt_cipher_set_aad(&dec,
-                                    TT_BUF_RPOS(&adbuf),
+            ret = tt_cipher_set_aad(&dec, TT_BUF_RPOS(&adbuf),
                                     TT_BUF_RLEN(&adbuf));
             TT_UT_SUCCESS(ret, "");
         }
@@ -448,10 +428,8 @@ TT_TEST_ROUTINE_DEFINE(case_cipher)
         // encrypt
         tt_buf_clear(&ebuf);
         if (ilen == 0 || tv->all_in) {
-            ret = tt_cipher_update_buf(&c,
-                                       TT_BUF_RPOS(&ibuf),
-                                       TT_BUF_RLEN(&ibuf),
-                                       &ebuf);
+            ret = tt_cipher_update_buf(&c, TT_BUF_RPOS(&ibuf),
+                                       TT_BUF_RLEN(&ibuf), &ebuf);
             TT_UT_SUCCESS(ret, "");
         } else if (tv->block_size != 0) {
             tt_u8_t *in = TT_BUF_RPOS(&ibuf);
@@ -494,10 +472,8 @@ TT_TEST_ROUTINE_DEFINE(case_cipher)
         // decrypt
         tt_buf_clear(&dbuf);
         if (ilen == 0 || tv->all_in) {
-            ret = tt_cipher_update_buf(&dec,
-                                       TT_BUF_RPOS(&ebuf),
-                                       TT_BUF_RLEN(&ebuf),
-                                       &dbuf);
+            ret = tt_cipher_update_buf(&dec, TT_BUF_RPOS(&ebuf),
+                                       TT_BUF_RLEN(&ebuf), &dbuf);
             TT_UT_SUCCESS(ret, "");
         } else if (tv->block_size != 0) {
             tt_u8_t *in = TT_BUF_RPOS(&ebuf);
@@ -529,8 +505,7 @@ TT_TEST_ROUTINE_DEFINE(case_cipher)
         TT_UT_EQUAL(tt_buf_cmp(&dbuf, &ibuf), 0, "");
 
         if (!tt_buf_empty(&tagbuf)) {
-            ret = tt_cipher_auth(&dec,
-                                 TT_BUF_RPOS(&tagbuf),
+            ret = tt_cipher_auth(&dec, TT_BUF_RPOS(&tagbuf),
                                  TT_BUF_RLEN(&tagbuf));
             TT_UT_SUCCESS(ret, "");
         }
@@ -538,8 +513,8 @@ TT_TEST_ROUTINE_DEFINE(case_cipher)
         tt_cipher_destroy(&c);
         tt_cipher_destroy(&dec);
 
-    //////////////////////////////////
-    //////////////////////////////////
+        //////////////////////////////////
+        //////////////////////////////////
 
     tag_auth:
         if (!tt_buf_empty(&tagbuf)) {
@@ -549,16 +524,10 @@ TT_TEST_ROUTINE_DEFINE(case_cipher)
             tt_cipher_init(&c);
             tt_cipher_init(&dec);
 
-            ret = tt_cipher_setup(&c,
-                                  tv->type,
-                                  TT_TRUE,
-                                  TT_BUF_RPOS(&kbuf),
+            ret = tt_cipher_setup(&c, tv->type, TT_TRUE, TT_BUF_RPOS(&kbuf),
                                   TT_BUF_RLEN(&kbuf));
             TT_UT_SUCCESS(ret, "");
-            ret = tt_cipher_setup(&dec,
-                                  tv->type,
-                                  TT_FALSE,
-                                  TT_BUF_RPOS(&kbuf),
+            ret = tt_cipher_setup(&dec, tv->type, TT_FALSE, TT_BUF_RPOS(&kbuf),
                                   TT_BUF_RLEN(&kbuf));
             TT_UT_SUCCESS(ret, "");
 
@@ -570,30 +539,24 @@ TT_TEST_ROUTINE_DEFINE(case_cipher)
             }
 
             tt_buf_clear(&ebuf);
-            ret = tt_cipher_encrypt_tag_buf(&c,
-                                            TT_BUF_RPOS(&ivbuf),
+            ret = tt_cipher_encrypt_tag_buf(&c, TT_BUF_RPOS(&ivbuf),
                                             TT_BUF_RLEN(&ivbuf),
                                             TT_BUF_RPOS(&adbuf),
                                             TT_BUF_RLEN(&adbuf),
                                             TT_BUF_RPOS(&ibuf),
-                                            TT_BUF_RLEN(&ibuf),
-                                            &ebuf,
-                                            tag,
+                                            TT_BUF_RLEN(&ibuf), &ebuf, tag,
                                             tag_len);
             TT_UT_SUCCESS(ret, "");
             TT_UT_EQUAL(tt_buf_cmp(&ebuf, &obuf), 0, "");
             TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&tagbuf), tag, tag_len), 0, "");
 
             tt_buf_clear(&dbuf);
-            ret = tt_cipher_decrypt_auth_buf(&c,
-                                             TT_BUF_RPOS(&ivbuf),
+            ret = tt_cipher_decrypt_auth_buf(&c, TT_BUF_RPOS(&ivbuf),
                                              TT_BUF_RLEN(&ivbuf),
                                              TT_BUF_RPOS(&adbuf),
                                              TT_BUF_RLEN(&adbuf),
                                              TT_BUF_RPOS(&ebuf),
-                                             TT_BUF_RLEN(&ebuf),
-                                             &dbuf,
-                                             tag,
+                                             TT_BUF_RLEN(&ebuf), &dbuf, tag,
                                              tag_len);
             TT_UT_SUCCESS(ret, "");
             TT_UT_EQUAL(tt_buf_cmp(&dbuf, &ibuf), 0, "");

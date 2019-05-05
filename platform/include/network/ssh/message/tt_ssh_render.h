@@ -149,15 +149,12 @@ tt_inline tt_u32_t tt_ssh_mpint_render_prepare(IN tt_u8_t *mpint,
                                                IN tt_u32_t mpint_len,
                                                IN tt_bool_t negative)
 {
-    if (mpint_len == 0) {
-        return 4;
-    }
+    if (mpint_len == 0) { return 4; }
 
     return 4 + mpint_len + TT_COND(!negative && (mpint[0] & 0x80), 1, 0);
 }
 
-tt_export tt_result_t tt_ssh_mpint_render(IN tt_buf_t *buf,
-                                          IN tt_u8_t *mpint,
+tt_export tt_result_t tt_ssh_mpint_render(IN tt_buf_t *buf, IN tt_u8_t *mpint,
                                           IN tt_u32_t mpint_len,
                                           IN tt_bool_t negative);
 
@@ -186,8 +183,7 @@ tt_export tt_result_t tt_ssh_namelist_render(IN tt_buf_t *buf,
 
 // - if block_size is 0, it uses 8 as block size
 // - if max_pad_block is 0, it uses
-tt_export tt_u8_t tt_sshmsg_padlen(IN tt_u32_t data_len,
-                                   IN tt_u32_t block_size,
+tt_export tt_u8_t tt_sshmsg_padlen(IN tt_u32_t data_len, IN tt_u32_t block_size,
                                    IN tt_u32_t pad_block,
                                    IN tt_u32_t max_pad_block);
 

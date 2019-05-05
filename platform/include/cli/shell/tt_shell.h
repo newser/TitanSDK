@@ -41,15 +41,13 @@ this file defines config sh interface
 
 #define TT_SH_NEWLINE(buf)                                                     \
     do {                                                                       \
-        TT_DO(tt_buf_put((buf),                                                \
-                         (tt_u8_t *)tt_g_sh_line_sep,                          \
+        TT_DO(tt_buf_put((buf), (tt_u8_t *)tt_g_sh_line_sep,                   \
                          sizeof(tt_g_sh_line_sep) - 1));                       \
     } while (0)
 
 #define TT_SH_NEWCOLUME(buf)                                                   \
     do {                                                                       \
-        TT_DO(tt_buf_put((buf),                                                \
-                         (tt_u8_t *)tt_g_sh_colume_sep,                        \
+        TT_DO(tt_buf_put((buf), (tt_u8_t *)tt_g_sh_colume_sep,                 \
                          sizeof(tt_g_sh_colume_sep) - 1));                     \
     } while (0)
 
@@ -88,10 +86,8 @@ tt_export const tt_char_t tt_g_sh_colume_sep[5];
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_sh_create(IN tt_shell_t *sh,
-                                   IN tt_param_t *root,
-                                   IN tt_cli_mode_t mode,
-                                   IN tt_cli_itf_t *itf,
+tt_export tt_result_t tt_sh_create(IN tt_shell_t *sh, IN tt_param_t *root,
+                                   IN tt_cli_mode_t mode, IN tt_cli_itf_t *itf,
                                    IN OPT tt_sh_attr_t *attr);
 
 tt_export void tt_sh_destroy(IN tt_shell_t *sh);
@@ -103,8 +99,7 @@ tt_inline tt_result_t tt_sh_start(IN tt_shell_t *sh)
     return tt_cli_start(&sh->cli);
 }
 
-tt_inline tt_result_t tt_sh_input(IN tt_shell_t *sh,
-                                  IN tt_u8_t *ev,
+tt_inline tt_result_t tt_sh_input(IN tt_shell_t *sh, IN tt_u8_t *ev,
                                   IN tt_u32_t ev_num)
 {
     return tt_cli_input(&sh->cli, ev, ev_num);

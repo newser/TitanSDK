@@ -91,10 +91,8 @@ extern tt_dns_rrlist_t __empty_rrlist_aaaa;
 
 static void __drr_query(IN tt_dns_rr_t *drr, IN tt_dns_t d);
 
-static void __drr_set(IN tt_dns_rr_t *drr,
-                      IN tt_s64_t ttl,
-                      IN tt_dns_rrlist_t *rrl,
-                      IN tt_bool_t notify);
+static void __drr_set(IN tt_dns_rr_t *drr, IN tt_s64_t ttl,
+                      IN tt_dns_rrlist_t *rrl, IN tt_bool_t notify);
 
 static void __a_clear_list(IN tt_dns_rrlist_t *rrl);
 
@@ -103,15 +101,10 @@ static tt_result_t __a_copy_list(IN tt_dns_rrlist_t *dst,
 
 static tt_dns_a_t *__a_copy(IN tt_dns_a_t *src);
 
-static void __a_callback(IN void *arg,
-                         IN int status,
-                         IN int timeouts,
-                         IN unsigned char *abuf,
-                         IN int alen);
+static void __a_callback(IN void *arg, IN int status, IN int timeouts,
+                         IN unsigned char *abuf, IN int alen);
 
-int __a_parse(IN const unsigned char *abuf,
-              IN int alen,
-              OUT tt_s64_t *ttl,
+int __a_parse(IN const unsigned char *abuf, IN int alen, OUT tt_s64_t *ttl,
               OUT tt_dns_rrlist_t *rrl);
 
 static void __aaaa_clear_list(IN tt_dns_rrlist_t *rrl);
@@ -121,23 +114,17 @@ static tt_result_t __aaaa_copy_list(IN tt_dns_rrlist_t *dst,
 
 static tt_dns_aaaa_t *__aaaa_copy(IN tt_dns_aaaa_t *src);
 
-static void __aaaa_callback(IN void *arg,
-                            IN int status,
-                            IN int timeouts,
-                            IN unsigned char *abuf,
-                            IN int alen);
+static void __aaaa_callback(IN void *arg, IN int status, IN int timeouts,
+                            IN unsigned char *abuf, IN int alen);
 
-int __aaaa_parse(IN const unsigned char *abuf,
-                 IN int alen,
-                 OUT tt_s64_t *ttl,
+int __aaaa_parse(IN const unsigned char *abuf, IN int alen, OUT tt_s64_t *ttl,
                  OUT tt_dns_rrlist_t *rrl);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_dns_rr_init(IN tt_dns_rr_t *drr,
-                    IN const tt_char_t *name,
+void tt_dns_rr_init(IN tt_dns_rr_t *drr, IN const tt_char_t *name,
                     IN tt_dns_type_t type)
 {
     drr->ttl = TT_TIME_INFINITE;
@@ -160,9 +147,7 @@ tt_dns_rrlist_t *tt_dns_rr_get(IN tt_dns_rr_t *drr, IN tt_dns_t d)
     __rr_wait_t wait;
 
     rrl = &drr->rrl;
-    if (!tt_dns_rrlist_empty(rrl)) {
-        return rrl;
-    }
+    if (!tt_dns_rrlist_empty(rrl)) { return rrl; }
 
     fb = tt_current_fiber();
     if (drr->querying_fb == NULL) {
@@ -302,19 +287,17 @@ tt_dns_aaaa_t *tt_dns_aaaa_next(IN tt_dns_aaaa_t *aaaa)
 void __drr_query(IN tt_dns_rr_t *drr, IN tt_dns_t d)
 {
     switch (drr->rrl.type) {
-        case TT_DNS_A_IN: {
-            ares_query(d, drr->name, C_IN, T_A, __a_callback, drr);
-        } break;
-        case TT_DNS_AAAA_IN:
-        default: {
-            ares_query(d, drr->name, C_IN, T_AAAA, __aaaa_callback, drr);
-        } break;
+    case TT_DNS_A_IN: {
+        ares_query(d, drr->name, C_IN, T_A, __a_callback, drr);
+    } break;
+    case TT_DNS_AAAA_IN:
+    default: {
+        ares_query(d, drr->name, C_IN, T_AAAA, __aaaa_callback, drr);
+    } break;
     }
 }
 
-void __drr_set(IN tt_dns_rr_t *drr,
-               IN tt_s64_t ttl,
-               IN tt_dns_rrlist_t *rrl,
+void __drr_set(IN tt_dns_rr_t *drr, IN tt_s64_t ttl, IN tt_dns_rrlist_t *rrl,
                IN tt_bool_t notify)
 {
     tt_dnode_t *node;
@@ -373,20 +356,15 @@ tt_dns_a_t *__a_copy(IN tt_dns_a_t *src)
     return dst;
 }
 
-void __a_callback(IN void *arg,
-                  IN int status,
-                  IN int timeouts,
-                  IN unsigned char *abuf,
-                  IN int alen)
+void __a_callback(IN void *arg, IN int status, IN int timeouts,
+                  IN unsigned char *abuf, IN int alen)
 {
     tt_dns_rr_t *drr = (tt_dns_rr_t *)arg;
     tt_bool_t notify;
     tt_s64_t ttl;
     tt_dns_rrlist_t rrl;
 
-    if (status == ARES_EDESTRUCTION) {
-        return;
-    }
+    if (status == ARES_EDESTRUCTION) { return; }
 
     TT_ASSERT(drr->querying_fb != NULL);
     notify = TT_BOOL(drr->querying_fb != tt_current_fiber());
@@ -412,9 +390,7 @@ void __a_callback(IN void *arg,
     TT_ASSERT_RR(tt_dns_rrlist_empty(&rrl));
 }
 
-int __a_parse(IN const unsigned char *abuf,
-              IN int alen,
-              OUT tt_s64_t *ttl,
+int __a_parse(IN const unsigned char *abuf, IN int alen, OUT tt_s64_t *ttl,
               OUT tt_dns_rrlist_t *rrl)
 {
     unsigned int qdcount, ancount;
@@ -425,23 +401,17 @@ int __a_parse(IN const unsigned char *abuf,
     char *hostname, *rr_name, *rr_data;
 
     /* Give up if abuf doesn't have room for a header. */
-    if (alen < HFIXEDSZ) {
-        return ARES_EBADRESP;
-    }
+    if (alen < HFIXEDSZ) { return ARES_EBADRESP; }
 
     /* Fetch the question and answer count from the header. */
     qdcount = DNS_HEADER_QDCOUNT(abuf);
     ancount = DNS_HEADER_ANCOUNT(abuf);
-    if (qdcount != 1) {
-        return ARES_EBADRESP;
-    }
+    if (qdcount != 1) { return ARES_EBADRESP; }
 
     /* Expand the name from the question, and skip past the question. */
     aptr = abuf + HFIXEDSZ;
     status = ares__expand_name_for_response(aptr, abuf, alen, &hostname, &len);
-    if (status != ARES_SUCCESS) {
-        return status;
-    }
+    if (status != ARES_SUCCESS) { return status; }
     if ((aptr + len + QFIXEDSZ) > (abuf + alen)) {
         ares_free(hostname);
         return ARES_EBADRESP;
@@ -453,9 +423,7 @@ int __a_parse(IN const unsigned char *abuf,
         /* Decode the RR up to the data field. */
         status =
             ares__expand_name_for_response(aptr, abuf, alen, &rr_name, &len);
-        if (status != ARES_SUCCESS) {
-            break;
-        }
+        if (status != ARES_SUCCESS) { break; }
         aptr += len;
         if ((aptr + RRFIXEDSZ) > (abuf + alen)) {
             ares_free(rr_name);
@@ -466,12 +434,8 @@ int __a_parse(IN const unsigned char *abuf,
         rr_class = DNS_RR_CLASS(aptr);
         rr_len = DNS_RR_LEN(aptr);
         rr_ttl = DNS_RR_TTL(aptr);
-        if (rr_ttl < 0) {
-            rr_ttl = 0;
-        }
-        if (rr_ttl > __MAX_TTL) {
-            rr_ttl = __MAX_TTL;
-        }
+        if (rr_ttl < 0) { rr_ttl = 0; }
+        if (rr_ttl > __MAX_TTL) { rr_ttl = __MAX_TTL; }
         aptr += RRFIXEDSZ;
         if ((aptr + rr_len) > (abuf + alen)) {
             ares_free(rr_name);
@@ -494,27 +458,18 @@ int __a_parse(IN const unsigned char *abuf,
                 status = ARES_ENOMEM;
                 break;
             }
-            if (rr_ttl < min_ttl) {
-                min_ttl = rr_ttl;
-            }
+            if (rr_ttl < min_ttl) { min_ttl = rr_ttl; }
             status = ARES_SUCCESS;
         }
 
         if ((rr_class == C_IN) && (rr_type == T_CNAME)) {
             /* Decode the RR data and replace the hostname with it. */
-            status = ares__expand_name_for_response(aptr,
-                                                    abuf,
-                                                    alen,
-                                                    &rr_data,
+            status = ares__expand_name_for_response(aptr, abuf, alen, &rr_data,
                                                     &len);
-            if (status != ARES_SUCCESS) {
-                break;
-            }
+            if (status != ARES_SUCCESS) { break; }
             ares_free(hostname);
             hostname = rr_data;
-            if (rr_ttl < min_ttl) {
-                min_ttl = rr_ttl;
-            }
+            if (rr_ttl < min_ttl) { min_ttl = rr_ttl; }
         }
 
         ares_free(rr_name);
@@ -576,20 +531,15 @@ tt_dns_aaaa_t *__aaaa_copy(IN tt_dns_aaaa_t *src)
     return dst;
 }
 
-void __aaaa_callback(IN void *arg,
-                     IN int status,
-                     IN int timeouts,
-                     IN unsigned char *abuf,
-                     IN int alen)
+void __aaaa_callback(IN void *arg, IN int status, IN int timeouts,
+                     IN unsigned char *abuf, IN int alen)
 {
     tt_dns_rr_t *drr = (tt_dns_rr_t *)arg;
     tt_bool_t notify;
     tt_s64_t ttl;
     tt_dns_rrlist_t rrl;
 
-    if (status == ARES_EDESTRUCTION) {
-        return;
-    }
+    if (status == ARES_EDESTRUCTION) { return; }
 
     TT_ASSERT(drr->querying_fb != NULL);
     notify = TT_BOOL(drr->querying_fb != tt_current_fiber());
@@ -614,9 +564,7 @@ void __aaaa_callback(IN void *arg,
     TT_ASSERT_RR(tt_dns_rrlist_empty(&rrl));
 }
 
-int __aaaa_parse(IN const unsigned char *abuf,
-                 IN int alen,
-                 OUT tt_s64_t *ttl,
+int __aaaa_parse(IN const unsigned char *abuf, IN int alen, OUT tt_s64_t *ttl,
                  OUT tt_dns_rrlist_t *rrl)
 {
     unsigned int qdcount, ancount;
@@ -627,23 +575,17 @@ int __aaaa_parse(IN const unsigned char *abuf,
     char *hostname, *rr_name, *rr_data;
 
     /* Give up if abuf doesn't have room for a header. */
-    if (alen < HFIXEDSZ) {
-        return ARES_EBADRESP;
-    }
+    if (alen < HFIXEDSZ) { return ARES_EBADRESP; }
 
     /* Fetch the question and answer count from the header. */
     qdcount = DNS_HEADER_QDCOUNT(abuf);
     ancount = DNS_HEADER_ANCOUNT(abuf);
-    if (qdcount != 1) {
-        return ARES_EBADRESP;
-    }
+    if (qdcount != 1) { return ARES_EBADRESP; }
 
     /* Expand the name from the question, and skip past the question. */
     aptr = abuf + HFIXEDSZ;
     status = ares__expand_name_for_response(aptr, abuf, alen, &hostname, &len);
-    if (status != ARES_SUCCESS) {
-        return status;
-    }
+    if (status != ARES_SUCCESS) { return status; }
     if ((aptr + len + QFIXEDSZ) > (abuf + alen)) {
         ares_free(hostname);
         return ARES_EBADRESP;
@@ -655,9 +597,7 @@ int __aaaa_parse(IN const unsigned char *abuf,
         /* Decode the RR up to the data field. */
         status =
             ares__expand_name_for_response(aptr, abuf, alen, &rr_name, &len);
-        if (status != ARES_SUCCESS) {
-            break;
-        }
+        if (status != ARES_SUCCESS) { break; }
         aptr += len;
         if ((aptr + RRFIXEDSZ) > (abuf + alen)) {
             ares_free(rr_name);
@@ -668,12 +608,8 @@ int __aaaa_parse(IN const unsigned char *abuf,
         rr_class = DNS_RR_CLASS(aptr);
         rr_len = DNS_RR_LEN(aptr);
         rr_ttl = DNS_RR_TTL(aptr);
-        if (rr_ttl < 0) {
-            rr_ttl = 0;
-        }
-        if (rr_ttl > __MAX_TTL) {
-            rr_ttl = __MAX_TTL;
-        }
+        if (rr_ttl < 0) { rr_ttl = 0; }
+        if (rr_ttl > __MAX_TTL) { rr_ttl = __MAX_TTL; }
         aptr += RRFIXEDSZ;
         if ((aptr + rr_len) > (abuf + alen)) {
             ares_free(rr_name);
@@ -697,27 +633,18 @@ int __aaaa_parse(IN const unsigned char *abuf,
                 status = ARES_ENOMEM;
                 break;
             }
-            if (rr_ttl < min_ttl) {
-                min_ttl = rr_ttl;
-            }
+            if (rr_ttl < min_ttl) { min_ttl = rr_ttl; }
             status = ARES_SUCCESS;
         }
 
         if ((rr_class == C_IN) && (rr_type == T_CNAME)) {
             /* Decode the RR data and replace the hostname with it. */
-            status = ares__expand_name_for_response(aptr,
-                                                    abuf,
-                                                    alen,
-                                                    &rr_data,
+            status = ares__expand_name_for_response(aptr, abuf, alen, &rr_data,
                                                     &len);
-            if (status != ARES_SUCCESS) {
-                break;
-            }
+            if (status != ARES_SUCCESS) { break; }
             ares_free(hostname);
             hostname = rr_data;
-            if (rr_ttl < min_ttl) {
-                min_ttl = rr_ttl;
-            }
+            if (rr_ttl < min_ttl) { min_ttl = rr_ttl; }
         }
 
         ares_free(rr_name);

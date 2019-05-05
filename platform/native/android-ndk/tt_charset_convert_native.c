@@ -57,8 +57,7 @@ void tt_chsetconv_destroy_ntv(IN tt_chsetconv_t *csconv)
 {
 }
 
-tt_result_t tt_chsetconv_input_ntv(IN tt_chsetconv_t *csconv,
-                                   IN tt_u8_t *input,
+tt_result_t tt_chsetconv_input_ntv(IN tt_chsetconv_t *csconv, IN tt_u8_t *input,
                                    IN tt_u32_t input_len)
 {
     return TT_FAIL;

@@ -50,9 +50,9 @@ namespace tt {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-blob &blob::cat(const void *addr, size_t len)
+void blob::cat(const void *addr, size_t len)
 {
-    if (len == 0) { return *this; }
+    if (len == 0) { return; }
 
     size_t n = this->size();
     TT_OVERFLOW_IF(n + len < n, "cat overflow");
@@ -61,7 +61,7 @@ blob &blob::cat(const void *addr, size_t len)
     uint8_t *p = new uint8_t[n + len];
     memcpy(p, addr_, n);
     if (addr != nullptr) { memcpy(p + n, addr, len); }
-    return set(p, n + len, true);
+    set(p, n + len, true);
 }
 
 void blob::do_set(void *addr, size_t len, bool owner)

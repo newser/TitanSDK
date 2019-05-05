@@ -61,42 +61,18 @@ TT_TEST_ROUTINE_DECLARE(case_tmr_stable)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(tmr_case)
 
-TT_TEST_CASE("case_tmr_basic",
-             "testing tmr mgr basic api",
-             case_tmr_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_tmr_basic", "testing tmr mgr basic api", case_tmr_basic,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_tmr_fiber",
-                 "testing tmr mgr with fiber",
-                 case_tmr_fiber,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_tmr_fiber", "testing tmr mgr with fiber", case_tmr_fiber,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_tmr_accuracy",
-                 "testing tmr mgr accuracy",
-                 case_tmr_accuracy,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_tmr_accuracy", "testing tmr mgr accuracy",
+                 case_tmr_accuracy, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_tmr_stable",
-                 "testing tmr mgr stability",
-                 case_tmr_stable,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_tmr_stable", "testing tmr mgr stability",
+                 case_tmr_stable, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(tmr_case)
     // =========================================
@@ -452,22 +428,16 @@ TT_TEST_ROUTINE_DEFINE(case_tmr_accuracy)
         tt_tmr_t *tmr = tt_fiber_recv_timer(cfb, TT_TRUE);
         tt_s64_t now = tt_time_ref();
         TT_UT_NOT_NULL(tmr, "");
-        if (++i == __case2_tn) {
-            break;
-        }
+        if (++i == __case2_tn) { break; }
         now -= __start[tmr->ev];
         now = tt_time_ref2ms(now);
         now = labs((long)(now - tmr->delay_ms));
-        if (now > max_diff) {
-            max_diff = now;
-        }
+        if (now > max_diff) { max_diff = now; }
     } while (1);
     TT_INFO("max_diff: %dms", max_diff);
 
     // start all timers
-    for (i = 0; i < __case2_tn; ++i) {
-        tt_tmr_destroy(__tmrs2[i]);
-    }
+    for (i = 0; i < __case2_tn; ++i) { tt_tmr_destroy(__tmrs2[i]); }
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -541,9 +511,7 @@ TT_TEST_ROUTINE_DEFINE(case_tmr_stable)
             now -= __start3[tmr->ev];
             now = tt_time_ref2ms(now);
             now = labs((long)(now - tmr->delay_ms));
-            if (now > max_diff) {
-                max_diff = now;
-            }
+            if (now > max_diff) { max_diff = now; }
 
             if (tmr->ev == 0) {
                 tt_tmr_set_delay(tmr, (rand() % 100) * 10);
@@ -557,8 +525,7 @@ TT_TEST_ROUTINE_DEFINE(case_tmr_stable)
 
     // start all timers
     for (i = 0; i < __case3_tn; ++i) {
-        if (!destroyed[i])
-            tt_tmr_destroy(__tmrs3[i]);
+        if (!destroyed[i]) tt_tmr_destroy(__tmrs3[i]);
     }
 
     // test end

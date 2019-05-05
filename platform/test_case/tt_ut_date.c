@@ -59,105 +59,39 @@ TT_TEST_ROUTINE_DECLARE(case_date_diff)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(date_case)
 
-TT_TEST_CASE("case_date_def",
-             "testing date definitions",
-             case_date_def,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_date_def", "testing date definitions", case_date_def, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_date_render",
-                 "testing date rendering",
-                 case_date_render,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_render", "testing date rendering", case_date_render,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_date_parse",
-                 "testing date parsing",
-                 case_date_parse,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_parse", "testing date parsing", case_date_parse,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_date_year",
-                 "testing date year",
-                 case_date_year,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_year", "testing date year", case_date_year, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_date_month",
-                 "testing date month",
-                 case_date_month,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_month", "testing date month", case_date_month, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_date_day",
-                 "testing date day",
-                 case_date_day,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_day", "testing date day", case_date_day, NULL, NULL,
+                 NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_date_time",
-                 "testing date time",
-                 case_date_time,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_time", "testing date time", case_date_time, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_date_cjdn",
-                 "testing date cjdn",
-                 case_date_cjdn,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_cjdn", "testing date cjdn", case_date_cjdn, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_date_inc_dec",
-                 "testing date inc/dec",
-                 case_date_inc_dec,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_inc_dec", "testing date inc/dec", case_date_inc_dec,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_date_julian",
-                 "testing date to/from julian day",
-                 case_date_julian,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_julian", "testing date to/from julian day",
+                 case_date_julian, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_date_diff",
-                 "testing date difference",
-                 case_date_diff,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_date_diff", "testing date difference", case_date_diff,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(date_case)
     // =========================================
@@ -196,66 +130,53 @@ TT_TEST_CASE("case_date_def",
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name[TT_UTC_MINUS_12_00]
                               .addr,
                           "UTC-12:00"),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)
                               tt_g_tmzone_name_iso8601[TT_UTC_MINUS_12_00]
                                   .addr,
                           "-12:00"),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)
                               tt_g_tmzone_name_rfc1123[TT_UTC_MINUS_12_00]
                                   .addr,
                           "-1200"),
-                0,
-                "");
+                0, "");
 
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name[TT_UTC_00_00].addr,
                           "UTC+00:00"),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name_rfc1123[TT_UTC_00_00]
                               .addr,
                           "GMT"),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name_iso8601[TT_UTC_00_00]
                               .addr,
                           "Z"),
-                0,
-                "");
+                0, "");
 
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name[TT_UTC_14_00].addr,
                           "UTC+14:00"),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name_rfc1123[TT_UTC_14_00]
                               .addr,
                           "+1400"),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name_iso8601[TT_UTC_14_00]
                               .addr,
                           "+14:00"),
-                0,
-                "");
+                0, "");
 
     TT_UT_EQUAL(tt_strcmp((char *)tt_g_month_name[TT_JANUARY].addr, "January"),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(tt_strcmp((char *)tt_g_month_name[TT_DECEMBER].addr,
                           "December"),
-                0,
-                "");
+                0, "");
 
     TT_UT_EQUAL(tt_strcmp((char *)tt_g_weekday_name[TT_SUNDAY].addr, "Sunday"),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(tt_strcmp((char *)tt_g_weekday_name[TT_SATURDAY].addr,
                           "Saturday"),
-                0,
-                "");
+                0, "");
 
     TT_UT_EQUAL(tt_offsec2tmzone(-100000000), TT_UTC_MINUS_12_00, "");
     TT_UT_EQUAL(tt_offsec2tmzone(-43200), TT_UTC_MINUS_12_00, "");
@@ -445,8 +366,7 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
     ret =
         tt_date_render(&d, "--- %w, %D %b %C %H:%M:%S %Z%%%", buf, sizeof(buf));
     TT_UT_EQUAL(ret, sizeof("--- Sun, 08 Oct 2017 23:59:01 -0330%%%") - 1, "");
-    TT_UT_EQUAL(tt_strcmp(buf, "--- Sun, 08 Oct 2017 23:59:01 -0330%%%"),
-                0,
+    TT_UT_EQUAL(tt_strcmp(buf, "--- Sun, 08 Oct 2017 23:59:01 -0330%%%"), 0,
                 "");
 
     // combination, RFC850
@@ -454,8 +374,7 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
     tt_date_set_tmzone(&d, TT_UTC_MINUS_04_00);
     ret = tt_date_render(&d, "%W, %D-%N-%C %H:%M:%S %z %%%", buf, sizeof(buf));
     TT_UT_EQUAL(ret, sizeof("Sunday, 08-01-2017 23:59:01 -04:00 %%%") - 1, "");
-    TT_UT_EQUAL(tt_strcmp(buf, "Sunday, 08-01-2017 23:59:01 -04:00 %%%"),
-                0,
+    TT_UT_EQUAL(tt_strcmp(buf, "Sunday, 08-01-2017 23:59:01 -04:00 %%%"), 0,
                 "");
 
     // combination, ascii
@@ -692,10 +611,8 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
 
     // combination, rfc1123
     len = sizeof("--- Sun, 08 Oct 2017 23:59:01 -0330%%%") - 1;
-    ret = tt_date_parse(&d,
-                        "--- %w, %D %b %C %H:%M:%S %Z%%%",
-                        "--- Sun, 08 Oct 2017 23:59:01 -0330%%%",
-                        &len);
+    ret = tt_date_parse(&d, "--- %w, %D %b %C %H:%M:%S %Z%%%",
+                        "--- Sun, 08 Oct 2017 23:59:01 -0330%%%", &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_date_cmp_vdate(&d, 2017, TT_OCTOBER, 8), 0, "");
     TT_UT_EQUAL(tt_date_cmp_vtime(&d, 23, 59, 01), 0, "");
@@ -703,10 +620,8 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
 
     // combination, rfc850
     len = sizeof("Sunday, 08- 1-2017 23:59:01 +04:00 %%%") - 1;
-    ret = tt_date_parse(&d,
-                        "%W, %D-%n-%C %H:%M:%S %z %%%",
-                        "Sunday, 08- 1-2017 23:59:01 +04:00 %%%",
-                        &len);
+    ret = tt_date_parse(&d, "%W, %D-%n-%C %H:%M:%S %z %%%",
+                        "Sunday, 08- 1-2017 23:59:01 +04:00 %%%", &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_date_cmp_vdate(&d, 2017, TT_JANUARY, 8), 0, "");
     TT_UT_EQUAL(tt_date_cmp_vtime(&d, 23, 59, 01), 0, "");
@@ -714,10 +629,8 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
 
     // combination, rfc850
     len = sizeof("--- Sun 01  8 23:59:01 2017 GMT") - 1;
-    ret = tt_date_parse(&d,
-                        "--- %w %N %d %H:%M:%S %C %Z",
-                        "--- Sun 01  8 23:59:01 2017 GMT",
-                        &len);
+    ret = tt_date_parse(&d, "--- %w %N %d %H:%M:%S %C %Z",
+                        "--- Sun 01  8 23:59:01 2017 GMT", &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_date_cmp_vdate(&d, 2017, TT_JANUARY, 8), 0, "");
     TT_UT_EQUAL(tt_date_cmp_vtime(&d, 23, 59, 01), 0, "");
@@ -987,14 +900,11 @@ TT_TEST_ROUTINE_DEFINE(case_date_time)
     TT_TEST_CASE_LEAVE()
 }
 
-extern tt_u32_t __ymd2cjdn(IN tt_u16_t year,
-                           IN tt_month_t month,
+extern tt_u32_t __ymd2cjdn(IN tt_u16_t year, IN tt_month_t month,
                            IN tt_u8_t day);
 
-extern void __cjdn2ymd(IN tt_u32_t cjdn,
-                       OUT tt_u16_t *year,
-                       OUT tt_month_t *month,
-                       OUT tt_u8_t *day);
+extern void __cjdn2ymd(IN tt_u32_t cjdn, OUT tt_u16_t *year,
+                       OUT tt_month_t *month, OUT tt_u8_t *day);
 
 TT_TEST_ROUTINE_DEFINE(case_date_cjdn)
 {

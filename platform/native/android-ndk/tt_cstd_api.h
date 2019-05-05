@@ -38,7 +38,6 @@ this file wraps neccesary c standard library operations for purpose:
 #include <ctype.h>
 #include <memory.h>
 #include <stdarg.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -165,24 +164,18 @@ wrapped c strchr()
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_s32_t tt_strnicmp(IN const tt_char_t *s1,
-                            IN const tt_char_t *s2,
+extern tt_s32_t tt_strnicmp(IN const tt_char_t *s1, IN const tt_char_t *s2,
                             IN tt_u32_t n);
 
-extern tt_s32_t tt_memicmp(IN const tt_u8_t *s1,
-                           IN const tt_u8_t *s2,
+extern tt_s32_t tt_memicmp(IN const tt_u8_t *s1, IN const tt_u8_t *s2,
                            IN tt_u32_t n);
 
 // return how many bytes are put to str, not including 0
-tt_inline int tt_vsnprintf(char *str,
-                           size_t size,
-                           const char *format,
+tt_inline int tt_vsnprintf(char *str, size_t size, const char *format,
                            va_list ap)
 {
     int n = vsnprintf(str, size, format, ap);
-    if ((n < 0) || (n >= (int)size)) {
-        n = size - 1;
-    }
+    if ((n < 0) || (n >= (int)size)) { n = size - 1; }
     return n;
 }
 
@@ -199,14 +192,10 @@ tt_inline int tt_snprintf(char *str, size_t size, const char *format, ...)
     return n;
 }
 
-extern tt_result_t tt_strtou32(const char *str,
-                               char **endptr,
-                               int base,
+extern tt_result_t tt_strtou32(const char *str, char **endptr, int base,
                                tt_u32_t *val);
 
-extern tt_result_t tt_strtos32(const char *str,
-                               char **endptr,
-                               int base,
+extern tt_result_t tt_strtos32(const char *str, char **endptr, int base,
                                tt_s32_t *val);
 
 extern char *tt_strrstr(const char *haystack, const char *needle);

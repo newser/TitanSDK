@@ -240,23 +240,19 @@ tt_inline tt_u32_t tt_http_hdr_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
 // ========================================
 
 tt_export tt_http_hdr_t *tt_http_hdr_create_line(
-    IN tt_u32_t extra_size,
-    IN tt_http_hname_t name,
+    IN tt_u32_t extra_size, IN tt_http_hname_t name,
     IN OPT tt_http_hdr_itf_t *val_itf);
 
-tt_export tt_http_hdr_t *tt_http_hdr_create_cs(IN tt_u32_t extra_size,
-                                               IN tt_http_hname_t name,
-                                               IN OPT
-                                                   tt_http_hdr_itf_t *val_itf);
+tt_export tt_http_hdr_t *tt_http_hdr_create_cs(
+    IN tt_u32_t extra_size, IN tt_http_hname_t name,
+    IN OPT tt_http_hdr_itf_t *val_itf);
 
-tt_export tt_http_hdr_t *tt_http_hdr_create_csq(IN tt_u32_t extra_size,
-                                                IN tt_http_hname_t name,
-                                                IN OPT
-                                                    tt_http_hdr_itf_t *val_itf);
+tt_export tt_http_hdr_t *tt_http_hdr_create_csq(
+    IN tt_u32_t extra_size, IN tt_http_hname_t name,
+    IN OPT tt_http_hdr_itf_t *val_itf);
 
-tt_export tt_http_hdr_t *tt_http_hdr_create_scs(IN tt_u32_t extra_size,
-                                                IN tt_http_hname_t name,
-                                                IN OPT
-                                                    tt_http_hdr_itf_t *val_itf);
+tt_export tt_http_hdr_t *tt_http_hdr_create_scs(
+    IN tt_u32_t extra_size, IN tt_http_hname_t name,
+    IN OPT tt_http_hdr_itf_t *val_itf);
 
 #endif /* __TT_HTTP_HEADER__ */

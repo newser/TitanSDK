@@ -84,9 +84,7 @@ void __http_rule_destroy(IN tt_http_rule_t *r)
         tt_http_rule_release(TT_CONTAINER(dn, tt_http_rule_t, dnode));
     }
 
-    if (r->itf->destroy != NULL) {
-        r->itf->destroy(r);
-    }
+    if (r->itf->destroy != NULL) { r->itf->destroy(r); }
 
     tt_free(r);
 }
@@ -108,12 +106,9 @@ tt_http_rule_result_t tt_http_rule_apply(IN tt_http_rule_t *r,
         return TT_HTTP_RULE_NEXT;
     }
 
-    result = TT_COND(itf->pre != NULL,
-                     itf->pre(r, uri, path, ctx),
+    result = TT_COND(itf->pre != NULL, itf->pre(r, uri, path, ctx),
                      TT_HTTP_RULE_NEXT);
-    if (result != TT_HTTP_RULE_NEXT) {
-        return result;
-    }
+    if (result != TT_HTTP_RULE_NEXT) { return result; }
 
     dn = tt_dlist_head(&r->child);
     while (dn != NULL) {
@@ -122,17 +117,12 @@ tt_http_rule_result_t tt_http_rule_apply(IN tt_http_rule_t *r,
         dn = dn->next;
 
         result = tt_http_rule_apply(sub, uri, path, ctx);
-        if (result != TT_HTTP_RULE_NEXT) {
-            return result;
-        }
+        if (result != TT_HTTP_RULE_NEXT) { return result; }
     }
 
-    result = TT_COND(itf->post != NULL,
-                     itf->post(r, uri, path, ctx),
+    result = TT_COND(itf->post != NULL, itf->post(r, uri, path, ctx),
                      TT_HTTP_RULE_NEXT);
-    if (result != TT_HTTP_RULE_NEXT) {
-        return result;
-    }
+    if (result != TT_HTTP_RULE_NEXT) { return result; }
 
     return r->default_result;
 }

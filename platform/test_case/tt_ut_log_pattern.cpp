@@ -1026,7 +1026,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
 TT_TEST_ROUTINE_DEFINE(case_lpatn_logger_cpp)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt::log::layout::placeholder *f;
+    tt::log::placeholder::base *f;
     tt::buf b;
     tt::log::entry e;
 
@@ -1034,7 +1034,7 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_logger_cpp)
     // test start
 
     {
-        f = new tt::log::layout::logger("xxx %s", sizeof("xxx %s") - 1);
+        f = new tt::log::placeholder::logger("xxx %s", sizeof("xxx %s") - 1);
 
         e.logger = nullptr;
         b.clear();
@@ -1050,7 +1050,7 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_logger_cpp)
     }
 
     {
-        f = new tt::log::layout::function("xxx %s", sizeof("xxx %s") - 1);
+        f = new tt::log::placeholder::function("xxx %s", sizeof("xxx %s") - 1);
 
         e.function = nullptr;
         b.clear();
@@ -1066,7 +1066,7 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_logger_cpp)
     }
 
     {
-        f = new tt::log::layout::content("xxx %s", sizeof("xxx %s") - 1);
+        f = new tt::log::placeholder::content("xxx %s", sizeof("xxx %s") - 1);
 
         e.content = nullptr;
         b.clear();
@@ -1082,7 +1082,7 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_logger_cpp)
     }
 
     {
-        f = new tt::log::layout::line("xxx %d", sizeof("xxx %d") - 1);
+        f = new tt::log::placeholder::line("xxx %d", sizeof("xxx %d") - 1);
 
         e.line = 123;
         b.clear();
@@ -1093,7 +1093,7 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_logger_cpp)
     }
 
     {
-        f = new tt::log::layout::seqno("xxx %d", sizeof("xxx %d") - 1);
+        f = new tt::log::placeholder::seqno("xxx %d", sizeof("xxx %d") - 1);
 
         e.seqno = 456;
         b.clear();
@@ -1104,7 +1104,7 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_logger_cpp)
     }
 
     {
-        f = new tt::log::layout::level("xxx %s", sizeof("xxx %s") - 1);
+        f = new tt::log::placeholder::level("xxx %s", sizeof("xxx %s") - 1);
 
         e.level = tt::log::e_debug;
         b.clear();
@@ -1150,7 +1150,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_pattern_cpp)
     e.logger = "me";
     e.line = 1234;
 
-    tt::log::layout::pattern ptn;
+    tt::log::pattern ptn;
 
     // basic
     {

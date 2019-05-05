@@ -70,8 +70,7 @@ int __sf_close(int fildes);
 
 #ifdef __SIMU_FAIL_BIND
 #define bind __sf_bind
-int __sf_bind(int socket,
-              const struct sockaddr *address,
+int __sf_bind(int socket, const struct sockaddr *address,
               socklen_t address_len);
 #endif
 
@@ -82,16 +81,13 @@ int __sf_listen(int socket, int backlog);
 
 #ifdef __SIMU_FAIL_ACCEPT4
 #define accept4 __sf_accept4
-int __sf_accept4(int socket,
-                 struct sockaddr *address,
-                 socklen_t *address_len,
+int __sf_accept4(int socket, struct sockaddr *address, socklen_t *address_len,
                  int flags);
 #endif
 
 #ifdef __SIMU_FAIL_CONNECT
 #define connect __sf_connect
-int __sf_connect(int socket,
-                 const struct sockaddr *address,
+int __sf_connect(int socket, const struct sockaddr *address,
                  socklen_t address_len);
 #endif
 
@@ -287,13 +283,10 @@ tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
     if (addr != NULL) {
         struct sockaddr_un saun;
 
-        if (!TT_OK(__init_ipc_addr(&saun, addr))) {
-            goto fail;
-        }
+        if (!TT_OK(__init_ipc_addr(&saun, addr))) { goto fail; }
 
         unlink(addr);
-        if (bind(s,
-                 (const struct sockaddr *)&saun,
+        if (bind(s, (const struct sockaddr *)&saun,
                  sizeof(struct sockaddr_un)) != 0) {
             TT_ERROR_NTV("fail to bind ipc");
             goto fail;
@@ -360,13 +353,10 @@ tt_result_t tt_ipc_connect_ntv(IN tt_ipc_ntv_t *ipc, IN const tt_char_t *addr)
     __ipc_connect_t ipc_connect;
     int ep;
 
-    if (!TT_OK(__init_ipc_addr(&saun, addr))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__init_ipc_addr(&saun, addr))) { return TT_FAIL; }
 
 again:
-    if (connect(ipc->s,
-                (const struct sockaddr *)&saun,
+    if (connect(ipc->s, (const struct sockaddr *)&saun,
                 sizeof(struct sockaddr_un)) == 0) {
         return TT_SUCCESS;
     } else if (errno == EINTR) {
@@ -388,10 +378,8 @@ again:
     return ipc_connect.result;
 }
 
-tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
-                            IN tt_ipc_attr_t *new_attr,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr)
+tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc, IN tt_ipc_attr_t *new_attr,
+                            OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr)
 {
     __ipc_accept_t ipc_accept;
     int ep;
@@ -404,9 +392,7 @@ tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
     ep = __ipc_ev_init(&ipc_accept.io_ev, __IPC_ACCEPT);
     cfb = ipc_accept.io_ev.src;
 
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return NULL;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return NULL; }
 
     ipc_accept.ipc = ipc;
     ipc_accept.new_attr = new_attr;
@@ -422,19 +408,15 @@ tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
 
-    if (!ipc_accept.done) {
-        tt_ep_unread(ep, ipc->s, &__s_null_io_ev);
-    }
+    if (!ipc_accept.done) { tt_ep_unread(ep, ipc->s, &__s_null_io_ev); }
 
     tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr);
 
     return ipc_accept.new_ipc;
 }
 
-tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
-                            IN tt_u8_t *buf,
-                            IN tt_u32_t len,
-                            OUT OPT tt_u32_t *sent)
+tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc, IN tt_u8_t *buf,
+                            IN tt_u32_t len, OUT OPT tt_u32_t *sent)
 {
     __ipc_send_t ipc_send;
     int ep;
@@ -456,12 +438,9 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
     return ipc_send.result;
 }
 
-tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
-                            OUT tt_u8_t *buf,
-                            IN tt_u32_t len,
-                            OUT OPT tt_u32_t *recvd,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr,
+tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc, OUT tt_u8_t *buf,
+                            IN tt_u32_t len, OUT OPT tt_u32_t *recvd,
+                            OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr,
                             OUT tt_skt_t **p_skt)
 {
     __ipc_recv_t ipc_recv;
@@ -476,9 +455,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     ep = __ipc_ev_init(&ipc_recv.io_ev, __IPC_RECV);
     cfb = ipc_recv.io_ev.src;
 
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return TT_SUCCESS;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return TT_SUCCESS; }
 
     ipc_recv.ipc = ipc;
     ipc_recv.buf = buf;
@@ -496,9 +473,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
 
-    if (!ipc_recv.done) {
-        tt_ep_unread(ep, ipc->s, &__s_null_io_ev);
-    }
+    if (!ipc_recv.done) { tt_ep_unread(ep, ipc->s, &__s_null_io_ev); }
 
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         ipc_recv.result = TT_SUCCESS;
@@ -541,10 +516,8 @@ tt_bool_t tt_ipc_poller_io(IN tt_io_ev_t *io_ev)
     return __ipc_poller_io[io_ev->ev](io_ev);
 }
 
-tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
-                                  OUT OPT tt_char_t *addr,
-                                  IN tt_u32_t size,
-                                  OUT OPT tt_u32_t *len)
+tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc, OUT OPT tt_char_t *addr,
+                                  IN tt_u32_t size, OUT OPT tt_u32_t *len)
 {
     struct sockaddr_un saun;
     socklen_t n = sizeof(struct sockaddr_un);
@@ -560,9 +533,7 @@ tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
         n = (socklen_t)tt_strlen(saun.sun_path) + 1;
     }
     TT_SAFE_ASSIGN(len, (tt_u32_t)n);
-    if (addr == NULL) {
-        return TT_SUCCESS;
-    }
+    if (addr == NULL) { return TT_SUCCESS; }
 
     if (size < n) {
         TT_ERROR("not enough space for ipc addr");
@@ -573,10 +544,8 @@ tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
-                                   OUT tt_char_t *addr,
-                                   IN tt_u32_t size,
-                                   OUT OPT tt_u32_t *len)
+tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc, OUT tt_char_t *addr,
+                                   IN tt_u32_t size, OUT OPT tt_u32_t *len)
 {
     struct sockaddr_un saun;
     socklen_t n = sizeof(struct sockaddr_un);
@@ -592,9 +561,7 @@ tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
         n = (socklen_t)tt_strlen(saun.sun_path) + 1;
     }
     TT_SAFE_ASSIGN(len, (tt_u32_t)n);
-    if (addr == NULL) {
-        return TT_SUCCESS;
-    }
+    if (addr == NULL) { return TT_SUCCESS; }
 
     if (size < n) {
         TT_ERROR("not enough space for ipc addr");
@@ -604,7 +571,6 @@ tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
     memcpy(addr, saun.sun_path, n);
     return TT_SUCCESS;
 }
-
 
 tt_result_t __init_ipc_addr(IN struct sockaddr_un *saun,
                             IN const tt_char_t *addr)
@@ -699,9 +665,7 @@ again:
 
 fail:
 
-    if (s != -1) {
-        __RETRY_IF_EINTR(close(s));
-    }
+    if (s != -1) { __RETRY_IF_EINTR(close(s)); }
 
     tt_free(ipc_accept->new_ipc);
     ipc_accept->new_ipc = NULL;
@@ -773,7 +737,7 @@ again:
         ipc_send->result = TT_SUCCESS;
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
-               ) {
+    ) {
         ipc_send->result = TT_E_END;
     } else {
         TT_ERROR_NTV("send failed");
@@ -823,7 +787,7 @@ again:
     // error
     if (errno == ECONNRESET
         // || (errno == ENETDOWN)
-        ) {
+    ) {
         ipc_recv->result = TT_E_END;
     } else {
         TT_ERROR_NTV("ipc recvmsg failed");
@@ -933,9 +897,7 @@ int __sf_listen(int socket, int backlog)
 
 #ifdef __SIMU_FAIL_ACCEPT4
 #undef accept4
-int __sf_accept4(int socket,
-                 struct sockaddr *address,
-                 socklen_t *address_len,
+int __sf_accept4(int socket, struct sockaddr *address, socklen_t *address_len,
                  int flags)
 {
     return -1;
@@ -944,8 +906,7 @@ int __sf_accept4(int socket,
 
 #ifdef __SIMU_FAIL_CONNECT
 #undef connect
-int __sf_connect(int socket,
-                 const struct sockaddr *address,
+int __sf_connect(int socket, const struct sockaddr *address,
                  socklen_t address_len)
 {
     return -1;

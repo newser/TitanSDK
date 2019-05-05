@@ -61,7 +61,8 @@ void tt_io_poller_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __iop_component_init, __iop_component_exit,
+        __iop_component_init,
+        __iop_component_exit,
     };
 
     // init component

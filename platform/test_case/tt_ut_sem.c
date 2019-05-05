@@ -58,42 +58,18 @@ TT_TEST_ROUTINE_DECLARE(case_sem_count)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sem_case)
 
-TT_TEST_CASE("case_sem_basic",
-             "testing basic sem API",
-             case_sem_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_sem_basic", "testing basic sem API", case_sem_basic, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_sem_mt",
-                 "testing sem API in multithread",
-                 case_sem_mt,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sem_mt", "testing sem API in multithread", case_sem_mt,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sem_pc",
-                 "testing sem API in producer-consumer model",
-                 case_sem_pc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sem_pc", "testing sem API in producer-consumer model",
+                 case_sem_pc, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sem_count",
-                 "testing sem counting",
-                 case_sem_count,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sem_count", "testing sem counting", case_sem_count, NULL,
+                 NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(sem_case)
     // =========================================
@@ -297,9 +273,7 @@ static tt_result_t test_consumer(IN void *param)
     while (i < __PRODUCER_CAP * sizeof(test_threads) / sizeof(tt_thread_t *)) {
         // produce
         ret = tt_sem_acquire(&sem, 10);
-        if (ret) {
-            ++i;
-        }
+        if (ret) { ++i; }
     }
 
     return TT_SUCCESS;

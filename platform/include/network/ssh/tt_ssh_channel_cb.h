@@ -47,8 +47,7 @@ typedef void (*tt_sshch_on_connect_t)(IN struct tt_sshch_s *ch,
 typedef void (*tt_sshch_on_accept_t)(IN struct tt_sshch_s *ch,
                                      IN struct tt_sshmsg_chopen_s *chopen);
 
-typedef void (*tt_sshch_on_recv_t)(IN struct tt_sshch_s *ch,
-                                   IN tt_u8_t *data,
+typedef void (*tt_sshch_on_recv_t)(IN struct tt_sshch_s *ch, IN tt_u8_t *data,
                                    IN tt_u32_t data_len);
 
 typedef struct tt_sshch_cb_s

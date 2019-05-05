@@ -73,8 +73,7 @@ void tt_backtrace_component_exit_ntv()
 #endif
 }
 
-tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
-                             IN OPT const tt_char_t *prefix,
+tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf, IN OPT const tt_char_t *prefix,
                              IN OPT const tt_char_t *suffix)
 {
     tt_u32_t plen, slen, n, i;
@@ -82,20 +81,14 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
     HANDLE proc;
     tt_result_t result = TT_E_NOMEM;
 
-    if (prefix == NULL) {
-        prefix = "";
-    }
+    if (prefix == NULL) { prefix = ""; }
     plen = (tt_u32_t)tt_strlen(prefix);
 
-    if (suffix == NULL) {
-        suffix = "";
-    }
+    if (suffix == NULL) { suffix = ""; }
     slen = (tt_u32_t)tt_strlen(suffix);
 
     n = CaptureStackBackTrace(0, __BT_SIZE, bt, NULL);
-    if (n == 0) {
-        return TT_FAIL;
-    }
+    if (n == 0) { return TT_FAIL; }
     proc = GetCurrentProcess();
     for (i = 0; i < n; ++i) {
         tt_u8_t tmp[sizeof(SYMBOL_INFO) + __SYM_SIZE + 1];
@@ -112,40 +105,21 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
 
         if (!SymFromAddr(proc, (DWORD64)bt[i], &addr_disp, sym)) {
             TT_DO_G(done, tt_buf_putf(buf, "#%d <%p> in ?", i, bt[i]));
-        } else if (!SymGetLineFromAddrW64(proc,
-                                          (DWORD64)bt[i],
-                                          &disp2,
+        } else if (!SymGetLineFromAddrW64(proc, (DWORD64)bt[i], &disp2,
                                           &line)) {
-            TT_DO_G(done,
-                    tt_buf_putf(buf,
-                                "#%d <%p> in %s(+0x%x)",
-                                i,
-                                bt[i],
-                                sym->Name,
-                                addr_disp));
+            TT_DO_G(done, tt_buf_putf(buf, "#%d <%p> in %s(+0x%x)", i, bt[i],
+                                      sym->Name, addr_disp));
         } else {
             tt_char_t *fname = tt_utf8_create(line.FileName, 0, NULL);
             if (fname != NULL) {
                 tt_result_t result;
-                result = tt_buf_putf(buf,
-                                     "#%d <%p> in %s() at [%s:%d]",
-                                     i,
-                                     bt[i],
-                                     sym->Name,
-                                     fname,
-                                     line.LineNumber);
+                result = tt_buf_putf(buf, "#%d <%p> in %s() at [%s:%d]", i,
+                                     bt[i], sym->Name, fname, line.LineNumber);
                 tt_free(fname);
-                if (!TT_OK(result)) {
-                    goto done;
-                }
+                if (!TT_OK(result)) { goto done; }
             } else {
-                TT_DO_G(done,
-                        tt_buf_putf(buf,
-                                    "#%d <%p> in %s(+0x%x)",
-                                    i,
-                                    bt[i],
-                                    sym->Name,
-                                    addr_disp));
+                TT_DO_G(done, tt_buf_putf(buf, "#%d <%p> in %s(+0x%x)", i,
+                                          bt[i], sym->Name, addr_disp));
             }
         }
 

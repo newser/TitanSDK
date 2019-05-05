@@ -45,7 +45,6 @@
  */
 #define PROC_LISTPIDSPATH_PATH_IS_VOLUME 1
 
-
 /*!
  @define PROC_LISTPIDSPATH_EXCLUDE_EVTONLY
  @discussion This flag indicates that file references that were opened
@@ -56,9 +55,7 @@
 
 __BEGIN_DECLS
 
-int proc_listpids(uint32_t type,
-                  uint32_t typeinfo,
-                  void *buffer,
+int proc_listpids(uint32_t type, uint32_t typeinfo, void *buffer,
                   int buffersize);
 
 /*!
@@ -80,20 +77,14 @@ int proc_listpids(uint32_t type,
  @result the number of bytes of data returned in the provided buffer;
  -1 if an error was encountered;
  */
-int proc_listpidspath(uint32_t type,
-                      uint32_t typeinfo,
-                      const char *path,
-                      uint32_t pathflags,
-                      void *buffer,
-                      int buffersize);
+int proc_listpidspath(uint32_t type, uint32_t typeinfo, const char *path,
+                      uint32_t pathflags, void *buffer, int buffersize);
 
-int proc_pidinfo(
-    int pid, int flavor, uint64_t arg, void *buffer, int buffersize);
+int proc_pidinfo(int pid, int flavor, uint64_t arg, void *buffer,
+                 int buffersize);
 int proc_pidfdinfo(int pid, int fd, int flavor, void *buffer, int buffersize);
 int proc_name(int pid, void *buffer, uint32_t buffersize);
-int proc_regionfilename(int pid,
-                        uint64_t address,
-                        void *buffer,
+int proc_regionfilename(int pid, uint64_t address, void *buffer,
                         uint32_t buffersize);
 int proc_kmsgbuf(void *buffer, uint32_t buffersize);
 int proc_pidpath(int pid, void *buffer, uint32_t buffersize);

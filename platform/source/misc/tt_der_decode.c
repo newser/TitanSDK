@@ -50,10 +50,8 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_der_decode_head(IN tt_buf_t *buf,
-                               OUT OPT tt_u32_t *tag,
-                               OUT OPT tt_u32_t *length,
-                               IN tt_u32_t flag)
+tt_result_t tt_der_decode_head(IN tt_buf_t *buf, OUT OPT tt_u32_t *tag,
+                               OUT OPT tt_u32_t *length, IN tt_u32_t flag)
 {
     tt_u8_t val_u8;
     tt_u32_t len = 0;
@@ -92,50 +90,39 @@ tt_result_t tt_der_decode_head(IN tt_buf_t *buf,
     TT_SAFE_ASSIGN(length, len);
 
     // content
-    if (flag & TT_DER_PASS_CONTENT) {
-        TT_DO(tt_buf_inc_rp(buf, len));
-    }
+    if (flag & TT_DER_PASS_CONTENT) { TT_DO(tt_buf_inc_rp(buf, len)); }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_der_decode_sequence(IN tt_buf_t *buf,
-                                   OUT OPT tt_u32_t *length,
+tt_result_t tt_der_decode_sequence(IN tt_buf_t *buf, OUT OPT tt_u32_t *length,
                                    IN tt_u32_t flag)
 {
     tt_u32_t tag, len;
 
     TT_ASSERT(buf != NULL);
 
-    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) { return TT_FAIL; }
 
     if (tag != TT_ASN1_TAG_SEQUENCE) {
         TT_ERROR("tag[%d] is not SEQUENCE", tag);
         return TT_FAIL;
     }
 
-    if (flag & TT_DER_PASS_CONTENT) {
-        TT_DO(tt_buf_inc_rp(buf, len));
-    }
+    if (flag & TT_DER_PASS_CONTENT) { TT_DO(tt_buf_inc_rp(buf, len)); }
 
     TT_SAFE_ASSIGN(length, len);
     return TT_SUCCESS;
 }
 
-tt_result_t tt_der_decode_oid(IN tt_buf_t *buf,
-                              OUT OPT tt_u8_t **oid,
-                              OUT OPT tt_u32_t *oid_len,
-                              IN tt_u32_t flag)
+tt_result_t tt_der_decode_oid(IN tt_buf_t *buf, OUT OPT tt_u8_t **oid,
+                              OUT OPT tt_u32_t *oid_len, IN tt_u32_t flag)
 {
     tt_u32_t tag, len;
 
     TT_ASSERT(buf != NULL);
 
-    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) { return TT_FAIL; }
 
     if (tag != TT_ASN1_TAG_OBJECT_IDENTIFIER) {
         TT_ERROR("tag[%d] is not OBJECT_IDENTIFIER", tag);
@@ -145,25 +132,19 @@ tt_result_t tt_der_decode_oid(IN tt_buf_t *buf,
     TT_SAFE_ASSIGN(oid, TT_BUF_RPOS(buf));
     TT_SAFE_ASSIGN(oid_len, len);
 
-    if (flag & TT_DER_PASS_CONTENT) {
-        TT_DO(tt_buf_inc_rp(buf, len));
-    }
+    if (flag & TT_DER_PASS_CONTENT) { TT_DO(tt_buf_inc_rp(buf, len)); }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_der_decode_octstr(IN tt_buf_t *buf,
-                                 OUT OPT tt_u8_t **octstr,
-                                 OUT OPT tt_u32_t *octstr_len,
-                                 IN tt_u32_t flag)
+tt_result_t tt_der_decode_octstr(IN tt_buf_t *buf, OUT OPT tt_u8_t **octstr,
+                                 OUT OPT tt_u32_t *octstr_len, IN tt_u32_t flag)
 {
     tt_u32_t tag, len;
 
     TT_ASSERT(buf != NULL);
 
-    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) { return TT_FAIL; }
 
     if (tag != TT_ASN1_TAG_OCTET_STRING) {
         TT_ERROR("tag[%d] is not OCTET_STRING", tag);
@@ -173,15 +154,12 @@ tt_result_t tt_der_decode_octstr(IN tt_buf_t *buf,
     TT_SAFE_ASSIGN(octstr, TT_BUF_RPOS(buf));
     TT_SAFE_ASSIGN(octstr_len, len);
 
-    if (flag & TT_DER_PASS_CONTENT) {
-        TT_DO(tt_buf_inc_rp(buf, len));
-    }
+    if (flag & TT_DER_PASS_CONTENT) { TT_DO(tt_buf_inc_rp(buf, len)); }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_der_decode_bitstr(IN tt_buf_t *buf,
-                                 OUT OPT tt_u8_t **bitstr,
+tt_result_t tt_der_decode_bitstr(IN tt_buf_t *buf, OUT OPT tt_u8_t **bitstr,
                                  OUT OPT tt_u32_t *bitstr_len,
                                  OUT OPT tt_u32_t *pad_bit_num,
                                  IN tt_u32_t flag)
@@ -191,9 +169,7 @@ tt_result_t tt_der_decode_bitstr(IN tt_buf_t *buf,
 
     TT_ASSERT(buf != NULL);
 
-    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) { return TT_FAIL; }
 
     if (tag != TT_ASN1_TAG_BIT_STRING) {
         TT_ERROR("tag[%d] is not OCTET_STRING", tag);
@@ -210,17 +186,13 @@ tt_result_t tt_der_decode_bitstr(IN tt_buf_t *buf,
     TT_SAFE_ASSIGN(bitstr_len, len - 1);
     TT_SAFE_ASSIGN(pad_bit_num, __padded_bit);
 
-    if (flag & TT_DER_PASS_CONTENT) {
-        TT_DO(tt_buf_inc_rp(buf, len));
-    }
+    if (flag & TT_DER_PASS_CONTENT) { TT_DO(tt_buf_inc_rp(buf, len)); }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_der_decode_s32(IN tt_buf_t *buf,
-                              OUT OPT tt_u32_t *length,
-                              OUT OPT tt_s32_t *val_s32,
-                              IN tt_u32_t flag)
+tt_result_t tt_der_decode_s32(IN tt_buf_t *buf, OUT OPT tt_u32_t *length,
+                              OUT OPT tt_s32_t *val_s32, IN tt_u32_t flag)
 {
     tt_u32_t tag, len;
     tt_u32_t i, val_u32, max_u32;
@@ -228,9 +200,7 @@ tt_result_t tt_der_decode_s32(IN tt_buf_t *buf,
 
     TT_ASSERT(buf != NULL);
 
-    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) { return TT_FAIL; }
 
     if (tag != TT_ASN1_TAG_INTEGER) {
         TT_ERROR("tag[%d] is not INTEGER", tag);
@@ -263,9 +233,7 @@ tt_result_t tt_der_decode_s32(IN tt_buf_t *buf,
         TT_SAFE_ASSIGN(val_s32, ((tt_u32_t)val_u32));
     }
 
-    if (!(flag & TT_DER_PASS_CONTENT)) {
-        buf->rpos -= len;
-    }
+    if (!(flag & TT_DER_PASS_CONTENT)) { buf->rpos -= len; }
 
     return TT_SUCCESS;
 }
@@ -276,9 +244,7 @@ tt_result_t tt_der_decode_null(IN tt_buf_t *buf, IN tt_u32_t flag)
 
     TT_ASSERT(buf != NULL);
 
-    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_der_decode_head(buf, &tag, &len, 0))) { return TT_FAIL; }
 
     if (tag != TT_ASN1_TAG_NULL) {
         TT_ERROR("not NULL", len);

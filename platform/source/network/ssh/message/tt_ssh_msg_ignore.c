@@ -71,8 +71,7 @@ static tt_sshmsg_itf_t __ignore_op = {
 
 tt_sshmsg_t *tt_sshmsg_ignore_create()
 {
-    return tt_sshmsg_create(TT_SSH_MSGID_IGNORE,
-                            sizeof(tt_sshmsg_ignore_t),
+    return tt_sshmsg_create(TT_SSH_MSGID_IGNORE, sizeof(tt_sshmsg_ignore_t),
                             &__ignore_op);
 }
 

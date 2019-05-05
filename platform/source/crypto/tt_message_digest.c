@@ -42,15 +42,9 @@
 ////////////////////////////////////////////////////////////
 
 mbedtls_md_type_t tt_g_md_type_map[TT_MD_TYPE_NUM] = {
-    MBEDTLS_MD_MD2,
-    MBEDTLS_MD_MD4,
-    MBEDTLS_MD_MD5,
-    MBEDTLS_MD_SHA1,
-    MBEDTLS_MD_SHA224,
-    MBEDTLS_MD_SHA256,
-    MBEDTLS_MD_SHA384,
-    MBEDTLS_MD_SHA512,
-    MBEDTLS_MD_RIPEMD160,
+    MBEDTLS_MD_MD2,    MBEDTLS_MD_MD4,    MBEDTLS_MD_MD5,
+    MBEDTLS_MD_SHA1,   MBEDTLS_MD_SHA224, MBEDTLS_MD_SHA256,
+    MBEDTLS_MD_SHA384, MBEDTLS_MD_SHA512, MBEDTLS_MD_RIPEMD160,
 };
 
 ////////////////////////////////////////////////////////////
@@ -94,9 +88,7 @@ tt_result_t tt_md_final_buf(IN tt_md_t *md, OUT tt_buf_t *output)
 {
     tt_u32_t size = tt_md_size(md);
 
-    if (!TT_OK(tt_buf_reserve(output, size))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_buf_reserve(output, size))) { return TT_FAIL; }
 
     if (mbedtls_md_finish(&md->ctx, TT_BUF_RPOS(output)) != 0) {
         TT_ERROR("md final buf failed");
@@ -107,17 +99,13 @@ tt_result_t tt_md_final_buf(IN tt_md_t *md, OUT tt_buf_t *output)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_md_gather(IN tt_md_type_t type,
-                         IN tt_blob_t *input,
-                         IN tt_u32_t input_num,
-                         OUT tt_u8_t *output)
+tt_result_t tt_md_gather(IN tt_md_type_t type, IN tt_blob_t *input,
+                         IN tt_u32_t input_num, OUT tt_u8_t *output)
 {
     tt_md_t md;
     tt_u32_t i;
 
-    if (!TT_OK(tt_md_create(&md, type))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_md_create(&md, type))) { return TT_FAIL; }
 
     for (i = 0; i < input_num; ++i) {
         if (!TT_OK(tt_md_update(&md, input[i].addr, input[i].len))) {

@@ -96,20 +96,17 @@ static tt_result_t __render_set_accenc(IN tt_http_render_t *render,
                                        IN OPT tt_http_accenc_t *accenc);
 
 static tt_result_t __render_add_etag(IN tt_http_render_t *req,
-                                     IN tt_char_t *etag,
-                                     IN tt_u32_t len,
+                                     IN tt_char_t *etag, IN tt_u32_t len,
                                      IN tt_bool_t weak);
 
 static tt_result_t __render_add_ifmatch(IN tt_http_render_t *req,
-                                        IN tt_char_t *etag,
-                                        IN tt_u32_t len,
+                                        IN tt_char_t *etag, IN tt_u32_t len,
                                         IN tt_bool_t weak);
 
 static tt_result_t __render_add_ifmatch_aster(IN tt_http_render_t *req);
 
 static tt_result_t __render_add_ifnmatch(IN tt_http_render_t *req,
-                                         IN tt_char_t *etag,
-                                         IN tt_u32_t len,
+                                         IN tt_char_t *etag, IN tt_u32_t len,
                                          IN tt_bool_t weak);
 
 static tt_result_t __render_add_ifnmatch_aster(IN tt_http_render_t *req);
@@ -133,9 +130,7 @@ tt_result_t tt_http_render_add_auth(IN tt_http_render_t *r,
     h = __render_find_hdr(r, TT_HTTP_HDR_AUTH);
     if (h == NULL) {
         h = tt_http_hdr_auth_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(r, h);
     }
 
@@ -157,9 +152,7 @@ tt_result_t tt_http_render_add_www_auth(IN tt_http_render_t *r,
     h = __render_find_hdr(r, TT_HTTP_HDR_WWW_AUTH);
     if (h == NULL) {
         h = tt_http_hdr_www_auth_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(r, h);
     }
 
@@ -181,9 +174,7 @@ tt_result_t tt_http_render_add_proxy_authorization(IN tt_http_render_t *r,
     h = __render_find_hdr(r, TT_HTTP_HDR_PROXY_AUTHORIZATION);
     if (h == NULL) {
         h = tt_http_hdr_proxy_authorization_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(r, h);
     }
 
@@ -205,9 +196,7 @@ tt_result_t tt_http_render_add_proxy_authenticate(IN tt_http_render_t *r,
     h = __render_find_hdr(r, TT_HTTP_HDR_PROXY_AUTHENTICATE);
     if (h == NULL) {
         h = tt_http_hdr_proxy_authenticate_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(r, h);
     }
 
@@ -224,9 +213,7 @@ tt_bool_t tt_http_render_has_txenc_chunked(IN tt_http_render_t *r)
 {
     tt_u32_t i;
     for (i = 0; i < r->txenc_num; ++i) {
-        if (r->txenc[i] == TT_HTTP_TXENC_CHUNKED) {
-            return TT_TRUE;
-        }
+        if (r->txenc[i] == TT_HTTP_TXENC_CHUNKED) { return TT_TRUE; }
     }
     return TT_FALSE;
 }
@@ -239,9 +226,7 @@ tt_result_t tt_http_render_add_cookie(IN tt_http_render_t *r,
     h = __render_find_hdr(r, TT_HTTP_HDR_COOKIE);
     if (h == NULL) {
         h = tt_http_hdr_cookie_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(r, h);
     }
 
@@ -257,9 +242,7 @@ tt_result_t tt_http_render_add_set_cookie(IN tt_http_render_t *r,
     h = __render_find_hdr(r, TT_HTTP_HDR_SET_COOKIE);
     if (h == NULL) {
         h = tt_http_hdr_set_cookie_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(r, h);
     }
 
@@ -314,8 +297,7 @@ void tt_http_req_render_add_hdr(IN tt_http_req_render_t *req,
 }
 
 tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
-                               OUT tt_char_t **data,
-                               OUT tt_u32_t *len)
+                               OUT tt_char_t **data, OUT tt_u32_t *len)
 {
     tt_http_render_t *render;
     tt_buf_t *buf;
@@ -344,9 +326,7 @@ tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
     tt_uri_encode_table_default(&uet);
     uet.path = tt_s_path_enc_tbl;
 
-    if (tt_uri_render(&req->uri, &uet) == NULL) {
-        return TT_FAIL;
-    }
+    if (tt_uri_render(&req->uri, &uet) == NULL) { return TT_FAIL; }
     u = &req->uri.uri;
     n += tt_string_len(u);
 
@@ -358,17 +338,14 @@ tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
         n += __common_render_len(render);
     }
 
-    if (!TT_OK(tt_buf_reserve(buf, n))) {
-        return TT_E_NOMEM;
-    }
+    if (!TT_OK(tt_buf_reserve(buf, n))) { return TT_E_NOMEM; }
 
     // ========================================
     // render
     // ========================================
 
     // "GET "
-    tt_buf_put(buf,
-               (tt_u8_t *)tt_g_http_method[req->method],
+    tt_buf_put(buf, (tt_u8_t *)tt_g_http_method[req->method],
                tt_g_http_method_len[req->method]);
     tt_buf_put_u8(buf, ' ');
 
@@ -378,8 +355,7 @@ tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
     if (render->version != TT_HTTP_V0_9) {
         // "GET /a/b/c HTTP/1.1\r\n"
         tt_buf_put_u8(buf, ' ');
-        tt_buf_put(buf,
-                   (tt_u8_t *)tt_g_http_verion[render->version],
+        tt_buf_put(buf, (tt_u8_t *)tt_g_http_verion[render->version],
                    tt_g_http_verion_len[render->version]);
         tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
 
@@ -412,8 +388,7 @@ tt_result_t tt_http_req_render_set_accenc(IN tt_http_req_render_t *req,
 }
 
 tt_result_t tt_http_req_render_add_etag_n(IN tt_http_req_render_t *req,
-                                          IN tt_char_t *etag,
-                                          IN tt_u32_t len,
+                                          IN tt_char_t *etag, IN tt_u32_t len,
                                           IN tt_bool_t weak)
 {
     return __render_add_etag(&req->render, etag, len, weak);
@@ -421,8 +396,7 @@ tt_result_t tt_http_req_render_add_etag_n(IN tt_http_req_render_t *req,
 
 tt_result_t tt_http_req_render_add_ifmatch_n(IN tt_http_req_render_t *req,
                                              IN tt_char_t *etag,
-                                             IN tt_u32_t len,
-                                             IN tt_bool_t weak)
+                                             IN tt_u32_t len, IN tt_bool_t weak)
 {
     return __render_add_ifmatch(&req->render, etag, len, weak);
 }
@@ -486,8 +460,7 @@ void tt_http_resp_render_add_hdr(IN tt_http_resp_render_t *resp,
 }
 
 tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
-                                OUT tt_char_t **data,
-                                OUT tt_u32_t *len)
+                                OUT tt_char_t **data, OUT tt_u32_t *len)
 {
     tt_http_render_t *render;
     tt_buf_t *buf;
@@ -520,17 +493,14 @@ tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
 
     n += __common_render_len(render);
 
-    if (!TT_OK(tt_buf_reserve(buf, n))) {
-        return TT_E_NOMEM;
-    }
+    if (!TT_OK(tt_buf_reserve(buf, n))) { return TT_E_NOMEM; }
 
     // ========================================
     // render
     // ========================================
 
     // "HTTP/1.1 "
-    tt_buf_put(buf,
-               (tt_u8_t *)tt_g_http_verion[render->version],
+    tt_buf_put(buf, (tt_u8_t *)tt_g_http_verion[render->version],
                tt_g_http_verion_len[render->version]);
     tt_buf_put_u8(buf, ' ');
 
@@ -566,8 +536,7 @@ tt_result_t tt_http_resp_render_set_accenc(IN tt_http_resp_render_t *resp,
 }
 
 tt_result_t tt_http_resp_render_add_etag_n(IN tt_http_resp_render_t *resp,
-                                           IN tt_char_t *etag,
-                                           IN tt_u32_t len,
+                                           IN tt_char_t *etag, IN tt_u32_t len,
                                            IN tt_bool_t weak)
 {
     return __render_add_etag(&resp->render, etag, len, weak);
@@ -615,9 +584,7 @@ void __render_init(IN tt_http_render_t *r, IN tt_http_render_attr_t *attr)
     r->contype = TT_HTTP_CONTYPE_NUM;
 
     r->txenc_num = 0;
-    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
-        r->txenc[i] = TT_HTTP_TXENC_NUM;
-    }
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) { r->txenc[i] = TT_HTTP_TXENC_NUM; }
 
     r->version = TT_HTTP_VER_NUM;
     r->conn = TT_HTTP_CONN_NONE;
@@ -658,9 +625,7 @@ void __render_clear(IN tt_http_render_t *r)
     r->contype = TT_HTTP_CONTYPE_NUM;
 
     r->txenc_num = 0;
-    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
-        r->txenc[i] = TT_HTTP_TXENC_NUM;
-    }
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) { r->txenc[i] = TT_HTTP_TXENC_NUM; }
 
     r->version = TT_HTTP_VER_NUM;
     r->conn = TT_HTTP_CONN_NONE;
@@ -677,9 +642,7 @@ tt_http_hdr_t *__render_find_hdr(IN tt_http_render_t *render,
     tt_dnode_t *dn = tt_dlist_head(&render->hdr);
     while (dn != NULL) {
         tt_http_hdr_t *h = TT_CONTAINER(dn, tt_http_hdr_t, dnode);
-        if (h->name == name) {
-            return h;
-        }
+        if (h->name == name) { return h; }
         dn = dn->next;
     }
     return NULL;
@@ -762,8 +725,7 @@ void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf)
     // "Connection: close\r\n"
     if (render->conn != TT_HTTP_CONN_NONE) {
         tt_buf_put(buf, (tt_u8_t *)"Connection: ", sizeof("Connection: ") - 1);
-        tt_buf_put(buf,
-                   (tt_u8_t *)tt_g_http_conn[render->conn],
+        tt_buf_put(buf, (tt_u8_t *)tt_g_http_conn[render->conn],
                    tt_g_http_conn_len[render->conn]);
         tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
     }
@@ -775,8 +737,7 @@ void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf)
         TT_ASSERT(e != NULL);
 
         tt_buf_put(buf,
-                   (tt_u8_t *)"Content-Type: ",
-                   sizeof("Content-Type: ") - 1);
+                   (tt_u8_t *)"Content-Type: ", sizeof("Content-Type: ") - 1);
         tt_buf_put(buf, (tt_u8_t *)e->name, e->name_len);
         tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
     }
@@ -784,13 +745,11 @@ void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf)
     if (render->txenc_num != 0) {
         tt_u32_t i;
 
-        tt_buf_put(buf,
-                   (tt_u8_t *)"Transfer-Encoding: ",
+        tt_buf_put(buf, (tt_u8_t *)"Transfer-Encoding: ",
                    sizeof("Transfer-Encoding: ") - 1);
         for (i = 0; i < render->txenc_num; ++i) {
             // "chunked, "
-            tt_buf_put(buf,
-                       (tt_u8_t *)tt_g_http_txenc[render->txenc[i]],
+            tt_buf_put(buf, (tt_u8_t *)tt_g_http_txenc[render->txenc[i]],
                        tt_g_http_txenc_len[render->txenc[i]]);
             if (i != (render->txenc_num - 1)) {
                 tt_buf_put(buf, (tt_u8_t *)", ", 2);
@@ -802,8 +761,7 @@ void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf)
     // "Content-Length: xxx\r\n"
     if (render->content_len >= 0) {
         tt_char_t s[11] = {0};
-        tt_buf_put(buf,
-                   (tt_u8_t *)"Content-Length: ",
+        tt_buf_put(buf, (tt_u8_t *)"Content-Length: ",
                    sizeof("Content-Length: ") - 1);
         tt_snprintf(s, sizeof(s) - 1, "%d", render->content_len);
         tt_buf_put_cstr(buf, s);
@@ -824,8 +782,7 @@ void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf)
 }
 
 void __render_set_txenc(IN tt_http_render_t *render,
-                        IN OPT tt_http_txenc_t *txenc,
-                        IN tt_u32_t txenc_num)
+                        IN OPT tt_http_txenc_t *txenc, IN tt_u32_t txenc_num)
 {
     tt_u32_t num, i, k;
 
@@ -847,23 +804,18 @@ void __render_set_txenc(IN tt_http_render_t *render,
             }
         }
 
-        if (k == i) {
-            render->txenc[num++] = (tt_u8_t)txenc[i];
-        }
+        if (k == i) { render->txenc[num++] = (tt_u8_t)txenc[i]; }
     }
     render->txenc_num = num;
 }
 
 tt_result_t __render_set_contenc(IN tt_http_render_t *render,
-                                 IN OPT tt_http_enc_t *enc,
-                                 IN tt_u32_t enc_num)
+                                 IN OPT tt_http_enc_t *enc, IN tt_u32_t enc_num)
 {
     tt_http_hdr_t *h = __render_find_hdr(render, TT_HTTP_HDR_CONTENC);
     if (h == NULL) {
         h = tt_http_hdr_contenc_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(render, h);
     }
 
@@ -878,9 +830,7 @@ tt_result_t __render_set_accenc(IN tt_http_render_t *render,
         tt_http_hdr_t *h = __render_find_hdr(render, TT_HTTP_HDR_ACCENC);
         if (h == NULL) {
             h = tt_http_hdr_accenc_create();
-            if (h == NULL) {
-                return TT_FAIL;
-            }
+            if (h == NULL) { return TT_FAIL; }
             __render_add_hdr(render, h);
         }
 
@@ -892,19 +842,15 @@ tt_result_t __render_set_accenc(IN tt_http_render_t *render,
     }
 }
 
-tt_result_t __render_add_etag(IN tt_http_render_t *render,
-                              IN tt_char_t *etag,
-                              IN tt_u32_t len,
-                              IN tt_bool_t weak)
+tt_result_t __render_add_etag(IN tt_http_render_t *render, IN tt_char_t *etag,
+                              IN tt_u32_t len, IN tt_bool_t weak)
 {
     tt_http_hdr_t *h;
 
     h = __render_find_hdr(render, TT_HTTP_HDR_ETAG);
     if (h == NULL) {
         h = tt_http_hdr_etag_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(render, h);
     }
 
@@ -913,8 +859,7 @@ tt_result_t __render_add_etag(IN tt_http_render_t *render,
 }
 
 tt_result_t __render_add_ifmatch(IN tt_http_render_t *render,
-                                 IN tt_char_t *etag,
-                                 IN tt_u32_t len,
+                                 IN tt_char_t *etag, IN tt_u32_t len,
                                  IN tt_bool_t weak)
 {
     tt_http_hdr_t *h;
@@ -922,9 +867,7 @@ tt_result_t __render_add_ifmatch(IN tt_http_render_t *render,
     h = __render_find_hdr(render, TT_HTTP_HDR_IF_MATCH);
     if (h == NULL) {
         h = tt_http_hdr_ifmatch_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(render, h);
     }
 
@@ -938,9 +881,7 @@ tt_result_t __render_add_ifmatch_aster(IN tt_http_render_t *render)
     h = __render_find_hdr(render, TT_HTTP_HDR_IF_MATCH);
     if (h == NULL) {
         h = tt_http_hdr_ifmatch_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(render, h);
     }
 
@@ -948,8 +889,7 @@ tt_result_t __render_add_ifmatch_aster(IN tt_http_render_t *render)
 }
 
 tt_result_t __render_add_ifnmatch(IN tt_http_render_t *render,
-                                  IN tt_char_t *etag,
-                                  IN tt_u32_t len,
+                                  IN tt_char_t *etag, IN tt_u32_t len,
                                   IN tt_bool_t weak)
 {
     tt_http_hdr_t *h;
@@ -957,9 +897,7 @@ tt_result_t __render_add_ifnmatch(IN tt_http_render_t *render,
     h = __render_find_hdr(render, TT_HTTP_HDR_IF_N_MATCH);
     if (h == NULL) {
         h = tt_http_hdr_ifnmatch_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(render, h);
     }
 
@@ -973,9 +911,7 @@ tt_result_t __render_add_ifnmatch_aster(IN tt_http_render_t *render)
     h = __render_find_hdr(render, TT_HTTP_HDR_IF_N_MATCH);
     if (h == NULL) {
         h = tt_http_hdr_ifnmatch_create();
-        if (h == NULL) {
-            return TT_FAIL;
-        }
+        if (h == NULL) { return TT_FAIL; }
         __render_add_hdr(render, h);
     }
 

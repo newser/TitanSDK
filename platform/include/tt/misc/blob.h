@@ -51,7 +51,8 @@ namespace tt {
 
 class blob
 {
-    constexpr static size_t k_obit = ((size_t)1) << ((sizeof(size_t) << 3) - 1);
+    constexpr static size_t k_bnum = (sizeof(size_t) << 3) - 1;
+    constexpr static size_t k_obit = ((size_t)1) << k_bnum;
 
 public:
     blob() = default;
@@ -71,48 +72,43 @@ public:
     bool is_owner() const { return len_ & k_obit; }
     bool empty() const { return (addr_ == nullptr) || (len_ == 0); }
 
-    blob &set(OPT void *addr, size_t len, bool owner)
+    void set(OPT void *addr, size_t len, bool owner)
     {
         check_len(len);
         clear();
         do_set(addr, len, owner);
-        return *this;
     }
-    blob &set(const char *s, bool owner)
+    void set(const char *s, bool owner)
     {
         return set((void *)s, strlen(s), owner);
     }
-    blob &cat(OPT const void *addr, size_t len);
-    blob &clear()
+    void cat(OPT const void *addr, size_t len);
+    void clear()
     {
         if (is_owner()) { delete addr_; }
         addr_ = nullptr;
         len_ = 0;
-        return *this;
     }
-    blob &own()
+    void own()
     {
         if (!is_owner()) {
             void *p = addr();
             size_t n = size();
             do_set(p, n, true);
         }
-        return *this;
     }
 
-    blob &move(blob &b) { return move(std::move(b)); }
-    blob &move(blob &&b)
+    void move(blob &b) { return move(std::move(b)); }
+    void move(blob &&b)
     {
         clear();
         do_move(b);
-        return *this;
     }
 
-    blob &copy(const blob &b)
+    void copy(const blob &b)
     {
         clear();
         do_set(b.addr(), b.size(), true);
-        return *this;
     }
 
     ssize_t cmp(const void *addr, size_t len) const
@@ -144,8 +140,16 @@ public:
     bool operator>=(const blob &b) const { return cmp(b) >= 0; }
     bool operator>=(const char *s) const { return cmp(s) >= 0; }
 
-    blob &operator+=(const blob &b) { return cat(b.addr(), b.size()); }
-    blob &operator+=(const char *s) { return cat(s, strlen(s)); }
+    blob &operator+=(const blob &b)
+    {
+        cat(b.addr(), b.size());
+        return *this;
+    }
+    blob &operator+=(const char *s)
+    {
+        cat(s, strlen(s));
+        return *this;
+    }
 
 private:
     uint8_t *addr_{nullptr};

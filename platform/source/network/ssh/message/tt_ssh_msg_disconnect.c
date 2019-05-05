@@ -75,8 +75,7 @@ static tt_sshmsg_itf_t __disconnect_op = {
 tt_sshmsg_t *tt_sshmsg_disconnect_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_DISCONNECT,
-                            sizeof(tt_sshmsg_disconnect_t),
-                            &__disconnect_op);
+                            sizeof(tt_sshmsg_disconnect_t), &__disconnect_op);
 }
 
 void tt_sshmsg_disconnect_set_reason(IN tt_sshmsg_t *msg,
@@ -155,8 +154,7 @@ tt_result_t __disconnect_render(IN struct tt_sshmsg_s *msg,
     TT_DO(tt_ssh_uint32_render(buf, msg_disc->reason_code));
 
     // string
-    TT_DO(tt_ssh_string_render(buf,
-                               (tt_u8_t *)msg_disc->description,
+    TT_DO(tt_ssh_string_render(buf, (tt_u8_t *)msg_disc->description,
                                (tt_u32_t)tt_strlen(msg_disc->description)));
 
     // string

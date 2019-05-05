@@ -65,7 +65,10 @@ tt_u32_t tt_g_http_method_len[TT_HTTP_METHOD_NUM] = {
 };
 
 const tt_char_t *tt_g_http_verion[TT_HTTP_VER_NUM] = {
-    "", "HTTP/1.0", "HTTP/1.1", "HTTP/2.0",
+    "",
+    "HTTP/1.0",
+    "HTTP/1.1",
+    "HTTP/2.0",
 };
 
 tt_u32_t tt_g_http_verion_len[TT_HTTP_VER_NUM] = {
@@ -76,11 +79,15 @@ tt_u32_t tt_g_http_verion_len[TT_HTTP_VER_NUM] = {
 };
 
 const tt_char_t *tt_g_http_conn[TT_HTTP_CONN_NUM] = {
-    "", "close", "keep-alive",
+    "",
+    "close",
+    "keep-alive",
 };
 
 tt_u32_t tt_g_http_conn_len[TT_HTTP_CONN_NUM] = {
-    sizeof("") - 1, sizeof("close") - 1, sizeof("keep-alive") - 1,
+    sizeof("") - 1,
+    sizeof("close") - 1,
+    sizeof("keep-alive") - 1,
 };
 
 const tt_char_t *tt_g_http_txenc[TT_HTTP_TXENC_NUM] = {
@@ -115,8 +122,7 @@ tt_u32_t tt_g_http_enc_len[TT_HTTP_ENC_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_http_status_cstr(IN tt_http_status_t status,
-                         OUT const tt_char_t **s,
+void tt_http_status_cstr(IN tt_http_status_t status, OUT const tt_char_t **s,
                          OUT tt_u32_t *len)
 {
     TT_ASSERT(TT_HTTP_STATUS_VALID(status));
@@ -131,8 +137,6 @@ void tt_http_status_cstr(IN tt_http_status_t status,
         HTTP_STATUS_MAP(XX)
 #undef XX
 
-        default:
-            TT_ASSERT_ALWAYS(0);
-            break;
+    default: TT_ASSERT_ALWAYS(0); break;
     }
 }

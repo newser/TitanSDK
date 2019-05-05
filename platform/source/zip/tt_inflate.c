@@ -89,14 +89,10 @@ void tt_inflate_attr_default(IN tt_inflate_attr_t *attr)
     attr->window_bits = 15;
 }
 
-tt_result_t tt_inflate_run(IN tt_inflate_t *ifl,
-                           IN tt_u8_t *ibuf,
-                           IN tt_u32_t ilen,
-                           OUT tt_u32_t *consumed_len,
-                           IN tt_u8_t *obuf,
-                           IN tt_u32_t olen,
-                           OUT tt_u32_t *produced_len,
-                           IN tt_bool_t finish)
+tt_result_t tt_inflate_run(IN tt_inflate_t *ifl, IN tt_u8_t *ibuf,
+                           IN tt_u32_t ilen, OUT tt_u32_t *consumed_len,
+                           IN tt_u8_t *obuf, IN tt_u32_t olen,
+                           OUT tt_u32_t *produced_len, IN tt_bool_t finish)
 {
     z_stream *zs = &ifl->zs;
     tt_u32_t il, ol;

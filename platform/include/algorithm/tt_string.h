@@ -75,8 +75,7 @@ tt_export tt_result_t tt_string_create(IN tt_string_t *str,
 // create string from intersection of [from, to) and cstr
 tt_export tt_result_t tt_string_create_sub(IN tt_string_t *str,
                                            IN const tt_char_t *cstr,
-                                           IN tt_u32_t from,
-                                           IN tt_u32_t len,
+                                           IN tt_u32_t from, IN tt_u32_t len,
                                            IN OPT tt_string_attr_t *attr);
 
 tt_export tt_result_t tt_string_create_nocopy(IN tt_string_t *str,
@@ -95,32 +94,24 @@ tt_export tt_result_t tt_string_set(IN tt_string_t *str,
 
 tt_export tt_result_t tt_string_set_sub(IN tt_string_t *str,
                                         IN const tt_char_t *cstr,
-                                        IN tt_u32_t from,
-                                        IN tt_u32_t len);
+                                        IN tt_u32_t from, IN tt_u32_t len);
 
-tt_export tt_result_t tt_string_setfrom(IN tt_string_t *str,
-                                        IN tt_u32_t from,
+tt_export tt_result_t tt_string_setfrom(IN tt_string_t *str, IN tt_u32_t from,
                                         IN const tt_char_t *cstr);
 
-tt_export tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
-                                          IN tt_u32_t from,
+tt_export tt_result_t tt_string_setfrom_c(IN tt_string_t *str, IN tt_u32_t from,
                                           IN tt_char_t c);
 
 tt_export tt_result_t tt_string_set_range_n(IN tt_string_t *str,
-                                            IN tt_u32_t from,
-                                            IN tt_u32_t len,
+                                            IN tt_u32_t from, IN tt_u32_t len,
                                             IN const tt_char_t *cstr,
                                             IN tt_u32_t cstr_len);
 
-tt_inline tt_result_t tt_string_set_range(IN tt_string_t *str,
-                                          IN tt_u32_t from,
+tt_inline tt_result_t tt_string_set_range(IN tt_string_t *str, IN tt_u32_t from,
                                           IN tt_u32_t len,
                                           IN const tt_char_t *cstr)
 {
-    return tt_string_set_range_n(str,
-                                 from,
-                                 len,
-                                 cstr,
+    return tt_string_set_range_n(str, from, len, cstr,
                                  (tt_u32_t)tt_strlen(cstr));
 }
 
@@ -155,15 +146,13 @@ tt_export const tt_char_t *tt_string_subcstr(IN tt_string_t *str,
                                              IN tt_u32_t from,
                                              OUT OPT tt_u32_t *subcstr_len);
 
-tt_inline void tt_string_backup_rwp(IN tt_string_t *str,
-                                    IN tt_u32_t *rd_pos,
+tt_inline void tt_string_backup_rwp(IN tt_string_t *str, IN tt_u32_t *rd_pos,
                                     IN tt_u32_t *wr_pos)
 {
     tt_buf_backup_rwp(&str->buf, rd_pos, wr_pos);
 }
 
-tt_inline void tt_string_restore_rwp(IN tt_string_t *str,
-                                     IN tt_u32_t *rd_pos,
+tt_inline void tt_string_restore_rwp(IN tt_string_t *str, IN tt_u32_t *rd_pos,
                                      IN tt_u32_t *wr_pos)
 {
     tt_buf_restore_rwp(&str->buf, rd_pos, wr_pos);

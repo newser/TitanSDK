@@ -52,12 +52,9 @@ static tt_result_t __rbuf_parse(IN tt_rbuf_t *rbuf, IN tt_buf_t *data);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_rbuf_init(IN tt_rbuf_t *rbuf,
-                  IN OPT tt_rbuf_decode_itf_t *d_itf,
-                  IN OPT void *d_param,
-                  IN tt_rbuf_parse_itf_t *p_itf,
-                  IN OPT void *p_param,
-                  IN OPT tt_rbuf_attr_t *attr)
+void tt_rbuf_init(IN tt_rbuf_t *rbuf, IN OPT tt_rbuf_decode_itf_t *d_itf,
+                  IN OPT void *d_param, IN tt_rbuf_parse_itf_t *p_itf,
+                  IN OPT void *p_param, IN OPT tt_rbuf_attr_t *attr)
 {
     tt_rbuf_attr_t __attr;
 
@@ -155,9 +152,7 @@ tt_result_t __rbuf_decode(IN tt_rbuf_t *rbuf, OUT tt_buf_t **data)
 
             tt_buf_restore_rwp(dec, &d_rp, &d_wp);
 
-            if (result != TT_E_PROCEED) {
-                return TT_FAIL;
-            }
+            if (result != TT_E_PROCEED) { return TT_FAIL; }
         }
         has_dec = TT_TRUE;
     }
@@ -204,9 +199,7 @@ tt_result_t __rbuf_parse(IN tt_rbuf_t *rbuf, IN tt_buf_t *data)
             tt_buf_restore_rwp(data, &rp, &wp);
             tt_buf_inc_rp(data, len);
 
-            if (result != TT_E_PROCEED) {
-                return TT_FAIL;
-            }
+            if (result != TT_E_PROCEED) { return TT_FAIL; }
         }
         has_parse = TT_TRUE;
     }

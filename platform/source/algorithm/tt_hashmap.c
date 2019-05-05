@@ -53,15 +53,13 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_slist_t *__find_sll(IN tt_hashmap_t *hmap,
-                                 IN tt_u8_t *key,
+tt_inline tt_slist_t *__find_sll(IN tt_hashmap_t *hmap, IN tt_u8_t *key,
                                  IN tt_u32_t key_len)
 {
     return &hmap->sll[hmap->hash(key, key_len, &hmap->hashctx) % hmap->sll_num];
 }
 
-tt_result_t tt_hmap_create(IN tt_hashmap_t *hmap,
-                           IN tt_u32_t slot_num,
+tt_result_t tt_hmap_create(IN tt_hashmap_t *hmap, IN tt_u32_t slot_num,
                            IN OPT tt_hmap_attr_t *attr)
 {
     tt_hmap_attr_t __attr;
@@ -82,9 +80,7 @@ tt_result_t tt_hmap_create(IN tt_hashmap_t *hmap,
         return TT_FAIL;
     }
     hmap->sll_num = slot_num;
-    for (i = 0; i < slot_num; ++i) {
-        tt_slist_init(&hmap->sll[i]);
-    }
+    for (i = 0; i < slot_num; ++i) { tt_slist_init(&hmap->sll[i]); }
 
     if (attr->hash_alg == TT_HASH_ALG_MURMUR3) {
         hmap->hash = tt_hash_murmur3;
@@ -130,17 +126,14 @@ void tt_hmap_clear(IN tt_hashmap_t *hmap,
     hmap->count = 0;
 }
 
-tt_hnode_t *tt_hmap_find(IN tt_hashmap_t *hmap,
-                         IN tt_u8_t *key,
+tt_hnode_t *tt_hmap_find(IN tt_hashmap_t *hmap, IN tt_u8_t *key,
                          IN tt_u32_t key_len)
 {
     tt_slist_t *sll = __find_sll(hmap, key, key_len);
     tt_snode_t *sn = tt_slist_head(sll);
     while (sn != NULL) {
         tt_hnode_t *hn = TT_CONTAINER(sn, tt_hnode_t, snode);
-        if (__KEQ(hn, key, key_len)) {
-            return hn;
-        }
+        if (__KEQ(hn, key, key_len)) { return hn; }
 
         sn = sn->next;
     }
@@ -163,10 +156,8 @@ tt_bool_t tt_hmap_contain(IN tt_hashmap_t *hmap, IN tt_hnode_t *hnode)
     return TT_FALSE;
 }
 
-tt_result_t tt_hmap_add(IN tt_hashmap_t *hmap,
-                        IN tt_u8_t *key,
-                        IN tt_u32_t key_len,
-                        IN tt_hnode_t *hnode)
+tt_result_t tt_hmap_add(IN tt_hashmap_t *hmap, IN tt_u8_t *key,
+                        IN tt_u32_t key_len, IN tt_hnode_t *hnode)
 {
     tt_slist_t *sll;
     tt_snode_t *sn;
@@ -175,9 +166,7 @@ tt_result_t tt_hmap_add(IN tt_hashmap_t *hmap,
     sn = tt_slist_head(sll);
     while (sn != NULL) {
         tt_hnode_t *hn = TT_CONTAINER(sn, tt_hnode_t, snode);
-        if (__KEQ(hn, key, key_len)) {
-            break;
-        }
+        if (__KEQ(hn, key, key_len)) { break; }
 
         sn = sn->next;
     }
@@ -200,8 +189,7 @@ void tt_hmap_remove(IN tt_hashmap_t *hmap, IN tt_hnode_t *hnode)
     --hmap->count;
 }
 
-tt_bool_t tt_hmap_remove_key(IN tt_hashmap_t *hmap,
-                             IN tt_u8_t *key,
+tt_bool_t tt_hmap_remove_key(IN tt_hashmap_t *hmap, IN tt_u8_t *key,
                              IN tt_u32_t key_len)
 {
     tt_slist_t *sll = __find_sll(hmap, key, key_len);
@@ -221,8 +209,7 @@ tt_bool_t tt_hmap_remove_key(IN tt_hashmap_t *hmap,
     return TT_FALSE;
 }
 
-void tt_hmap_foreach(IN tt_hashmap_t *hmap,
-                     IN tt_hmap_action_t action,
+void tt_hmap_foreach(IN tt_hashmap_t *hmap, IN tt_hmap_action_t action,
                      IN void *param)
 {
     tt_u32_t i;
@@ -233,9 +220,7 @@ void tt_hmap_foreach(IN tt_hashmap_t *hmap,
 
             sn = sn->next;
 
-            if (!action(hn->key, hn->key_len, hn, param)) {
-                return;
-            }
+            if (!action(hn->key, hn->key_len, hn, param)) { return; }
         }
     }
 }

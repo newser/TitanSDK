@@ -75,7 +75,8 @@ this file defines http
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
 #define __ENTRY(id, str) TT_HTTP_HDR_##id,
     TT_HTTP_HDR_MAP(__ENTRY)
 #undef __ENTRY
@@ -84,7 +85,8 @@ typedef enum {
 } tt_http_hname_t;
 #define TT_HTTP_HNAME_VALID(h) ((h) < TT_HTTP_HNAME_NUM)
 
-typedef enum {
+typedef enum
+{
 #define XX(num, name, string) TT_HTTP_MTD_##name,
     HTTP_METHOD_MAP(XX)
 #undef XX
@@ -93,7 +95,8 @@ typedef enum {
 } tt_http_method_t;
 #define TT_HTTP_METHOD_VALID(h) ((h) < TT_HTTP_METHOD_NUM)
 
-typedef enum {
+typedef enum
+{
 #define XX(num, name, string) TT_HTTP_STATUS_##name = num,
     HTTP_STATUS_MAP(XX)
 #undef XX
@@ -102,7 +105,8 @@ typedef enum {
 } tt_http_status_t;
 #define TT_HTTP_STATUS_VALID(s) ((s) != TT_HTTP_STATUS_INVALID)
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_V0_9,
     TT_HTTP_V1_0,
     TT_HTTP_V1_1,
@@ -112,7 +116,8 @@ typedef enum {
 } tt_http_ver_t;
 #define TT_HTTP_VER_VALID(v) ((v) < TT_HTTP_VER_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_SHUT_RD,
     TT_HTTP_SHUT_WR,
     TT_HTTP_SHUT_RDWR,
@@ -121,7 +126,8 @@ typedef enum {
 } tt_http_shut_t;
 #define TT_HTTP_SHUT_VALID(s) ((s) < TT_HTTP_SHUT_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_CONN_NONE,
     TT_HTTP_CONN_CLOSE,
     TT_HTTP_CONN_KEEP_ALIVE,
@@ -130,7 +136,8 @@ typedef enum {
 } tt_http_conn_t;
 #define TT_HTTP_CONN_VALID(c) ((c) < TT_HTTP_CONN_NUM)
 
-typedef enum {
+typedef enum
+{
 #define __ENTRY(id, str) TT_HTTP_TXENC_##id,
     TT_HTTP_TXENC_MAP(__ENTRY)
 #undef __ENTRY
@@ -139,7 +146,8 @@ typedef enum {
 } tt_http_txenc_t;
 #define TT_HTTP_TXENC_VALID(h) ((h) < TT_HTTP_TXENC_NUM)
 
-typedef enum {
+typedef enum
+{
 #define __ENTRY(id, str) TT_HTTP_ENC_##id,
     TT_HTTP_ENC_MAP(__ENTRY)
 #undef __ENTRY
@@ -181,7 +189,6 @@ tt_export tt_u32_t tt_g_http_enc_len[TT_HTTP_ENC_NUM];
 ////////////////////////////////////////////////////////////
 
 tt_export void tt_http_status_cstr(IN tt_http_status_t status,
-                                   OUT const tt_char_t **s,
-                                   OUT tt_u32_t *len);
+                                   OUT const tt_char_t **s, OUT tt_u32_t *len);
 
 #endif /* __TT_HTTP_DEF__ */

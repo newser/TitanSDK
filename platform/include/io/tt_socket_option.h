@@ -102,7 +102,6 @@ tt_export tt_result_t tt_skt_get_nodelay(IN struct tt_skt_s *skt,
 tt_export tt_result_t tt_skt_set_nonblock(IN struct tt_skt_s *skt,
                                           IN tt_bool_t nonblock);
 
-
 // ========================================
 // linger
 // ========================================
@@ -130,8 +129,7 @@ tt_export tt_result_t tt_skt_get_keepalive(IN struct tt_skt_s *skt,
 // ========================================
 
 tt_export tt_result_t tt_skt_set_ttl(IN struct tt_skt_s *skt,
-                                     IN tt_net_family_t family,
-                                     IN tt_u8_t ttl);
+                                     IN tt_net_family_t family, IN tt_u8_t ttl);
 
 tt_export tt_result_t tt_skt_get_ttl(IN struct tt_skt_s *skt,
                                      IN tt_net_family_t family,

@@ -54,16 +54,14 @@ typedef struct tt_http_rule_index_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_rule_t *tt_http_rule_index_create_n(IN const tt_char_t *name,
-                                                      IN tt_u32_t name_len,
-                                                      IN tt_http_rule_result_t
-                                                          default_result);
+tt_export tt_http_rule_t *tt_http_rule_index_create_n(
+    IN const tt_char_t *name, IN tt_u32_t name_len,
+    IN tt_http_rule_result_t default_result);
 
 tt_inline tt_http_rule_t *tt_http_rule_index_create(
     IN const tt_char_t *name, IN tt_http_rule_result_t default_result)
 {
-    return tt_http_rule_index_create_n(name,
-                                       (tt_u32_t)tt_strlen(name),
+    return tt_http_rule_index_create_n(name, (tt_u32_t)tt_strlen(name),
                                        default_result);
 }
 

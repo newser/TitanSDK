@@ -67,8 +67,7 @@ typedef tt_s32_t (*tt_cmp_t)(IN void *l, IN void *r);
  - 0 if "n" == "key"
  - <0 if "n" < "key"
  */
-typedef tt_s32_t (*tt_cmpkey_t)(IN void *p,
-                                IN tt_u8_t *key,
+typedef tt_s32_t (*tt_cmpkey_t)(IN void *p, IN tt_u8_t *key,
                                 IN tt_u32_t key_len);
 
 ////////////////////////////////////////////////////////////

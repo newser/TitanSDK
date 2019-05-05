@@ -59,87 +59,33 @@ TT_TEST_ROUTINE_DECLARE(case_str_insert)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(string_case)
 
-TT_TEST_CASE("case_str_null",
-             "testing basic string api, null string",
-             case_str_null,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_str_null", "testing basic string api, null string",
+             case_str_null, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_str_basic",
-                 "testing basic string api",
-                 case_str_basic,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_str_basic", "testing basic string api", case_str_basic,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_str_getchar",
-                 "testing basic string getchar",
-                 case_str_getchar,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_str_getchar", "testing basic string getchar",
+                 case_str_getchar, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_str_cmp",
-                 "testing basic string compare",
-                 case_str_cmp,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_str_cmp", "testing basic string compare", case_str_cmp,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_str_cpswap",
-                 "testing basic string copy&swap",
-                 case_str_cpswap,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_str_cpswap", "testing basic string copy&swap",
+                 case_str_cpswap, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_str_find",
-                 "testing basic string find",
-                 case_str_find,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_str_find", "testing basic string find", case_str_find,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_str_join",
-                 "testing basic string join",
-                 case_str_join,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_str_join", "testing basic string join", case_str_join,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_str_case",
-                 "testing string case convert",
-                 case_str_case,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_str_case", "testing string case convert", case_str_case,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_str_insert",
-                 "testing string insert",
-                 case_str_insert,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_str_insert", "testing string insert", case_str_insert,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(string_case)
     // =========================================
@@ -554,10 +500,8 @@ TT_TEST_ROUTINE_DEFINE(case_str_cmp)
     ret = tt_string_create(&s2, "1234567890AAaaaFdSaFasZz0fdaS", NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_ncasecmp(&s, tt_string_cstr(&s2));
-    TT_INFO("s: %s, s2: %s, cmp_ret: %d",
-            tt_string_cstr(&s),
-            tt_string_cstr(&s2),
-            cmp_ret);
+    TT_INFO("s: %s, s2: %s, cmp_ret: %d", tt_string_cstr(&s),
+            tt_string_cstr(&s2), cmp_ret);
     TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_ncasecmp(&s, "1234567890AaaaaFdSaFasZZ0fdaS");
     TT_UT_EQUAL(cmp_ret, 0, "");

@@ -46,7 +46,8 @@ this file defines log io os log
 
 struct tt_logio_s;
 
-typedef enum {
+typedef enum
+{
     TT_OSLOG_DEBUG,
     TT_OSLOG_DEFAULT,
     TT_OSLOG_ERROR,
@@ -74,8 +75,7 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 tt_export struct tt_logio_s *tt_logio_oslog_create(
-    IN const tt_char_t *subsystem,
-    IN const tt_char_t *category,
+    IN const tt_char_t *subsystem, IN const tt_char_t *category,
     IN tt_oslog_type_t type);
 
 #endif /* __TT_LOG_IO_OSLOG__ */

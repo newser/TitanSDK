@@ -45,8 +45,7 @@
 
 static void __lio_udp_destroy(IN tt_logio_t *lio);
 
-static void __lio_udp_output(IN tt_logio_t *lio,
-                             IN const tt_char_t *data,
+static void __lio_udp_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                              IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_udp_itf = {
@@ -79,9 +78,7 @@ tt_logio_t *tt_logio_udp_create(IN tt_net_family_t family,
     }
 
     skt = tt_skt_create(family, TT_NET_PROTO_UDP, &attr->skt_attr);
-    if (skt == NULL) {
-        return NULL;
-    }
+    if (skt == NULL) { return NULL; }
 
     lio = tt_logio_udp_create_skt(skt, addr);
     if (lio == NULL) {
@@ -98,9 +95,7 @@ tt_logio_t *tt_logio_udp_create_skt(IN TO tt_skt_t *skt, IN tt_sktaddr_t *addr)
     tt_logio_udp_t *lio_udp;
 
     lio = tt_logio_create(sizeof(tt_logio_udp_t), &tt_s_logio_udp_itf);
-    if (lio == NULL) {
-        return NULL;
-    }
+    if (lio == NULL) { return NULL; }
 
     lio_udp = TT_LOGIO_CAST(lio, tt_logio_udp_t);
 
@@ -122,15 +117,12 @@ void __lio_udp_destroy(IN tt_logio_t *lio)
     tt_skt_destroy(lio_udp->skt);
 }
 
-void __lio_udp_output(IN tt_logio_t *lio,
-                      IN const tt_char_t *data,
+void __lio_udp_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                       IN tt_u32_t data_len)
 {
     tt_logio_udp_t *lio_udp = TT_LOGIO_CAST(lio, tt_logio_udp_t);
 
-    if (!TT_OK(tt_skt_sendto_all(lio_udp->skt,
-                                 (tt_u8_t *)data,
-                                 data_len,
+    if (!TT_OK(tt_skt_sendto_all(lio_udp->skt, (tt_u8_t *)data, data_len,
                                  &lio_udp->addr))) {
         TT_ERROR("fail to send udp log: %s", data);
     }

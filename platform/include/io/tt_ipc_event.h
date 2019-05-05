@@ -66,8 +66,7 @@ enum
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_ipc_ev_init(IN tt_ipc_ev_t *pev,
-                              IN tt_u32_t ev,
+tt_inline void tt_ipc_ev_init(IN tt_ipc_ev_t *pev, IN tt_u32_t ev,
                               IN tt_u32_t size)
 {
     pev->ev = ev;

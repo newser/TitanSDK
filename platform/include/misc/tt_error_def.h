@@ -67,7 +67,8 @@ enum
     TT_ERR_RANGE_NATIVE,
 };
 
-typedef enum _tt_result_t {
+typedef enum _tt_result_t
+{
     // ========================================
     // no error
     // ========================================

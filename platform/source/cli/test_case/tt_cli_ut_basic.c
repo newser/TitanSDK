@@ -52,32 +52,14 @@ TT_TEST_CASE_LIST_DEFINE_BEGIN(cli_basic_case)
 TT_TEST_CASE("case_cli", "cli test", case_cli, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_cli_stress",
-                 "cli stress test ",
-                 case_cli_stress,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_cli_stress", "cli stress test ", case_cli_stress, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_cli_ac",
-                 "cli auto complete",
-                 case_cli_ac,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_cli_ac", "cli auto complete", case_cli_ac, NULL, NULL,
+                 NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_cli_readline",
-                 "cli read line",
-                 case_cli_readline,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_cli_readline", "cli read line", case_cli_readline, NULL,
+                 NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(cli_basic_case)
     // =========================================
@@ -119,10 +101,8 @@ static tt_result_t __ut_cli_ret;
 static tt_u32_t __ut_cli_err;
 static tt_char_t __ut_cli_cmd[100];
 
-tt_u32_t __ut_cli_on_cmd(IN struct tt_cli_s *cli,
-                         IN void *param,
-                         IN const tt_char_t *cmd,
-                         IN tt_buf_t *output)
+tt_u32_t __ut_cli_on_cmd(IN struct tt_cli_s *cli, IN void *param,
+                         IN const tt_char_t *cmd, IN tt_buf_t *output)
 {
     tt_u32_t n;
 
@@ -135,9 +115,7 @@ tt_u32_t __ut_cli_on_cmd(IN struct tt_cli_s *cli,
     if (cmd != NULL) {
         n = (tt_u32_t)tt_strlen(cmd);
         // stress test may exceed
-        if (n >= 99) {
-            n = 99;
-        }
+        if (n >= 99) { n = 99; }
         tt_buf_put(output, (tt_u8_t *)cmd, n);
         tt_memcpy(__ut_cli_cmd, cmd, n);
         __ut_cli_cmd[n] = 0;
@@ -153,10 +131,8 @@ tt_u32_t __ut_cli_on_cmd(IN struct tt_cli_s *cli,
 
 static tt_buf_t __ut_cli_obuf;
 
-tt_result_t __ut_cli_send(IN struct tt_cli_s *cli,
-                          IN void *param,
-                          IN tt_u8_t *ev,
-                          IN tt_u32_t ev_num)
+tt_result_t __ut_cli_send(IN struct tt_cli_s *cli, IN void *param,
+                          IN tt_u8_t *ev, IN tt_u32_t ev_num)
 {
     if (param != &__ut_cli_obuf) {
         __ut_cli_ret = TT_FAIL;
@@ -210,7 +186,8 @@ static __cli_case_t cli_case[] = {
     {
         // 2
         {
-            TT_CLI_EV_RIGHT, TT_CLI_EV_LEFT,
+            TT_CLI_EV_RIGHT,
+            TT_CLI_EV_LEFT,
         },
         2,
         {TT_CLI_EV_LEFT},
@@ -297,11 +274,7 @@ static __cli_case_t cli_case[] = {
         // 9: aAzZ0[] => aAz0
         {TT_CLI_EV_LEFT, TT_CLI_EV_DELETE},
         2,
-        {TT_CLI_EV_LEFT,
-         TT_CLI_EV_DELETE,
-         '0',
-         ' ',
-         TT_CLI_EV_LEFT,
+        {TT_CLI_EV_LEFT, TT_CLI_EV_DELETE, '0', ' ', TT_CLI_EV_LEFT,
          TT_CLI_EV_LEFT},
         6,
         NULL,
@@ -324,24 +297,8 @@ static __cli_case_t cli_case[] = {
         // 11
         {TT_CLI_EV_ENTER},
         1,
-        {TT_CLI_EV_ENTER,
-         't',
-         'i',
-         't',
-         'l',
-         'e',
-         ':',
-         's',
-         'u',
-         'b',
-         '_',
-         't',
-         'i',
-         't',
-         'l',
-         'e',
-         '$',
-         ' '},
+        {TT_CLI_EV_ENTER, 't', 'i', 't', 'l', 'e', ':', 's', 'u', 'b', '_', 't',
+         'i', 't', 'l', 'e', '$', ' '},
         18,
         (void *)1,
     },
@@ -427,10 +384,8 @@ TT_TEST_ROUTINE_DEFINE(case_cli)
         if (cli_case[i].out_num == 0) {
             TT_UT_EQUAL(TT_BUF_RLEN(&__ut_cli_obuf), 0, "");
         } else {
-            ret = tt_buf_create_nocopy(&cmp_buf,
-                                       cli_case[i].out,
-                                       cli_case[i].out_num,
-                                       NULL);
+            ret = tt_buf_create_nocopy(&cmp_buf, cli_case[i].out,
+                                       cli_case[i].out_num, NULL);
             TT_UT_EQUAL(ret, TT_SUCCESS, "");
             cmp_ret = tt_buf_cmp(&cmp_buf, &__ut_cli_obuf);
             TT_UT_EQUAL(cmp_ret, 0, "");
@@ -491,9 +446,7 @@ TT_TEST_ROUTINE_DEFINE(case_cli_stress)
                 }
             }
         } else {
-            for (i = 0; i < n; ++i) {
-                evbuf[i] = (tt_u8_t)tt_rand_u32();
-            }
+            for (i = 0; i < n; ++i) { evbuf[i] = (tt_u8_t)tt_rand_u32(); }
         }
 
         tt_cli_input(&cli, evbuf, n);
@@ -506,34 +459,32 @@ TT_TEST_ROUTINE_DEFINE(case_cli_stress)
     TT_TEST_CASE_LEAVE()
 }
 
-static tt_u32_t __ut_cli_on_ac(IN struct tt_cli_s *cli,
-                               IN void *param,
-                               IN tt_u8_t *cur,
-                               IN tt_u32_t cur_len,
-                               IN tt_bool_t wait4cmd,
-                               IN tt_buf_t *output)
+static tt_u32_t __ut_cli_on_ac(IN struct tt_cli_s *cli, IN void *param,
+                               IN tt_u8_t *cur, IN tt_u32_t cur_len,
+                               IN tt_bool_t wait4cmd, IN tt_buf_t *output)
 {
     // available cmd: 1 12 123 1234
     // available data: a ab abcdf abcde
     // input: "   1235   abcd1   abce"
 
     const tt_char_t *cmd[] = {
-        "1", "12", "1234",
+        "1",
+        "12",
+        "1234",
     };
     const tt_char_t *data[] = {
-        "a", "ab", "abcdf", "abcde",
+        "a",
+        "ab",
+        "abcdf",
+        "abcde",
     };
     tt_u32_t status;
     tt_result_t result;
 
-    result = tt_cli_complete(cur,
-                             cur_len,
-                             TT_COND(wait4cmd, cmd, data),
-                             TT_COND(wait4cmd,
-                                     sizeof(cmd) / sizeof(cmd[0]),
+    result = tt_cli_complete(cur, cur_len, TT_COND(wait4cmd, cmd, data),
+                             TT_COND(wait4cmd, sizeof(cmd) / sizeof(cmd[0]),
                                      sizeof(data) / sizeof(data[0])),
-                             &status,
-                             output);
+                             &status, output);
     if (TT_OK(result)) {
         return status;
     } else {
@@ -550,10 +501,8 @@ static tt_u32_t __ac_cursor;
 #define __pref_len (sizeof("title:sub_title$ ") - 1)
 static tt_u32_t __ac_idx;
 
-tt_result_t __ut_cli_send_ac(IN struct tt_cli_s *cli,
-                             IN void *param,
-                             IN tt_u8_t *ev,
-                             IN tt_u32_t ev_num)
+tt_result_t __ut_cli_send_ac(IN struct tt_cli_s *cli, IN void *param,
+                             IN tt_u8_t *ev, IN tt_u32_t ev_num)
 {
     // simulate a terminal
     tt_u32_t i;
@@ -1016,8 +965,7 @@ static const tt_char_t *__ut_read_content;
 static tt_u32_t __ut_read_more;
 static tt_bool_t __ut_read_cb;
 
-tt_u32_t __ut_cli_on_read(IN struct tt_cli_s *cli,
-                          IN const tt_char_t *content,
+tt_u32_t __ut_cli_on_read(IN struct tt_cli_s *cli, IN const tt_char_t *content,
                           IN tt_buf_t *output)
 {
     __ut_read_cb = TT_TRUE;

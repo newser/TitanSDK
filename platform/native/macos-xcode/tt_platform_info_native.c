@@ -96,11 +96,8 @@ tt_result_t tt_platform_cache_line_size_load(OUT tt_u32_t *size)
     int __cache_line_size = 0;
     size_t len = sizeof(__cache_line_size);
 
-    if (sysctlbyname("machdep.cpu.cache.linesize",
-                     &__cache_line_size,
-                     &len,
-                     NULL,
-                     0) != 0) {
+    if (sysctlbyname("machdep.cpu.cache.linesize", &__cache_line_size, &len,
+                     NULL, 0) != 0) {
         TT_ERROR("fail to get cpu cache line size");
         return TT_FAIL;
     }

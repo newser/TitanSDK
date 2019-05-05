@@ -48,13 +48,14 @@ static const tt_char_t __ls_info[] =
 
 static const tt_char_t __ls_usage[] = "testing";
 
-static tt_u32_t __ls_run(IN tt_shell_t *sh,
-                         IN tt_u32_t argc,
-                         IN tt_char_t *arv[],
-                         OUT tt_buf_t *output);
+static tt_u32_t __ls_run(IN tt_shell_t *sh, IN tt_u32_t argc,
+                         IN tt_char_t *arv[], OUT tt_buf_t *output);
 
 tt_shcmd_t tt_g_shcmd_ls = {
-    TT_SHCMD_NAME_LS, __ls_info, __ls_usage, __ls_run,
+    TT_SHCMD_NAME_LS,
+    __ls_info,
+    __ls_usage,
+    __ls_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -63,22 +64,17 @@ tt_shcmd_t tt_g_shcmd_ls = {
 
 static tt_u32_t __ls_current(IN tt_shell_t *sh, OUT tt_buf_t *output);
 
-static tt_u32_t __ls_single(IN tt_shell_t *sh,
-                            IN tt_char_t *path,
+static tt_u32_t __ls_single(IN tt_shell_t *sh, IN tt_char_t *path,
                             OUT tt_buf_t *output);
 
-static tt_u32_t __ls_multiple(IN tt_shell_t *sh,
-                              IN tt_char_t *path[],
-                              IN tt_u32_t path_num,
-                              OUT tt_buf_t *output);
+static tt_u32_t __ls_multiple(IN tt_shell_t *sh, IN tt_char_t *path[],
+                              IN tt_u32_t path_num, OUT tt_buf_t *output);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __ls_run(IN tt_shell_t *sh,
-                  IN tt_u32_t argc,
-                  IN tt_char_t *argv[],
+tt_u32_t __ls_run(IN tt_shell_t *sh, IN tt_u32_t argc, IN tt_char_t *argv[],
                   OUT tt_buf_t *output)
 {
     if (argc == 0) {
@@ -116,17 +112,14 @@ tt_u32_t __ls_current(IN tt_shell_t *sh, OUT tt_buf_t *output)
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __ls_single(IN tt_shell_t *sh,
-                     IN tt_char_t *path,
+tt_u32_t __ls_single(IN tt_shell_t *sh, IN tt_char_t *path,
                      OUT tt_buf_t *output)
 {
     tt_param_t *p;
     tt_u32_t rp, wp;
     tt_result_t result;
 
-    p = tt_param_path_p2n(sh->root,
-                          sh->current,
-                          path,
+    p = tt_param_path_p2n(sh->root, sh->current, path,
                           (tt_u32_t)tt_strlen(path));
     if (p == NULL) {
         tt_buf_putf(output, "can not find: %s", path);
@@ -147,10 +140,8 @@ tt_u32_t __ls_single(IN tt_shell_t *sh,
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __ls_multiple(IN tt_shell_t *sh,
-                       IN tt_char_t *path[],
-                       IN tt_u32_t path_num,
-                       OUT tt_buf_t *output)
+tt_u32_t __ls_multiple(IN tt_shell_t *sh, IN tt_char_t *path[],
+                       IN tt_u32_t path_num, OUT tt_buf_t *output)
 {
     tt_u32_t i;
 

@@ -68,10 +68,8 @@ typedef struct
 // - must set output if returning TT_SUCCESS, do *output = input if no operation
 // - input may be NULL when called as pre_body and post_body
 typedef tt_result_t (*tt_http_encserv_on_body_t)(
-    IN struct tt_http_encserv_s *s,
-    IN struct tt_http_parser_s *req,
-    IN struct tt_http_resp_render_s *resp,
-    IN OUT struct tt_buf_s *input,
+    IN struct tt_http_encserv_s *s, IN struct tt_http_parser_s *req,
+    IN struct tt_http_resp_render_s *resp, IN OUT struct tt_buf_s *input,
     OUT struct tt_buf_s **output);
 
 typedef struct
@@ -97,32 +95,25 @@ typedef struct tt_http_encserv_s
 ////////////////////////////////////////////////////////////
 
 tt_export tt_http_encserv_t *tt_http_encserv_create(
-    IN tt_u32_t extra_size,
-    IN tt_http_encserv_itf_t *itf,
+    IN tt_u32_t extra_size, IN tt_http_encserv_itf_t *itf,
     IN tt_http_encserv_cb_t *cb);
 
 tt_inline void __http_encserv_destroy(IN tt_http_encserv_t *s)
 {
-    if (s->itf->destroy != NULL) {
-        s->itf->destroy(s);
-    }
+    if (s->itf->destroy != NULL) { s->itf->destroy(s); }
 
     tt_free(s);
 }
 
 tt_inline void tt_http_encserv_clear(IN tt_http_encserv_t *s)
 {
-    if (s->itf->clear != NULL) {
-        s->itf->clear(s);
-    }
+    if (s->itf->clear != NULL) { s->itf->clear(s); }
 }
 
-tt_inline tt_result_t
-tt_http_encserv_pre_body(IN tt_http_encserv_t *s,
-                         IN struct tt_http_parser_s *req,
-                         IN struct tt_http_resp_render_s *resp,
-                         IN OUT OPT struct tt_buf_s *input,
-                         OUT struct tt_buf_s **output)
+tt_inline tt_result_t tt_http_encserv_pre_body(
+    IN tt_http_encserv_t *s, IN struct tt_http_parser_s *req,
+    IN struct tt_http_resp_render_s *resp, IN OUT OPT struct tt_buf_s *input,
+    OUT struct tt_buf_s **output)
 {
     if (s->cb->pre_body != NULL) {
         return s->cb->pre_body(s, req, resp, input, output);
@@ -132,12 +123,10 @@ tt_http_encserv_pre_body(IN tt_http_encserv_t *s,
     }
 }
 
-tt_inline tt_result_t
-tt_http_encserv_on_body(IN tt_http_encserv_t *s,
-                        IN struct tt_http_parser_s *req,
-                        IN struct tt_http_resp_render_s *resp,
-                        IN struct tt_buf_s *input,
-                        OUT struct tt_buf_s **output)
+tt_inline tt_result_t tt_http_encserv_on_body(
+    IN tt_http_encserv_t *s, IN struct tt_http_parser_s *req,
+    IN struct tt_http_resp_render_s *resp, IN struct tt_buf_s *input,
+    OUT struct tt_buf_s **output)
 {
     if (s->cb->on_body != NULL) {
         return s->cb->on_body(s, req, resp, input, output);
@@ -147,12 +136,10 @@ tt_http_encserv_on_body(IN tt_http_encserv_t *s,
     }
 }
 
-tt_inline tt_result_t
-tt_http_encserv_post_body(IN tt_http_encserv_t *s,
-                          IN struct tt_http_parser_s *req,
-                          IN struct tt_http_resp_render_s *resp,
-                          IN OUT OPT struct tt_buf_s *input,
-                          OUT struct tt_buf_s **output)
+tt_inline tt_result_t tt_http_encserv_post_body(
+    IN tt_http_encserv_t *s, IN struct tt_http_parser_s *req,
+    IN struct tt_http_resp_render_s *resp, IN OUT OPT struct tt_buf_s *input,
+    OUT struct tt_buf_s **output)
 {
     if (s->cb->post_body != NULL) {
         return s->cb->post_body(s, req, resp, input, output);

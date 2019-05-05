@@ -48,7 +48,7 @@ namespace log {
 
 mgr *g_log_mgr;
 
-init::mgr init::mgr::s_instance;
+log_component log_component::s_instance;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -58,61 +58,59 @@ init::mgr init::mgr::s_instance;
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-namespace init {
-
-bool mgr::do_start(void *reserved)
+bool log_component::do_start(void *reserved)
 {
     assert(g_log_mgr == nullptr);
     g_log_mgr = new tt::log::mgr();
     auto _1 = make_rollback([]() { delete g_log_mgr; });
 
-    auto p_debug = new layout::pattern();
+    auto p_debug = new pattern();
     if (!p_debug->parse("${content} <${function} - ${line}>\n")) {
         return false;
     }
     g_log_mgr->layout(e_debug, std::shared_ptr<i_layout>(p_debug));
 
-    auto p_info = new layout::pattern();
+    auto p_info = new pattern();
     if (!p_info->parse("${content}\n")) { return false; }
     g_log_mgr->layout(e_info, std::shared_ptr<i_layout>(p_info));
 
 #if 0
-    auto p_warn = new layout::pattern();
+    auto p_warn = new pattern();
     if (!p_warn->parse(
             "${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n")) {
         return false;
     }
     g_log_mgr->layout(e_warn, std::shared_ptr<i_layout>(p_warn));
 
-    auto p_error = new layout::pattern();
+    auto p_error = new pattern();
     if (!p_error->parse(
             "${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n")) {
         return false;
     }
     g_log_mgr->layout(e_error, std::shared_ptr<i_layout>(p_error));
 
-    auto p_fatal = new layout::pattern();
+    auto p_fatal = new pattern();
     if (!p_fatal->parse(
             "${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n")) {
         return false;
     }
     g_log_mgr->layout(e_fatal, std::shared_ptr<i_layout>(p_fatal));
 #else
-    auto p_warn = new layout::pattern();
+    auto p_warn = new pattern();
     if (!p_warn->parse(
             "${level:%-6.6s} ${content} <${function} - ${line}>\n")) {
         return false;
     }
     g_log_mgr->layout(e_warn, std::shared_ptr<i_layout>(p_warn));
 
-    auto p_error = new layout::pattern();
+    auto p_error = new pattern();
     if (!p_error->parse(
             "${level:%-6.6s} ${content} <${function} - ${line}>\n")) {
         return false;
     }
     g_log_mgr->layout(e_error, std::shared_ptr<i_layout>(p_error));
 
-    auto p_fatal = new layout::pattern();
+    auto p_fatal = new pattern();
     if (!p_fatal->parse(
             "${level:%-6.6s} ${content} <${function} - ${line}>\n")) {
         return false;
@@ -120,18 +118,16 @@ bool mgr::do_start(void *reserved)
     g_log_mgr->layout(e_fatal, std::shared_ptr<i_layout>(p_fatal));
 #endif
 
-    g_log_mgr->append_io(std::shared_ptr<i_io>(new io::standard()));
+    g_log_mgr->append_io(std::shared_ptr<i_io>(new standard()));
 
     _1.dismiss();
     return true;
 }
 
-void mgr::do_stop()
+void log_component::do_stop()
 {
     assert(g_log_mgr != nullptr);
     delete g_log_mgr;
-}
-
 }
 
 }

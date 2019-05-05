@@ -61,15 +61,13 @@ void tt_network_interface_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __net_itf_component_init, __net_itf_component_exit,
+        __net_itf_component_init,
+        __net_itf_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_NETWORK_INTERFACE,
-                      "Network Interface",
-                      NULL,
-                      &itf);
+    tt_component_init(&comp, TT_COMPONENT_NETWORK_INTERFACE,
+                      "Network Interface", NULL, &itf);
 
     // register component
     tt_component_register(&comp);
@@ -78,9 +76,7 @@ void tt_network_interface_component_register()
 tt_result_t __net_itf_component_init(IN tt_component_t *comp,
                                      IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_network_interface_init_ntv())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_network_interface_init_ntv())) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -184,16 +180,11 @@ void tt_netif_refresh_done(IN tt_netif_t *netif)
 const tt_char_t *__netif_status_name(IN tt_netif_status_t status)
 {
     switch (status) {
-        case TT_NETIF_STATUS_NOT_EXIST:
-            return "not exist";
-        case TT_NETIF_STATUS_DOWN:
-            return "down";
-        case TT_NETIF_STATUS_UP:
-            return "up";
-        case TT_NETIF_STATUS_ACTIVE:
-            return "active";
-        default:
-            return "unknown";
+    case TT_NETIF_STATUS_NOT_EXIST: return "not exist";
+    case TT_NETIF_STATUS_DOWN: return "down";
+    case TT_NETIF_STATUS_UP: return "up";
+    case TT_NETIF_STATUS_ACTIVE: return "active";
+    default: return "unknown";
     }
 }
 
@@ -201,14 +192,11 @@ void tt_netif_dump(IN struct tt_netif_s *netif, IN const tt_char_t *prefix)
 {
     tt_lnode_t *node;
 
-    TT_INFO("%s%s:<%s%s%s%s> mtu %d",
-            prefix,
-            netif->name,
+    TT_INFO("%s%s:<%s%s%s%s> mtu %d", prefix, netif->name,
             TT_COND(netif->multicast, "MULTICAST,", ""),
             TT_COND(netif->broadcast, "BROADCAST,", ""),
             TT_COND(netif->loopback, "LOOPBACK,", ""),
-            TT_COND(netif->p2p, "POINT2POINT,", ""),
-            netif->mtu);
+            TT_COND(netif->p2p, "POINT2POINT,", ""), netif->mtu);
 
     if (netif->type == TT_NETIF_TYPE_ETHERNET) {
         tt_char_t buf[20];
@@ -218,8 +206,7 @@ void tt_netif_dump(IN struct tt_netif_s *netif, IN const tt_char_t *prefix)
 
     node = tt_list_head(&netif->addr_list);
     while (node != NULL) {
-        tt_netif_addr_dump(netif,
-                           TT_CONTAINER(node, tt_netif_addr_t, node),
+        tt_netif_addr_dump(netif, TT_CONTAINER(node, tt_netif_addr_t, node),
                            prefix);
         node = node->next;
     }

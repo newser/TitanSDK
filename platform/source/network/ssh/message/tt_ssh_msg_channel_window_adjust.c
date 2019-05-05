@@ -73,8 +73,7 @@ static tt_sshmsg_itf_t __chwinadj_op = {
 tt_sshmsg_t *tt_sshmsg_chwinadj_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_WINDOW_ADJUST,
-                            sizeof(tt_sshmsg_chwinadj_t),
-                            &__chwinadj_op);
+                            sizeof(tt_sshmsg_chwinadj_t), &__chwinadj_op);
 }
 
 void tt_sshmsg_chwinadj_set_rcvchnum(IN tt_sshmsg_t *msg, IN tt_u32_t rcv_chnum)

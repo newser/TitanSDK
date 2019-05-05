@@ -54,17 +54,13 @@ tt_export tt_u32_t tt_percent_encode_len(IN const tt_char_t *str,
                                          IN tt_char_t *enc_tbl);
 
 // safe for 0 len
-tt_export tt_u32_t tt_percent_encode(IN const tt_char_t *str,
-                                     IN tt_u32_t len,
-                                     IN tt_char_t *enc_tbl,
-                                     OUT tt_char_t *dst);
+tt_export tt_u32_t tt_percent_encode(IN const tt_char_t *str, IN tt_u32_t len,
+                                     IN tt_char_t *enc_tbl, OUT tt_char_t *dst);
 
 tt_export tt_u32_t tt_percent_decode_len(IN const tt_char_t *str,
                                          IN tt_u32_t len);
 
-tt_export tt_u32_t tt_percent_decode(IN const tt_char_t *str,
-                                     IN tt_u32_t len,
-                                     IN tt_bool_t plus2sp,
-                                     OUT tt_char_t *dst);
+tt_export tt_u32_t tt_percent_decode(IN const tt_char_t *str, IN tt_u32_t len,
+                                     IN tt_bool_t plus2sp, OUT tt_char_t *dst);
 
 #endif /* __TT_PERCENT_ENCODE__ */

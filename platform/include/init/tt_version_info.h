@@ -88,8 +88,7 @@ tt_export tt_ver_t tt_ver_revision();
 
 tt_export const tt_char_t *tt_version_cstr();
 
-tt_export void tt_ver_format(IN tt_char_t *buf,
-                             IN tt_u32_t buf_len,
+tt_export void tt_ver_format(IN tt_char_t *buf, IN tt_u32_t buf_len,
                              IN tt_u32_t how);
 // how
 #define TT_VER_FORMAT_BASIC 0 // major.minor

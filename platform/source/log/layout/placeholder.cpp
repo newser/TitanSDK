@@ -34,7 +34,7 @@ namespace tt {
 
 namespace log {
 
-namespace layout {
+namespace placeholder {
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -56,7 +56,7 @@ const char *level::s_level[level_num] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-placeholder *placeholder::parse(const char *p, size_t len)
+base *parse(const char *p, size_t len)
 {
     assert(len >= 2 && p[0] == '{' && p[len - 1] == '}');
     ++p;

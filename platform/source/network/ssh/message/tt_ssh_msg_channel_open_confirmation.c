@@ -72,8 +72,7 @@ static tt_sshmsg_itf_t __chopc_op = {
 tt_sshmsg_t *tt_sshmsg_chopc_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_OPEN_CONFIRMATION,
-                            sizeof(tt_sshmsg_chopc_t),
-                            &__chopc_op);
+                            sizeof(tt_sshmsg_chopc_t), &__chopc_op);
 }
 
 void tt_sshmsg_chopc_set_rcvchnum(IN tt_sshmsg_t *msg, IN tt_u32_t rcv_chnum)

@@ -45,7 +45,6 @@
 #include <network/ssh/message/tt_ssh_msg_service_accept.h>
 #include <network/ssh/message/tt_ssh_msg_service_request.h>
 #include <network/ssh/message/tt_ssh_msg_userauth_banner.h>
-#include <network/ssh/message/tt_ssh_msg_userauth_banner.h>
 #include <network/ssh/message/tt_ssh_msg_userauth_failure.h>
 #include <network/ssh/message/tt_ssh_msg_userauth_request.h>
 #include <network/ssh/message/tt_ssh_msg_userauth_success.h>
@@ -85,8 +84,7 @@ static tt_sshmsg_t *__sshmsg_parse(IN tt_u8_t *payload,
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_sshmsg_t *tt_sshmsg_create(IN tt_u32_t msg_id,
-                              IN tt_u32_t msg_len,
+tt_sshmsg_t *tt_sshmsg_create(IN tt_u32_t msg_id, IN tt_u32_t msg_len,
                               IN tt_sshmsg_itf_t *itf)
 {
     tt_sshmsg_t *msg;
@@ -136,13 +134,10 @@ void __sshmsg_destroy(IN tt_sshmsg_t *msg)
 void tt_sshmsg_dump(IN tt_sshmsg_t *msg)
 {
     TT_INFO("%s", tt_sshmsg_name(msg->msg_id));
-    if (msg->itf->dump != NULL) {
-        msg->itf->dump(msg);
-    }
+    if (msg->itf->dump != NULL) { msg->itf->dump(msg); }
 }
 
-tt_result_t tt_sshmsg_render(IN tt_sshmsg_t *msg,
-                             IN tt_u32_t block_len,
+tt_result_t tt_sshmsg_render(IN tt_sshmsg_t *msg, IN tt_u32_t block_len,
                              IN OPT tt_buf_t *buf)
 {
     tt_result_t result;
@@ -160,9 +155,7 @@ tt_result_t tt_sshmsg_render(IN tt_sshmsg_t *msg,
     TT_ASSERT(!msg->rendered);
 #endif
 
-    if (buf == NULL) {
-        buf = &msg->buf;
-    }
+    if (buf == NULL) { buf = &msg->buf; }
 
     result = msg->itf->render_prepare(msg, &len, &mode);
     if (!TT_OK(result)) {
@@ -198,9 +191,7 @@ tt_result_t tt_sshmsg_render(IN tt_sshmsg_t *msg,
          */
 
         // pad __MAX_SSH_PAD_BLOCK blocks at most
-        padlen = tt_sshmsg_padlen(len,
-                                  block_len,
-                                  msg->pad_block,
+        padlen = tt_sshmsg_padlen(len, block_len, msg->pad_block,
                                   __MAX_SSH_PAD_BLOCK);
 
         // also reserve space for mac data
@@ -287,20 +278,15 @@ tt_result_t tt_sshmsg_parse(IN tt_buf_t *msg_buf, OUT tt_sshmsg_t **p_msg)
 
     // packet_length
     TT_DO(tt_buf_get_u32_h(msg_buf, &packet_length));
-    if (packet_length == 0) {
-        return TT_FAIL;
-    }
-    if (packet_length > TT_BUF_RLEN(msg_buf)) {
-        return TT_E_BUF_NOBUFS;
-    }
+    if (packet_length == 0) { return TT_FAIL; }
+    if (packet_length > TT_BUF_RLEN(msg_buf)) { return TT_E_BUF_NOBUFS; }
 
     // padding_length
     TT_DO(tt_buf_get_u8(msg_buf, &padding_length));
 
     if ((tt_u32_t)padding_length + 1 >= packet_length) {
         TT_ERROR("invalid padding_length[%d] or packet_length[%d]",
-                 padding_length,
-                 packet_length);
+                 padding_length, packet_length);
         return TT_FAIL;
     }
 
@@ -309,9 +295,7 @@ tt_result_t tt_sshmsg_parse(IN tt_buf_t *msg_buf, OUT tt_sshmsg_t **p_msg)
     payload_length = packet_length - 1 - padding_length;
 
     msg = __sshmsg_parse(payload, payload_length);
-    if (msg == NULL) {
-        return TT_FAIL;
-    }
+    if (msg == NULL) { return TT_FAIL; }
 
     // random padding
     // ignored, won't fail
@@ -339,9 +323,7 @@ tt_result_t tt_sshmsg_parse_verxchg(IN tt_buf_t *msg_buf,
     tt_result_t result;
 
     msg = tt_sshms_verxchg_create();
-    if (msg == NULL) {
-        return TT_FAIL;
-    }
+    if (msg == NULL) { return TT_FAIL; }
 
     msg_data = TT_BUF_RPOS(msg_buf);
 
@@ -367,8 +349,7 @@ tt_result_t tt_sshmsg_parse_verxchg(IN tt_buf_t *msg_buf,
     }
 }
 
-tt_result_t tt_sshmsg_peek_payload(IN tt_buf_t *msg_buf,
-                                   OUT tt_u8_t **payload,
+tt_result_t tt_sshmsg_peek_payload(IN tt_buf_t *msg_buf, OUT tt_u8_t **payload,
                                    OUT tt_u32_t *payload_len)
 {
     tt_u32_t rpos, wpos;
@@ -404,28 +385,18 @@ s_out:
 const tt_char_t *tt_sshmsg_name(IN tt_u32_t msg_id)
 {
     switch (msg_id) {
-        // SSH-TRANS
-        case TT_SSH_MSGID_DISCONNECT:
-            return "SSH_MSG_DISCONNECT";
-        case TT_SSH_MSGID_IGNORE:
-            return "SSH_MSG_IGNORE";
-        case TT_SSH_MSGID_UNIMPLEMENTED:
-            return "SSH_MSG_UNIMPLEMENTED";
-        case TT_SSH_MSGID_DEBUG:
-            return "SSH_MSG_DEBUG";
-        case TT_SSH_MSGID_SERVICE_REQUEST:
-            return "SSH_MSG_SERVICE_REQUEST";
-        case TT_SSH_MSGID_SERVICE_ACCEPT:
-            return "SSH_MSG_SERVICE_ACCEPT";
-        case TT_SSH_MSGID_KEXINIT:
-            return "SSH_MSG_KEXINIT";
-        case TT_SSH_MSGID_KEXDH_INIT:
-            return "SSH_MSG_KEXDH_INIT";
-        case TT_SSH_MSGID_KEXDH_REPLY:
-            return "SSH_MSG_KEXDH_REPLY";
+    // SSH-TRANS
+    case TT_SSH_MSGID_DISCONNECT: return "SSH_MSG_DISCONNECT";
+    case TT_SSH_MSGID_IGNORE: return "SSH_MSG_IGNORE";
+    case TT_SSH_MSGID_UNIMPLEMENTED: return "SSH_MSG_UNIMPLEMENTED";
+    case TT_SSH_MSGID_DEBUG: return "SSH_MSG_DEBUG";
+    case TT_SSH_MSGID_SERVICE_REQUEST: return "SSH_MSG_SERVICE_REQUEST";
+    case TT_SSH_MSGID_SERVICE_ACCEPT: return "SSH_MSG_SERVICE_ACCEPT";
+    case TT_SSH_MSGID_KEXINIT: return "SSH_MSG_KEXINIT";
+    case TT_SSH_MSGID_KEXDH_INIT: return "SSH_MSG_KEXDH_INIT";
+    case TT_SSH_MSGID_KEXDH_REPLY: return "SSH_MSG_KEXDH_REPLY";
 
-        default:
-            return "Unknown";
+    default: return "Unknown";
     }
 }
 
@@ -439,87 +410,85 @@ tt_sshmsg_t *__sshmsg_parse(IN tt_u8_t *payload, IN tt_u32_t payload_length)
 
     TT_DO_R(NULL, tt_buf_get_u8(&pbuf, &msgid));
     switch (msgid) {
-        case TT_SSH_MSGID_KEXINIT: {
-            msg = tt_sshms_keyinit_create();
-        } break;
-        case TT_SSH_MSGID_IGNORE: {
-            msg = tt_sshmsg_ignore_create();
-        } break;
-        case TT_SSH_MSGID_DISCONNECT: {
-            msg = tt_sshmsg_disconnect_create();
-        } break;
-        case TT_SSH_MSGID_KEXDH_INIT: {
-            msg = tt_sshmsg_kexdh_init_create();
-        } break;
-        case TT_SSH_MSGID_NEWKEYS: {
-            msg = tt_sshms_newkeys_create();
-        } break;
-        case TT_SSH_MSGID_SERVICE_REQUEST: {
-            msg = tt_sshmsg_servreq_create();
-        } break;
-        case TT_SSH_MSGID_SERVICE_ACCEPT: {
-            msg = tt_sshmsg_servacc_create();
-        } break;
-        case TT_SSH_MSGID_USERAUTH_REQUEST: {
-            msg = tt_sshmsg_uar_create();
-        } break;
-        case TT_SSH_MSGID_USERAUTH_SUCCESS: {
-            msg = tt_sshmsg_uas_create();
-        } break;
-        case TT_SSH_MSGID_USERAUTH_FAILURE: {
-            msg = tt_sshmsg_uaf_create();
-        } break;
-        case TT_SSH_MSGID_USERAUTH_BANNER: {
-            msg = tt_sshmsg_uab_create();
-        } break;
-        case TT_SSH_MSGID_GLOBAL_REQUEST: {
-            msg = tt_sshmsg_glbreq_create();
-        } break;
-        case TT_SSH_MSGID_REQUEST_SUCCESS: {
-            msg = tt_sshmsg_reqsucc_create();
-        } break;
-        case TT_SSH_MSGID_REQUEST_FAILURE: {
-            msg = tt_sshmsg_reqfail_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_OPEN: {
-            msg = tt_sshmsg_chopen_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_OPEN_CONFIRMATION: {
-            msg = tt_sshmsg_chopc_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_OPEN_FAILURE: {
-            msg = tt_sshmsg_chopf_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_WINDOW_ADJUST: {
-            msg = tt_sshmsg_chwinadj_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_DATA: {
-            msg = tt_sshmsg_chdata_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_CLOSE: {
-            msg = tt_sshmsg_chclose_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_EOF: {
-            msg = tt_sshmsg_cheof_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_REQUEST: {
-            msg = tt_sshmsg_chreq_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_SUCCESS: {
-            msg = tt_sshmsg_chsucc_create();
-        } break;
-        case TT_SSH_MSGID_CHANNEL_FAILURE: {
-            msg = tt_sshmsg_chfail_create();
-        } break;
+    case TT_SSH_MSGID_KEXINIT: {
+        msg = tt_sshms_keyinit_create();
+    } break;
+    case TT_SSH_MSGID_IGNORE: {
+        msg = tt_sshmsg_ignore_create();
+    } break;
+    case TT_SSH_MSGID_DISCONNECT: {
+        msg = tt_sshmsg_disconnect_create();
+    } break;
+    case TT_SSH_MSGID_KEXDH_INIT: {
+        msg = tt_sshmsg_kexdh_init_create();
+    } break;
+    case TT_SSH_MSGID_NEWKEYS: {
+        msg = tt_sshms_newkeys_create();
+    } break;
+    case TT_SSH_MSGID_SERVICE_REQUEST: {
+        msg = tt_sshmsg_servreq_create();
+    } break;
+    case TT_SSH_MSGID_SERVICE_ACCEPT: {
+        msg = tt_sshmsg_servacc_create();
+    } break;
+    case TT_SSH_MSGID_USERAUTH_REQUEST: {
+        msg = tt_sshmsg_uar_create();
+    } break;
+    case TT_SSH_MSGID_USERAUTH_SUCCESS: {
+        msg = tt_sshmsg_uas_create();
+    } break;
+    case TT_SSH_MSGID_USERAUTH_FAILURE: {
+        msg = tt_sshmsg_uaf_create();
+    } break;
+    case TT_SSH_MSGID_USERAUTH_BANNER: {
+        msg = tt_sshmsg_uab_create();
+    } break;
+    case TT_SSH_MSGID_GLOBAL_REQUEST: {
+        msg = tt_sshmsg_glbreq_create();
+    } break;
+    case TT_SSH_MSGID_REQUEST_SUCCESS: {
+        msg = tt_sshmsg_reqsucc_create();
+    } break;
+    case TT_SSH_MSGID_REQUEST_FAILURE: {
+        msg = tt_sshmsg_reqfail_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_OPEN: {
+        msg = tt_sshmsg_chopen_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_OPEN_CONFIRMATION: {
+        msg = tt_sshmsg_chopc_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_OPEN_FAILURE: {
+        msg = tt_sshmsg_chopf_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_WINDOW_ADJUST: {
+        msg = tt_sshmsg_chwinadj_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_DATA: {
+        msg = tt_sshmsg_chdata_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_CLOSE: {
+        msg = tt_sshmsg_chclose_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_EOF: {
+        msg = tt_sshmsg_cheof_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_REQUEST: {
+        msg = tt_sshmsg_chreq_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_SUCCESS: {
+        msg = tt_sshmsg_chsucc_create();
+    } break;
+    case TT_SSH_MSGID_CHANNEL_FAILURE: {
+        msg = tt_sshmsg_chfail_create();
+    } break;
 
-        default: {
-            TT_ERROR("unsupported ssh msg[%d]", msgid);
-            return NULL;
-        } break;
-    }
-    if (msg == NULL) {
+    default: {
+        TT_ERROR("unsupported ssh msg[%d]", msgid);
         return NULL;
+    } break;
     }
+    if (msg == NULL) { return NULL; }
 
     if (!TT_OK(msg->itf->parse(msg, &pbuf))) {
         tt_sshmsg_release(msg);

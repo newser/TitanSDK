@@ -133,8 +133,7 @@ tt_inline void tt_sktaddr_set_scope_p(IN tt_sktaddr_t *addr,
 
 tt_inline tt_result_t tt_sktaddr_ip_n2p(IN tt_net_family_t family,
                                         IN tt_sktaddr_ip_t *ip,
-                                        OUT tt_char_t *buf,
-                                        IN tt_u32_t buf_len)
+                                        OUT tt_char_t *buf, IN tt_u32_t buf_len)
 {
     return tt_sktaddr_ip_n2p_ntv(family, ip, buf, buf_len);
 }

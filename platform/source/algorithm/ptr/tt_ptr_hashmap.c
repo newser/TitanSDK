@@ -56,23 +56,20 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static __phmnode_t *__find_node(IN tt_ptrhmap_t *phm,
-                                IN tt_u8_t *key,
+static __phmnode_t *__find_node(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
                                 IN tt_u32_t key_len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_slist_t *__find_sll(IN tt_ptrhmap_t *phm,
-                                 IN tt_u8_t *key,
+tt_inline tt_slist_t *__find_sll(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
                                  IN tt_u32_t key_len)
 {
     return &phm->sll[phm->hash(key, key_len, &phm->hashctx) % phm->sll_num];
 }
 
-tt_result_t tt_ptrhmap_create(IN tt_ptrhmap_t *phm,
-                              IN tt_u32_t slot_num,
+tt_result_t tt_ptrhmap_create(IN tt_ptrhmap_t *phm, IN tt_u32_t slot_num,
                               IN OPT tt_ptrhmap_attr_t *attr)
 {
     tt_ptrhmap_attr_t __attr;
@@ -93,9 +90,7 @@ tt_result_t tt_ptrhmap_create(IN tt_ptrhmap_t *phm,
         return TT_FAIL;
     }
     phm->sll_num = slot_num;
-    for (i = 0; i < slot_num; ++i) {
-        tt_slist_init(&phm->sll[i]);
-    }
+    for (i = 0; i < slot_num; ++i) { tt_slist_init(&phm->sll[i]); }
 
     if (attr->hash_alg == TT_HASH_ALG_MURMUR3) {
         phm->hash = tt_hash_murmur3;
@@ -159,8 +154,7 @@ void tt_ptrhmap_clear(IN tt_ptrhmap_t *phm)
     }
 }
 
-tt_ptr_t tt_ptrhmap_find(IN tt_ptrhmap_t *phm,
-                         IN tt_u8_t *key,
+tt_ptr_t tt_ptrhmap_find(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
                          IN tt_u32_t key_len)
 {
     __phmnode_t *pn = __find_node(phm, key, key_len);
@@ -182,10 +176,8 @@ tt_bool_t tt_ptrhmap_contain_ptr(IN tt_ptrhmap_t *phm, IN tt_ptr_t ptr)
     return TT_FALSE;
 }
 
-tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm,
-                           IN tt_u8_t *key,
-                           IN tt_u32_t key_len,
-                           IN tt_ptr_t ptr)
+tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
+                           IN tt_u32_t key_len, IN tt_ptr_t ptr)
 {
     tt_slist_t *sll;
     tt_snode_t *sn;
@@ -197,9 +189,7 @@ tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm,
     sn = tt_slist_head(sll);
     while (sn != NULL) {
         __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
-        if (__KEQ(pn, key, key_len)) {
-            break;
-        }
+        if (__KEQ(pn, key, key_len)) { break; }
 
         sn = sn->next;
     }
@@ -229,8 +219,7 @@ tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm,
     return TT_SUCCESS;
 }
 
-tt_bool_t tt_ptrhmap_remove_key(IN tt_ptrhmap_t *phm,
-                                IN tt_u8_t *key,
+tt_bool_t tt_ptrhmap_remove_key(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
                                 IN tt_u32_t key_len)
 {
     tt_slist_t *sll;
@@ -241,9 +230,7 @@ tt_bool_t tt_ptrhmap_remove_key(IN tt_ptrhmap_t *phm,
     sn = tt_slist_head(sll);
     while (sn != NULL) {
         __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
-        if (__KEQ(pn, key, key_len)) {
-            break;
-        }
+        if (__KEQ(pn, key, key_len)) { break; }
 
         prev = sn;
         sn = sn->next;
@@ -294,10 +281,8 @@ tt_bool_t tt_ptrhmap_remove_ptr(IN tt_ptrhmap_t *phm, IN tt_ptr_t ptr)
     return TT_FALSE;
 }
 
-tt_bool_t tt_ptrhmap_remove_pair(IN tt_ptrhmap_t *phm,
-                                 IN tt_u8_t *key,
-                                 IN tt_u32_t key_len,
-                                 IN tt_ptr_t ptr)
+tt_bool_t tt_ptrhmap_remove_pair(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
+                                 IN tt_u32_t key_len, IN tt_ptr_t ptr)
 {
     tt_u32_t i;
     for (i = 0; i < phm->sll_num; ++i) {
@@ -326,8 +311,7 @@ tt_bool_t tt_ptrhmap_remove_pair(IN tt_ptrhmap_t *phm,
     return TT_FALSE;
 }
 
-void tt_ptrhmap_foreach(IN tt_ptrhmap_t *phm,
-                        IN tt_ptrhmap_action_t action,
+void tt_ptrhmap_foreach(IN tt_ptrhmap_t *phm, IN tt_ptrhmap_action_t action,
                         IN void *param)
 {
     tt_u32_t i;
@@ -335,19 +319,15 @@ void tt_ptrhmap_foreach(IN tt_ptrhmap_t *phm,
         tt_snode_t *sn = tt_slist_head(&phm->sll[i]);
         while (sn != NULL) {
             __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
-            if (!action(pn->key, pn->key_len, pn->ptr, param)) {
-                return;
-            }
+            if (!action(pn->key, pn->key_len, pn->ptr, param)) { return; }
 
             sn = sn->next;
         }
     }
 }
 
-tt_bool_t tt_ptrhmap_replace(IN tt_ptrhmap_t *phm,
-                             IN tt_u8_t *key,
-                             IN tt_u32_t key_len,
-                             IN tt_ptr_t new_ptr)
+tt_bool_t tt_ptrhmap_replace(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
+                             IN tt_u32_t key_len, IN tt_ptr_t new_ptr)
 {
     __phmnode_t *pn = __find_node(phm, key, key_len);
     TT_ASSERT(new_ptr != NULL);
@@ -359,10 +339,8 @@ tt_bool_t tt_ptrhmap_replace(IN tt_ptrhmap_t *phm,
     }
 }
 
-tt_bool_t tt_ptrhmap_replace_equal(IN tt_ptrhmap_t *phm,
-                                   IN tt_u8_t *key,
-                                   IN tt_u32_t key_len,
-                                   IN tt_ptr_t old_ptr,
+tt_bool_t tt_ptrhmap_replace_equal(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
+                                   IN tt_u32_t key_len, IN tt_ptr_t old_ptr,
                                    IN tt_ptr_t new_ptr)
 {
     __phmnode_t *pn = __find_node(phm, key, key_len);
@@ -375,17 +353,14 @@ tt_bool_t tt_ptrhmap_replace_equal(IN tt_ptrhmap_t *phm,
     }
 }
 
-__phmnode_t *__find_node(IN tt_ptrhmap_t *phm,
-                         IN tt_u8_t *key,
+__phmnode_t *__find_node(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
                          IN tt_u32_t key_len)
 {
     tt_slist_t *sll = __find_sll(phm, key, key_len);
     tt_snode_t *node = tt_slist_head(sll);
     while (node != NULL) {
         __phmnode_t *pn = TT_CONTAINER(node, __phmnode_t, snode);
-        if (__KEQ(pn, key, key_len)) {
-            return pn;
-        }
+        if (__KEQ(pn, key, key_len)) { return pn; }
 
         node = node->next;
     }

@@ -50,14 +50,12 @@
 
 #define __cmp_addr(na, sa)                                                     \
     tt_memcmp(&((SOCKADDR_IN *)(na))->sin_addr,                                \
-              &((SOCKADDR_IN *)(sa))->sin_addr,                                \
-              sizeof(IN_ADDR))
+              &((SOCKADDR_IN *)(sa))->sin_addr, sizeof(IN_ADDR))
 #define __copy_addr(na, sa) tt_memcpy((na), (sa), sizeof(SOCKADDR_IN))
 
 #define __cmp_addr6(na, sa)                                                    \
     tt_memcmp(&((SOCKADDR_IN6 *)(na))->sin6_addr,                              \
-              &((SOCKADDR_IN6 *)(sa))->sin6_addr,                              \
-              sizeof(IN6_ADDR))
+              &((SOCKADDR_IN6 *)(sa))->sin6_addr, sizeof(IN6_ADDR))
 #define __copy_addr6(na, sa) tt_memcpy((na), (sa), sizeof(SOCKADDR_IN6))
 
 ////////////////////////////////////////////////////////////
@@ -78,8 +76,7 @@ static tt_atomic_s32_t tt_s_adpt_size;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __load_adpt(IN tt_netif_group_t *group,
-                               IN tt_u32_t flag,
+static tt_result_t __load_adpt(IN tt_netif_group_t *group, IN tt_u32_t flag,
                                OUT PIP_ADAPTER_ADDRESSES *adpt);
 
 static tt_netif_t *__luid2netif(IN tt_netif_group_t *group, IN NET_LUID *luid);
@@ -125,9 +122,7 @@ tt_result_t tt_netif_group_refresh_ntv(IN tt_netif_group_t *group,
     PIP_ADAPTER_ADDRESSES cur_adpt = NULL;
     tt_u32_t updt_flag = 0;
 
-    if (!TT_OK(__load_adpt(group, flag, &adpt))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__load_adpt(group, flag, &adpt))) { return TT_FAIL; }
 
     if (group->flag & TT_NIFGRP_NO_IPV6_LINK_LOCAL) {
         updt_flag |= __NIF_UPDT_NO_IPV6_LINK_LOCAL;
@@ -137,9 +132,7 @@ tt_result_t tt_netif_group_refresh_ntv(IN tt_netif_group_t *group,
         tt_netif_t *netif;
 
         netif = __luid2netif(group, &cur_adpt->Luid);
-        if (netif == NULL) {
-            continue;
-        }
+        if (netif == NULL) { continue; }
 
         if (!TT_OK(__netif_update(netif, cur_adpt, updt_flag))) {
             TT_ERROR("netif[%s] is removed due to updating failed",
@@ -188,8 +181,7 @@ tt_result_t tt_netif_name2idx_ntv(IN const tt_char_t *name, OUT tt_u32_t *idx)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx,
-                                  OUT tt_char_t *name,
+tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx, OUT tt_char_t *name,
                                   IN tt_u32_t len)
 {
     NET_IFINDEX index;
@@ -222,8 +214,7 @@ tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx,
     return TT_SUCCESS;
 }
 
-tt_result_t __load_adpt(IN tt_netif_group_t *group,
-                        IN tt_u32_t flag,
+tt_result_t __load_adpt(IN tt_netif_group_t *group, IN tt_u32_t flag,
                         OUT PIP_ADAPTER_ADDRESSES *adpt)
 {
     ULONG Family = AF_UNSPEC;
@@ -252,9 +243,7 @@ retry:
         *adpt = AdapterAddresses;
         return TT_SUCCESS;
     } else if ((ret == ERROR_BUFFER_OVERFLOW) && !retried) {
-        if (AdapterAddresses != NULL) {
-            tt_free(AdapterAddresses);
-        }
+        if (AdapterAddresses != NULL) { tt_free(AdapterAddresses); }
 
         size = (tt_u32_t)req_size;
         tt_atomic_s32_set(&tt_s_adpt_size, size);
@@ -264,9 +253,7 @@ retry:
     } else {
         TT_ERROR("fail to get adapters addresses");
 
-        if (AdapterAddresses != NULL) {
-            tt_free(AdapterAddresses);
-        }
+        if (AdapterAddresses != NULL) { tt_free(AdapterAddresses); }
 
         return TT_FAIL;
     }
@@ -278,15 +265,12 @@ tt_netif_t *__luid2netif(IN tt_netif_group_t *group, IN NET_LUID *luid)
     NETIO_STATUS nstatus;
 
     nstatus = ConvertInterfaceLuidToNameA(luid, name, sizeof(name));
-    if (nstatus != NETIO_ERROR_SUCCESS) {
-        return NULL;
-    }
+    if (nstatus != NETIO_ERROR_SUCCESS) { return NULL; }
 
     return tt_netif_group_find(group, name);
 }
 
-tt_result_t __netif_update(IN tt_netif_t *netif,
-                           IN PIP_ADAPTER_ADDRESSES adpt,
+tt_result_t __netif_update(IN tt_netif_t *netif, IN PIP_ADAPTER_ADDRESSES adpt,
                            IN tt_u32_t flag)
 {
     PIP_ADAPTER_UNICAST_ADDRESS uni_addr;
@@ -310,47 +294,44 @@ tt_result_t __netif_update(IN tt_netif_t *netif,
         SOCKADDR *sockaddr = uni_addr->Address.lpSockaddr;
 
         switch (sockaddr->sa_family) {
-            case AF_INET: {
-                netif_addr = __find_addr(netif, uni_addr);
+        case AF_INET: {
+            netif_addr = __find_addr(netif, uni_addr);
+            if (netif_addr != NULL) {
+                __addr_update(netif_addr, adpt, uni_addr);
+                netif_addr->internal_flag |= __NETIF_INTERNAL_TOUCHED;
+            } else {
+                netif_addr = tt_netif_addr_create(TT_NET_AF_INET);
                 if (netif_addr != NULL) {
                     __addr_update(netif_addr, adpt, uni_addr);
                     netif_addr->internal_flag |= __NETIF_INTERNAL_TOUCHED;
-                } else {
-                    netif_addr = tt_netif_addr_create(TT_NET_AF_INET);
-                    if (netif_addr != NULL) {
-                        __addr_update(netif_addr, adpt, uni_addr);
-                        netif_addr->internal_flag |= __NETIF_INTERNAL_TOUCHED;
-                        tt_list_push_tail(&netif->addr_list, &netif_addr->node);
-                    }
+                    tt_list_push_tail(&netif->addr_list, &netif_addr->node);
                 }
-            } break;
-            case AF_INET6: {
-                if ((sockaddr->sa_family == AF_INET6) &&
-                    (flag & __NIF_UPDT_NO_IPV6_LINK_LOCAL)) {
-                    tt_u8_t *__u8 =
-                        ((SOCKADDR_IN6 *)sockaddr)->sin6_addr.u.Byte;
+            }
+        } break;
+        case AF_INET6: {
+            if ((sockaddr->sa_family == AF_INET6) &&
+                (flag & __NIF_UPDT_NO_IPV6_LINK_LOCAL)) {
+                tt_u8_t *__u8 = ((SOCKADDR_IN6 *)sockaddr)->sin6_addr.u.Byte;
 
-                    if ((__u8[0] == 0xFE) && (__u8[1] == 0x80)) {
-                        break;
-                    }
-                }
+                if ((__u8[0] == 0xFE) && (__u8[1] == 0x80)) { break; }
+            }
 
-                netif_addr = __find_addr6(netif, uni_addr);
+            netif_addr = __find_addr6(netif, uni_addr);
+            if (netif_addr != NULL) {
+                __addr6_update(netif_addr, adpt, uni_addr);
+                netif_addr->internal_flag |= __NETIF_INTERNAL_TOUCHED;
+            } else {
+                netif_addr = tt_netif_addr_create(TT_NET_AF_INET6);
                 if (netif_addr != NULL) {
                     __addr6_update(netif_addr, adpt, uni_addr);
                     netif_addr->internal_flag |= __NETIF_INTERNAL_TOUCHED;
-                } else {
-                    netif_addr = tt_netif_addr_create(TT_NET_AF_INET6);
-                    if (netif_addr != NULL) {
-                        __addr6_update(netif_addr, adpt, uni_addr);
-                        netif_addr->internal_flag |= __NETIF_INTERNAL_TOUCHED;
-                        tt_list_push_tail(&netif->addr_list, &netif_addr->node);
-                    }
+                    tt_list_push_tail(&netif->addr_list, &netif_addr->node);
                 }
-            } break;
+            }
+        } break;
 
-            default: {
-            } break;
+        default: {
+        } break;
         }
     }
 
@@ -375,60 +356,60 @@ tt_result_t __netif_update(IN tt_netif_t *netif,
 void __type_map(IN DWORD IfType, IN DWORD flags, IN tt_netif_t *netif)
 {
     switch (IfType) {
-        case IF_TYPE_ETHERNET_CSMACD: {
-            netif->type = TT_NETIF_TYPE_ETHERNET;
-            netif->broadcast = TT_TRUE;
-            netif->loopback = TT_FALSE;
-            netif->p2p = TT_FALSE;
-        } break;
-        case IF_TYPE_ISO88025_TOKENRING: {
-            netif->type = TT_NETIF_TYPE_TOKEN_RING;
-            netif->broadcast = TT_TRUE;
-            netif->loopback = TT_FALSE;
-            netif->p2p = TT_FALSE;
-        } break;
-        case IF_TYPE_PPP: {
-            netif->type = TT_NETIF_TYPE_PPP;
-            netif->broadcast = TT_FALSE;
-            netif->loopback = TT_FALSE;
-            netif->p2p = TT_TRUE;
-        } break;
-        case IF_TYPE_SOFTWARE_LOOPBACK: {
-            netif->type = TT_NETIF_TYPE_LOOPBACK;
-            netif->broadcast = TT_FALSE;
-            netif->loopback = TT_TRUE;
-            netif->p2p = TT_FALSE;
-        } break;
-        case IF_TYPE_ATM: {
-            netif->type = TT_NETIF_TYPE_ATM;
-            netif->broadcast = TT_FALSE;
-            netif->loopback = TT_FALSE;
-            netif->p2p = TT_TRUE;
-        } break;
-        case IF_TYPE_IEEE80211: {
-            netif->type = TT_NETIF_TYPE_IEEE80211;
-            netif->broadcast = TT_TRUE;
-            netif->loopback = TT_FALSE;
-            netif->p2p = TT_FALSE;
-        } break;
-        case IF_TYPE_IEEE1394: {
-            netif->type = TT_NETIF_TYPE_IEEE1394;
-            netif->broadcast = TT_FALSE;
-            netif->loopback = TT_FALSE;
-            netif->p2p = TT_TRUE;
-        } break;
-        case IF_TYPE_TUNNEL: {
-            netif->type = TT_NETIF_TYPE_TUNNEL;
-            netif->broadcast = TT_FALSE;
-            netif->loopback = TT_FALSE;
-            netif->p2p = TT_TRUE;
-        } break;
-        default: {
-            netif->type = TT_NETIF_TYPE_OTHER;
-            netif->broadcast = TT_FALSE;
-            netif->loopback = TT_FALSE;
-            netif->p2p = TT_FALSE;
-        } break;
+    case IF_TYPE_ETHERNET_CSMACD: {
+        netif->type = TT_NETIF_TYPE_ETHERNET;
+        netif->broadcast = TT_TRUE;
+        netif->loopback = TT_FALSE;
+        netif->p2p = TT_FALSE;
+    } break;
+    case IF_TYPE_ISO88025_TOKENRING: {
+        netif->type = TT_NETIF_TYPE_TOKEN_RING;
+        netif->broadcast = TT_TRUE;
+        netif->loopback = TT_FALSE;
+        netif->p2p = TT_FALSE;
+    } break;
+    case IF_TYPE_PPP: {
+        netif->type = TT_NETIF_TYPE_PPP;
+        netif->broadcast = TT_FALSE;
+        netif->loopback = TT_FALSE;
+        netif->p2p = TT_TRUE;
+    } break;
+    case IF_TYPE_SOFTWARE_LOOPBACK: {
+        netif->type = TT_NETIF_TYPE_LOOPBACK;
+        netif->broadcast = TT_FALSE;
+        netif->loopback = TT_TRUE;
+        netif->p2p = TT_FALSE;
+    } break;
+    case IF_TYPE_ATM: {
+        netif->type = TT_NETIF_TYPE_ATM;
+        netif->broadcast = TT_FALSE;
+        netif->loopback = TT_FALSE;
+        netif->p2p = TT_TRUE;
+    } break;
+    case IF_TYPE_IEEE80211: {
+        netif->type = TT_NETIF_TYPE_IEEE80211;
+        netif->broadcast = TT_TRUE;
+        netif->loopback = TT_FALSE;
+        netif->p2p = TT_FALSE;
+    } break;
+    case IF_TYPE_IEEE1394: {
+        netif->type = TT_NETIF_TYPE_IEEE1394;
+        netif->broadcast = TT_FALSE;
+        netif->loopback = TT_FALSE;
+        netif->p2p = TT_TRUE;
+    } break;
+    case IF_TYPE_TUNNEL: {
+        netif->type = TT_NETIF_TYPE_TUNNEL;
+        netif->broadcast = TT_FALSE;
+        netif->loopback = TT_FALSE;
+        netif->p2p = TT_TRUE;
+    } break;
+    default: {
+        netif->type = TT_NETIF_TYPE_OTHER;
+        netif->broadcast = TT_FALSE;
+        netif->loopback = TT_FALSE;
+        netif->p2p = TT_FALSE;
+    } break;
     }
 
     netif->multicast = TT_BOOL(!(flags & IP_ADAPTER_NO_MULTICAST));

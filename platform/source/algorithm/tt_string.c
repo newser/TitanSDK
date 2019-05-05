@@ -49,8 +49,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_string_create(IN tt_string_t *str,
-                             IN const tt_char_t *cstr,
+tt_result_t tt_string_create(IN tt_string_t *str, IN const tt_char_t *cstr,
                              IN OPT tt_string_attr_t *attr)
 {
     tt_buf_t *buf = &str->buf;
@@ -70,10 +69,8 @@ tt_result_t tt_string_create(IN tt_string_t *str,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_string_create_sub(IN tt_string_t *str,
-                                 IN const tt_char_t *cstr,
-                                 IN tt_u32_t from,
-                                 IN tt_u32_t len,
+tt_result_t tt_string_create_sub(IN tt_string_t *str, IN const tt_char_t *cstr,
+                                 IN tt_u32_t from, IN tt_u32_t len,
                                  IN OPT tt_string_attr_t *attr)
 {
     tt_buf_t *buf = &str->buf;
@@ -84,18 +81,14 @@ tt_result_t tt_string_create_sub(IN tt_string_t *str,
         TT_ERROR("invalid from[%u], len[%u]", from, n);
         return TT_FAIL;
     }
-    if ((from + len) > n) {
-        len = n - from;
-    }
+    if ((from + len) > n) { len = n - from; }
 
     if (attr == NULL) {
         tt_string_attr_default(&__attr);
         attr = &__attr;
     }
 
-    if (!TT_OK(tt_buf_create_copy(buf,
-                                  (tt_u8_t *)cstr + from,
-                                  len,
+    if (!TT_OK(tt_buf_create_copy(buf, (tt_u8_t *)cstr + from, len,
                                   &attr->buf_attr))) {
         return TT_FAIL;
     }
@@ -142,15 +135,12 @@ void tt_string_attr_default(IN tt_string_attr_t *attr)
 tt_result_t tt_string_set(IN tt_string_t *str, IN const tt_char_t *cstr)
 {
     tt_buf_clear(&str->buf);
-    return tt_buf_put(&str->buf,
-                      (tt_u8_t *)cstr,
+    return tt_buf_put(&str->buf, (tt_u8_t *)cstr,
                       (tt_u32_t)tt_strlen(cstr) + 1);
 }
 
-tt_result_t tt_string_set_sub(IN tt_string_t *str,
-                              IN const tt_char_t *cstr,
-                              IN tt_u32_t from,
-                              IN tt_u32_t len)
+tt_result_t tt_string_set_sub(IN tt_string_t *str, IN const tt_char_t *cstr,
+                              IN tt_u32_t from, IN tt_u32_t len)
 {
     tt_buf_t *buf = &str->buf;
     tt_u32_t n = (tt_u32_t)tt_strlen(cstr);
@@ -159,9 +149,7 @@ tt_result_t tt_string_set_sub(IN tt_string_t *str,
         TT_ERROR("invalid from[%u], len[%u]", from, n);
         return TT_FAIL;
     }
-    if ((from + len) > n) {
-        len = n - from;
-    }
+    if ((from + len) > n) { len = n - from; }
 
     tt_buf_clear(buf);
     TT_DO(tt_buf_put(buf, (tt_u8_t *)cstr + from, len));
@@ -169,8 +157,7 @@ tt_result_t tt_string_set_sub(IN tt_string_t *str,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_string_setfrom(IN tt_string_t *str,
-                              IN tt_u32_t from,
+tt_result_t tt_string_setfrom(IN tt_string_t *str, IN tt_u32_t from,
                               IN const tt_char_t *cstr)
 {
     tt_buf_t *buf = &str->buf;
@@ -186,8 +173,7 @@ tt_result_t tt_string_setfrom(IN tt_string_t *str,
     return tt_buf_put(buf, (tt_u8_t *)cstr, (tt_u32_t)tt_strlen(cstr) + 1);
 }
 
-tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
-                                IN tt_u32_t from,
+tt_result_t tt_string_setfrom_c(IN tt_string_t *str, IN tt_u32_t from,
                                 IN tt_char_t c)
 {
     tt_buf_t *buf = &str->buf;
@@ -201,10 +187,8 @@ tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_string_set_range_n(IN tt_string_t *str,
-                                  IN tt_u32_t from,
-                                  IN tt_u32_t len,
-                                  IN const tt_char_t *cstr,
+tt_result_t tt_string_set_range_n(IN tt_string_t *str, IN tt_u32_t from,
+                                  IN tt_u32_t len, IN const tt_char_t *cstr,
                                   IN tt_u32_t cstr_len)
 {
     tt_u32_t n = tt_string_len(str);
@@ -237,8 +221,7 @@ void tt_string_print(IN tt_string_t *str, IN tt_u32_t flag)
     TT_INFO("%s", TT_BUF_RPOS(&str->buf));
 }
 
-const tt_char_t *tt_string_subcstr(IN tt_string_t *str,
-                                   IN tt_u32_t from,
+const tt_char_t *tt_string_subcstr(IN tt_string_t *str, IN tt_u32_t from,
                                    OUT OPT tt_u32_t *subcstr_len)
 {
     tt_u32_t len = tt_string_len(str);

@@ -89,9 +89,7 @@ void tt_ptrstk_destroy(IN tt_ptrstk_t *pstk)
         tt_free(TT_CONTAINER(dnode, __frame_t, node));
     }
 
-    if (pstk->cached_frame != NULL) {
-        tt_free(pstk->cached_frame);
-    }
+    if (pstk->cached_frame != NULL) { tt_free(pstk->cached_frame); }
 }
 
 void tt_ptrstk_attr_default(IN tt_ptrstk_attr_t *attr)
@@ -126,17 +124,13 @@ tt_result_t tt_ptrstk_push(IN tt_ptrstk_t *pstk, IN tt_ptr_t p)
         frame = TT_CONTAINER(dnode, __frame_t, node);
     } else {
         frame = __alloc_frame(pstk);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_tail(&pstk->frame, &frame->node);
     }
 
     if (frame->top == pstk->ptr_per_frame) {
         frame = __alloc_frame(pstk);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_tail(&pstk->frame, &frame->node);
     }
     TT_ASSERT(frame->top < pstk->ptr_per_frame);
@@ -155,9 +149,7 @@ tt_ptr_t tt_ptrstk_pop(IN tt_ptrstk_t *pstk)
     tt_ptr_t p;
 
     dnode = tt_dlist_tail(&pstk->frame);
-    if (dnode == NULL) {
-        return NULL;
-    }
+    if (dnode == NULL) { return NULL; }
 
     frame = TT_CONTAINER(dnode, __frame_t, node);
     TT_ASSERT(frame->top > 0);
@@ -179,9 +171,7 @@ tt_ptr_t tt_ptrstk_top(IN tt_ptrstk_t *pstk)
     __frame_t *frame;
 
     dnode = tt_dlist_tail(&pstk->frame);
-    if (dnode == NULL) {
-        return NULL;
-    }
+    if (dnode == NULL) { return NULL; }
 
     frame = TT_CONTAINER(dnode, __frame_t, node);
     TT_ASSERT(frame->top > 0);
@@ -209,9 +199,7 @@ tt_ptr_t tt_ptrstk_iter_next(IN OUT tt_ptrstk_iter_t *iter)
     __frame_t *frame = iter->frame;
     tt_ptr_t p;
 
-    if (frame == NULL) {
-        return NULL;
-    }
+    if (frame == NULL) { return NULL; }
 
     TT_ASSERT(iter->idx <= frame->top);
     if (iter->idx == frame->top) {

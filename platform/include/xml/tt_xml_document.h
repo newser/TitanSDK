@@ -50,7 +50,8 @@ typedef struct tt_xdoc_s
     tt_ptr_t p;
 } tt_xdoc_t;
 
-typedef enum {
+typedef enum
+{
     TT_XDOC_AUTO,
     TT_XDOC_UTF8,
     TT_XDOC_UTF16_LE,
@@ -110,8 +111,7 @@ tt_export void tt_xdoc_destroy(IN tt_xdoc_t *xd);
 
 tt_export void tt_xdoc_parse_attr_default(IN tt_xdoc_parse_attr_t *attr);
 
-tt_export tt_result_t tt_xdoc_parse(IN tt_xdoc_t *xd,
-                                    IN tt_u8_t *buf,
+tt_export tt_result_t tt_xdoc_parse(IN tt_xdoc_t *xd, IN tt_u8_t *buf,
                                     IN tt_u32_t len,
                                     IN OPT tt_xdoc_parse_attr_t *attr);
 
@@ -121,8 +121,7 @@ tt_export tt_result_t tt_xdoc_parse_file(IN tt_xdoc_t *xd,
 
 tt_export void tt_xdoc_render_attr_default(IN tt_xdoc_render_attr_t *attr);
 
-tt_export tt_result_t tt_xdoc_render(IN tt_xdoc_t *xd,
-                                     IN tt_u8_t *buf,
+tt_export tt_result_t tt_xdoc_render(IN tt_xdoc_t *xd, IN tt_u8_t *buf,
                                      IN tt_u32_t len,
                                      IN OPT tt_xdoc_render_attr_t *attr);
 
@@ -134,24 +133,18 @@ tt_export tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
 // xml path
 // ========================================
 
-tt_export void tt_xdoc_select(IN tt_xdoc_t *xd,
-                              IN const tt_char_t *xp,
+tt_export void tt_xdoc_select(IN tt_xdoc_t *xd, IN const tt_char_t *xp,
                               IN OPT struct tt_xpvars_s *xpvs,
-                              OUT tt_xnode_t *o_xn,
-                              OUT tt_xattr_t *o_xa);
+                              OUT tt_xnode_t *o_xn, OUT tt_xattr_t *o_xa);
 
-tt_export void tt_xdoc_select_all(IN tt_xdoc_t *xd,
-                                  IN const tt_char_t *xp,
+tt_export void tt_xdoc_select_all(IN tt_xdoc_t *xd, IN const tt_char_t *xp,
                                   IN OPT struct tt_xpvars_s *xpvs,
                                   OUT struct tt_xpnodes_s *xpns);
 
-tt_export void tt_xdoc_selectxp(IN tt_xdoc_t *xd,
-                                IN struct tt_xpath_s *xp,
-                                OUT tt_xnode_t *o_xn,
-                                OUT tt_xattr_t *o_xa);
+tt_export void tt_xdoc_selectxp(IN tt_xdoc_t *xd, IN struct tt_xpath_s *xp,
+                                OUT tt_xnode_t *o_xn, OUT tt_xattr_t *o_xa);
 
-tt_export void tt_xdoc_selectxp_all(IN tt_xdoc_t *xd,
-                                    IN struct tt_xpath_s *xp,
+tt_export void tt_xdoc_selectxp_all(IN tt_xdoc_t *xd, IN struct tt_xpath_s *xp,
                                     OUT struct tt_xpnodes_s *xpns);
 
 tt_export tt_bool_t tt_xdoc_eval_bool(IN tt_xdoc_t *xd,
@@ -160,9 +153,7 @@ tt_export tt_bool_t tt_xdoc_eval_bool(IN tt_xdoc_t *xd,
 tt_export tt_double_t tt_xdoc_eval_number(IN tt_xdoc_t *xd,
                                           IN struct tt_xpath_s *xp);
 
-tt_export tt_u32_t tt_xdoc_eval_cstr(IN tt_xdoc_t *xd,
-                                     IN struct tt_xpath_s *xp,
-                                     OUT tt_char_t *buf,
-                                     IN tt_u32_t len);
+tt_export tt_u32_t tt_xdoc_eval_cstr(IN tt_xdoc_t *xd, IN struct tt_xpath_s *xp,
+                                     OUT tt_char_t *buf, IN tt_u32_t len);
 
 #endif /* __TT_XML_DOCUMENT__ */

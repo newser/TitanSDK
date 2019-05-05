@@ -72,7 +72,8 @@ void tt_param_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __param_component_init, __param_component_exit,
+        __param_component_init,
+        __param_component_exit,
     };
 
     // init component
@@ -93,12 +94,9 @@ tt_result_t tt_param_add2platform(IN tt_param_t *co)
                             co);
 }
 
-tt_param_t *tt_param_create(IN tt_u32_t len,
-                            IN tt_param_type_t type,
-                            IN const tt_char_t *name,
-                            IN tt_param_itf_t *itf,
-                            IN OPT void *opaque,
-                            IN OPT tt_param_attr_t *attr)
+tt_param_t *tt_param_create(IN tt_u32_t len, IN tt_param_type_t type,
+                            IN const tt_char_t *name, IN tt_param_itf_t *itf,
+                            IN OPT void *opaque, IN OPT tt_param_attr_t *attr)
 {
     tt_param_t *p;
     tt_param_attr_t __attr;
@@ -107,9 +105,7 @@ tt_param_t *tt_param_create(IN tt_u32_t len,
     TT_ASSERT(name != NULL);
     TT_ASSERT(itf != NULL);
 
-    if (!__name_ok(name)) {
-        return NULL;
-    }
+    if (!__name_ok(name)) { return NULL; }
 
     if (attr == NULL) {
         tt_param_attr_default(&__attr);
@@ -146,9 +142,7 @@ void tt_param_destroy(IN tt_param_t *p)
 {
     TT_ASSERT(p != NULL);
 
-    if (p->itf->on_destroy != NULL) {
-        p->itf->on_destroy(p);
-    }
+    if (p->itf->on_destroy != NULL) { p->itf->on_destroy(p); }
 
     tt_free(p);
 }
@@ -173,24 +167,19 @@ tt_result_t tt_param_read(IN tt_param_t *p, OUT tt_buf_t *output)
     TT_ASSERT(p->itf != NULL);
     TT_ASSERT(output != NULL);
 
-    if (!p->can_read || (p->itf->read == NULL)) {
-        return TT_E_UNSUPPORT;
-    }
+    if (!p->can_read || (p->itf->read == NULL)) { return TT_E_UNSUPPORT; }
 
     return p->itf->read(p, output);
 }
 
-tt_result_t tt_param_write(IN tt_param_t *p,
-                           IN tt_u8_t *val,
+tt_result_t tt_param_write(IN tt_param_t *p, IN tt_u8_t *val,
                            IN tt_u32_t val_len)
 {
     TT_ASSERT(p != NULL);
     TT_ASSERT(p->itf != NULL);
     TT_ASSERT(val != NULL);
 
-    if (!p->can_write || (p->itf->write == NULL)) {
-        return TT_E_UNSUPPORT;
-    }
+    if (!p->can_write || (p->itf->write == NULL)) { return TT_E_UNSUPPORT; }
 
     return p->itf->write(p, val, val_len);
 }
@@ -199,9 +188,7 @@ tt_param_t *tt_param_parent(IN tt_param_t *p)
 {
     tt_param_dir_t *cdir;
 
-    if (p->node.lst == NULL) {
-        return NULL;
-    }
+    if (p->node.lst == NULL) { return NULL; }
     cdir = TT_CONTAINER(p->node.lst, tt_param_dir_t, child);
 
     return TT_PARAM_OF(cdir);
@@ -209,9 +196,7 @@ tt_param_t *tt_param_parent(IN tt_param_t *p)
 
 tt_param_t *tt_param_find_tid(IN tt_param_t *p, IN tt_s32_t tid)
 {
-    if (p->tid == tid) {
-        return p;
-    }
+    if (p->tid == tid) { return p; }
 
     return TT_COND(p->type == TT_PARAM_DIR,
                    tt_param_dir_find_tid(TT_PARAM_CAST(p, tt_param_dir_t), tid),

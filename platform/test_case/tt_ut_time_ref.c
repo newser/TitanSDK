@@ -53,14 +53,8 @@ TT_TEST_ROUTINE_DECLARE(case_time_ref_basic)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(time_ref_case)
 
-TT_TEST_CASE("case_time_abs_basic",
-             "testing basic time ref API",
-             case_time_ref_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_time_abs_basic", "testing basic time ref API",
+             case_time_ref_basic, NULL, NULL, NULL, NULL, NULL)
 ,
 
     TT_TEST_CASE_LIST_DEFINE_END(time_ref_case)
@@ -147,7 +141,7 @@ TT_TEST_ROUTINE_DEFINE(case_time_ref_basic)
     tt_u32_t i;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #ifdef _WIN32
     __bm();

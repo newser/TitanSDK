@@ -51,10 +51,8 @@ this file specifies hash map APIs
 ////////////////////////////////////////////////////////////
 
 // return false if want to stop
-typedef tt_bool_t (*tt_ptrhmap_action_t)(IN tt_u8_t *key,
-                                         IN tt_u32_t key_len,
-                                         IN tt_ptr_t ptr,
-                                         IN void *param);
+typedef tt_bool_t (*tt_ptrhmap_action_t)(IN tt_u8_t *key, IN tt_u32_t key_len,
+                                         IN tt_ptr_t ptr, IN void *param);
 
 typedef struct tt_ptrhmap_attr_s
 {
@@ -102,13 +100,11 @@ tt_inline tt_bool_t tt_ptrhmap_empty(IN tt_ptrhmap_t *phm)
     return phm->count == 0 ? TT_TRUE : TT_FALSE;
 }
 
-tt_export tt_ptr_t tt_ptrhmap_find(IN tt_ptrhmap_t *phm,
-                                   IN tt_u8_t *key,
+tt_export tt_ptr_t tt_ptrhmap_find(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
                                    IN tt_u32_t key_len);
 
 tt_inline tt_bool_t tt_ptrhmap_contain_key(IN tt_ptrhmap_t *phm,
-                                           IN tt_u8_t *key,
-                                           IN tt_u32_t key_len)
+                                           IN tt_u8_t *key, IN tt_u32_t key_len)
 {
     return tt_ptrhmap_find(phm, key, key_len) != NULL ? TT_TRUE : TT_FALSE;
 }
@@ -116,29 +112,24 @@ tt_inline tt_bool_t tt_ptrhmap_contain_key(IN tt_ptrhmap_t *phm,
 tt_export tt_bool_t tt_ptrhmap_contain_ptr(IN tt_ptrhmap_t *phm,
                                            IN tt_ptr_t ptr);
 
-tt_export tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm,
-                                     IN tt_u8_t *key,
-                                     IN tt_u32_t key_len,
-                                     IN tt_ptr_t ptr);
+tt_export tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
+                                     IN tt_u32_t key_len, IN tt_ptr_t ptr);
 
-tt_export tt_bool_t tt_ptrhmap_remove_key(IN tt_ptrhmap_t *phm,
-                                          IN tt_u8_t *key,
+tt_export tt_bool_t tt_ptrhmap_remove_key(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
                                           IN tt_u32_t key_len);
 
 tt_export tt_bool_t tt_ptrhmap_remove_ptr(IN tt_ptrhmap_t *phm,
                                           IN tt_ptr_t ptr);
 
 tt_export tt_bool_t tt_ptrhmap_remove_pair(IN tt_ptrhmap_t *phm,
-                                           IN tt_u8_t *key,
-                                           IN tt_u32_t key_len,
+                                           IN tt_u8_t *key, IN tt_u32_t key_len,
                                            IN tt_ptr_t ptr);
 
 tt_export void tt_ptrhmap_foreach(IN tt_ptrhmap_t *phm,
                                   IN tt_ptrhmap_action_t action,
                                   IN void *param);
 
-tt_export tt_bool_t tt_ptrhmap_replace(IN tt_ptrhmap_t *phm,
-                                       IN tt_u8_t *key,
+tt_export tt_bool_t tt_ptrhmap_replace(IN tt_ptrhmap_t *phm, IN tt_u8_t *key,
                                        IN tt_u32_t key_len,
                                        IN tt_ptr_t new_ptr);
 

@@ -61,11 +61,8 @@ static void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
 static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
-static tt_http_inserv_itf_t s_host_itf = {NULL,
-                                          NULL,
-                                          __create_ctx,
-                                          __destroy_ctx,
-                                          __clear_ctx};
+static tt_http_inserv_itf_t s_host_itf = {NULL, NULL, __create_ctx,
+                                          __destroy_ctx, __clear_ctx};
 
 static tt_http_inserv_action_t __s_host_on_hdr(IN tt_http_inserv_t *s,
                                                IN void *ctx,
@@ -92,9 +89,7 @@ tt_result_t tt_http_inserv_host_component_init(IN tt_component_t *comp,
     tt_http_inserv_host_attr_default(&attr);
 
     tt_g_http_inserv_host = tt_http_inserv_host_create(&attr);
-    if (tt_g_http_inserv_host == NULL) {
-        return TT_FAIL;
-    }
+    if (tt_g_http_inserv_host == NULL) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -117,12 +112,9 @@ tt_http_inserv_t *tt_http_inserv_host_create(
     }
 
     s = tt_http_inserv_create(TT_HTTP_INSERV_HOST,
-                              sizeof(tt_http_inserv_host_t),
-                              &s_host_itf,
+                              sizeof(tt_http_inserv_host_t), &s_host_itf,
                               &s_host_cb);
-    if (s == NULL) {
-        return NULL;
-    }
+    if (s == NULL) { return NULL; }
 
     sh = TT_HTTP_INSERV_CAST(s, tt_http_inserv_host_t);
 
@@ -185,9 +177,7 @@ void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx)
 {
     tt_http_inserv_host_ctx_t *c = (tt_http_inserv_host_ctx_t *)ctx;
 
-    if (c->auth != NULL) {
-        tt_http_inserv_release(c->auth);
-    }
+    if (c->auth != NULL) { tt_http_inserv_release(c->auth); }
 }
 
 void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
@@ -197,8 +187,7 @@ void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
     tt_http_inserv_host_ctx_clear(c);
 }
 
-tt_http_inserv_action_t __s_host_on_hdr(IN tt_http_inserv_t *s,
-                                        IN void *ctx,
+tt_http_inserv_action_t __s_host_on_hdr(IN tt_http_inserv_t *s, IN void *ctx,
                                         IN tt_http_parser_t *req,
                                         OUT tt_http_resp_render_t *resp)
 {
@@ -245,8 +234,7 @@ tt_http_inserv_action_t __s_host_on_hdr(IN tt_http_inserv_t *s,
             goto fail;
         }
 
-        host = tt_http_hostset_match_n(hostset,
-                                       tt_blobex_addr(name),
+        host = tt_http_hostset_match_n(hostset, tt_blobex_addr(name),
                                        tt_blobex_len(name));
         if (host == NULL) {
             // 400, 500, 502?

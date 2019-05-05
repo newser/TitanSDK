@@ -105,10 +105,9 @@ wait a system semaphore
 tt_inline tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem,
                                        IN tt_s64_t wait_ms)
 {
-    DWORD ret = WaitForSingleObject(sys_sem->h_sem,
-                                    TT_COND(wait_ms == TT_TIME_INFINITE,
-                                            INFINITE,
-                                            (DWORD)wait_ms));
+    DWORD ret =
+        WaitForSingleObject(sys_sem->h_sem, TT_COND(wait_ms == TT_TIME_INFINITE,
+                                                    INFINITE, (DWORD)wait_ms));
     if (ret == WAIT_OBJECT_0) {
         return TT_TRUE;
     } else if (ret == WAIT_TIMEOUT) {

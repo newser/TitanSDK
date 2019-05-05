@@ -67,8 +67,7 @@ void tt_param_bs4sidebar_init(IN tt_param_bs4sidebar_t *sb)
 }
 
 tt_result_t tt_param_bs4sidebar_render(IN tt_param_bs4sidebar_t *sb,
-                                       IN tt_param_t *param,
-                                       OUT tt_buf_t *buf)
+                                       IN tt_param_t *param, OUT tt_buf_t *buf)
 {
     tt_param_dir_t *dir;
     tt_param_t *p;
@@ -76,17 +75,12 @@ tt_result_t tt_param_bs4sidebar_render(IN tt_param_bs4sidebar_t *sb,
     TT_ASSERT(param->type == TT_PARAM_DIR);
     dir = TT_PARAM_CAST(param, tt_param_dir_t);
 
-    TT_DO(tt_buf_putf(buf,
-                      __SIDEBAR_START,
-                      sb->nav_class,
-                      tt_param_name(param),
+    TT_DO(tt_buf_putf(buf, __SIDEBAR_START, sb->nav_class, tt_param_name(param),
                       TT_COND(sb->hide, "style=\"display:none\"", "")));
 
     for (p = tt_param_dir_head(dir); p != NULL; p = tt_param_dir_next(p)) {
         if (p->type == TT_PARAM_DIR) {
-            TT_DO(tt_buf_putf(buf,
-                              __SIDEBAR_ENTRY,
-                              tt_param_name(p),
+            TT_DO(tt_buf_putf(buf, __SIDEBAR_ENTRY, tt_param_name(p),
                               __param_display(p)));
         }
     }

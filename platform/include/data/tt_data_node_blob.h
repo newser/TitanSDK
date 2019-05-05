@@ -54,8 +54,7 @@ typedef struct tt_dtnode_blob_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_dtnode_t *tt_dtnode_blob_create(IN void *p,
-                                             IN tt_u32_t len,
+tt_export tt_dtnode_t *tt_dtnode_blob_create(IN void *p, IN tt_u32_t len,
                                              IN tt_bool_t free);
 
 #endif // __TT_DATA_NODE_BLOB__

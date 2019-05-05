@@ -86,8 +86,6 @@ void tt_entropy_destroy(IN tt_entropy_t *entropy)
 tt_entropy_t *tt_current_entropy()
 {
     tt_thread_t *t = tt_current_thread();
-    if (t->entropy == NULL) {
-        t->entropy = tt_entropy_create();
-    }
+    if (t->entropy == NULL) { t->entropy = tt_entropy_create(); }
     return t->entropy;
 }

@@ -47,7 +47,8 @@ typedef struct tt_jdoc_s
     tt_ptr_t p;
 } tt_jdoc_t;
 
-typedef enum {
+typedef enum
+{
     TT_JDOC_AUTO,
     TT_JDOC_UTF8,
     TT_JDOC_UTF16_LE,
@@ -90,8 +91,7 @@ tt_export tt_jval_t *tt_jdoc_get_root(IN tt_jdoc_t *jd);
 
 tt_export void tt_jdoc_set_root(IN tt_jdoc_t *jd, IN TO tt_jval_t *jv);
 
-tt_export tt_result_t tt_jdoc_parse(IN tt_jdoc_t *jd,
-                                    IN void *buf,
+tt_export tt_result_t tt_jdoc_parse(IN tt_jdoc_t *jd, IN void *buf,
                                     IN tt_u32_t len,
                                     IN OPT tt_jdoc_parse_attr_t *attr);
 
@@ -101,8 +101,7 @@ tt_export tt_result_t tt_jdoc_parse_file(IN tt_jdoc_t *jd,
 
 tt_export void tt_jdoc_render_attr_default(IN tt_jdoc_render_attr_t *attr);
 
-tt_export tt_result_t tt_jdoc_render(IN tt_jdoc_t *jd,
-                                     IN struct tt_buf_s *buf,
+tt_export tt_result_t tt_jdoc_render(IN tt_jdoc_t *jd, IN struct tt_buf_s *buf,
                                      IN OPT tt_jdoc_render_attr_t *attr);
 
 tt_export tt_result_t tt_jdoc_render_file(IN tt_jdoc_t *jd,

@@ -46,19 +46,14 @@ this file provided some basic utilities for platform usage
         while ((__failed = (fail_expression)) && (errno == EINTR))             \
             ;                                                                  \
         if (__failed) {                                                        \
-            TT_ERROR_NTV("failed: %s, %d[%s]",                                 \
-                         #fail_expression,                                     \
-                         errno,                                                \
+            TT_ERROR_NTV("failed: %s, %d[%s]", #fail_expression, errno,        \
                          strerror(errno));                                     \
         }                                                                      \
     } while (0)
 
 #define tt_ep_read(epfd, fd, ptr)                                              \
-    tt_epoll((epfd),                                                           \
-             EPOLL_CTL_MOD,                                                    \
-             (fd),                                                             \
-             (EPOLLIN | EPOLLRDHUP | EPOLLONESHOT),                            \
-             (ptr))
+    tt_epoll((epfd), EPOLL_CTL_MOD, (fd),                                      \
+             (EPOLLIN | EPOLLRDHUP | EPOLLONESHOT), (ptr))
 #define tt_ep_unread(epfd, fd, ptr)                                            \
     tt_epoll((epfd), EPOLL_CTL_MOD, (fd), (EPOLLRDHUP | EPOLLONESHOT), (ptr))
 
@@ -66,11 +61,8 @@ this file provided some basic utilities for platform usage
     tt_epoll((epfd), EPOLL_CTL_MOD, (fd), (EPOLLOUT | EPOLLONESHOT), (ptr))
 
 #define tt_ep_read_write(epfd, fd, ptr)                                        \
-    tt_epoll((epfd),                                                           \
-             EPOLL_CTL_MOD,                                                    \
-             (fd),                                                             \
-             (EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLONESHOT),                 \
-             (ptr))
+    tt_epoll((epfd), EPOLL_CTL_MOD, (fd),                                      \
+             (EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLONESHOT), (ptr))
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -84,7 +76,7 @@ this file provided some basic utilities for platform usage
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_epoll(
-    IN int epfd, IN int op, IN int fd, IN uint32_t events, IN void *ptr);
+extern tt_result_t tt_epoll(IN int epfd, IN int op, IN int fd,
+                            IN uint32_t events, IN void *ptr);
 
 #endif /* __TT_UTIL_NATIVE__ */

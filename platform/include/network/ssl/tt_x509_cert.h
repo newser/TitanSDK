@@ -59,8 +59,7 @@ typedef struct tt_x509cert_s
 
 tt_export void tt_x509cert_init(IN tt_x509cert_t *x);
 
-tt_export tt_result_t tt_x509cert_add(IN tt_x509cert_t *x,
-                                      IN tt_u8_t *buf,
+tt_export tt_result_t tt_x509cert_add(IN tt_x509cert_t *x, IN tt_u8_t *buf,
                                       IN tt_u32_t len);
 
 tt_export tt_result_t tt_x509cert_add_file(IN tt_x509cert_t *x,
@@ -78,8 +77,7 @@ tt_export tt_u32_t tt_x509cert_dump_verify_status(IN tt_u32_t status,
                                                   IN tt_char_t *buf,
                                                   IN tt_u32_t len);
 
-tt_export tt_u32_t tt_x509cert_dump(IN tt_x509cert_t *x,
-                                    IN tt_char_t *buf,
+tt_export tt_u32_t tt_x509cert_dump(IN tt_x509cert_t *x, IN tt_char_t *buf,
                                     IN tt_u32_t len);
 
 #endif /* __TT_X509_CERT__ */

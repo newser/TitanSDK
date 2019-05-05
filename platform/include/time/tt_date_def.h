@@ -42,7 +42,8 @@ this file specifies date definitions
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_UTC_MINUS_12_00,
     TT_UTC_MINUS_11_00,
     TT_UTC_MINUS_10_00,
@@ -87,7 +88,8 @@ typedef enum {
 } tt_tmzone_t;
 #define TT_TMZONE_VALID(z) ((z) <= TT_TMZONE_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_JANUARY,
     TT_FEBRUARY,
     TT_MARCH,
@@ -105,7 +107,8 @@ typedef enum {
 } tt_month_t;
 #define TT_MONTH_VALID(m) ((m) < TT_MONTH_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_SUNDAY,
     TT_MONDAY,
     TT_TUESDAY,

@@ -54,17 +54,11 @@ tt_export tt_result_t tt_sshmac_sha1_create(IN struct tt_sshmac_s *mac,
 
 tt_export void tt_sshmac_sha1_destroy(IN struct tt_sshmac_s *mac);
 
-tt_export tt_result_t tt_sshmac_sha1_sign(IN struct tt_sshmac_s *mac,
-                                          IN tt_u32_t seq_number,
-                                          IN tt_u8_t *data,
-                                          IN tt_u32_t data_len,
-                                          OUT tt_u8_t *signature,
-                                          IN tt_u32_t signature_len);
-tt_export tt_result_t tt_sshmac_sha1_verify(IN struct tt_sshmac_s *mac,
-                                            IN tt_u32_t seq_number,
-                                            IN tt_u8_t *data,
-                                            IN tt_u32_t data_len,
-                                            OUT tt_u8_t *signature,
-                                            IN tt_u32_t signature_len);
+tt_export tt_result_t tt_sshmac_sha1_sign(
+    IN struct tt_sshmac_s *mac, IN tt_u32_t seq_number, IN tt_u8_t *data,
+    IN tt_u32_t data_len, OUT tt_u8_t *signature, IN tt_u32_t signature_len);
+tt_export tt_result_t tt_sshmac_sha1_verify(
+    IN struct tt_sshmac_s *mac, IN tt_u32_t seq_number, IN tt_u8_t *data,
+    IN tt_u32_t data_len, OUT tt_u8_t *signature, IN tt_u32_t signature_len);
 
 #endif /* __TT_SSH_MAC_SHA__ */

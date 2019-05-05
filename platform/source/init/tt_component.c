@@ -63,10 +63,8 @@ static __comp_status_t __comp_table[TT_COMPONENT_NUM];
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_component_init(IN tt_component_t *comp,
-                       IN tt_component_id_t cid,
-                       IN const tt_char_t *name,
-                       IN void *opaque,
+void tt_component_init(IN tt_component_t *comp, IN tt_component_id_t cid,
+                       IN const tt_char_t *name, IN void *opaque,
                        IN tt_component_itf_t *itf)
 {
     tt_memset(comp, 0, sizeof(tt_component_t));

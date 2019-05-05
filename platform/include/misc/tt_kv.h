@@ -82,18 +82,14 @@ tt_inline tt_result_t tt_kv_own(IN tt_kv_t *kv)
     }
 }
 
-tt_inline tt_result_t tt_kv_set_key(IN tt_kv_t *kv,
-                                    IN OPT tt_u8_t *addr,
-                                    IN tt_u32_t len,
-                                    IN tt_bool_t owner)
+tt_inline tt_result_t tt_kv_set_key(IN tt_kv_t *kv, IN OPT tt_u8_t *addr,
+                                    IN tt_u32_t len, IN tt_bool_t owner)
 {
     return tt_blobex_set(&kv->key, addr, len, owner);
 }
 
-tt_inline tt_result_t tt_kv_set_val(IN tt_kv_t *kv,
-                                    IN OPT tt_u8_t *addr,
-                                    IN tt_u32_t len,
-                                    IN tt_bool_t owner)
+tt_inline tt_result_t tt_kv_set_val(IN tt_kv_t *kv, IN OPT tt_u8_t *addr,
+                                    IN tt_u32_t len, IN tt_bool_t owner)
 {
     return tt_blobex_set(&kv->val, addr, len, owner);
 }

@@ -103,10 +103,8 @@ static mbedtls_cipher_type_t ___cipher_type_map[TT_CIPHER_TYPE_NUM] = {
 };
 
 static mbedtls_cipher_padding_t ___cipher_padding_map[TT_PADDING_NUM] = {
-    MBEDTLS_PADDING_PKCS7,
-    MBEDTLS_PADDING_ONE_AND_ZEROS,
-    MBEDTLS_PADDING_ZEROS_AND_LEN,
-    MBEDTLS_PADDING_ZEROS,
+    MBEDTLS_PADDING_PKCS7,         MBEDTLS_PADDING_ONE_AND_ZEROS,
+    MBEDTLS_PADDING_ZEROS_AND_LEN, MBEDTLS_PADDING_ZEROS,
     MBEDTLS_PADDING_NONE,
 };
 
@@ -118,10 +116,8 @@ static mbedtls_cipher_padding_t ___cipher_padding_map[TT_PADDING_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_cipher_setup(IN tt_cipher_t *cipher,
-                            IN tt_cipher_type_t type,
-                            IN tt_bool_t encrypt,
-                            IN tt_u8_t *key,
+tt_result_t tt_cipher_setup(IN tt_cipher_t *cipher, IN tt_cipher_type_t type,
+                            IN tt_bool_t encrypt, IN tt_u8_t *key,
                             IN tt_u32_t len)
 {
     int e;
@@ -129,17 +125,14 @@ tt_result_t tt_cipher_setup(IN tt_cipher_t *cipher,
     TT_ASSERT(cipher != NULL);
     TT_ASSERT(TT_CIPHER_TYPE_VALID(type));
 
-    e = mbedtls_cipher_setup(&cipher->ctx,
-                             mbedtls_cipher_info_from_type(
-                                 ___cipher_type_map[type]));
+    e = mbedtls_cipher_setup(&cipher->ctx, mbedtls_cipher_info_from_type(
+                                               ___cipher_type_map[type]));
     if (e != 0) {
         tt_crypto_error("fail to setup cipher");
         return TT_FAIL;
     }
 
-    e = mbedtls_cipher_setkey(&cipher->ctx,
-                              key,
-                              len << 3,
+    e = mbedtls_cipher_setkey(&cipher->ctx, key, len << 3,
                               encrypt ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT);
     if (e != 0) {
         tt_crypto_error("fail to set cipher key");
@@ -149,8 +142,7 @@ tt_result_t tt_cipher_setup(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_set_iv(IN tt_cipher_t *cipher,
-                             IN tt_u8_t *iv,
+tt_result_t tt_cipher_set_iv(IN tt_cipher_t *cipher, IN tt_u8_t *iv,
                              IN tt_u32_t len)
 {
     int e;
@@ -179,8 +171,7 @@ tt_result_t tt_cipher_set_pad(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_set_aad(IN tt_cipher_t *cipher,
-                              IN tt_u8_t *aad,
+tt_result_t tt_cipher_set_aad(IN tt_cipher_t *cipher, IN tt_u8_t *aad,
                               IN tt_u32_t len)
 {
     int e;
@@ -194,10 +185,8 @@ tt_result_t tt_cipher_set_aad(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_update(IN tt_cipher_t *cipher,
-                             IN tt_u8_t *input,
-                             IN tt_u32_t ilen,
-                             IN tt_u8_t *output,
+tt_result_t tt_cipher_update(IN tt_cipher_t *cipher, IN tt_u8_t *input,
+                             IN tt_u32_t ilen, IN tt_u8_t *output,
                              IN tt_u32_t *olen)
 {
     size_t i_n = ilen, o_n = *olen;
@@ -213,8 +202,7 @@ tt_result_t tt_cipher_update(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_finish(IN tt_cipher_t *cipher,
-                             IN tt_u8_t *output,
+tt_result_t tt_cipher_finish(IN tt_cipher_t *cipher, IN tt_u8_t *output,
                              IN tt_u32_t *olen)
 {
     size_t o_n = *olen;
@@ -230,8 +218,7 @@ tt_result_t tt_cipher_finish(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_tag(IN tt_cipher_t *cipher,
-                          IN tt_u8_t *tag,
+tt_result_t tt_cipher_tag(IN tt_cipher_t *cipher, IN tt_u8_t *tag,
                           IN tt_u32_t len)
 {
     int e;
@@ -245,8 +232,7 @@ tt_result_t tt_cipher_tag(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_auth(IN tt_cipher_t *cipher,
-                           IN tt_u8_t *tag,
+tt_result_t tt_cipher_auth(IN tt_cipher_t *cipher, IN tt_u8_t *tag,
                            IN tt_u32_t len)
 {
     int e;
@@ -260,18 +246,15 @@ tt_result_t tt_cipher_auth(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_update_buf(IN tt_cipher_t *cipher,
-                                 IN tt_u8_t *input,
-                                 IN tt_u32_t ilen,
-                                 IN tt_buf_t *obuf)
+tt_result_t tt_cipher_update_buf(IN tt_cipher_t *cipher, IN tt_u8_t *input,
+                                 IN tt_u32_t ilen, IN tt_buf_t *obuf)
 {
     tt_u8_t *output;
     size_t olen;
     int e;
 
-    if (!TT_OK(tt_buf_reserve(obuf,
-                              ilen + mbedtls_cipher_get_block_size(
-                                         &cipher->ctx)))) {
+    if (!TT_OK(tt_buf_reserve(obuf, ilen + mbedtls_cipher_get_block_size(
+                                               &cipher->ctx)))) {
         TT_ERROR("fail to reserve output space");
         return TT_FAIL;
     }
@@ -312,32 +295,18 @@ tt_result_t tt_cipher_finish_buf(IN tt_cipher_t *cipher, IN tt_buf_t *obuf)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_encrypt_tag(IN tt_cipher_t *cipher,
-                                  IN tt_u8_t *iv,
-                                  IN tt_u32_t iv_len,
-                                  IN tt_u8_t *aad,
-                                  IN tt_u32_t ad_len,
-                                  IN tt_u8_t *input,
-                                  IN tt_u32_t ilen,
-                                  IN tt_u8_t *output,
-                                  IN tt_u32_t *olen,
-                                  IN tt_u8_t *tag,
+tt_result_t tt_cipher_encrypt_tag(IN tt_cipher_t *cipher, IN tt_u8_t *iv,
+                                  IN tt_u32_t iv_len, IN tt_u8_t *aad,
+                                  IN tt_u32_t ad_len, IN tt_u8_t *input,
+                                  IN tt_u32_t ilen, IN tt_u8_t *output,
+                                  IN tt_u32_t *olen, IN tt_u8_t *tag,
                                   IN tt_u32_t tag_len)
 {
     size_t o_n = *olen;
     int e;
 
-    e = mbedtls_cipher_auth_encrypt(&cipher->ctx,
-                                    iv,
-                                    iv_len,
-                                    aad,
-                                    ad_len,
-                                    input,
-                                    ilen,
-                                    output,
-                                    &o_n,
-                                    tag,
-                                    tag_len);
+    e = mbedtls_cipher_auth_encrypt(&cipher->ctx, iv, iv_len, aad, ad_len,
+                                    input, ilen, output, &o_n, tag, tag_len);
     if (e != 0) {
         tt_crypto_error("fail to encrypt tag");
         return TT_FAIL;
@@ -347,32 +316,18 @@ tt_result_t tt_cipher_encrypt_tag(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_decrypt_auth(IN tt_cipher_t *cipher,
-                                   IN tt_u8_t *iv,
-                                   IN tt_u32_t iv_len,
-                                   IN tt_u8_t *aad,
-                                   IN tt_u32_t ad_len,
-                                   IN tt_u8_t *input,
-                                   IN tt_u32_t ilen,
-                                   IN tt_u8_t *output,
-                                   IN tt_u32_t *olen,
-                                   IN tt_u8_t *tag,
+tt_result_t tt_cipher_decrypt_auth(IN tt_cipher_t *cipher, IN tt_u8_t *iv,
+                                   IN tt_u32_t iv_len, IN tt_u8_t *aad,
+                                   IN tt_u32_t ad_len, IN tt_u8_t *input,
+                                   IN tt_u32_t ilen, IN tt_u8_t *output,
+                                   IN tt_u32_t *olen, IN tt_u8_t *tag,
                                    IN tt_u32_t tag_len)
 {
     size_t o_n = *olen;
     int e;
 
-    e = mbedtls_cipher_auth_decrypt(&cipher->ctx,
-                                    iv,
-                                    iv_len,
-                                    aad,
-                                    ad_len,
-                                    input,
-                                    ilen,
-                                    output,
-                                    &o_n,
-                                    tag,
-                                    tag_len);
+    e = mbedtls_cipher_auth_decrypt(&cipher->ctx, iv, iv_len, aad, ad_len,
+                                    input, ilen, output, &o_n, tag, tag_len);
     if (e != 0) {
         tt_crypto_error("fail to decrypt auth");
         return TT_FAIL;
@@ -382,41 +337,26 @@ tt_result_t tt_cipher_decrypt_auth(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_encrypt_tag_buf(IN tt_cipher_t *cipher,
-                                      IN tt_u8_t *iv,
-                                      IN tt_u32_t iv_len,
-                                      IN tt_u8_t *aad,
-                                      IN tt_u32_t ad_len,
-                                      IN tt_u8_t *input,
-                                      IN tt_u32_t ilen,
-                                      IN tt_buf_t *obuf,
-                                      IN tt_u8_t *tag,
-                                      IN tt_u32_t tag_len)
+tt_result_t tt_cipher_encrypt_tag_buf(IN tt_cipher_t *cipher, IN tt_u8_t *iv,
+                                      IN tt_u32_t iv_len, IN tt_u8_t *aad,
+                                      IN tt_u32_t ad_len, IN tt_u8_t *input,
+                                      IN tt_u32_t ilen, IN tt_buf_t *obuf,
+                                      IN tt_u8_t *tag, IN tt_u32_t tag_len)
 {
     tt_u8_t *output;
     size_t olen;
     int e;
 
-    if (!TT_OK(tt_buf_reserve(obuf,
-                              ilen + mbedtls_cipher_get_block_size(
-                                         &cipher->ctx)))) {
+    if (!TT_OK(tt_buf_reserve(obuf, ilen + mbedtls_cipher_get_block_size(
+                                               &cipher->ctx)))) {
         TT_ERROR("fail to reserve output space");
         return TT_FAIL;
     }
 
     output = TT_BUF_WPOS(obuf);
     olen = TT_BUF_WLEN(obuf);
-    e = mbedtls_cipher_auth_encrypt(&cipher->ctx,
-                                    iv,
-                                    iv_len,
-                                    aad,
-                                    ad_len,
-                                    input,
-                                    ilen,
-                                    output,
-                                    &olen,
-                                    tag,
-                                    tag_len);
+    e = mbedtls_cipher_auth_encrypt(&cipher->ctx, iv, iv_len, aad, ad_len,
+                                    input, ilen, output, &olen, tag, tag_len);
     if (e != 0) {
         tt_crypto_error("fail to encrypt tag");
         return TT_FAIL;
@@ -426,16 +366,11 @@ tt_result_t tt_cipher_encrypt_tag_buf(IN tt_cipher_t *cipher,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cipher_decrypt_auth_buf(IN tt_cipher_t *cipher,
-                                       IN tt_u8_t *iv,
-                                       IN tt_u32_t iv_len,
-                                       IN tt_u8_t *aad,
-                                       IN tt_u32_t ad_len,
-                                       IN tt_u8_t *input,
-                                       IN tt_u32_t ilen,
-                                       IN tt_buf_t *obuf,
-                                       IN tt_u8_t *tag,
-                                       IN tt_u32_t tag_len)
+tt_result_t tt_cipher_decrypt_auth_buf(IN tt_cipher_t *cipher, IN tt_u8_t *iv,
+                                       IN tt_u32_t iv_len, IN tt_u8_t *aad,
+                                       IN tt_u32_t ad_len, IN tt_u8_t *input,
+                                       IN tt_u32_t ilen, IN tt_buf_t *obuf,
+                                       IN tt_u8_t *tag, IN tt_u32_t tag_len)
 {
     tt_u8_t *output;
     size_t olen;
@@ -448,17 +383,8 @@ tt_result_t tt_cipher_decrypt_auth_buf(IN tt_cipher_t *cipher,
 
     output = TT_BUF_WPOS(obuf);
     olen = TT_BUF_WLEN(obuf);
-    e = mbedtls_cipher_auth_decrypt(&cipher->ctx,
-                                    iv,
-                                    iv_len,
-                                    aad,
-                                    ad_len,
-                                    input,
-                                    ilen,
-                                    output,
-                                    &olen,
-                                    tag,
-                                    tag_len);
+    e = mbedtls_cipher_auth_decrypt(&cipher->ctx, iv, iv_len, aad, ad_len,
+                                    input, ilen, output, &olen, tag, tag_len);
     if (e != 0) {
         tt_crypto_error("fail to decrypt auth");
         return TT_FAIL;

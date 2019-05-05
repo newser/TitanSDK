@@ -56,8 +56,7 @@ extern tt_logio_t *tt_s_logio[TT_LOG_LEVEL_NUM];
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __logcat_output(IN tt_logio_t *lio,
-                            IN const tt_char_t *data,
+static void __logcat_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                             IN tt_u32_t len);
 
 static tt_logio_itf_t __logcat_itf = {
@@ -84,13 +83,9 @@ static tt_logio_t *__logcat_create(IN int prio, IN OPT const char *tag);
 
 tt_result_t tt_log_component_init_ntv(IN tt_profile_t *profile)
 {
-    if (!TT_OK(__create_log_layout_ntv(profile))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__create_log_layout_ntv(profile))) { return TT_FAIL; }
 
-    if (!TT_OK(__create_log_io_ntv(profile))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__create_log_io_ntv(profile))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -263,9 +258,7 @@ tt_logio_t *__logcat_create(IN int prio, IN OPT const char *tag)
     __logcat_t *lc;
 
     lio = tt_logio_create(sizeof(__logcat_t), &__logcat_itf);
-    if (lio == NULL) {
-        return NULL;
-    }
+    if (lio == NULL) { return NULL; }
 
     lc = TT_LOGIO_CAST(lio, __logcat_t);
 
@@ -275,8 +268,7 @@ tt_logio_t *__logcat_create(IN int prio, IN OPT const char *tag)
     return lio;
 }
 
-void __logcat_output(IN tt_logio_t *lio,
-                     IN const tt_char_t *data,
+void __logcat_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                      IN tt_u32_t len)
 {
     __logcat_t *lc = TT_LOGIO_CAST(lio, __logcat_t);

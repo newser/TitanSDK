@@ -47,8 +47,7 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __lio_syslog_output(IN tt_logio_t *lio,
-                                IN const tt_char_t *data,
+static void __lio_syslog_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                                 IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_std_itf = {
@@ -79,9 +78,7 @@ tt_logio_t *tt_logio_syslog_create(IN OPT tt_logio_syslog_attr_t *attr)
     }
 
     lio = tt_logio_create(sizeof(tt_logio_syslog_t), &tt_s_logio_std_itf);
-    if (lio == NULL) {
-        return NULL;
-    }
+    if (lio == NULL) { return NULL; }
 
     lio_syslog = TT_LOGIO_CAST(lio, tt_logio_syslog_t);
 
@@ -97,15 +94,13 @@ void tt_logio_syslog_attr_default(IN tt_logio_syslog_attr_t *attr)
     attr->level = TT_SYSLOG_INFO;
 }
 
-void __lio_syslog_output(IN tt_logio_t *lio,
-                         IN const tt_char_t *data,
+void __lio_syslog_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                          IN tt_u32_t data_len)
 {
     tt_logio_syslog_t *lio_syslog = TT_LOGIO_CAST(lio, tt_logio_syslog_t);
 
 #ifdef TT_HAVE_SYSLOG
-    syslog(TT_SYSLOG_PRIORITY(lio_syslog->facility, lio_syslog->level),
-           "%s",
+    syslog(TT_SYSLOG_PRIORITY(lio_syslog->facility, lio_syslog->level), "%s",
            data);
 #endif
 }

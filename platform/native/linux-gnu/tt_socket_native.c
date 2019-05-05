@@ -79,8 +79,7 @@ int __sf_shutdown(int socket, int how);
 
 #ifdef __SIMU_FAIL_BIND
 #define bind __sf_bind
-int __sf_bind(int socket,
-              const struct sockaddr *address,
+int __sf_bind(int socket, const struct sockaddr *address,
               socklen_t address_len);
 #endif
 
@@ -96,8 +95,7 @@ int __sf_accept(int socket, struct sockaddr *address, socklen_t *address_len);
 
 #ifdef __SIMU_FAIL_CONNECT
 #define connect __sf_connect
-int __sf_connect(int socket,
-                 const struct sockaddr *address,
+int __sf_connect(int socket, const struct sockaddr *address,
                  socklen_t address_len);
 #endif
 
@@ -113,22 +111,14 @@ ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags);
 
 #ifdef __SIMU_FAIL_SENDTO
 #define sendto __sf_sendto
-ssize_t __sf_sendto(int socket,
-                    const void *buffer,
-                    size_t length,
-                    int flags,
-                    const struct sockaddr *dest_addr,
-                    socklen_t dest_len);
+ssize_t __sf_sendto(int socket, const void *buffer, size_t length, int flags,
+                    const struct sockaddr *dest_addr, socklen_t dest_len);
 #endif
 
 #ifdef __SIMU_FAIL_RECVFROM
 #define recvfrom __sf_recvfrom
-ssize_t __sf_recvfrom(int socket,
-                      void *buffer,
-                      size_t length,
-                      int flags,
-                      struct sockaddr *address,
-                      socklen_t *address_len);
+ssize_t __sf_recvfrom(int socket, void *buffer, size_t length, int flags,
+                      struct sockaddr *address, socklen_t *address_len);
 #endif
 
 ////////////////////////////////////////////////////////////
@@ -268,14 +258,8 @@ static tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev);
 static tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev);
 
 static tt_poller_io_t __skt_poller_io[__SKT_EV_NUM] = {
-    __do_null,
-    __do_accept,
-    __do_connect,
-    __do_send,
-    __do_recv,
-    __do_sendto,
-    __do_recvfrom,
-    __do_sendfile,
+    __do_null, __do_accept, __do_connect,  __do_send,
+    __do_recv, __do_sendto, __do_recvfrom, __do_sendfile,
 };
 
 static tt_io_ev_t __s_null_io_ev;
@@ -288,8 +272,7 @@ static int __skt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
 
 static tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
                                   IN const tt_char_t *itf,
-                                  OUT struct ip_mreq *mreq,
-                                  IN int skt);
+                                  OUT struct ip_mreq *mreq, IN int skt);
 static tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
                                    IN const tt_char_t *itf,
                                    OUT struct ipv6_mreq *mreq);
@@ -343,9 +326,7 @@ void tt_skt_status_dump_ntv(IN tt_u32_t flag)
 
         path[len] = 0;
         strncat(path, entry.d_name, PATH_MAX);
-        if ((n = readlink(path, link, PATH_MAX)) < 0) {
-            continue;
-        }
+        if ((n = readlink(path, link, PATH_MAX)) < 0) { continue; }
         link[n] = 0;
 
         if (strncmp(link, "socket", 6) != 0) {
@@ -360,8 +341,7 @@ void tt_skt_status_dump_ntv(IN tt_u32_t flag)
     closedir(d);
 }
 
-tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
-                              IN tt_net_family_t family,
+tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt, IN tt_net_family_t family,
                               IN tt_net_protocol_t protocol,
                               IN OPT tt_skt_attr_t *attr)
 {
@@ -461,8 +441,7 @@ tt_result_t tt_skt_shutdown_ntv(IN tt_skt_ntv_t *skt, IN tt_skt_shut_t shut)
 
 tt_result_t tt_skt_bind_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
 {
-    if (bind(skt->s,
-             (struct sockaddr *)addr,
+    if (bind(skt->s, (struct sockaddr *)addr,
              sizeof(struct sockaddr_storage)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -481,8 +460,7 @@ tt_result_t tt_skt_listen_ntv(IN tt_skt_ntv_t *skt)
     }
 }
 
-tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
-                              OUT tt_sktaddr_t *addr,
+tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt, OUT tt_sktaddr_t *addr,
                               OUT struct tt_skt_s **new_skt,
                               OUT tt_fiber_ev_t **p_fev,
                               OUT struct tt_tmr_s **p_tmr)
@@ -500,9 +478,7 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     ep = __skt_ev_init(&skt_accept.io_ev, __SKT_ACCEPT);
     cfb = skt_accept.io_ev.src;
 
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return TT_SUCCESS;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return TT_SUCCESS; }
 
     skt_accept.skt = skt;
     skt_accept.addr = addr;
@@ -517,9 +493,7 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
 
-    if (!skt_accept.done) {
-        tt_ep_unread(ep, skt->s, &__s_null_io_ev);
-    }
+    if (!skt_accept.done) { tt_ep_unread(ep, skt->s, &__s_null_io_ev); }
 
     if (skt_accept.new_skt != NULL) {
         *new_skt = skt_accept.new_skt;
@@ -528,9 +502,7 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
         result = TT_FAIL;
     }
 
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        result = TT_SUCCESS;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { result = TT_SUCCESS; }
 
     return result;
 }
@@ -542,8 +514,7 @@ tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
     int ep;
 
     len = TT_COND(tt_sktaddr_get_family(addr) == TT_NET_AF_INET,
-                  sizeof(struct sockaddr_in),
-                  sizeof(struct sockaddr_in6));
+                  sizeof(struct sockaddr_in), sizeof(struct sockaddr_in6));
 
 again:
     if (connect(skt->s, (const struct sockaddr *)addr, len) == 0) {
@@ -591,13 +562,10 @@ tt_result_t tt_skt_remote_addr_ntv(IN tt_skt_ntv_t *skt, OUT tt_sktaddr_t *addr)
     }
 }
 
-tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
-                                OUT tt_u8_t *buf,
-                                IN tt_u32_t len,
-                                OUT OPT tt_u32_t *recvd,
+tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt, OUT tt_u8_t *buf,
+                                IN tt_u32_t len, OUT OPT tt_u32_t *recvd,
                                 OUT OPT tt_sktaddr_t *addr,
-                                OUT tt_fiber_ev_t **p_fev,
-                                OUT tt_tmr_t **p_tmr)
+                                OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr)
 {
     __skt_recvfrom_t skt_recvfrom;
     int ep;
@@ -610,9 +578,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     ep = __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
     cfb = skt_recvfrom.io_ev.src;
 
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return TT_SUCCESS;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return TT_SUCCESS; }
 
     skt_recvfrom.skt = skt;
     skt_recvfrom.buf = buf;
@@ -630,9 +596,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
 
-    if (!skt_recvfrom.done) {
-        tt_ep_unread(ep, skt->s, &__s_null_io_ev);
-    }
+    if (!skt_recvfrom.done) { tt_ep_unread(ep, skt->s, &__s_null_io_ev); }
 
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         skt_recvfrom.result = TT_SUCCESS;
@@ -641,10 +605,8 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     return skt_recvfrom.result;
 }
 
-tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
-                              IN tt_u8_t *buf,
-                              IN tt_u32_t len,
-                              OUT OPT tt_u32_t *sent,
+tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t *buf,
+                              IN tt_u32_t len, OUT OPT tt_u32_t *sent,
                               IN tt_sktaddr_t *addr)
 {
 #if 0
@@ -670,11 +632,7 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
     ssize_t n;
 
 again:
-    n = sendto(skt->s,
-               buf,
-               len,
-               0,
-               (struct sockaddr *)addr,
+    n = sendto(skt->s, buf, len, 0, (struct sockaddr *)addr,
                sizeof(tt_sktaddr_t));
     if (n > 0) {
         TT_SAFE_ASSIGN(sent, n);
@@ -691,10 +649,8 @@ again:
 #endif
 }
 
-tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
-                            IN tt_u8_t *buf,
-                            IN tt_u32_t len,
-                            OUT OPT tt_u32_t *sent)
+tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t *buf,
+                            IN tt_u32_t len, OUT OPT tt_u32_t *sent)
 {
 #if 0
     __skt_send_t skt_send;
@@ -774,10 +730,8 @@ again:
 #endif
 }
 
-tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
-                                IN tt_file_t *f,
-                                IN tt_u64_t offset,
-                                IN tt_u32_t len,
+tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f,
+                                IN tt_u64_t offset, IN tt_u32_t len,
                                 OUT tt_u64_t *sent)
 {
 #if 0
@@ -811,9 +765,7 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
             return TT_FAIL;
         }
 
-        if (offset >= size) {
-            TT_ERROR("offset exceeds file size");
-        }
+        if (offset >= size) { TT_ERROR("offset exceeds file size"); }
         count = size - offset;
     } else {
         count = len;
@@ -829,19 +781,17 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
         return TT_E_AGAIN;
     } /*else if (errno == EINTR) {
         goto again;
-    }*/ else {
+    }*/
+    else {
         TT_ERROR_NTV("fail to sendfile to skt");
         return TT_FAIL;
     }
 #endif
 }
 
-tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
-                            OUT tt_u8_t *buf,
-                            IN tt_u32_t len,
-                            OUT OPT tt_u32_t *recvd,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr)
+tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt, OUT tt_u8_t *buf,
+                            IN tt_u32_t len, OUT OPT tt_u32_t *recvd,
+                            OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr)
 {
     __skt_recv_t skt_recv;
     int ep;
@@ -854,9 +804,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     ep = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
     cfb = skt_recv.io_ev.src;
 
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return TT_SUCCESS;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return TT_SUCCESS; }
 
     skt_recv.skt = skt;
     skt_recv.buf = buf;
@@ -873,9 +821,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
 
-    if (!skt_recv.done) {
-        tt_ep_unread(ep, skt->s, &__s_null_io_ev);
-    }
+    if (!skt_recv.done) { tt_ep_unread(ep, skt->s, &__s_null_io_ev); }
 
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         skt_recv.result = TT_SUCCESS;
@@ -896,10 +842,7 @@ tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
         }
 
         // join multicast group
-        if (setsockopt(skt->s,
-                       IPPROTO_IP,
-                       IP_ADD_MEMBERSHIP,
-                       &mreq,
+        if (setsockopt(skt->s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq,
                        (socklen_t)sizeof(struct ip_mreq)) == 0) {
             return TT_SUCCESS;
         } else {
@@ -911,15 +854,10 @@ tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
 
         TT_ASSERT_SKT(family == TT_NET_AF_INET6);
 
-        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) { return TT_FAIL; }
 
         // join multicast group
-        if (setsockopt(skt->s,
-                       IPPROTO_IPV6,
-                       IPV6_ADD_MEMBERSHIP,
-                       &mreq,
+        if (setsockopt(skt->s, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, &mreq,
                        (socklen_t)sizeof(struct ipv6_mreq)) == 0) {
             return TT_SUCCESS;
         } else {
@@ -941,10 +879,7 @@ tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
         }
 
         // leave multicast group
-        if (setsockopt(skt->s,
-                       IPPROTO_IP,
-                       IP_DROP_MEMBERSHIP,
-                       &mreq,
+        if (setsockopt(skt->s, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq,
                        (socklen_t)sizeof(struct ip_mreq)) == 0) {
             return TT_SUCCESS;
         } else {
@@ -956,15 +891,10 @@ tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
 
         TT_ASSERT_SKT(family == TT_NET_AF_INET6);
 
-        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) { return TT_FAIL; }
 
         // leave multicast group
-        if (setsockopt(skt->s,
-                       IPPROTO_IPV6,
-                       IPV6_DROP_MEMBERSHIP,
-                       &mreq,
+        if (setsockopt(skt->s, IPPROTO_IPV6, IPV6_DROP_MEMBERSHIP, &mreq,
                        (socklen_t)sizeof(struct ipv6_mreq)) == 0) {
             return TT_SUCCESS;
         } else {
@@ -994,10 +924,8 @@ int __skt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
     return io_ev->src->fs->thread->task->iop.sys_iop.ep;
 }
 
-tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
-                           IN const tt_char_t *itf,
-                           OUT struct ip_mreq *mreq,
-                           IN int skt)
+tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr, IN const tt_char_t *itf,
+                           OUT struct ip_mreq *mreq, IN int skt)
 {
     // address
     mreq->imr_multiaddr.s_addr = addr->a32.__u32;
@@ -1022,8 +950,7 @@ tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
     return TT_SUCCESS;
 }
 
-tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
-                            IN const tt_char_t *itf,
+tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr, IN const tt_char_t *itf,
                             OUT struct ipv6_mreq *mreq)
 {
     // address
@@ -1071,9 +998,7 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     }
 
 again:
-    s = accept4(skt_accept->skt->s,
-                (struct sockaddr *)skt_accept->addr,
-                &len,
+    s = accept4(skt_accept->skt->s, (struct sockaddr *)skt_accept->addr, &len,
                 SOCK_NONBLOCK | SOCK_CLOEXEC);
     if (s == -1) {
         if (errno == EINTR) {
@@ -1111,9 +1036,7 @@ again:
 
 fail:
 
-    if (s != -1) {
-        __RETRY_IF_EINTR(close(s));
-    }
+    if (s != -1) { __RETRY_IF_EINTR(close(s)); }
 
     return TT_TRUE;
 }
@@ -1133,10 +1056,8 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
     ssize_t n;
 
 again:
-    n = send(skt_send->skt->s,
-             TT_PTR_INC(void, skt_send->buf, skt_send->pos),
-             skt_send->len - skt_send->pos,
-             skt_send->flags);
+    n = send(skt_send->skt->s, TT_PTR_INC(void, skt_send->buf, skt_send->pos),
+             skt_send->len - skt_send->pos, skt_send->flags);
     if (n > 0) {
         skt_send->pos += n;
         TT_ASSERT_SKT(skt_send->pos <= skt_send->len);
@@ -1160,7 +1081,7 @@ again:
         skt_send->result = TT_SUCCESS;
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
-               ) {
+    ) {
         skt_send->result = TT_E_END;
     } else {
         TT_ERROR_NTV("send failed");
@@ -1196,7 +1117,7 @@ again:
     // error
     if (errno == ECONNRESET
         // || (errno == ENETDOWN)
-        ) {
+    ) {
         skt_recv->result = TT_E_END;
     } else {
         TT_ERROR_NTV("recv failed");
@@ -1215,10 +1136,8 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
 again:
     n = sendto(skt_sendto->skt->s,
                TT_PTR_INC(void, skt_sendto->buf, skt_sendto->pos),
-               skt_sendto->len - skt_sendto->pos,
-               0,
-               (struct sockaddr *)skt_sendto->addr,
-               sizeof(tt_sktaddr_t));
+               skt_sendto->len - skt_sendto->pos, 0,
+               (struct sockaddr *)skt_sendto->addr, sizeof(tt_sktaddr_t));
     if (n > 0) {
         skt_sendto->pos += n;
         TT_ASSERT_SKT(skt_sendto->pos <= skt_sendto->len);
@@ -1242,7 +1161,7 @@ again:
         skt_sendto->result = TT_SUCCESS;
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
-               ) {
+    ) {
         skt_sendto->result = TT_E_END;
     } else {
         TT_ERROR_NTV("sendto failed");
@@ -1259,12 +1178,8 @@ tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev)
     socklen_t addr_len = sizeof(tt_sktaddr_t);
 
 again:
-    n = recvfrom(skt_recvfrom->skt->s,
-                 skt_recvfrom->buf,
-                 skt_recvfrom->len,
-                 0,
-                 (struct sockaddr *)skt_recvfrom->addr,
-                 &addr_len);
+    n = recvfrom(skt_recvfrom->skt->s, skt_recvfrom->buf, skt_recvfrom->len, 0,
+                 (struct sockaddr *)skt_recvfrom->addr, &addr_len);
     if (n > 0) {
         TT_SAFE_ASSIGN(skt_recvfrom->recvd, (tt_u32_t)n);
         skt_recvfrom->result = TT_SUCCESS;
@@ -1284,7 +1199,7 @@ again:
     // error
     if (errno == ECONNRESET
         // || (errno == ENETDOWN)
-        ) {
+    ) {
         skt_recvfrom->result = TT_E_END;
     } else {
         TT_ERROR_NTV("recvfrom failed");
@@ -1303,9 +1218,7 @@ tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev)
     ssize_t n;
 
 again:
-    n = sendfile(skt_sendfile->skt->s,
-                 skt_sendfile->f->sys_file.fd,
-                 &offset,
+    n = sendfile(skt_sendfile->skt->s, skt_sendfile->f->sys_file.fd, &offset,
                  count);
     if (n >= 0) {
         assert(n <= count);
@@ -1318,7 +1231,8 @@ again:
         }
     } /*else if (errno == EINTR) {
         goto again;
-    }*/ else {
+    }*/
+    else {
         TT_ERROR_NTV("fail to sendfile to skt");
         skt_sendfile->result = TT_FAIL;
     }
@@ -1336,8 +1250,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
 
     if (getsockopt(s, SOL_SOCKET, SO_TYPE, &val, &len) != 0) {
         tt_printf("%s[fd: %d] ?\n",
-                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
-                  s);
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""), s);
     } else if (val == SOCK_STREAM) {
         struct sockaddr_storage a;
         socklen_t alen = sizeof(a);
@@ -1353,10 +1266,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
 
             ip.a32.__u32 = a4->sin_addr.s_addr;
             tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
-            tt_snprintf(local,
-                        sizeof(local) - 1,
-                        "%s@%d",
-                        addr,
+            tt_snprintf(local, sizeof(local) - 1, "%s@%d", addr,
                         ntohs(a4->sin_port));
         } else if (a.ss_family == AF_INET6) {
             struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)&a;
@@ -1365,10 +1275,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
 
             tt_memcpy(ip.a128.__u8, a6->sin6_addr.s6_addr, 16);
             tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
-            tt_snprintf(local,
-                        sizeof(local) - 1,
-                        "%s@%d",
-                        addr,
+            tt_snprintf(local, sizeof(local) - 1, "%s@%d", addr,
                         ntohs(a6->sin6_port));
         } else if (a.ss_family == AF_LOCAL) {
             return;
@@ -1385,10 +1292,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
 
             ip.a32.__u32 = a4->sin_addr.s_addr;
             tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
-            tt_snprintf(remote,
-                        sizeof(remote) - 1,
-                        "%s@%d",
-                        addr,
+            tt_snprintf(remote, sizeof(remote) - 1, "%s@%d", addr,
                         ntohs(a4->sin_port));
         } else if (a.ss_family == AF_INET6) {
             struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)&a;
@@ -1397,10 +1301,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
 
             tt_memcpy(ip.a128.__u8, a6->sin6_addr.s6_addr, 16);
             tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
-            tt_snprintf(remote,
-                        sizeof(remote) - 1,
-                        "%s@%d",
-                        addr,
+            tt_snprintf(remote, sizeof(remote) - 1, "%s@%d", addr,
                         ntohs(a6->sin6_port));
         } else if (a.ss_family == AF_LOCAL) {
             return;
@@ -1409,10 +1310,8 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
         }
 
         tt_printf("%s[fd: %d] tcp [%s --> %s]\n",
-                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
-                  s,
-                  local,
-                  remote);
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""), s,
+                  local, remote);
     } else if (val == SOCK_DGRAM) {
         struct sockaddr_storage a;
         socklen_t alen = sizeof(a);
@@ -1427,10 +1326,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
 
             ip.a32.__u32 = a4->sin_addr.s_addr;
             tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
-            tt_snprintf(local,
-                        sizeof(local) - 1,
-                        "%s@%d",
-                        addr,
+            tt_snprintf(local, sizeof(local) - 1, "%s@%d", addr,
                         ntohs(a4->sin_port));
         } else if (a.ss_family == AF_INET6) {
             struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)&a;
@@ -1439,10 +1335,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
 
             tt_memcpy(ip.a128.__u8, a6->sin6_addr.s6_addr, 16);
             tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
-            tt_snprintf(local,
-                        sizeof(local) - 1,
-                        "%s@%d",
-                        addr,
+            tt_snprintf(local, sizeof(local) - 1, "%s@%d", addr,
                         ntohs(a6->sin6_port));
         } else if (a.ss_family == AF_LOCAL) {
             return;
@@ -1451,8 +1344,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
         }
 
         tt_printf("%s[fd: %d] udp [%s]\n",
-                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
-                  s,
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""), s,
                   local);
     } /*else {
         tt_printf("%s[fd: %d] ?\n",
@@ -1513,8 +1405,7 @@ int __sf_accept(int socket, struct sockaddr *address, socklen_t *address_len)
 
 #ifdef __SIMU_FAIL_CONNECT
 #undef connect
-int __sf_connect(int socket,
-                 const struct sockaddr *address,
+int __sf_connect(int socket, const struct sockaddr *address,
                  socklen_t address_len)
 {
     return -1;
@@ -1551,21 +1442,13 @@ ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags)
 
 #ifdef __SIMU_FAIL_SENDTO
 #undef sendto
-ssize_t __sf_sendto(int socket,
-                    const void *buffer,
-                    size_t length,
-                    int flags,
-                    const struct sockaddr *dest_addr,
-                    socklen_t dest_len)
+ssize_t __sf_sendto(int socket, const void *buffer, size_t length, int flags,
+                    const struct sockaddr *dest_addr, socklen_t dest_len)
 {
     if ((tt_rand_u32() % 10) == 0) {
         return -1;
     } else {
-        return sendto(socket,
-                      buffer,
-                      tt_rand_u32() % length,
-                      flags,
-                      dest_addr,
+        return sendto(socket, buffer, tt_rand_u32() % length, flags, dest_addr,
                       dest_len);
     }
 }
@@ -1573,21 +1456,13 @@ ssize_t __sf_sendto(int socket,
 
 #ifdef __SIMU_FAIL_RECVFROM
 #undef recvfrom
-ssize_t __sf_recvfrom(int socket,
-                      void *buffer,
-                      size_t length,
-                      int flags,
-                      struct sockaddr *address,
-                      socklen_t *address_len)
+ssize_t __sf_recvfrom(int socket, void *buffer, size_t length, int flags,
+                      struct sockaddr *address, socklen_t *address_len)
 {
     if ((tt_rand_u32() % 10) == 0) {
         return -1;
     } else {
-        return recvfrom(socket,
-                        buffer,
-                        tt_rand_u32() % length,
-                        flags,
-                        address,
+        return recvfrom(socket, buffer, tt_rand_u32() % length, flags, address,
                         address_len);
     }
 }

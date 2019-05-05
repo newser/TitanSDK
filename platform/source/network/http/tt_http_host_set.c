@@ -63,9 +63,7 @@ void tt_http_hostset_destroy(IN tt_http_hostset_t *hs)
 {
     TT_ASSERT(hs != NULL);
 
-    if (hs->default_host != NULL) {
-        tt_http_host_destroy(hs->default_host);
-    }
+    if (hs->default_host != NULL) { tt_http_host_destroy(hs->default_host); }
 
     __destroy_hosts(&hs->hosts);
 }
@@ -80,9 +78,7 @@ tt_http_host_t *tt_http_hostset_match_n(IN tt_http_hostset_t *hs,
 
         dn = dn->next;
 
-        if (tt_http_host_match(h, name, name_len)) {
-            return h;
-        }
+        if (tt_http_host_match(h, name, name_len)) { return h; }
     }
     return hs->default_host;
 }

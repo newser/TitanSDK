@@ -53,12 +53,13 @@ typedef struct
 
 static void __llp_destroy(IN tt_loglyt_t *ll);
 
-static tt_result_t __llp_format(IN tt_loglyt_t *ll,
-                                IN tt_log_entry_t *entry,
+static tt_result_t __llp_format(IN tt_loglyt_t *ll, IN tt_log_entry_t *entry,
                                 OUT tt_buf_t *outbuf);
 
 static tt_loglyt_itf_t __llp_itf = {
-    NULL, __llp_destroy, __llp_format,
+    NULL,
+    __llp_destroy,
+    __llp_format,
 };
 
 ////////////////////////////////////////////////////////////
@@ -67,8 +68,7 @@ static tt_loglyt_itf_t __llp_itf = {
 
 static tt_result_t __llp_parse(IN tt_loglyt_patn_t *llp,
                                IN const tt_char_t *pattern,
-                               IN OPT tt_char_t *out,
-                               IN OPT tt_u32_t *out_len);
+                               IN OPT tt_char_t *out, IN OPT tt_u32_t *out_len);
 
 static tt_result_t __llp_create_field(IN tt_loglyt_patn_t *llp,
                                       IN const tt_char_t *start,
@@ -85,14 +85,10 @@ tt_loglyt_t *tt_loglyt_pattern_create(IN const tt_char_t *pattern)
     tt_loglyt_t *ll;
     tt_loglyt_patn_t *llp;
 
-    if (pattern == NULL) {
-        return NULL;
-    }
+    if (pattern == NULL) { return NULL; }
 
     ll = tt_loglyt_create(sizeof(tt_loglyt_patn_t), &__llp_itf);
-    if (ll == NULL) {
-        return NULL;
-    }
+    if (ll == NULL) { return NULL; }
 
     llp = TT_LOGLYT_CAST(ll, tt_loglyt_patn_t);
 
@@ -121,8 +117,7 @@ void __llp_destroy(IN tt_loglyt_t *ll)
     tt_free(llp->patn);
 }
 
-tt_result_t __llp_format(IN tt_loglyt_t *ll,
-                         IN tt_log_entry_t *entry,
+tt_result_t __llp_format(IN tt_loglyt_t *ll, IN tt_log_entry_t *entry,
                          OUT tt_buf_t *outbuf)
 {
     tt_loglyt_patn_t *llp = TT_LOGLYT_CAST(ll, tt_loglyt_patn_t);
@@ -140,15 +135,13 @@ tt_result_t __llp_format(IN tt_loglyt_t *ll,
             continue;
         }
 
-        TT_DO(tt_buf_put(outbuf,
-                         (tt_u8_t *)prev_pos,
+        TT_DO(tt_buf_put(outbuf, (tt_u8_t *)prev_pos,
                          (tt_u32_t)(pos - prev_pos)));
         ++pos;
         prev_pos = pos;
 
         if (fnode != NULL) {
-            tt_logfld_output(TT_CONTAINER(fnode, tt_logfld_t, node),
-                             entry,
+            tt_logfld_output(TT_CONTAINER(fnode, tt_logfld_t, node), entry,
                              outbuf);
             fnode = fnode->next;
         }
@@ -158,10 +151,8 @@ tt_result_t __llp_format(IN tt_loglyt_t *ll,
     return TT_SUCCESS;
 }
 
-tt_result_t __llp_parse(IN tt_loglyt_patn_t *llp,
-                        IN const tt_char_t *pattern,
-                        IN OPT tt_char_t *out,
-                        IN OPT tt_u32_t *out_len)
+tt_result_t __llp_parse(IN tt_loglyt_patn_t *llp, IN const tt_char_t *pattern,
+                        IN OPT tt_char_t *out, IN OPT tt_u32_t *out_len)
 {
     const tt_char_t *p = pattern;
     tt_char_t c;
@@ -179,58 +170,56 @@ tt_result_t __llp_parse(IN tt_loglyt_patn_t *llp,
 
     while ((c = *p) != 0) {
         switch (c) {
-            case '$': {
-                if (state == __LPP_INIT) {
-                    // "$"
-                    state = __LPP_DOLLER;
-                }
-            } break;
-            case '{': {
-                if (state == __LPP_DOLLER) {
-                    // "${"
-                    state = __LPP_FIELD;
-                    f_start = p;
+        case '$': {
+            if (state == __LPP_INIT) {
+                // "$"
+                state = __LPP_DOLLER;
+            }
+        } break;
+        case '{': {
+            if (state == __LPP_DOLLER) {
+                // "${"
+                state = __LPP_FIELD;
+                f_start = p;
 
-                    // save out content
-                    //  - each field is converted to a '\0', so pattern:
-                    //    "aaa${field1}bb${field2}${field3}\0" is converted
-                    //    to "aaa\0bb\0\0\0"
-                    //  - ll->pattern has size of the raw pattern, which
-                    //    is always larger than size to store converted
-                    //    pattern, so in this function, size is not checked.
-                    //    stack overflow??
-                    seg_len = (tt_u32_t)(tt_ptrdiff_t)(f_start - seg_start);
-                    seg_len -= 1; // discard $
-                    if (out_pos != NULL) {
-                        tt_memcpy(out_pos, seg_start, seg_len);
-                        out_pos += seg_len;
-                        *out_pos++ = 0;
-                    }
-                    __out_len += (seg_len + 1);
+                // save out content
+                //  - each field is converted to a '\0', so pattern:
+                //    "aaa${field1}bb${field2}${field3}\0" is converted
+                //    to "aaa\0bb\0\0\0"
+                //  - ll->pattern has size of the raw pattern, which
+                //    is always larger than size to store converted
+                //    pattern, so in this function, size is not checked.
+                //    stack overflow??
+                seg_len = (tt_u32_t)(tt_ptrdiff_t)(f_start - seg_start);
+                seg_len -= 1; // discard $
+                if (out_pos != NULL) {
+                    tt_memcpy(out_pos, seg_start, seg_len);
+                    out_pos += seg_len;
+                    *out_pos++ = 0;
                 }
-            } break;
-            case '}': {
-                if (state == __LPP_DOLLER) {
-                    // "$}"
-                    state = __LPP_INIT;
-                } else if (state == __LPP_FIELD) {
-                    // "${...}"
-                    state = __LPP_INIT;
-                    f_end = p;
+                __out_len += (seg_len + 1);
+            }
+        } break;
+        case '}': {
+            if (state == __LPP_DOLLER) {
+                // "$}"
+                state = __LPP_INIT;
+            } else if (state == __LPP_FIELD) {
+                // "${...}"
+                state = __LPP_INIT;
+                f_end = p;
 
-                    if (!TT_OK(__llp_create_field(llp, f_start, f_end))) {
-                        return TT_FAIL;
-                    }
-
-                    seg_start = (p + 1);
+                if (!TT_OK(__llp_create_field(llp, f_start, f_end))) {
+                    return TT_FAIL;
                 }
-            } break;
 
-            default: {
-                if (state == __LPP_DOLLER) {
-                    state = __LPP_INIT;
-                }
-            } break;
+                seg_start = (p + 1);
+            }
+        } break;
+
+        default: {
+            if (state == __LPP_DOLLER) { state = __LPP_INIT; }
+        } break;
         }
 
         ++p;
@@ -249,9 +238,7 @@ tt_result_t __llp_parse(IN tt_loglyt_patn_t *llp,
     }
     __out_len += (seg_len + 1);
 
-    if (out_len != NULL) {
-        *out_len = __out_len;
-    }
+    if (out_len != NULL) { *out_len = __out_len; }
 
     return TT_SUCCESS;
 }

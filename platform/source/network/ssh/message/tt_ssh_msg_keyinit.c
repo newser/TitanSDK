@@ -41,8 +41,7 @@
             return TT_FAIL;                                                    \
         }                                                                      \
         if (ms_keyinit->an > __MAX_ALG_NUM) {                                  \
-            TT_ERROR(#an "[%d] > __MAX_ALG_NUM[%d]",                           \
-                     ms_keyinit->an,                                           \
+            TT_ERROR(#an "[%d] > __MAX_ALG_NUM[%d]", ms_keyinit->an,           \
                      __MAX_ALG_NUM);                                           \
             return TT_FAIL;                                                    \
         }                                                                      \
@@ -51,17 +50,13 @@
 #define __fill_alg_name(name, id, id_num, name_table)                          \
     do {                                                                       \
         tt_u32_t i;                                                            \
-        for (i = 0; i < id_num; ++i) {                                         \
-            name[i] = name_table[id[i]];                                       \
-        }                                                                      \
+        for (i = 0; i < id_num; ++i) { name[i] = name_table[id[i]]; }          \
     } while (0)
 
 #define __find_alg_idx(name, name_len, table, table_num, i)                    \
     do {                                                                       \
         for (i = 0; i < table_num; ++i) {                                      \
-            if (tt_strncmp(name, table[i], name_len) == 0) {                   \
-                break;                                                         \
-            }                                                                  \
+            if (tt_strncmp(name, table[i], name_len) == 0) { break; }          \
         }                                                                      \
     } while (0)
 
@@ -120,12 +115,10 @@ static tt_result_t __keyinit_addalg_comp_c2s(IN tt_sshms_keyinit_t *msg,
 static tt_result_t __keyinit_addalg_comp_s2c(IN tt_sshms_keyinit_t *msg,
                                              IN tt_ssh_cmprs_alg_t mac);
 
-static tt_result_t __keyinit_kex_parse(IN tt_char_t *name,
-                                       IN tt_u32_t name_len,
+static tt_result_t __keyinit_kex_parse(IN tt_char_t *name, IN tt_u32_t name_len,
                                        IN void *param);
 static tt_result_t __keyinit_pubkey_parse(IN tt_char_t *name,
-                                          IN tt_u32_t name_len,
-                                          IN void *param);
+                                          IN tt_u32_t name_len, IN void *param);
 static tt_result_t __keyinit_enc_c2s_parse(IN tt_char_t *name,
                                            IN tt_u32_t name_len,
                                            IN void *param);
@@ -151,8 +144,7 @@ static tt_result_t __keyinit_comp_s2c_parse(IN tt_char_t *name,
 
 tt_sshmsg_t *tt_sshms_keyinit_create()
 {
-    return tt_sshmsg_create(TT_SSH_MSGID_KEXINIT,
-                            sizeof(tt_sshms_keyinit_t),
+    return tt_sshmsg_create(TT_SSH_MSGID_KEXINIT, sizeof(tt_sshms_keyinit_t),
                             &__keyinit_op);
 }
 
@@ -295,65 +287,49 @@ tt_result_t __keyinit_render_prepare(IN struct tt_sshmsg_s *msg,
 
     // key ex
     alg_name_num = ms_keyinit->kex_alg_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->kex_alg,
-                    alg_name_num,
+    __fill_alg_name(alg_name, ms_keyinit->kex_alg, alg_name_num,
                     tt_g_ssh_kex_alg_name);
     msg_len += tt_ssh_namelist_render_prepare(alg_name, alg_name_num);
 
     // pubkey
     alg_name_num = ms_keyinit->pubkey_alg_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->pubkey_alg,
-                    ms_keyinit->pubkey_alg_num,
-                    tt_g_ssh_pubkey_alg_name);
+    __fill_alg_name(alg_name, ms_keyinit->pubkey_alg,
+                    ms_keyinit->pubkey_alg_num, tt_g_ssh_pubkey_alg_name);
     msg_len += tt_ssh_namelist_render_prepare(alg_name, alg_name_num);
 
     // enc c2s
     alg_name_num = ms_keyinit->enc_c2s_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->enc_c2s,
-                    ms_keyinit->enc_c2s_num,
+    __fill_alg_name(alg_name, ms_keyinit->enc_c2s, ms_keyinit->enc_c2s_num,
                     tt_g_ssh_enc_alg_name);
     msg_len += tt_ssh_namelist_render_prepare(alg_name, alg_name_num);
 
     // enc s2c
     alg_name_num = ms_keyinit->enc_s2c_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->enc_s2c,
-                    ms_keyinit->enc_s2c_num,
+    __fill_alg_name(alg_name, ms_keyinit->enc_s2c, ms_keyinit->enc_s2c_num,
                     tt_g_ssh_enc_alg_name);
     msg_len += tt_ssh_namelist_render_prepare(alg_name, alg_name_num);
 
     // mac c2s
     alg_name_num = ms_keyinit->mac_c2s_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->mac_c2s,
-                    ms_keyinit->mac_c2s_num,
+    __fill_alg_name(alg_name, ms_keyinit->mac_c2s, ms_keyinit->mac_c2s_num,
                     tt_g_ssh_mac_alg_name);
     msg_len += tt_ssh_namelist_render_prepare(alg_name, alg_name_num);
 
     // mac s2c
     alg_name_num = ms_keyinit->mac_s2c_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->mac_s2c,
-                    ms_keyinit->mac_s2c_num,
+    __fill_alg_name(alg_name, ms_keyinit->mac_s2c, ms_keyinit->mac_s2c_num,
                     tt_g_ssh_mac_alg_name);
     msg_len += tt_ssh_namelist_render_prepare(alg_name, alg_name_num);
 
     // comp c2s
     alg_name_num = ms_keyinit->comp_c2s_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->comp_c2s,
-                    ms_keyinit->comp_c2s_num,
+    __fill_alg_name(alg_name, ms_keyinit->comp_c2s, ms_keyinit->comp_c2s_num,
                     tt_g_ssh_cmprs_alg_name);
     msg_len += tt_ssh_namelist_render_prepare(alg_name, alg_name_num);
 
     // mac s2c
     alg_name_num = ms_keyinit->comp_s2c_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->comp_s2c,
-                    ms_keyinit->comp_s2c_num,
+    __fill_alg_name(alg_name, ms_keyinit->comp_s2c, ms_keyinit->comp_s2c_num,
                     tt_g_ssh_cmprs_alg_name);
     msg_len += tt_ssh_namelist_render_prepare(alg_name, alg_name_num);
 
@@ -394,65 +370,49 @@ tt_result_t __keyinit_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
 
     // key ex
     alg_name_num = ms_keyinit->kex_alg_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->kex_alg,
-                    alg_name_num,
+    __fill_alg_name(alg_name, ms_keyinit->kex_alg, alg_name_num,
                     tt_g_ssh_kex_alg_name);
     TT_DO(tt_ssh_namelist_render(buf, alg_name, alg_name_num));
 
     // pubkey
     alg_name_num = ms_keyinit->pubkey_alg_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->pubkey_alg,
-                    ms_keyinit->pubkey_alg_num,
-                    tt_g_ssh_pubkey_alg_name);
+    __fill_alg_name(alg_name, ms_keyinit->pubkey_alg,
+                    ms_keyinit->pubkey_alg_num, tt_g_ssh_pubkey_alg_name);
     TT_DO(tt_ssh_namelist_render(buf, alg_name, alg_name_num));
 
     // enc c2s
     alg_name_num = ms_keyinit->enc_c2s_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->enc_c2s,
-                    ms_keyinit->enc_c2s_num,
+    __fill_alg_name(alg_name, ms_keyinit->enc_c2s, ms_keyinit->enc_c2s_num,
                     tt_g_ssh_enc_alg_name);
     TT_DO(tt_ssh_namelist_render(buf, alg_name, alg_name_num));
 
     // enc s2c
     alg_name_num = ms_keyinit->enc_s2c_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->enc_s2c,
-                    ms_keyinit->enc_s2c_num,
+    __fill_alg_name(alg_name, ms_keyinit->enc_s2c, ms_keyinit->enc_s2c_num,
                     tt_g_ssh_enc_alg_name);
     TT_DO(tt_ssh_namelist_render(buf, alg_name, alg_name_num));
 
     // mac c2s
     alg_name_num = ms_keyinit->mac_c2s_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->mac_c2s,
-                    ms_keyinit->mac_c2s_num,
+    __fill_alg_name(alg_name, ms_keyinit->mac_c2s, ms_keyinit->mac_c2s_num,
                     tt_g_ssh_mac_alg_name);
     TT_DO(tt_ssh_namelist_render(buf, alg_name, alg_name_num));
 
     // mac s2c
     alg_name_num = ms_keyinit->mac_s2c_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->mac_s2c,
-                    ms_keyinit->mac_s2c_num,
+    __fill_alg_name(alg_name, ms_keyinit->mac_s2c, ms_keyinit->mac_s2c_num,
                     tt_g_ssh_mac_alg_name);
     TT_DO(tt_ssh_namelist_render(buf, alg_name, alg_name_num));
 
     // comp c2s
     alg_name_num = ms_keyinit->comp_c2s_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->comp_c2s,
-                    ms_keyinit->comp_c2s_num,
+    __fill_alg_name(alg_name, ms_keyinit->comp_c2s, ms_keyinit->comp_c2s_num,
                     tt_g_ssh_cmprs_alg_name);
     TT_DO(tt_ssh_namelist_render(buf, alg_name, alg_name_num));
 
     // mac s2c
     alg_name_num = ms_keyinit->comp_s2c_num;
-    __fill_alg_name(alg_name,
-                    ms_keyinit->comp_s2c,
-                    ms_keyinit->comp_s2c_num,
+    __fill_alg_name(alg_name, ms_keyinit->comp_s2c, ms_keyinit->comp_s2c_num,
                     tt_g_ssh_cmprs_alg_name);
     TT_DO(tt_ssh_namelist_render(buf, alg_name, alg_name_num));
 
@@ -532,9 +492,7 @@ tt_result_t __keyinit_addalg_kex(IN tt_sshms_keyinit_t *msg,
 {
     tt_u32_t i;
     for (i = 0; i < msg->kex_alg_num; ++i) {
-        if (kex == msg->kex_alg[i]) {
-            return TT_SUCCESS;
-        }
+        if (kex == msg->kex_alg[i]) { return TT_SUCCESS; }
     }
 
     if (msg->kex_alg_num < TT_SSH_KEX_ALG_NUM) {
@@ -552,9 +510,7 @@ tt_result_t __keyinit_addalg_pubkey(IN tt_sshms_keyinit_t *msg,
 {
     tt_u32_t i;
     for (i = 0; i < msg->pubkey_alg_num; ++i) {
-        if (pubkey == msg->pubkey_alg[i]) {
-            return TT_SUCCESS;
-        }
+        if (pubkey == msg->pubkey_alg[i]) { return TT_SUCCESS; }
     }
 
     if (msg->pubkey_alg_num < TT_SSH_PUBKEY_ALG_NUM) {
@@ -572,9 +528,7 @@ tt_result_t __keyinit_addalg_enc_c2s(IN tt_sshms_keyinit_t *msg,
 {
     tt_u32_t i;
     for (i = 0; i < msg->enc_c2s_num; ++i) {
-        if (enc == msg->enc_c2s[i]) {
-            return TT_SUCCESS;
-        }
+        if (enc == msg->enc_c2s[i]) { return TT_SUCCESS; }
     }
 
     if (msg->enc_c2s_num < TT_SSH_ENC_ALG_NUM) {
@@ -592,9 +546,7 @@ tt_result_t __keyinit_addalg_enc_s2c(IN tt_sshms_keyinit_t *msg,
 {
     tt_u32_t i;
     for (i = 0; i < msg->enc_s2c_num; ++i) {
-        if (enc == msg->enc_s2c[i]) {
-            return TT_SUCCESS;
-        }
+        if (enc == msg->enc_s2c[i]) { return TT_SUCCESS; }
     }
 
     if (msg->enc_s2c_num < TT_SSH_ENC_ALG_NUM) {
@@ -612,9 +564,7 @@ tt_result_t __keyinit_addalg_mac_c2s(IN tt_sshms_keyinit_t *msg,
 {
     tt_u32_t i;
     for (i = 0; i < msg->mac_c2s_num; ++i) {
-        if (mac == msg->mac_c2s[i]) {
-            return TT_SUCCESS;
-        }
+        if (mac == msg->mac_c2s[i]) { return TT_SUCCESS; }
     }
 
     if (msg->mac_c2s_num < TT_SSH_MAC_ALG_NUM) {
@@ -632,9 +582,7 @@ tt_result_t __keyinit_addalg_mac_s2c(IN tt_sshms_keyinit_t *msg,
 {
     tt_u32_t i;
     for (i = 0; i < msg->mac_s2c_num; ++i) {
-        if (mac == msg->mac_s2c[i]) {
-            return TT_SUCCESS;
-        }
+        if (mac == msg->mac_s2c[i]) { return TT_SUCCESS; }
     }
 
     if (msg->mac_s2c_num < TT_SSH_MAC_ALG_NUM) {
@@ -652,9 +600,7 @@ tt_result_t __keyinit_addalg_comp_c2s(IN tt_sshms_keyinit_t *msg,
 {
     tt_u32_t i;
     for (i = 0; i < msg->comp_c2s_num; ++i) {
-        if (comp == msg->comp_c2s[i]) {
-            return TT_SUCCESS;
-        }
+        if (comp == msg->comp_c2s[i]) { return TT_SUCCESS; }
     }
 
     if (msg->comp_c2s_num < TT_SSH_CMPRS_ALG_NUM) {
@@ -672,9 +618,7 @@ tt_result_t __keyinit_addalg_comp_s2c(IN tt_sshms_keyinit_t *msg,
 {
     tt_u32_t i;
     for (i = 0; i < msg->comp_s2c_num; ++i) {
-        if (comp == msg->comp_s2c[i]) {
-            return TT_SUCCESS;
-        }
+        if (comp == msg->comp_s2c[i]) { return TT_SUCCESS; }
     }
 
     if (msg->comp_s2c_num < TT_SSH_CMPRS_ALG_NUM) {
@@ -687,16 +631,12 @@ tt_result_t __keyinit_addalg_comp_s2c(IN tt_sshms_keyinit_t *msg,
     }
 }
 
-tt_result_t __keyinit_kex_parse(IN tt_char_t *name,
-                                IN tt_u32_t name_len,
+tt_result_t __keyinit_kex_parse(IN tt_char_t *name, IN tt_u32_t name_len,
                                 IN void *param)
 {
     tt_u32_t i;
 
-    __find_alg_idx(name,
-                   name_len,
-                   tt_g_ssh_kex_alg_name,
-                   TT_SSH_KEX_ALG_NUM,
+    __find_alg_idx(name, name_len, tt_g_ssh_kex_alg_name, TT_SSH_KEX_ALG_NUM,
                    i);
     if (i < TT_SSH_KEX_ALG_NUM) {
         return __keyinit_addalg_kex((tt_sshms_keyinit_t *)param,
@@ -707,17 +647,13 @@ tt_result_t __keyinit_kex_parse(IN tt_char_t *name,
     }
 }
 
-tt_result_t __keyinit_pubkey_parse(IN tt_char_t *name,
-                                   IN tt_u32_t name_len,
+tt_result_t __keyinit_pubkey_parse(IN tt_char_t *name, IN tt_u32_t name_len,
                                    IN void *param)
 {
     tt_u32_t i;
 
-    __find_alg_idx(name,
-                   name_len,
-                   tt_g_ssh_pubkey_alg_name,
-                   TT_SSH_PUBKEY_ALG_NUM,
-                   i);
+    __find_alg_idx(name, name_len, tt_g_ssh_pubkey_alg_name,
+                   TT_SSH_PUBKEY_ALG_NUM, i);
     if (i < TT_SSH_PUBKEY_ALG_NUM) {
         return __keyinit_addalg_pubkey((tt_sshms_keyinit_t *)param,
                                        (tt_ssh_pubkey_alg_t)i);
@@ -727,16 +663,12 @@ tt_result_t __keyinit_pubkey_parse(IN tt_char_t *name,
     }
 }
 
-tt_result_t __keyinit_enc_c2s_parse(IN tt_char_t *name,
-                                    IN tt_u32_t name_len,
+tt_result_t __keyinit_enc_c2s_parse(IN tt_char_t *name, IN tt_u32_t name_len,
                                     IN void *param)
 {
     tt_u32_t i;
 
-    __find_alg_idx(name,
-                   name_len,
-                   tt_g_ssh_enc_alg_name,
-                   TT_SSH_ENC_ALG_NUM,
+    __find_alg_idx(name, name_len, tt_g_ssh_enc_alg_name, TT_SSH_ENC_ALG_NUM,
                    i);
     if (i < TT_SSH_ENC_ALG_NUM) {
         return __keyinit_addalg_enc_c2s((tt_sshms_keyinit_t *)param,
@@ -747,16 +679,12 @@ tt_result_t __keyinit_enc_c2s_parse(IN tt_char_t *name,
     }
 }
 
-tt_result_t __keyinit_enc_s2c_parse(IN tt_char_t *name,
-                                    IN tt_u32_t name_len,
+tt_result_t __keyinit_enc_s2c_parse(IN tt_char_t *name, IN tt_u32_t name_len,
                                     IN void *param)
 {
     tt_u32_t i;
 
-    __find_alg_idx(name,
-                   name_len,
-                   tt_g_ssh_enc_alg_name,
-                   TT_SSH_ENC_ALG_NUM,
+    __find_alg_idx(name, name_len, tt_g_ssh_enc_alg_name, TT_SSH_ENC_ALG_NUM,
                    i);
     if (i < TT_SSH_ENC_ALG_NUM) {
         return __keyinit_addalg_enc_s2c((tt_sshms_keyinit_t *)param,
@@ -767,16 +695,12 @@ tt_result_t __keyinit_enc_s2c_parse(IN tt_char_t *name,
     }
 }
 
-tt_result_t __keyinit_mac_c2s_parse(IN tt_char_t *name,
-                                    IN tt_u32_t name_len,
+tt_result_t __keyinit_mac_c2s_parse(IN tt_char_t *name, IN tt_u32_t name_len,
                                     IN void *param)
 {
     tt_u32_t i;
 
-    __find_alg_idx(name,
-                   name_len,
-                   tt_g_ssh_mac_alg_name,
-                   TT_SSH_MAC_ALG_NUM,
+    __find_alg_idx(name, name_len, tt_g_ssh_mac_alg_name, TT_SSH_MAC_ALG_NUM,
                    i);
     if (i < TT_SSH_MAC_ALG_NUM) {
         return __keyinit_addalg_mac_c2s((tt_sshms_keyinit_t *)param,
@@ -787,16 +711,12 @@ tt_result_t __keyinit_mac_c2s_parse(IN tt_char_t *name,
     }
 }
 
-tt_result_t __keyinit_mac_s2c_parse(IN tt_char_t *name,
-                                    IN tt_u32_t name_len,
+tt_result_t __keyinit_mac_s2c_parse(IN tt_char_t *name, IN tt_u32_t name_len,
                                     IN void *param)
 {
     tt_u32_t i;
 
-    __find_alg_idx(name,
-                   name_len,
-                   tt_g_ssh_mac_alg_name,
-                   TT_SSH_MAC_ALG_NUM,
+    __find_alg_idx(name, name_len, tt_g_ssh_mac_alg_name, TT_SSH_MAC_ALG_NUM,
                    i);
     if (i < TT_SSH_MAC_ALG_NUM) {
         return __keyinit_addalg_mac_s2c((tt_sshms_keyinit_t *)param,
@@ -807,17 +727,13 @@ tt_result_t __keyinit_mac_s2c_parse(IN tt_char_t *name,
     }
 }
 
-tt_result_t __keyinit_comp_c2s_parse(IN tt_char_t *name,
-                                     IN tt_u32_t name_len,
+tt_result_t __keyinit_comp_c2s_parse(IN tt_char_t *name, IN tt_u32_t name_len,
                                      IN void *param)
 {
     tt_u32_t i;
 
-    __find_alg_idx(name,
-                   name_len,
-                   tt_g_ssh_cmprs_alg_name,
-                   TT_SSH_CMPRS_ALG_NUM,
-                   i);
+    __find_alg_idx(name, name_len, tt_g_ssh_cmprs_alg_name,
+                   TT_SSH_CMPRS_ALG_NUM, i);
     if (i < TT_SSH_CMPRS_ALG_NUM) {
         return __keyinit_addalg_comp_c2s((tt_sshms_keyinit_t *)param,
                                          (tt_ssh_cmprs_alg_t)i);
@@ -827,17 +743,13 @@ tt_result_t __keyinit_comp_c2s_parse(IN tt_char_t *name,
     }
 }
 
-tt_result_t __keyinit_comp_s2c_parse(IN tt_char_t *name,
-                                     IN tt_u32_t name_len,
+tt_result_t __keyinit_comp_s2c_parse(IN tt_char_t *name, IN tt_u32_t name_len,
                                      IN void *param)
 {
     tt_u32_t i;
 
-    __find_alg_idx(name,
-                   name_len,
-                   tt_g_ssh_cmprs_alg_name,
-                   TT_SSH_CMPRS_ALG_NUM,
-                   i);
+    __find_alg_idx(name, name_len, tt_g_ssh_cmprs_alg_name,
+                   TT_SSH_CMPRS_ALG_NUM, i);
     if (i < TT_SSH_CMPRS_ALG_NUM) {
         return __keyinit_addalg_comp_s2c((tt_sshms_keyinit_t *)param,
                                          (tt_ssh_cmprs_alg_t)i);

@@ -40,7 +40,8 @@ charset definitions
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     // unicode encoding
     TT_CHARSET_UTF8,
     TT_CHARSET_UTF16LE,

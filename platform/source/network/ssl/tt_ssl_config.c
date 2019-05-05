@@ -28,7 +28,6 @@
 #include <misc/tt_util.h>
 #include <network/ssl/tt_ssl.h>
 #include <network/ssl/tt_ssl_cache.h>
-#include <network/ssl/tt_ssl_cache.h>
 #include <network/ssl/tt_x509_cert.h>
 #include <network/ssl/tt_x509_crl.h>
 
@@ -57,17 +56,14 @@
 
 static void __ssl_dbg(void *, int, const char *, int, const char *);
 
-static int __ssl_sni(void *p,
-                     mbedtls_ssl_context *ctx,
-                     const unsigned char *sni,
-                     size_t len);
+static int __ssl_sni(void *p, mbedtls_ssl_context *ctx,
+                     const unsigned char *sni, size_t len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
-                                 IN tt_ssl_role_t role,
+tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc, IN tt_ssl_role_t role,
                                  IN tt_ssl_transport_t transport,
                                  IN tt_ssl_preset_t preset)
 {
@@ -122,15 +118,12 @@ void tt_ssl_config_destroy(IN tt_ssl_config_t *sc)
 {
     TT_ASSERT(sc != NULL);
 
-    if (sc->cache != NULL) {
-        tt_ssl_cache_destroy(sc->cache);
-    }
+    if (sc->cache != NULL) { tt_ssl_cache_destroy(sc->cache); }
 
     mbedtls_ssl_config_free(&sc->cfg);
 }
 
-void tt_ssl_config_version(IN tt_ssl_config_t *sc,
-                           IN tt_ssl_ver_t min,
+void tt_ssl_config_version(IN tt_ssl_config_t *sc, IN tt_ssl_ver_t min,
                            IN tt_ssl_ver_t max)
 {
     int major, minor;
@@ -178,19 +171,16 @@ void tt_ssl_config_auth(IN tt_ssl_config_t *sc, IN tt_ssl_auth_t auth)
     }
 }
 
-void tt_ssl_config_ca(IN tt_ssl_config_t *sc,
-                      IN OPT tt_x509cert_t *ca,
+void tt_ssl_config_ca(IN tt_ssl_config_t *sc, IN OPT tt_x509cert_t *ca,
                       IN OPT tt_x509crl_t *crl)
 {
     TT_ASSERT(sc != NULL);
 
-    mbedtls_ssl_conf_ca_chain(&sc->cfg,
-                              TT_COND(ca != NULL, &ca->crt, NULL),
+    mbedtls_ssl_conf_ca_chain(&sc->cfg, TT_COND(ca != NULL, &ca->crt, NULL),
                               TT_COND(crl != NULL, &crl->crl, NULL));
 }
 
-tt_result_t tt_ssl_config_cert(IN tt_ssl_config_t *sc,
-                               IN tt_x509cert_t *cert,
+tt_result_t tt_ssl_config_cert(IN tt_ssl_config_t *sc, IN tt_x509cert_t *cert,
                                IN tt_pk_t *pk)
 {
     int e;
@@ -235,8 +225,7 @@ void tt_ssl_config_trunc_hmac(IN tt_ssl_config_t *sc, IN tt_bool_t enable)
                                             MBEDTLS_SSL_TRUNC_HMAC_DISABLED));
 }
 
-void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
-                       IN tt_ssl_on_sni_t on_sni,
+void tt_ssl_config_sni(IN tt_ssl_config_t *sc, IN tt_ssl_on_sni_t on_sni,
                        IN void *param)
 {
     TT_ASSERT(sc != NULL);
@@ -247,8 +236,7 @@ void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
     mbedtls_ssl_conf_sni(&sc->cfg, __ssl_sni, sc);
 }
 
-tt_result_t tt_ssl_config_cache(IN tt_ssl_config_t *sc,
-                                IN tt_bool_t use_ticket,
+tt_result_t tt_ssl_config_cache(IN tt_ssl_config_t *sc, IN tt_bool_t use_ticket,
                                 IN OPT tt_ssl_cache_attr_t *attr)
 {
     if (sc->cache != NULL) {
@@ -269,8 +257,7 @@ void tt_ssl_config_encrypt_then_mac(IN tt_ssl_config_t *sc, IN tt_bool_t enable)
     TT_ASSERT(sc != NULL);
 
     mbedtls_ssl_conf_encrypt_then_mac(&sc->cfg,
-                                      TT_COND(enable,
-                                              MBEDTLS_SSL_ETM_ENABLED,
+                                      TT_COND(enable, MBEDTLS_SSL_ETM_ENABLED,
                                               MBEDTLS_SSL_ETM_DISABLED));
 }
 
@@ -280,14 +267,12 @@ void tt_ssl_config_extended_master_secret(IN tt_ssl_config_t *sc,
     TT_ASSERT(sc != NULL);
 
     mbedtls_ssl_conf_extended_master_secret(
-        &sc->cfg,
-        TT_COND(enable,
-                MBEDTLS_SSL_EXTENDED_MS_ENABLED,
-                MBEDTLS_SSL_EXTENDED_MS_DISABLED));
+        &sc->cfg, TT_COND(enable, MBEDTLS_SSL_EXTENDED_MS_ENABLED,
+                          MBEDTLS_SSL_EXTENDED_MS_DISABLED));
 }
 
-void __ssl_dbg(
-    void *param, int level, const char *file, int line, const char *msg)
+void __ssl_dbg(void *param, int level, const char *file, int line,
+               const char *msg)
 {
     tt_log_level_t l;
     const char *p;
@@ -310,15 +295,11 @@ void __ssl_dbg(
     tt_logmgr_inputf((tt_logmgr_t *)param, l, p, line, "%s", msg);
 }
 
-int __ssl_sni(void *p,
-              mbedtls_ssl_context *ctx,
-              const unsigned char *sni,
+int __ssl_sni(void *p, mbedtls_ssl_context *ctx, const unsigned char *sni,
               size_t len)
 {
     tt_ssl_config_t *sc = (tt_ssl_config_t *)p;
-    if (TT_OK(sc->on_sni(TT_CONTAINER(ctx, tt_ssl_t, ctx),
-                         sni,
-                         (tt_u32_t)len,
+    if (TT_OK(sc->on_sni(TT_CONTAINER(ctx, tt_ssl_t, ctx), sni, (tt_u32_t)len,
                          sc->on_sni_param))) {
         return 0;
     } else {

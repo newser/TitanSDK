@@ -42,7 +42,8 @@ this file defines ec
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_ECGRP_SECP192R1,
     TT_ECGRP_SECP224R1,
     TT_ECGRP_SECP256R1,

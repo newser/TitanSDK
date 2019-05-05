@@ -71,8 +71,7 @@ static tt_sshmsg_itf_t __cheof_op = {
 
 tt_sshmsg_t *tt_sshmsg_cheof_create()
 {
-    return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_EOF,
-                            sizeof(tt_sshmsg_cheof_t),
+    return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_EOF, sizeof(tt_sshmsg_cheof_t),
                             &__cheof_op);
 }
 

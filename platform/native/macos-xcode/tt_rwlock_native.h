@@ -135,8 +135,7 @@ tt_inline tt_bool_t tt_rwlock_try_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
     } else if (ret == EBUSY) {
         return TT_FALSE;
     } else {
-        TT_FATAL("fail to try readlock system rwlock: %d[%s]",
-                 ret,
+        TT_FATAL("fail to try readlock system rwlock: %d[%s]", ret,
                  strerror(ret));
         tt_throw_exception_ntv(NULL);
         return TT_FALSE;
@@ -207,8 +206,7 @@ tt_inline tt_bool_t tt_rwlock_try_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
     } else if (ret == EBUSY) {
         return TT_FALSE;
     } else {
-        TT_FATAL("fail to try readlock system rwlock: %d[%s]",
-                 ret,
+        TT_FATAL("fail to try readlock system rwlock: %d[%s]", ret,
                  strerror(ret));
         tt_throw_exception_ntv(NULL);
         return TT_FALSE;

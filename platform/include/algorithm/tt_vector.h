@@ -90,10 +90,8 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_vec_init(IN tt_vec_t *vec,
-                           IN tt_u32_t obj_size,
-                           IN OPT tt_cmp_t cmp,
-                           IN OPT tt_vec_attr_t *attr);
+tt_export void tt_vec_init(IN tt_vec_t *vec, IN tt_u32_t obj_size,
+                           IN OPT tt_cmp_t cmp, IN OPT tt_vec_attr_t *attr);
 
 tt_export void tt_vec_destroy(IN tt_vec_t *vec);
 
@@ -103,8 +101,7 @@ tt_export tt_result_t __vec_reserve(IN tt_vec_t *vec, IN tt_u32_t count);
 
 tt_inline tt_result_t tt_vec_reserve(IN tt_vec_t *vec, IN tt_u32_t count)
 {
-    return TT_COND((vec->count + count) <= vec->capacity,
-                   TT_SUCCESS,
+    return TT_COND((vec->count + count) <= vec->capacity, TT_SUCCESS,
                    __vec_reserve(vec, count));
 }
 
@@ -120,19 +117,16 @@ tt_export void *tt_vec_head(IN tt_vec_t *vec);
 
 tt_export void *tt_vec_tail(IN tt_vec_t *vec);
 
-tt_export tt_result_t tt_vec_insert(IN tt_vec_t *vec,
-                                    IN tt_u32_t idx,
+tt_export tt_result_t tt_vec_insert(IN tt_vec_t *vec, IN tt_u32_t idx,
                                     IN void *obj);
 
 tt_export tt_result_t tt_vec_move_all(IN tt_vec_t *dst, IN tt_vec_t *src);
 
-tt_export tt_result_t tt_vec_move_from(IN tt_vec_t *dst,
-                                       IN tt_vec_t *src,
+tt_export tt_result_t tt_vec_move_from(IN tt_vec_t *dst, IN tt_vec_t *src,
                                        IN tt_u32_t from_idx);
 
 // [from_idx, to_idx)
-tt_export tt_result_t tt_vec_move_range(IN tt_vec_t *dst,
-                                        IN tt_vec_t *src,
+tt_export tt_result_t tt_vec_move_range(IN tt_vec_t *dst, IN tt_vec_t *src,
                                         IN tt_u32_t from_idx,
                                         IN tt_u32_t to_idx);
 
@@ -162,22 +156,18 @@ tt_export tt_bool_t tt_vec_comtain_all(IN tt_vec_t *vec, IN tt_vec_t *vec2);
 
 tt_export void *tt_vec_get(IN tt_vec_t *vec, IN tt_u32_t idx);
 
-tt_export tt_result_t tt_vec_set(IN tt_vec_t *vec,
-                                 IN tt_u32_t idx,
+tt_export tt_result_t tt_vec_set(IN tt_vec_t *vec, IN tt_u32_t idx,
                                  IN void *obj);
 
 tt_export tt_u32_t tt_vec_find(IN tt_vec_t *vec, IN void *obj);
 
 tt_export tt_u32_t tt_vec_find_last(IN tt_vec_t *vec, IN void *obj);
 
-tt_export tt_u32_t tt_vec_find_from(IN tt_vec_t *vec,
-                                    IN void *obj,
+tt_export tt_u32_t tt_vec_find_from(IN tt_vec_t *vec, IN void *obj,
                                     IN tt_u32_t from_idx);
 
-tt_export tt_u32_t tt_vec_find_range(IN tt_vec_t *vec,
-                                     IN void *obj,
-                                     IN tt_u32_t from_idx,
-                                     IN tt_u32_t to_idx);
+tt_export tt_u32_t tt_vec_find_range(IN tt_vec_t *vec, IN void *obj,
+                                     IN tt_u32_t from_idx, IN tt_u32_t to_idx);
 
 tt_export void tt_vec_remove(IN tt_vec_t *vec, IN tt_u32_t idx);
 
@@ -185,8 +175,7 @@ tt_export void tt_vec_remove(IN tt_vec_t *vec, IN tt_u32_t idx);
 tt_export tt_u32_t tt_vec_remove_equal(IN tt_vec_t *vec, IN void *obj);
 
 // [from_idx, to_idx)
-tt_export void tt_vec_remove_range(IN tt_vec_t *vec,
-                                   IN tt_u32_t from_idx,
+tt_export void tt_vec_remove_range(IN tt_vec_t *vec, IN tt_u32_t from_idx,
                                    IN tt_u32_t to_idx);
 
 tt_export void tt_vec_trim(IN tt_vec_t *vec);

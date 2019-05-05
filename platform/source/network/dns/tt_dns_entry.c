@@ -59,8 +59,7 @@ static void __de_destroy(IN tt_dns_entry_t *de);
 ////////////////////////////////////////////////////////////
 
 tt_dns_entry_t *tt_dns_entry_create(IN struct tt_dns_cache_s *dc,
-                                    IN const tt_char_t *name,
-                                    IN tt_u32_t len)
+                                    IN const tt_char_t *name, IN tt_u32_t len)
 {
     tt_dns_entry_t *de;
     tt_dns_type_t t;
@@ -106,9 +105,7 @@ void tt_dns_entry_clear(IN tt_dns_entry_t *de)
 
     de->ttl = TT_TIME_INFINITE;
 
-    for (t = 0; t < TT_DNS_TYPE_NUM; ++t) {
-        tt_dns_rr_clear(&de->rr[t]);
-    }
+    for (t = 0; t < TT_DNS_TYPE_NUM; ++t) { tt_dns_rr_clear(&de->rr[t]); }
 }
 
 void tt_dns_entry_update_ttl(IN tt_dns_entry_t *de, IN tt_s64_t ttl)
@@ -120,8 +117,7 @@ void tt_dns_entry_update_ttl(IN tt_dns_entry_t *de, IN tt_s64_t ttl)
     }
 }
 
-tt_bool_t tt_dns_entry_run(IN tt_dns_entry_t *de,
-                           IN tt_s64_t now,
+tt_bool_t tt_dns_entry_run(IN tt_dns_entry_t *de, IN tt_s64_t now,
                            OUT tt_s64_t *ttl_ms)
 {
     if (de->ttl == TT_TIME_INFINITE) {
@@ -140,15 +136,12 @@ tt_bool_t tt_dns_entry_run(IN tt_dns_entry_t *de,
     }
 }
 
-tt_bool_t tt_dns_entry_inuse(IN tt_dns_entry_t *de,
-                             IN tt_s64_t now,
+tt_bool_t tt_dns_entry_inuse(IN tt_dns_entry_t *de, IN tt_s64_t now,
                              IN tt_s64_t limit)
 {
     tt_dns_type_t t;
 
-    if ((de->timestamp + limit) >= now) {
-        return TT_TRUE;
-    }
+    if ((de->timestamp + limit) >= now) { return TT_TRUE; }
 
     for (t = 0; t < TT_DNS_TYPE_NUM; ++t) {
         if (tt_dns_rr_inuse(&de->rr[t])) {
@@ -206,9 +199,7 @@ void __de_destroy(IN tt_dns_entry_t *de)
 {
     tt_dns_type_t t;
 
-    for (t = 0; t < TT_DNS_TYPE_NUM; ++t) {
-        tt_dns_rr_clear(&de->rr[t]);
-    }
+    for (t = 0; t < TT_DNS_TYPE_NUM; ++t) { tt_dns_rr_clear(&de->rr[t]); }
 
     tt_free(de);
 }

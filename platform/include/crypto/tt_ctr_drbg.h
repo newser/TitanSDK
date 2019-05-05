@@ -65,8 +65,7 @@ tt_export void tt_ctr_drbg_destroy(IN tt_ctr_drbg_t *drbg);
 
 tt_export tt_ctr_drbg_t *tt_current_ctr_drbg();
 
-tt_export tt_result_t tt_ctr_drbg_rand(IN tt_ctr_drbg_t *drbg,
-                                       OUT tt_u8_t *buf,
+tt_export tt_result_t tt_ctr_drbg_rand(IN tt_ctr_drbg_t *drbg, OUT tt_u8_t *buf,
                                        IN tt_u32_t len);
 
 tt_export int tt_ctr_drbg(IN void *param, IN unsigned char *buf, IN size_t len);

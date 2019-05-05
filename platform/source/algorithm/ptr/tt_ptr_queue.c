@@ -91,9 +91,7 @@ void tt_ptrq_destroy(IN tt_ptrq_t *pq)
 
     tt_ptrq_clear(pq);
 
-    if (pq->cached_frame != NULL) {
-        tt_free(pq->cached_frame);
-    }
+    if (pq->cached_frame != NULL) { tt_free(pq->cached_frame); }
 }
 
 void tt_ptrq_attr_default(IN tt_ptrq_attr_t *attr)
@@ -131,17 +129,13 @@ tt_result_t tt_ptrq_push_head(IN tt_ptrq_t *pq, IN tt_ptr_t p)
         frame = TT_CONTAINER(dnode, __q_frame_t, node);
     } else {
         frame = __alloc_head_frame(pq);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_head(&pq->frame, &frame->node);
     }
 
     if (frame->start == 0) {
         frame = __alloc_head_frame(pq);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_head(&pq->frame, &frame->node);
     }
     TT_ASSERT(frame->start > 0);
@@ -168,17 +162,13 @@ tt_result_t tt_ptrq_push_tail(IN tt_ptrq_t *pq, IN tt_ptr_t p)
         frame = TT_CONTAINER(dnode, __q_frame_t, node);
     } else {
         frame = __alloc_tail_frame(pq);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_tail(&pq->frame, &frame->node);
     }
 
     if (frame->end == pq->ptr_per_frame) {
         frame = __alloc_tail_frame(pq);
-        if (frame == NULL) {
-            return TT_FAIL;
-        }
+        if (frame == NULL) { return TT_FAIL; }
         tt_dlist_push_tail(&pq->frame, &frame->node);
     }
     TT_ASSERT(frame->end < pq->ptr_per_frame);
@@ -197,9 +187,7 @@ tt_ptr_t tt_ptrq_pop_head(IN tt_ptrq_t *pq)
     tt_ptr_t p;
 
     dnode = tt_dlist_head(&pq->frame);
-    if (dnode == NULL) {
-        return NULL;
-    }
+    if (dnode == NULL) { return NULL; }
 
     frame = TT_CONTAINER(dnode, __q_frame_t, node);
     TT_ASSERT(frame->start < frame->end);
@@ -222,9 +210,7 @@ tt_ptr_t tt_ptrq_pop_tail(IN tt_ptrq_t *pq)
     tt_ptr_t p;
 
     dnode = tt_dlist_tail(&pq->frame);
-    if (dnode == NULL) {
-        return NULL;
-    }
+    if (dnode == NULL) { return NULL; }
 
     frame = TT_CONTAINER(dnode, __q_frame_t, node);
     TT_ASSERT(frame->start < frame->end);
@@ -243,17 +229,13 @@ tt_ptr_t tt_ptrq_pop_tail(IN tt_ptrq_t *pq)
 void tt_ptrq_remove_head(IN tt_ptrq_t *pq)
 {
     tt_ptr_t p = tt_ptrq_pop_head(pq);
-    if (p != NULL) {
-        tt_free(p);
-    }
+    if (p != NULL) { tt_free(p); }
 }
 
 void tt_ptrq_remove_tail(IN tt_ptrq_t *pq)
 {
     tt_ptr_t p = tt_ptrq_pop_tail(pq);
-    if (p != NULL) {
-        tt_free(p);
-    }
+    if (p != NULL) { tt_free(p); }
 }
 
 tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq)
@@ -262,9 +244,7 @@ tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq)
     __q_frame_t *frame;
 
     dnode = tt_dlist_head(&pq->frame);
-    if (dnode == NULL) {
-        return NULL;
-    }
+    if (dnode == NULL) { return NULL; }
 
     frame = TT_CONTAINER(dnode, __q_frame_t, node);
     TT_ASSERT(frame->start < frame->end);
@@ -277,9 +257,7 @@ tt_ptr_t tt_ptrq_tail(IN tt_ptrq_t *pq)
     __q_frame_t *frame;
 
     dnode = tt_dlist_tail(&pq->frame);
-    if (dnode == NULL) {
-        return NULL;
-    }
+    if (dnode == NULL) { return NULL; }
 
     frame = TT_CONTAINER(dnode, __q_frame_t, node);
     TT_ASSERT(frame->start < frame->end);
@@ -307,9 +285,7 @@ tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter)
     __q_frame_t *frame = iter->frame;
     tt_ptr_t p;
 
-    if (frame == NULL) {
-        return NULL;
-    }
+    if (frame == NULL) { return NULL; }
 
     TT_ASSERT((frame->start + iter->idx) <= frame->end);
     if ((frame->start + iter->idx) == frame->end) {
@@ -331,9 +307,7 @@ tt_ptr_t tt_ptrq_get(IN tt_ptrq_t *pq, IN tt_u32_t idx)
 {
     tt_dnode_t *node;
 
-    if (idx >= pq->count) {
-        return NULL;
-    }
+    if (idx >= pq->count) { return NULL; }
 
     node = tt_dlist_head(&pq->frame);
     while (node != NULL) {
@@ -359,9 +333,7 @@ tt_ptr_t tt_ptrq_set(IN tt_ptrq_t *pq, IN tt_u32_t idx, IN tt_ptr_t p)
 
     TT_ASSERT(p != NULL);
 
-    if (idx >= pq->count) {
-        return NULL;
-    }
+    if (idx >= pq->count) { return NULL; }
 
     node = tt_dlist_head(&pq->frame);
     while (node != NULL) {

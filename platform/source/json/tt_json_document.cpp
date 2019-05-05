@@ -50,14 +50,10 @@ using namespace rapidjson;
 
 class jw_mem
 {
-  public:
+public:
     typedef char Ch;
 
-    jw_mem(tt_buf_t *buf)
-        : buf_(buf)
-        , err_(TT_FALSE)
-    {
-    }
+    jw_mem(tt_buf_t *buf): buf_(buf), err_(TT_FALSE) {}
 
     Ch Peek() const
     {
@@ -85,14 +81,10 @@ class jw_mem
 
     void Put(Ch c)
     {
-        if (!err_ && !TT_OK(tt_buf_put_u8(buf_, c))) {
-            err_ = TT_TRUE;
-        }
+        if (!err_ && !TT_OK(tt_buf_put_u8(buf_, c))) { err_ = TT_TRUE; }
     }
 
-    void Flush()
-    {
-    }
+    void Flush() {}
 
     size_t PutEnd(Ch *)
     {
@@ -100,12 +92,9 @@ class jw_mem
         return 0;
     }
 
-    tt_bool_t error()
-    {
-        return err_;
-    }
+    tt_bool_t error() { return err_; }
 
-  private:
+private:
     jw_mem(const jw_mem &);
     jw_mem &operator=(const jw_mem &);
 
@@ -115,21 +104,17 @@ class jw_mem
 
 class jw_file
 {
-  public:
+public:
     typedef char Ch;
 
-    jw_file(IN const tt_char_t *path)
-        : path_(path)
-        , err_(TT_FALSE)
-        , opened_(TT_FALSE)
+    jw_file(IN const tt_char_t *path):
+        path_(path), err_(TT_FALSE), opened_(TT_FALSE)
     {
     }
 
     ~jw_file()
     {
-        if (opened_) {
-            tt_fclose(&f_);
-        }
+        if (opened_) { tt_fclose(&f_); }
     }
 
     Ch Peek() const
@@ -160,8 +145,7 @@ class jw_file
     {
         if (!err_) {
             if (!opened_) {
-                if (!TT_OK(tt_fopen(&f_,
-                                    path_,
+                if (!TT_OK(tt_fopen(&f_, path_,
                                     TT_FO_CREAT | TT_FO_TRUNC | TT_FO_WRITE,
                                     nullptr))) {
                     err_ = TT_TRUE;
@@ -179,9 +163,7 @@ class jw_file
 
     void Flush()
     {
-        if (!err_ && opened_) {
-            tt_fdatasync(&f_);
-        }
+        if (!err_ && opened_) { tt_fdatasync(&f_); }
     }
 
     size_t PutEnd(Ch *)
@@ -190,12 +172,9 @@ class jw_file
         return 0;
     }
 
-    tt_bool_t error()
-    {
-        return err_;
-    }
+    tt_bool_t error() { return err_; }
 
-  private:
+private:
     const tt_char_t *path_;
     tt_file_t f_;
     tt_bool_t err_ : 1;
@@ -210,8 +189,9 @@ class jw_file
 // global variant
 ////////////////////////////////////////////////////////////
 
-static UTFType tt_s_utftype_map[TT_JDOC_ENCODING_NUM] =
-    {kUTF8, kUTF8, kUTF16LE, kUTF16BE, kUTF32LE, kUTF32BE};
+static UTFType tt_s_utftype_map[TT_JDOC_ENCODING_NUM] = {kUTF8,    kUTF8,
+                                                         kUTF16LE, kUTF16BE,
+                                                         kUTF32LE, kUTF32BE};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -270,9 +250,7 @@ void tt_jdoc_parse_attr_default(IN tt_jdoc_parse_attr_t *attr)
     attr->encoding = TT_JDOC_AUTO;
 }
 
-tt_result_t tt_jdoc_parse(IN tt_jdoc_t *jd,
-                          IN void *buf,
-                          IN tt_u32_t len,
+tt_result_t tt_jdoc_parse(IN tt_jdoc_t *jd, IN void *buf, IN tt_u32_t len,
                           IN OPT tt_jdoc_parse_attr_t *attr)
 {
     TT_ASSERT(jd != nullptr);
@@ -325,8 +303,7 @@ tt_result_t tt_jdoc_parse(IN tt_jdoc_t *jd,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_jdoc_parse_file(IN tt_jdoc_t *jd,
-                               IN const tt_char_t *path,
+tt_result_t tt_jdoc_parse_file(IN tt_jdoc_t *jd, IN const tt_char_t *path,
                                IN OPT tt_jdoc_parse_attr_t *attr)
 {
     tt_buf_t buf;
@@ -350,8 +327,7 @@ void tt_jdoc_render_attr_default(IN tt_jdoc_render_attr_t *attr)
     attr->bom = TT_FALSE;
 }
 
-tt_result_t tt_jdoc_render(IN tt_jdoc_t *jd,
-                           IN tt_buf_t *buf,
+tt_result_t tt_jdoc_render(IN tt_jdoc_t *jd, IN tt_buf_t *buf,
                            IN OPT tt_jdoc_render_attr_t *attr)
 {
     TT_ASSERT(jd != nullptr);
@@ -375,15 +351,12 @@ tt_result_t tt_jdoc_render(IN tt_jdoc_t *jd,
            AutoUTF<unsigned int> >
         writer(aos);
     // clang-format on
-    if (!p->Accept(writer) || jm.error()) {
-        return TT_FAIL;
-    }
+    if (!p->Accept(writer) || jm.error()) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_jdoc_render_file(IN tt_jdoc_t *jd,
-                                IN const tt_char_t *path,
+tt_result_t tt_jdoc_render_file(IN tt_jdoc_t *jd, IN const tt_char_t *path,
                                 IN OPT tt_jdoc_render_attr_t *attr)
 {
     TT_ASSERT(jd != nullptr);
@@ -407,9 +380,7 @@ tt_result_t tt_jdoc_render_file(IN tt_jdoc_t *jd,
            AutoUTF<unsigned int> >
         writer(aos);
     // clang-format on
-    if (!p->Accept(writer) || jf.error()) {
-        return TT_FAIL;
-    }
+    if (!p->Accept(writer) || jf.error()) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -449,43 +420,33 @@ tt_jval_t *tt_jdoc_find(IN tt_jdoc_t *jd, IN const tt_char_t *name)
 const tt_char_t *__pec_str(IN ParseErrorCode pec)
 {
     switch (pec) {
-        case kParseErrorNone:
-            return "No error.";
-        case kParseErrorDocumentEmpty:
-            return "The document is empty.";
-        case kParseErrorDocumentRootNotSingular:
-            return "The document root must not follow by other values.";
-        case kParseErrorValueInvalid:
-            return "Invalid value.";
-        case kParseErrorObjectMissName:
-            return "Missing a name for object member.";
-        case kParseErrorObjectMissColon:
-            return "Missing a colon after a name of object member.";
-        case kParseErrorObjectMissCommaOrCurlyBracket:
-            return "Missing a comma or '}' after an object member.";
-        case kParseErrorArrayMissCommaOrSquareBracket:
-            return "Missing a comma or ']' after an array element.";
-        case kParseErrorStringUnicodeEscapeInvalidHex:
-            return "Incorrect hex digit after \\u escape in string.";
-        case kParseErrorStringUnicodeSurrogateInvalid:
-            return "The surrogate pair in string is invalid.";
-        case kParseErrorStringEscapeInvalid:
-            return "Invalid escape character in string.";
-        case kParseErrorStringMissQuotationMark:
-            return "Missing a closing quotation mark in string.";
-        case kParseErrorStringInvalidEncoding:
-            return "Invalid encoding in string.";
-        case kParseErrorNumberTooBig:
-            return "Number too big to be stored in double.";
-        case kParseErrorNumberMissFraction:
-            return "Miss fraction part in number.";
-        case kParseErrorNumberMissExponent:
-            return "Miss exponent in number.";
-        case kParseErrorTermination:
-            return "Parsing was terminated.";
-        case kParseErrorUnspecificSyntaxError:
-            return "Unspecific syntax error.";
-        default:
-            return "Unknown";
+    case kParseErrorNone: return "No error.";
+    case kParseErrorDocumentEmpty: return "The document is empty.";
+    case kParseErrorDocumentRootNotSingular:
+        return "The document root must not follow by other values.";
+    case kParseErrorValueInvalid: return "Invalid value.";
+    case kParseErrorObjectMissName: return "Missing a name for object member.";
+    case kParseErrorObjectMissColon:
+        return "Missing a colon after a name of object member.";
+    case kParseErrorObjectMissCommaOrCurlyBracket:
+        return "Missing a comma or '}' after an object member.";
+    case kParseErrorArrayMissCommaOrSquareBracket:
+        return "Missing a comma or ']' after an array element.";
+    case kParseErrorStringUnicodeEscapeInvalidHex:
+        return "Incorrect hex digit after \\u escape in string.";
+    case kParseErrorStringUnicodeSurrogateInvalid:
+        return "The surrogate pair in string is invalid.";
+    case kParseErrorStringEscapeInvalid:
+        return "Invalid escape character in string.";
+    case kParseErrorStringMissQuotationMark:
+        return "Missing a closing quotation mark in string.";
+    case kParseErrorStringInvalidEncoding: return "Invalid encoding in string.";
+    case kParseErrorNumberTooBig:
+        return "Number too big to be stored in double.";
+    case kParseErrorNumberMissFraction: return "Miss fraction part in number.";
+    case kParseErrorNumberMissExponent: return "Miss exponent in number.";
+    case kParseErrorTermination: return "Parsing was terminated.";
+    case kParseErrorUnspecificSyntaxError: return "Unspecific syntax error.";
+    default: return "Unknown";
     }
 }

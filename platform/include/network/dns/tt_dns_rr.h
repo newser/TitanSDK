@@ -44,7 +44,8 @@ struct tt_fiber_s;
 struct in_addr;
 struct in6_addr;
 
-typedef enum {
+typedef enum
+{
     TT_DNS_A_IN,
     TT_DNS_AAAA_IN,
 
@@ -87,18 +88,15 @@ typedef struct tt_dns_aaaa_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_dns_rr_init(IN tt_dns_rr_t *drr,
-                              IN const tt_char_t *name,
+tt_export void tt_dns_rr_init(IN tt_dns_rr_t *drr, IN const tt_char_t *name,
                               IN tt_dns_type_t type);
 
 tt_export void tt_dns_rr_clear(IN tt_dns_rr_t *drr);
 
 tt_export tt_dns_rrlist_t *tt_dns_rr_get(IN tt_dns_rr_t *drr, IN tt_dns_t d);
 
-tt_export void tt_dns_rr_set(IN tt_dns_rr_t *drr,
-                             IN tt_s64_t ttl,
-                             IN tt_dns_rrlist_t *rrl,
-                             IN tt_bool_t notify);
+tt_export void tt_dns_rr_set(IN tt_dns_rr_t *drr, IN tt_s64_t ttl,
+                             IN tt_dns_rrlist_t *rrl, IN tt_bool_t notify);
 
 tt_inline tt_bool_t tt_dns_rr_inuse(IN tt_dns_rr_t *drr)
 {

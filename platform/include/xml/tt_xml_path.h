@@ -76,7 +76,8 @@ typedef struct
     const void *p;
 } tt_xpnodes_iter_t;
 
-typedef enum {
+typedef enum
+{
     TT_XPNODES_UNSORTED,
     TT_XPNODES_SORTED,
     TT_XPNODES_SORTED_REVERSE,
@@ -141,7 +142,6 @@ tt_export void tt_xpnodes_iter(IN tt_xpnodes_t *xpns,
                                OUT tt_xpnodes_iter_t *iter);
 
 tt_export tt_result_t tt_xpnodes_iter_next(IN OUT tt_xpnodes_iter_t *iter,
-                                           OUT tt_ptr_t *xn,
-                                           OUT tt_ptr_t *xa);
+                                           OUT tt_ptr_t *xn, OUT tt_ptr_t *xa);
 
 #endif /* __TT_XML_PATH__ */

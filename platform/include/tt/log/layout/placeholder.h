@@ -17,7 +17,7 @@
  */
 
 /**
-@file placeholder.h
+@file base.h
  @brief log layout: pattern
 
 this file define all basic types
@@ -50,14 +50,12 @@ namespace tt {
 
 namespace log {
 
-namespace layout {
+namespace placeholder {
 
-class placeholder
+class base
 {
 public:
-    static placeholder *parse(const char *p, size_t len);
-
-    virtual ~placeholder() {}
+    virtual ~base() {}
 
     void render(const entry &e, OUT buf &b)
     {
@@ -65,7 +63,7 @@ public:
     }
 
 protected:
-    placeholder(const char *format, size_t len)
+    base(const char *format, size_t len)
     {
         if (len > 0) { format_.reset((char *)dup(format, len, 1)); }
     }
@@ -74,15 +72,15 @@ protected:
     virtual void do_render(const char *format, const entry &e,
                            OUT buf &b) const = 0;
 
-    std::unique_ptr<char[]> format_;
+    std::unique_ptr<char[]> format_{nullptr};
 
-    TT_NON_COPYABLE(placeholder)
+    TT_NON_COPYABLE(base)
 };
 
-class logger: public placeholder
+class logger: public base
 {
 public:
-    logger(const char *format, size_t len): placeholder(format, len) {}
+    logger(const char *format, size_t len): base(format, len) {}
 
 private:
     const char *default_format() const override { return "%s"; };
@@ -94,10 +92,10 @@ private:
     }
 };
 
-class function: public placeholder
+class function: public base
 {
 public:
-    function(const char *format, size_t len): placeholder(format, len) {}
+    function(const char *format, size_t len): base(format, len) {}
 
 private:
     const char *default_format() const override { return "%s"; };
@@ -109,10 +107,10 @@ private:
     }
 };
 
-class content: public placeholder
+class content: public base
 {
 public:
-    content(const char *format, size_t len): placeholder(format, len) {}
+    content(const char *format, size_t len): base(format, len) {}
 
 private:
     const char *default_format() const override { return "%s"; };
@@ -124,11 +122,10 @@ private:
     }
 };
 
-class seqno: public placeholder
+class seqno: public base
 {
 public:
-    seqno(const char *format, size_t len, uint32_t start = 0):
-        placeholder(format, len)
+    seqno(const char *format, size_t len, uint32_t start = 0): base(format, len)
     {
     }
 
@@ -142,10 +139,10 @@ private:
     }
 };
 
-class line: public placeholder
+class line: public base
 {
 public:
-    line(const char *format, size_t len): placeholder(format, len) {}
+    line(const char *format, size_t len): base(format, len) {}
 
 private:
     const char *default_format() const override { return "%u"; };
@@ -157,10 +154,10 @@ private:
     }
 };
 
-class level: public placeholder
+class level: public base
 {
 public:
-    level(const char *format, size_t len): placeholder(format, len) {}
+    level(const char *format, size_t len): base(format, len) {}
 
 private:
     static const char *s_level[level_num];
@@ -181,6 +178,8 @@ private:
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+tt_export base *parse(const char *p, size_t len);
 
 }
 

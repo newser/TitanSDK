@@ -399,12 +399,16 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         TT_UT_FALSE(buf.endwith("1234567"), "");
         TT_UT_FALSE(buf.endwith(0x30), "");
 
-        TT_UT_EQUAL(buf.remove(0, 0), buf, "");
+        buf.remove(0, 0);
         TT_UT_HAS_EXCEPT(buf.remove(0, 1));
-        TT_UT_EQUAL(buf.remove_to(0), buf, "");
-        TT_UT_EQUAL(buf.remove_from(0), buf, "");
-        TT_UT_EQUAL(buf.remove_head(0), buf, "");
-        TT_UT_EQUAL(buf.remove_tail(0), buf, "");
+        buf.remove_to(0);
+        TT_UT_TRUE(buf.empty(), "");
+        buf.remove_from(0);
+        TT_UT_TRUE(buf.empty(), "");
+        buf.remove_head(0);
+        TT_UT_TRUE(buf.empty(), "");
+        buf.remove_tail(0);
+        TT_UT_TRUE(buf.empty(), "");
 
         buf.trim();
         TT_UT_TRUE(buf.empty(), "");
@@ -436,7 +440,8 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         b.insert_tail(" ");
         b.trim();
         TT_UT_EQUAL(b, "12abc3456", "");
-        b.insert_head("  ").insert_tail("    ");
+        b.insert_head("  ");
+        b.insert_tail("    ");
         b.trim();
         TT_UT_EQUAL(b, "12abc3456", "");
         b.trim();
@@ -446,10 +451,10 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
     {
         tt::buf_t<> b;
         char tmp[] = "12345678901234567890", tmp2[30];
-        b.write(tmp, sizeof(tmp) - 1)
-            .write(tmp, sizeof(tmp) - 1)
-            .write(tmp, sizeof(tmp) - 1)
-            .write(tmp, sizeof(tmp) - 1);
+        b.write(tmp, sizeof(tmp) - 1);
+        b.write(tmp, sizeof(tmp) - 1);
+        b.write(tmp, sizeof(tmp) - 1);
+        b.write(tmp, sizeof(tmp) - 1);
 
         memset(tmp2, 0, sizeof(tmp2));
         TT_UT_TRUE(b.peek(tmp2, sizeof(tmp2)), "");
@@ -479,10 +484,10 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
 
     {
         tt::buf_t<> b;
-        b.write((char)0x1)
-            .write((short)0x0304)
-            .write((int32_t)0x05060708)
-            .write((uint64_t)0x090a0b0c0d0e0f06);
+        b.write((char)0x1);
+        b.write((short)0x0304);
+        b.write((int32_t)0x05060708);
+        b.write((uint64_t)0x090a0b0c0d0e0f06);
 
         char c;
         TT_UT_TRUE(b.read(c), "");
@@ -500,10 +505,10 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         TT_UT_TRUE(b.read(v4), "");
         TT_UT_EQUAL(v4, 0x090a0b0c0d0e0f06, "");
 
-        b.write_h2n((char)0x1)
-            .write_h2n((short)0x0304)
-            .write_h2n((int32_t)0x05060708)
-            .write_h2n((uint64_t)0x090a0b0c0d0e0f06);
+        b.write_h2n((char)0x1);
+        b.write_h2n((short)0x0304);
+        b.write_h2n((int32_t)0x05060708);
+        b.write_h2n((uint64_t)0x090a0b0c0d0e0f06);
 
         TT_UT_TRUE(b.peek_n2h(c), "");
         TT_UT_EQUAL(c, 0x1, "");

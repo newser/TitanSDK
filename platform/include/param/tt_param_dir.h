@@ -96,8 +96,7 @@ tt_inline tt_param_t *tt_param_dir_next(IN tt_param_t *param)
    or destroyed
  */
 tt_export tt_result_t
-tt_param_dir_build_tidmap(IN tt_param_dir_t *pd,
-                          IN tt_u32_t slot_num,
+tt_param_dir_build_tidmap(IN tt_param_dir_t *pd, IN tt_u32_t slot_num,
                           IN OPT struct tt_ptrhmap_attr_s *attr);
 
 #endif /* __TT_PARAM_DIR__ */

@@ -55,12 +55,9 @@ static tt_result_t __chdata_parse(IN struct tt_sshmsg_s *msg,
                                   IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __chdata_op = {
-    __chdata_create,
-    __chdata_destroy,
-    NULL,
+    __chdata_create,         __chdata_destroy, NULL,
 
-    __chdata_render_prepare,
-    __chdata_render,
+    __chdata_render_prepare, __chdata_render,
 
     __chdata_parse,
 };
@@ -76,8 +73,7 @@ static tt_sshmsg_itf_t __chdata_op = {
 tt_sshmsg_t *tt_sshmsg_chdata_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_DATA,
-                            sizeof(tt_sshmsg_chdata_t),
-                            &__chdata_op);
+                            sizeof(tt_sshmsg_chdata_t), &__chdata_op);
 }
 
 void tt_sshmsg_chdata_set_rcvchnum(IN tt_sshmsg_t *msg, IN tt_u32_t rcv_chnum)
@@ -92,8 +88,7 @@ void tt_sshmsg_chdata_set_rcvchnum(IN tt_sshmsg_t *msg, IN tt_u32_t rcv_chnum)
     chdata->rcv_chnum = rcv_chnum;
 }
 
-tt_result_t tt_sshmsg_chdata_set_data(IN tt_sshmsg_t *msg,
-                                      IN tt_u8_t *data,
+tt_result_t tt_sshmsg_chdata_set_data(IN tt_sshmsg_t *msg, IN tt_u8_t *data,
                                       IN tt_u32_t data_len,
                                       IN tt_bool_t no_copy)
 {
@@ -190,8 +185,7 @@ tt_result_t __chdata_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
     TT_DO(tt_ssh_uint32_render(buf, chdata->rcv_chnum));
 
     // string data
-    TT_DO(tt_ssh_string_render(buf,
-                               TT_BUF_RPOS(data_buf),
+    TT_DO(tt_ssh_string_render(buf, TT_BUF_RPOS(data_buf),
                                TT_BUF_RLEN(data_buf)));
 
     return TT_SUCCESS;

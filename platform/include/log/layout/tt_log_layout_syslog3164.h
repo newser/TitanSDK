@@ -50,10 +50,7 @@ this file defines log layout syslog3164
 ////////////////////////////////////////////////////////////
 
 tt_export tt_loglyt_t *tt_loglyt_syslog3164_create(
-    IN tt_syslog_facility_t f,
-    IN tt_syslog_level_t l,
-    IN const tt_char_t *host,
-    IN OPT const tt_char_t *program,
-    IN const tt_char_t *pattern);
+    IN tt_syslog_facility_t f, IN tt_syslog_level_t l, IN const tt_char_t *host,
+    IN OPT const tt_char_t *program, IN const tt_char_t *pattern);
 
 #endif /* __TT_LOG_LAYOUT_SYSLOG3164__ */

@@ -54,24 +54,12 @@ TT_TEST_ROUTINE_DECLARE(case_mutex_mt)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(mutex_case)
 
-TT_TEST_CASE("case_mutex_basic",
-             "testing basic mutex API",
-             case_mutex_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_mutex_basic", "testing basic mutex API", case_mutex_basic,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_mutex_mt",
-                 "testing mutex API in multithread",
-                 case_mutex_mt,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_mutex_mt", "testing mutex API in multithread",
+                 case_mutex_mt, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(mutex_case)
     // =========================================

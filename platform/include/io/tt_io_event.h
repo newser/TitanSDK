@@ -96,8 +96,7 @@ typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_io_ev_init(IN tt_io_ev_t *io_ev,
-                             IN tt_u16_t io,
+tt_inline void tt_io_ev_init(IN tt_io_ev_t *io_ev, IN tt_u16_t io,
                              IN tt_u32_t ev)
 {
     io_ev->src = NULL;

@@ -56,12 +56,9 @@ static tt_result_t __chopf_render(IN struct tt_sshmsg_s *msg,
 static tt_result_t __chopf_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __chopf_op = {
-    __chopf_create,
-    __chopf_destroy,
-    NULL,
+    __chopf_create,         __chopf_destroy, NULL,
 
-    __chopf_render_prepare,
-    __chopf_render,
+    __chopf_render_prepare, __chopf_render,
 
     __chopf_parse,
 };
@@ -77,8 +74,7 @@ static tt_sshmsg_itf_t __chopf_op = {
 tt_sshmsg_t *tt_sshmsg_chopf_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_OPEN_FAILURE,
-                            sizeof(tt_sshmsg_chopf_t),
-                            &__chopf_op);
+                            sizeof(tt_sshmsg_chopf_t), &__chopf_op);
 }
 
 void tt_sshmsg_chopf_set_rcvchnum(IN tt_sshmsg_t *msg, IN tt_u32_t rcv_chnum)

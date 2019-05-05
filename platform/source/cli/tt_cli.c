@@ -51,12 +51,10 @@ static void __load_internal_cb(IN tt_cli_t *cli, IN tt_cli_mode_t mode);
 
 static tt_result_t __cli_flush(IN tt_cli_t *cli);
 
-static tt_result_t __cli_read_line(IN tt_cli_t *cli,
-                                   IN tt_u8_t *ev,
+static tt_result_t __cli_read_line(IN tt_cli_t *cli, IN tt_u8_t *ev,
                                    IN tt_u32_t ev_num);
 
-static tt_u32_t __cli_on_cmd(IN tt_cli_t *cli,
-                             IN const tt_char_t *cmd,
+static tt_u32_t __cli_on_cmd(IN tt_cli_t *cli, IN const tt_char_t *cmd,
                              IN tt_buf_t *output);
 
 static tt_bool_t __cli_on_quit(IN tt_cli_t *cli, IN tt_buf_t *output);
@@ -83,19 +81,15 @@ static tt_result_t __def_on_enter(IN tt_cli_t *cli);
 
 static tt_result_t __def_on_tab(IN tt_cli_t *cli);
 
-static tt_result_t __def_newline(IN tt_cli_t *cli,
-                                 IN tt_bool_t crlf,
-                                 IN tt_bool_t prefix,
-                                 IN tt_bool_t line);
+static tt_result_t __def_newline(IN tt_cli_t *cli, IN tt_bool_t crlf,
+                                 IN tt_bool_t prefix, IN tt_bool_t line);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_cli_create(IN tt_cli_t *cli,
-                          IN tt_cli_mode_t mode,
-                          IN OPT tt_cli_cb_t *cb,
-                          IN OPT tt_cli_itf_t *itf,
+tt_result_t tt_cli_create(IN tt_cli_t *cli, IN tt_cli_mode_t mode,
+                          IN OPT tt_cli_cb_t *cb, IN OPT tt_cli_itf_t *itf,
                           IN OPT tt_cli_attr_t *attr)
 {
     tt_cli_attr_t __attr;
@@ -122,9 +116,7 @@ tt_result_t tt_cli_create(IN tt_cli_t *cli,
     cli->title = attr->title;
     cli->sub_title = attr->sub_title;
     cli->seperator = attr->seperator;
-    if (cli->seperator == 0) {
-        cli->seperator = '#';
-    }
+    if (cli->seperator == 0) { cli->seperator = '#'; }
 
     tt_string_init(&cli->prefix, NULL);
     __done |= __CC_PREFIX;
@@ -145,9 +137,7 @@ tt_result_t tt_cli_create(IN tt_cli_t *cli,
     tt_buf_init(&cli->acbuf, NULL);
     __done |= __CC_ACBUF;
 
-    if (!TT_OK(tt_cline_create(&cli->cline,
-                               mode,
-                               &cli->outbuf,
+    if (!TT_OK(tt_cline_create(&cli->cline, mode, &cli->outbuf,
                                &attr->cline_attr))) {
         TT_ERROR("fail to create cli line");
         goto fail;
@@ -160,21 +150,13 @@ tt_result_t tt_cli_create(IN tt_cli_t *cli,
 
 fail:
 
-    if (__done & __CC_LINE) {
-        tt_cline_destroy(&cli->cline);
-    }
+    if (__done & __CC_LINE) { tt_cline_destroy(&cli->cline); }
 
-    if (__done & __CC_ACBUF) {
-        tt_buf_destroy(&cli->acbuf);
-    }
+    if (__done & __CC_ACBUF) { tt_buf_destroy(&cli->acbuf); }
 
-    if (__done & __CC_OUTBUF) {
-        tt_buf_destroy(&cli->outbuf);
-    }
+    if (__done & __CC_OUTBUF) { tt_buf_destroy(&cli->outbuf); }
 
-    if (__done & __CC_PREFIX) {
-        tt_string_destroy(&cli->prefix);
-    }
+    if (__done & __CC_PREFIX) { tt_string_destroy(&cli->prefix); }
 
     return TT_FAIL;
 }
@@ -211,9 +193,7 @@ tt_result_t tt_cli_start(IN tt_cli_t *cli)
         return TT_FAIL;
     }
 
-    if (!TT_OK(__cli_flush(cli))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__cli_flush(cli))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -266,9 +246,7 @@ tt_result_t tt_cli_input(IN tt_cli_t *cli, IN tt_u8_t *ev, IN tt_u32_t ev_num)
     TT_ASSERT(cli != NULL);
     TT_ASSERT(ev != NULL);
 
-    if (ev_num == 0) {
-        return TT_SUCCESS;
-    }
+    if (ev_num == 0) { return TT_SUCCESS; }
 
     if (cli->read_mode == __CLI_READ_LINE) {
         return __cli_read_line(cli, ev, ev_num);
@@ -304,13 +282,9 @@ tt_result_t tt_cli_output(IN tt_cli_t *cli, IN tt_u8_t *ev, IN tt_u32_t ev_num)
     TT_ASSERT(cli != NULL);
     TT_ASSERT(ev != NULL);
 
-    if (ev_num == 0) {
-        return TT_SUCCESS;
-    }
+    if (ev_num == 0) { return TT_SUCCESS; }
 
-    if (cli->itf.send == NULL) {
-        return TT_SUCCESS;
-    }
+    if (cli->itf.send == NULL) { return TT_SUCCESS; }
     return cli->itf.send(cli, cli->itf.param, ev, ev_num);
 }
 
@@ -336,12 +310,9 @@ void tt_cli_set_itf(IN tt_cli_t *cli, IN OPT tt_cli_itf_t *itf)
     }
 }
 
-tt_result_t tt_cli_complete(IN tt_u8_t *cur,
-                            IN tt_u32_t cur_len,
-                            IN const tt_char_t **option,
-                            IN tt_u32_t option_num,
-                            OUT tt_u32_t *status,
-                            OUT tt_buf_t *outbuf)
+tt_result_t tt_cli_complete(IN tt_u8_t *cur, IN tt_u32_t cur_len,
+                            IN const tt_char_t **option, IN tt_u32_t option_num,
+                            OUT tt_u32_t *status, OUT tt_buf_t *outbuf)
 {
     tt_u32_t i;
     tt_bool_t head = TT_TRUE;
@@ -354,8 +325,7 @@ tt_result_t tt_cli_complete(IN tt_u8_t *cur,
             } else {
                 TT_DO(tt_buf_put_u8(outbuf, ' '));
             }
-            TT_DO(tt_buf_put(outbuf,
-                             (tt_u8_t *)option[i],
+            TT_DO(tt_buf_put(outbuf, (tt_u8_t *)option[i],
                              (tt_u32_t)tt_strlen(option[i])));
         }
         *status = TT_CLICP_NONE;
@@ -377,9 +347,7 @@ tt_result_t tt_cli_complete(IN tt_u8_t *cur,
                     tt_u32_t k = 0;
                     tt_u32_t n =
                         TT_MIN(common_len, (tt_u32_t)tt_strlen(opt) - cur_len);
-                    while ((k < n) && (common[k] == opt[cur_len + k])) {
-                        ++k;
-                    }
+                    while ((k < n) && (common[k] == opt[cur_len + k])) { ++k; }
                     common_len -= (n - k);
                 }
 
@@ -410,8 +378,7 @@ tt_result_t tt_cli_complete(IN tt_u8_t *cur,
                     } else {
                         TT_DO(tt_buf_put_u8(outbuf, ' '));
                     }
-                    TT_DO(tt_buf_put(outbuf,
-                                     (tt_u8_t *)option[i],
+                    TT_DO(tt_buf_put(outbuf, (tt_u8_t *)option[i],
                                      (tt_u32_t)tt_strlen(option[i])));
                 }
             }
@@ -427,20 +394,20 @@ void __load_internal_cb(IN tt_cli_t *cli, IN tt_cli_mode_t mode)
     TT_ASSERT(TT_CLI_MODE_VALID(mode));
 
     switch (mode) {
-        case TT_CLI_MODE_DEFAUTL:
-        default: {
-            cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_UP)] = __def_on_up;
-            cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_DOWN)] = __def_on_down;
-            cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_RIGHT)] = __def_on_right;
-            cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_LEFT)] = __def_on_left;
-            cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_INTR)] = __def_on_intr;
-            cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_QUIT)] = __def_on_quit;
-            cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_DELETE)] = __def_on_delete;
-            cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_ENTER)] = __def_on_enter;
-            cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_TAB)] = __def_on_tab;
+    case TT_CLI_MODE_DEFAUTL:
+    default: {
+        cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_UP)] = __def_on_up;
+        cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_DOWN)] = __def_on_down;
+        cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_RIGHT)] = __def_on_right;
+        cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_LEFT)] = __def_on_left;
+        cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_INTR)] = __def_on_intr;
+        cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_QUIT)] = __def_on_quit;
+        cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_DELETE)] = __def_on_delete;
+        cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_ENTER)] = __def_on_enter;
+        cli->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_TAB)] = __def_on_tab;
 
-            cli->newline = __def_newline;
-        } break;
+        cli->newline = __def_newline;
+    } break;
     }
 }
 
@@ -448,14 +415,10 @@ tt_result_t __cli_flush(IN tt_cli_t *cli)
 {
     tt_buf_t *outbuf = &cli->outbuf;
 
-    if (cli->itf.send == NULL) {
-        return TT_SUCCESS;
-    }
+    if (cli->itf.send == NULL) { return TT_SUCCESS; }
 
     if (TT_BUF_RLEN(outbuf) > 0) {
-        TT_DO(cli->itf.send(cli,
-                            cli->itf.param,
-                            TT_BUF_RPOS(outbuf),
+        TT_DO(cli->itf.send(cli, cli->itf.param, TT_BUF_RPOS(outbuf),
                             TT_BUF_RLEN(outbuf)));
         tt_buf_clear(outbuf);
     }
@@ -464,8 +427,7 @@ tt_result_t __cli_flush(IN tt_cli_t *cli)
     return TT_SUCCESS;
 }
 
-tt_result_t __cli_read_line(IN tt_cli_t *cli,
-                            IN tt_u8_t *ev,
+tt_result_t __cli_read_line(IN tt_cli_t *cli, IN tt_u8_t *ev,
                             IN tt_u32_t ev_num)
 {
     tt_u32_t i;
@@ -514,8 +476,7 @@ tt_result_t __cli_read_line(IN tt_cli_t *cli,
     return TT_SUCCESS;
 }
 
-tt_u32_t __cli_on_cmd(IN tt_cli_t *cli,
-                      IN const tt_char_t *cmd,
+tt_u32_t __cli_on_cmd(IN tt_cli_t *cli, IN const tt_char_t *cmd,
                       IN tt_buf_t *output)
 {
     if (cli->cb.on_cmd != NULL) {
@@ -650,12 +611,8 @@ tt_result_t __def_on_tab(IN tt_cli_t *cli)
     wait4cmd = tt_cline_cursor_data(cline, &cursor_data);
 
     tt_buf_clear(&cli->acbuf);
-    status = cli->cb.on_complete(cli,
-                                 cli->cb.param,
-                                 cursor_data.addr,
-                                 cursor_data.len,
-                                 wait4cmd,
-                                 acbuf);
+    status = cli->cb.on_complete(cli, cli->cb.param, cursor_data.addr,
+                                 cursor_data.len, wait4cmd, acbuf);
     if (status == TT_CLICP_FULL) {
         TT_DO(tt_cline_input(cline, TT_BUF_RPOS(acbuf), TT_BUF_RLEN(acbuf)));
         TT_DO(tt_cline_input_ev(cline, ' '));
@@ -668,8 +625,7 @@ tt_result_t __def_on_tab(IN tt_cli_t *cli)
         TT_ASSERT(status == TT_CLICP_NONE);
         if (TT_BUF_RLEN(acbuf) > 0) {
             TT_DO(cli->newline(cli, TT_TRUE, TT_FALSE, TT_FALSE));
-            TT_DO(tt_buf_put(&cli->outbuf,
-                             TT_BUF_RPOS(acbuf),
+            TT_DO(tt_buf_put(&cli->outbuf, TT_BUF_RPOS(acbuf),
                              TT_BUF_RLEN(acbuf)));
             TT_DO(cli->newline(cli, TT_TRUE, TT_TRUE, TT_TRUE));
         }
@@ -678,20 +634,15 @@ tt_result_t __def_on_tab(IN tt_cli_t *cli)
     return TT_SUCCESS;
 }
 
-tt_result_t __def_newline(IN tt_cli_t *cli,
-                          IN tt_bool_t crlf,
-                          IN tt_bool_t prefix,
-                          IN tt_bool_t line)
+tt_result_t __def_newline(IN tt_cli_t *cli, IN tt_bool_t crlf,
+                          IN tt_bool_t prefix, IN tt_bool_t line)
 {
     tt_buf_t *outbuf = &cli->outbuf;
 
-    if (crlf) {
-        TT_DO(tt_buf_put_u8(outbuf, TT_CLI_EV_ENTER));
-    }
+    if (crlf) { TT_DO(tt_buf_put_u8(outbuf, TT_CLI_EV_ENTER)); }
 
     if (prefix) {
-        TT_DO(tt_buf_put(outbuf,
-                         (tt_u8_t *)tt_string_cstr(&cli->prefix),
+        TT_DO(tt_buf_put(outbuf, (tt_u8_t *)tt_string_cstr(&cli->prefix),
                          tt_string_len(&cli->prefix)));
     }
 

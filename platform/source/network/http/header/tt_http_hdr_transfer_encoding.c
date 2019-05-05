@@ -44,8 +44,7 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __txenc_parse(IN tt_http_hdr_t *h,
-                                 IN const tt_char_t *val,
+static tt_result_t __txenc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                                  IN tt_u32_t len);
 
 static tt_u32_t __txenc_render_len(IN tt_http_hdr_t *h);
@@ -70,12 +69,9 @@ tt_http_hdr_t *tt_http_hdr_txenc_create()
     __hdr_txenc_t *ht;
     tt_u32_t i;
 
-    h = tt_http_hdr_create_cs(sizeof(__hdr_txenc_t),
-                              TT_HTTP_HDR_TXENC,
+    h = tt_http_hdr_create_cs(sizeof(__hdr_txenc_t), TT_HTTP_HDR_TXENC,
                               &__txenc_itf);
-    if (h == NULL) {
-        return NULL;
-    }
+    if (h == NULL) { return NULL; }
 
     ht = TT_HTTP_HDR_CAST(h, __hdr_txenc_t);
 
@@ -94,14 +90,11 @@ tt_u32_t tt_http_hdr_txenc_get(IN tt_http_hdr_t *h, OUT tt_u8_t *txenc)
 
     TT_ASSERT(h->name == TT_HTTP_HDR_TXENC);
 
-    for (i = 0; i < ht->txenc_num; ++i) {
-        txenc[i] = (tt_u8_t)ht->txenc[i];
-    }
+    for (i = 0; i < ht->txenc_num; ++i) { txenc[i] = (tt_u8_t)ht->txenc[i]; }
     return ht->txenc_num;
 }
 
-tt_result_t __txenc_parse(IN tt_http_hdr_t *h,
-                          IN const tt_char_t *val,
+tt_result_t __txenc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                           IN tt_u32_t len)
 {
     __hdr_txenc_t *ht = TT_HTTP_HDR_CAST(h, __hdr_txenc_t);

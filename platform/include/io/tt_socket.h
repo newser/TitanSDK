@@ -96,13 +96,10 @@ tt_export tt_result_t tt_skt_shutdown(IN tt_skt_t *skt, IN tt_skt_shut_t shut);
 
 tt_export tt_result_t tt_skt_bind(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
 
-tt_export tt_result_t tt_skt_bind_n(IN tt_skt_t *skt,
-                                    IN tt_net_family_t family,
-                                    IN tt_sktaddr_ip_t *ip,
-                                    IN tt_u16_t port);
+tt_export tt_result_t tt_skt_bind_n(IN tt_skt_t *skt, IN tt_net_family_t family,
+                                    IN tt_sktaddr_ip_t *ip, IN tt_u16_t port);
 
-tt_export tt_result_t tt_skt_bind_p(IN tt_skt_t *skt,
-                                    IN tt_net_family_t family,
+tt_export tt_result_t tt_skt_bind_p(IN tt_skt_t *skt, IN tt_net_family_t family,
                                     IN const tt_char_t *ip_str,
                                     IN tt_u16_t port);
 
@@ -153,10 +150,8 @@ send data through socket
   accurately.
 - send_len return how many bytes read only if return value is TT_SUCCESS
 */
-tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt,
-                                  IN tt_u8_t *buf,
-                                  IN tt_u32_t len,
-                                  OUT OPT tt_u32_t *sent)
+tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt, IN tt_u8_t *buf,
+                                  IN tt_u32_t len, OUT OPT tt_u32_t *sent)
 {
     if (len != 0) {
         return tt_skt_send_ntv(&skt->sys_skt, buf, len, sent);
@@ -171,8 +166,7 @@ tt_inline tt_result_t tt_skt_send_oob(IN tt_skt_t *skt, IN tt_u8_t b)
     return tt_skt_send_oob_ntv(&skt->sys_skt, b);
 }
 
-tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt,
-                                      IN tt_u8_t *buf,
+tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt, IN tt_u8_t *buf,
                                       IN tt_u32_t len)
 {
     tt_u32_t n = 0;
@@ -188,10 +182,8 @@ tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt,
 }
 
 // set len to 0 to send the entire file
-tt_inline tt_result_t tt_skt_sendfile(IN tt_skt_t *skt,
-                                      IN struct tt_file_s *f,
-                                      IN tt_u64_t offset,
-                                      IN tt_u32_t len,
+tt_inline tt_result_t tt_skt_sendfile(IN tt_skt_t *skt, IN struct tt_file_s *f,
+                                      IN tt_u64_t offset, IN tt_u32_t len,
                                       OUT tt_u64_t *sent)
 {
     return tt_skt_sendfile_ntv(&skt->sys_skt, f, offset, len, sent);
@@ -200,10 +192,8 @@ tt_inline tt_result_t tt_skt_sendfile(IN tt_skt_t *skt,
 tt_export tt_result_t tt_skt_sendfile_path(IN tt_skt_t *skt,
                                            IN const tt_char_t *path);
 
-tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
-                                  OUT tt_u8_t *buf,
-                                  IN tt_u32_t len,
-                                  OUT OPT tt_u32_t *recvd,
+tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt, OUT tt_u8_t *buf,
+                                  IN tt_u32_t len, OUT OPT tt_u32_t *recvd,
                                   OUT tt_fiber_ev_t **p_fev,
                                   OUT struct tt_tmr_s **p_tmr)
 {
@@ -215,21 +205,14 @@ tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
     }
 }
 
-tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
-                                      OUT tt_u8_t *buf,
-                                      IN tt_u32_t len,
-                                      OUT OPT tt_u32_t *recvd,
+tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt, OUT tt_u8_t *buf,
+                                      IN tt_u32_t len, OUT OPT tt_u32_t *recvd,
                                       OUT OPT tt_sktaddr_t *addr,
                                       OUT tt_fiber_ev_t **p_fev,
                                       OUT struct tt_tmr_s **p_tmr)
 {
     if (len != 0) {
-        return tt_skt_recvfrom_ntv(&skt->sys_skt,
-                                   buf,
-                                   len,
-                                   recvd,
-                                   addr,
-                                   p_fev,
+        return tt_skt_recvfrom_ntv(&skt->sys_skt, buf, len, recvd, addr, p_fev,
                                    p_tmr);
     } else {
         TT_ERROR("recvfrom buf len can not be 0");
@@ -237,10 +220,8 @@ tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
     }
 }
 
-tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt,
-                                    IN tt_u8_t *buf,
-                                    IN tt_u32_t len,
-                                    OUT OPT tt_u32_t *sent,
+tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt, IN tt_u8_t *buf,
+                                    IN tt_u32_t len, OUT OPT tt_u32_t *sent,
                                     IN tt_sktaddr_t *addr)
 {
     if (len != 0) {
@@ -251,10 +232,8 @@ tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt,
     }
 }
 
-tt_inline tt_result_t tt_skt_sendto_all(IN tt_skt_t *skt,
-                                        IN tt_u8_t *buf,
-                                        IN tt_u32_t len,
-                                        IN tt_sktaddr_t *addr)
+tt_inline tt_result_t tt_skt_sendto_all(IN tt_skt_t *skt, IN tt_u8_t *buf,
+                                        IN tt_u32_t len, IN tt_sktaddr_t *addr)
 {
     tt_u32_t n = 0;
     while (n < len) {

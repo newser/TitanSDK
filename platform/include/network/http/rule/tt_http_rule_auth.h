@@ -58,15 +58,13 @@ typedef struct tt_http_rule_auth_s
 ////////////////////////////////////////////////////////////
 
 tt_export tt_http_rule_t *tt_http_rule_auth_create_n(
-    IN const tt_char_t *prefix,
-    IN tt_u32_t prefix_len,
+    IN const tt_char_t *prefix, IN tt_u32_t prefix_len,
     IN struct tt_http_inserv_s *auth);
 
 tt_inline tt_http_rule_t *tt_http_rule_auth_create(
     IN const tt_char_t *prefix, IN struct tt_http_inserv_s *auth)
 {
-    return tt_http_rule_auth_create_n(prefix,
-                                      (tt_u32_t)tt_strlen(prefix),
+    return tt_http_rule_auth_create_n(prefix, (tt_u32_t)tt_strlen(prefix),
                                       auth);
 }
 

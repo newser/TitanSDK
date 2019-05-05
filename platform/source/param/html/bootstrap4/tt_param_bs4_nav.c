@@ -107,8 +107,7 @@ void tt_param_bs4nav_init(IN tt_param_bs4nav_t *nav)
 tt_result_t tt_param_bs4nav_render(IN tt_param_bs4nav_t *nav,
                                    IN OPT tt_param_t *root,
                                    IN tt_param_t *parent,
-                                   IN OPT tt_param_t *active,
-                                   OUT tt_buf_t *buf)
+                                   IN OPT tt_param_t *active, OUT tt_buf_t *buf)
 {
     tt_param_dir_t *dir;
     tt_param_t *p;
@@ -118,56 +117,39 @@ tt_result_t tt_param_bs4nav_render(IN tt_param_bs4nav_t *nav,
     dir = TT_PARAM_CAST(parent, tt_param_dir_t);
     TT_ASSERT((active == NULL) || tt_list_contain(&dir->child, &active->node));
 
-    TT_DO(tt_buf_putf(buf,
-                      __NAV_START,
-                      nav->nav_class,
-                      nav->account_class,
-                      nav->account_href,
-                      nav->account_text));
+    TT_DO(tt_buf_putf(buf, __NAV_START, nav->nav_class, nav->account_class,
+                      nav->account_href, nav->account_text));
 
     if (nav->brand_text != NULL) {
         if (nav->brand_href != NULL) {
-            TT_DO(tt_buf_putf(buf,
-                              __NAV_BRAND_LINK,
-                              nav->brand_class,
-                              nav->brand_href,
-                              nav->brand_text));
+            TT_DO(tt_buf_putf(buf, __NAV_BRAND_LINK, nav->brand_class,
+                              nav->brand_href, nav->brand_text));
         } else {
-            TT_DO(tt_buf_putf(buf,
-                              __NAV_BRAND,
-                              nav->brand_class,
+            TT_DO(tt_buf_putf(buf, __NAV_BRAND, nav->brand_class,
                               nav->brand_text));
         }
     }
 
     tt_buf_init(&path, NULL);
     for (p = tt_param_dir_head(dir); p != NULL; p = tt_param_dir_next(p)) {
-        if (p->type != TT_PARAM_DIR) {
-            continue;
-        }
+        if (p->type != TT_PARAM_DIR) { continue; }
 
         if (nav->button_style) {
-            TT_DO_G(fail,
-                    tt_buf_putf(buf,
-                                TT_COND(p == active,
-                                        __NAV_BUTTON_ACTIVE,
-                                        __NAV_BUTTON),
-                                tt_param_name(p),
-                                __param_display(p)));
+            TT_DO_G(fail, tt_buf_putf(buf,
+                                      TT_COND(p == active, __NAV_BUTTON_ACTIVE,
+                                              __NAV_BUTTON),
+                                      tt_param_name(p), __param_display(p)));
         } else {
             tt_buf_clear(&path);
             TT_DO_G(fail, tt_param_path_n2p(root, p, &path));
             TT_DO_G(fail, tt_buf_put_u8(&path, 0));
 
-            TT_DO_G(fail,
-                    tt_buf_putf(buf,
-                                TT_COND(p == active,
-                                        __NAV_LINK_ACTIVE,
-                                        __NAV_LINK),
-                                TT_COND(tt_buf_empty(&path),
-                                        "#",
-                                        (tt_char_t *)TT_BUF_RPOS(&path)),
-                                __param_display(p)));
+            TT_DO_G(fail, tt_buf_putf(buf,
+                                      TT_COND(p == active, __NAV_LINK_ACTIVE,
+                                              __NAV_LINK),
+                                      TT_COND(tt_buf_empty(&path), "#",
+                                              (tt_char_t *)TT_BUF_RPOS(&path)),
+                                      __param_display(p)));
         }
     }
     tt_buf_destroy(&path);

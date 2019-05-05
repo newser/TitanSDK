@@ -66,24 +66,20 @@ void tt_iowg_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __iowg_component_init, __iowg_component_exit,
+        __iowg_component_init,
+        __iowg_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_IO_WORKER_GROUP,
-                      "IO Worker Group",
-                      NULL,
-                      &itf);
+    tt_component_init(&comp, TT_COMPONENT_IO_WORKER_GROUP, "IO Worker Group",
+                      NULL, &itf);
 
     // register component
     tt_component_register(&comp);
 }
 
-tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
-                           IN OPT tt_u32_t min_num,
-                           IN OPT tt_u32_t max_num,
-                           IN OPT tt_iowg_attr_t *attr)
+tt_result_t tt_iowg_create(IN tt_iowg_t *wg, IN OPT tt_u32_t min_num,
+                           IN OPT tt_u32_t max_num, IN OPT tt_iowg_attr_t *attr)
 {
     tt_iowg_attr_t __attr;
     tt_u32_t i;
@@ -117,8 +113,7 @@ tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
     }
     __done |= __IOWG_SEM;
 
-    tt_memcpy(&wg->worker_attr,
-              &attr->worker_attr,
+    tt_memcpy(&wg->worker_attr, &attr->worker_attr,
               sizeof(tt_io_worker_attr_t));
 
     if (!TT_OK(tt_spinlock_create(&wg->lock, &attr->lock_attr))) {
@@ -129,9 +124,7 @@ tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
 
     wg->worker_num = min_num;
     wg->max_num = max_num;
-    for (i = 0; i < max_num; ++i) {
-        tt_io_worker_init(&wg->worker[i]);
-    }
+    for (i = 0; i < max_num; ++i) { tt_io_worker_init(&wg->worker[i]); }
     __done |= __IOWG_WKR;
 
     for (i = 0; i < min_num; ++i) {
@@ -145,21 +138,13 @@ tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
 
 fail:
 
-    if (__done & __IOWG_WKR) {
-        __iowg_destroy_worker(wg);
-    }
+    if (__done & __IOWG_WKR) { __iowg_destroy_worker(wg); }
 
-    if (__done & __IOWG_LOCK) {
-        tt_spinlock_destroy(&wg->lock);
-    }
+    if (__done & __IOWG_LOCK) { tt_spinlock_destroy(&wg->lock); }
 
-    if (__done & __IOWG_SEM) {
-        tt_sem_destroy(&wg->sem);
-    }
+    if (__done & __IOWG_SEM) { tt_sem_destroy(&wg->sem); }
 
-    if (__done & __IOWG_MEM) {
-        tt_free(wg->worker);
-    }
+    if (__done & __IOWG_MEM) { tt_free(wg->worker); }
 
     return TT_FAIL;
 }

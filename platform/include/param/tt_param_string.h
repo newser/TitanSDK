@@ -43,11 +43,9 @@ this file defines string parameter
 
 typedef struct tt_param_str_cb_s
 {
-    tt_bool_t (*pre_set)(IN struct tt_param_s *p,
-                         IN tt_char_t *new_val,
+    tt_bool_t (*pre_set)(IN struct tt_param_s *p, IN tt_char_t *new_val,
                          IN tt_u32_t len);
-    void (*post_set)(IN struct tt_param_s *p,
-                     IN tt_char_t *new_val,
+    void (*post_set)(IN struct tt_param_s *p, IN tt_char_t *new_val,
                      IN tt_u32_t len);
 } tt_param_str_cb_t;
 

@@ -81,14 +81,10 @@ static void __dns_free(IN void *p);
 
 static void *__dns_realloc(IN void *p, IN size_t s);
 
-static void __query4_cb(IN void *arg,
-                        IN int status,
-                        IN int timeouts,
+static void __query4_cb(IN void *arg, IN int status, IN int timeouts,
                         IN struct hostent *hostent);
 
-static void __query6_cb(IN void *arg,
-                        IN int status,
-                        IN int timeouts,
+static void __query6_cb(IN void *arg, IN int status, IN int timeouts,
                         IN struct hostent *hostent);
 
 ////////////////////////////////////////////////////////////
@@ -100,7 +96,8 @@ void tt_dns_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __dns_component_init, __dns_component_exit,
+        __dns_component_init,
+        __dns_component_exit,
     };
 
     // init component
@@ -173,8 +170,7 @@ tt_dns_t __ut_current_dns_d()
     return tt_current_task()->dns_cache->d;
 }
 
-tt_result_t __ut_dns_query4(IN tt_dns_t d,
-                            IN const tt_char_t *name,
+tt_result_t __ut_dns_query4(IN tt_dns_t d, IN const tt_char_t *name,
                             OUT tt_sktaddr_ip_t *ip)
 {
     __dns_query_t dq;
@@ -184,15 +180,12 @@ tt_result_t __ut_dns_query4(IN tt_dns_t d,
     dq.result = TT_E_PROCEED;
 
     ares_gethostbyname(d, name, AF_INET, __query4_cb, &dq);
-    if (dq.result == TT_E_PROCEED) {
-        tt_fiber_suspend();
-    }
+    if (dq.result == TT_E_PROCEED) { tt_fiber_suspend(); }
     TT_ASSERT(dq.result != TT_E_PROCEED);
     return dq.result;
 }
 
-tt_result_t __ut_dns_query6(IN tt_dns_t d,
-                            IN const tt_char_t *name,
+tt_result_t __ut_dns_query6(IN tt_dns_t d, IN const tt_char_t *name,
                             OUT tt_sktaddr_ip_t *ip)
 {
     __dns_query_t dq;
@@ -202,9 +195,7 @@ tt_result_t __ut_dns_query6(IN tt_dns_t d,
     dq.result = TT_E_PROCEED;
 
     ares_gethostbyname(d, name, AF_INET6, __query6_cb, &dq);
-    if (dq.result == TT_E_PROCEED) {
-        tt_fiber_suspend();
-    }
+    if (dq.result == TT_E_PROCEED) { tt_fiber_suspend(); }
     TT_ASSERT(dq.result != TT_E_PROCEED);
     return dq.result;
 }
@@ -239,20 +230,15 @@ void __dns_component_exit(IN tt_component_t *comp)
     ares_library_cleanup();
 }
 
-void __dns_attr2option(IN tt_dns_attr_t *attr,
-                       OUT struct ares_options *options,
+void __dns_attr2option(IN tt_dns_attr_t *attr, OUT struct ares_options *options,
                        OUT int *optmask)
 {
     tt_memset(options, 0, sizeof(struct ares_options));
     *optmask = 0;
 
     options->flags |= ARES_FLAG_STAYOPEN;
-    if (attr->enable_edns) {
-        options->flags |= ARES_FLAG_EDNS;
-    }
-    if (attr->prefer_tcp) {
-        options->flags |= ARES_FLAG_USEVC;
-    }
+    if (attr->enable_edns) { options->flags |= ARES_FLAG_EDNS; }
+    if (attr->prefer_tcp) { options->flags |= ARES_FLAG_USEVC; }
     *optmask |= ARES_OPT_FLAGS;
 
     if (attr->timeout_ms != 0) {
@@ -353,9 +339,7 @@ void *__dns_realloc(IN void *p, IN size_t s)
     return tt_realloc(p, s);
 }
 
-void __query4_cb(IN void *arg,
-                 IN int status,
-                 IN int timeouts,
+void __query4_cb(IN void *arg, IN int status, IN int timeouts,
                  IN struct hostent *hostent)
 {
     __dns_query_t *dq = (__dns_query_t *)arg;
@@ -374,14 +358,10 @@ void __query4_cb(IN void *arg,
         dq->result = TT_FAIL;
     }
 
-    if (tt_current_fiber() != dq->src) {
-        tt_fiber_resume(dq->src, TT_FALSE);
-    }
+    if (tt_current_fiber() != dq->src) { tt_fiber_resume(dq->src, TT_FALSE); }
 }
 
-void __query6_cb(IN void *arg,
-                 IN int status,
-                 IN int timeouts,
+void __query6_cb(IN void *arg, IN int status, IN int timeouts,
                  IN struct hostent *hostent)
 {
     __dns_query_t *dq = (__dns_query_t *)arg;
@@ -400,7 +380,5 @@ void __query6_cb(IN void *arg,
         dq->result = TT_FAIL;
     }
 
-    if (tt_current_fiber() != dq->src) {
-        tt_fiber_resume(dq->src, TT_FALSE);
-    }
+    if (tt_current_fiber() != dq->src) { tt_fiber_resume(dq->src, TT_FALSE); }
 }

@@ -59,22 +59,17 @@
 
 #if defined(TT_HAVE_LIBUNWIND)
 
-tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
-                             IN OPT const tt_char_t *prefix,
+tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf, IN OPT const tt_char_t *prefix,
                              IN OPT const tt_char_t *suffix)
 {
     tt_u32_t plen, slen, i;
     unw_context_t ctx;
     unw_cursor_t cur;
 
-    if (prefix == NULL) {
-        prefix = "";
-    }
+    if (prefix == NULL) { prefix = ""; }
     plen = (tt_u32_t)tt_strlen(prefix);
 
-    if (suffix == NULL) {
-        suffix = "";
-    }
+    if (suffix == NULL) { suffix = ""; }
     slen = (tt_u32_t)tt_strlen(suffix);
 
     if ((unw_getcontext(&ctx) != 0) || (unw_init_local(&cur, &ctx) != 0)) {
@@ -102,8 +97,7 @@ done:
 
 #elif defined(TT_HAVE_BACKTRACE)
 
-tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
-                             IN OPT const tt_char_t *prefix,
+tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf, IN OPT const tt_char_t *prefix,
                              IN OPT const tt_char_t *suffix)
 {
     tt_u32_t plen, slen, n, i;
@@ -111,14 +105,10 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
     char **sym;
     tt_result_t result = TT_E_NOMEM;
 
-    if (prefix == NULL) {
-        prefix = "";
-    }
+    if (prefix == NULL) { prefix = ""; }
     plen = (tt_u32_t)tt_strlen(prefix);
 
-    if (suffix == NULL) {
-        suffix = "";
-    }
+    if (suffix == NULL) { suffix = ""; }
     slen = (tt_u32_t)tt_strlen(suffix);
 
     if (((n = backtrace(addr, __BT_SIZE)) == 0) ||
@@ -139,8 +129,7 @@ done:
 
 #else
 
-tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
-                             IN OPT const tt_char_t *prefix,
+tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf, IN OPT const tt_char_t *prefix,
                              IN OPT const tt_char_t *suffix)
 {
     return TT_FAIL;

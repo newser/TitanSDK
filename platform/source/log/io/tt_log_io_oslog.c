@@ -46,8 +46,7 @@
 
 static void __lio_oslog_destroy(IN tt_logio_t *lio);
 
-static void __lio_oslog_output(IN tt_logio_t *lio,
-                               IN const tt_char_t *data,
+static void __lio_oslog_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                                IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_winev_itf = {
@@ -74,9 +73,7 @@ tt_logio_t *tt_logio_oslog_create(IN const tt_char_t *subsystem,
     tt_logio_oslog_t *lio_oslog;
 
     lio = tt_logio_create(sizeof(tt_logio_oslog_t), &tt_s_logio_winev_itf);
-    if (lio == NULL) {
-        return NULL;
-    }
+    if (lio == NULL) { return NULL; }
 
     lio_oslog = TT_LOGIO_CAST(lio, tt_logio_oslog_t);
 
@@ -98,8 +95,7 @@ void __lio_oslog_destroy(IN tt_logio_t *lio)
 #endif
 }
 
-void __lio_oslog_output(IN tt_logio_t *lio,
-                        IN const tt_char_t *data,
+void __lio_oslog_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                         IN tt_u32_t data_len)
 {
     tt_logio_oslog_t *lio_oslog = TT_LOGIO_CAST(lio, tt_logio_oslog_t);

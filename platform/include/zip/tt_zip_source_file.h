@@ -50,7 +50,6 @@ this file specifies zip source file interfaces
 ////////////////////////////////////////////////////////////
 
 tt_export tt_zipsrc_t *tt_zipsrc_file_create(IN const tt_char_t *path,
-                                             IN tt_u64_t from,
-                                             IN tt_u64_t len);
+                                             IN tt_u64_t from, IN tt_u64_t len);
 
 #endif /* __TT_ZIP_SOURCE_file__ */

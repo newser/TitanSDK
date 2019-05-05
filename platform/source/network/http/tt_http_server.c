@@ -72,8 +72,7 @@ tt_result_t tt_http_server_create_skt(IN tt_http_server_t *svr,
     svr->skt = skt;
     svr->ssl_server_cfg = NULL;
     tt_memcpy(&svr->new_skt_attr, &attr->new_skt_attr, sizeof(tt_skt_attr_t));
-    tt_memcpy(&svr->conn_fiber_attr,
-              &attr->conn_fiber_attr,
+    tt_memcpy(&svr->conn_fiber_attr, &attr->conn_fiber_attr,
               sizeof(tt_fiber_attr_t));
     svr->https = TT_FALSE;
 
@@ -98,8 +97,7 @@ tt_result_t tt_http_server_create_ssl(IN tt_http_server_t *svr,
     svr->ssl = ssl;
     svr->ssl_server_cfg = ssl_server_cfg;
     tt_memcpy(&svr->new_skt_attr, &attr->new_skt_attr, sizeof(tt_skt_attr_t));
-    tt_memcpy(&svr->conn_fiber_attr,
-              &attr->conn_fiber_attr,
+    tt_memcpy(&svr->conn_fiber_attr, &attr->conn_fiber_attr,
               sizeof(tt_fiber_attr_t));
     svr->https = TT_TRUE;
 
@@ -134,16 +132,10 @@ tt_result_t tt_http_server_run_fiber(IN tt_http_server_t *svr)
     tt_tmr_t *tmr;
     tt_result_t result = TT_FAIL;
 
-    while (TT_OK(tt_skt_accept(svr->skt,
-                               &svr->new_skt_attr,
-                               &addr,
-                               &new_skt,
-                               &fev,
-                               &tmr))) {
+    while (TT_OK(tt_skt_accept(svr->skt, &svr->new_skt_attr, &addr, &new_skt,
+                               &fev, &tmr))) {
         if (new_skt != NULL) {
-            tt_fiber_t *f = tt_fiber_create(NULL,
-                                            __sconn_skt_fiber,
-                                            new_skt,
+            tt_fiber_t *f = tt_fiber_create(NULL, __sconn_skt_fiber, new_skt,
                                             &svr->conn_fiber_attr);
             if (f != NULL) {
                 tt_fiber_resume(f, TT_FALSE);
@@ -152,9 +144,7 @@ tt_result_t tt_http_server_run_fiber(IN tt_http_server_t *svr)
             }
         }
 
-        if (fev != NULL) {
-            tt_fiber_finish(fev);
-        }
+        if (fev != NULL) { tt_fiber_finish(fev); }
 
         if (tmr != NULL) {
             // todo
@@ -183,9 +173,7 @@ tt_result_t __sconn_skt_fiber(IN void *param)
         return TT_FAIL;
     }
 
-    if (tt_http_sconn_run(&c)) {
-        tt_http_sconn_wait_eof(&c);
-    }
+    if (tt_http_sconn_run(&c)) { tt_http_sconn_wait_eof(&c); }
 
     tt_http_sconn_destroy(&c);
 
@@ -194,9 +182,7 @@ tt_result_t __sconn_skt_fiber(IN void *param)
 
 tt_result_t __sconn_add_default_serv(IN tt_http_sconn_t *c)
 {
-    if (!TT_OK(tt_http_svcmgr_add_inserv_host(&c->svcmgr))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_http_svcmgr_add_inserv_host(&c->svcmgr))) { return TT_FAIL; }
 
 #if 0
     // todo: configurable
@@ -211,8 +197,7 @@ tt_result_t __sconn_add_default_serv(IN tt_http_sconn_t *c)
         if (inserv_param == NULL) {
             inserv_param = tt_http_inserv_param_create(__html_spa_param, NULL);
         }
-        tt_http_svcmgr_add_inserv(&c->svcmgr,
-                                  inserv_param,
+        tt_http_svcmgr_add_inserv(&c->svcmgr, inserv_param,
                                   &c->svcmgr.param_ctx);
     }
 #endif

@@ -44,13 +44,14 @@ static const tt_char_t __quit_info[] = "quit shell";
 
 static const tt_char_t __quit_usage[] = "testing quit";
 
-static tt_u32_t __quit_run(IN tt_shell_t *sh,
-                           IN tt_u32_t argc,
-                           IN tt_char_t *arv[],
-                           OUT tt_buf_t *output);
+static tt_u32_t __quit_run(IN tt_shell_t *sh, IN tt_u32_t argc,
+                           IN tt_char_t *arv[], OUT tt_buf_t *output);
 
 tt_shcmd_t tt_g_shcmd_quit = {
-    TT_SHCMD_NAME_QUIT, __quit_info, __quit_usage, __quit_run,
+    TT_SHCMD_NAME_QUIT,
+    __quit_info,
+    __quit_usage,
+    __quit_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,9 +62,7 @@ tt_shcmd_t tt_g_shcmd_quit = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __quit_run(IN tt_shell_t *sh,
-                    IN tt_u32_t argc,
-                    IN tt_char_t *argv[],
+tt_u32_t __quit_run(IN tt_shell_t *sh, IN tt_u32_t argc, IN tt_char_t *argv[],
                     OUT tt_buf_t *output)
 {
     return TT_CLIOC_END;

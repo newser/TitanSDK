@@ -45,7 +45,8 @@ this file defines http auth headers
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_AUTH_BASIC,
     TT_HTTP_AUTH_DIGEST,
 
@@ -53,7 +54,8 @@ typedef enum {
 } tt_http_auth_scheme_t;
 #define TT_HTTP_AUTH_SCHEME_VALID(a) ((a) < TT_HTTP_AUTH_SCHEME_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_AUTH_MD5,
     TT_HTTP_AUTH_MD5_SESS,
 
@@ -61,7 +63,8 @@ typedef enum {
 } tt_http_auth_alg_t;
 #define TT_HTTP_AUTH_ALG_VALID(a) ((a) < TT_HTTP_AUTH_ALG_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_STALE_FALSE,
     TT_HTTP_STALE_TRUE,
 
@@ -152,15 +155,10 @@ tt_export tt_u32_t tt_http_auth_ctx_digest_len(IN tt_http_auth_ctx_t *ctx);
 //   to 0 if wanna calc resp as qop param is not provided
 // - response must have enough size, e.g., md5 require 16bytes,
 //   sha512 require 64bytes
-tt_export tt_result_t tt_http_auth_ctx_calc(IN tt_http_auth_ctx_t *ctx,
-                                            IN tt_http_auth_t *ha,
-                                            IN void *password,
-                                            IN tt_u32_t password_len,
-                                            IN tt_u32_t qop,
-                                            IN void *method,
-                                            IN tt_u32_t method_len,
-                                            IN OPT void *body,
-                                            IN tt_u32_t body_len,
-                                            OUT tt_char_t *response);
+tt_export tt_result_t tt_http_auth_ctx_calc(
+    IN tt_http_auth_ctx_t *ctx, IN tt_http_auth_t *ha, IN void *password,
+    IN tt_u32_t password_len, IN tt_u32_t qop, IN void *method,
+    IN tt_u32_t method_len, IN OPT void *body, IN tt_u32_t body_len,
+    OUT tt_char_t *response);
 
 #endif /* __TT_HTTP_HDR_AUTH__ */

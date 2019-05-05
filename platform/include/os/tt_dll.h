@@ -55,8 +55,7 @@ typedef struct tt_dll_attr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t tt_dll_create(IN tt_dll_t *dll,
-                                    IN const tt_char_t *path,
+tt_inline tt_result_t tt_dll_create(IN tt_dll_t *dll, IN const tt_char_t *path,
                                     IN OPT tt_dll_attr_t *attr)
 {
     return tt_dll_create_ntv(dll, path, attr);

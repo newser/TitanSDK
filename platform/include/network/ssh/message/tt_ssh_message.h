@@ -44,7 +44,8 @@
 
 struct tt_sshmsg_s;
 
-typedef enum {
+typedef enum
+{
     TT_SSH_RENDER_MODE_RAW,
     TT_SSH_RENDER_MODE_BINARY,
 
@@ -62,8 +63,7 @@ typedef void (*tt_sshmsg_dump_t)(IN struct tt_sshmsg_s *msg);
 // - if returned TT_SUCCESS but len is set to 0, the rendering buf
 //   won't reserve buf space.
 typedef tt_result_t (*tt_sshmsg_render_prepare_t)(
-    IN struct tt_sshmsg_s *msg,
-    OUT tt_u32_t *len,
+    IN struct tt_sshmsg_s *msg, OUT tt_u32_t *len,
     OUT tt_ssh_render_mode_t *mode);
 
 typedef tt_result_t (*tt_sshmsg_render_t)(IN struct tt_sshmsg_s *msg,
@@ -112,8 +112,7 @@ typedef struct tt_sshmsg_s
 ////////////////////////////////////////////////////////////
 
 // msg_len is extra length
-tt_export tt_sshmsg_t *tt_sshmsg_create(IN tt_u32_t msg_id,
-                                        IN tt_u32_t msg_len,
+tt_export tt_sshmsg_t *tt_sshmsg_create(IN tt_u32_t msg_id, IN tt_u32_t msg_len,
                                         IN tt_sshmsg_itf_t *itf);
 
 tt_export void __sshmsg_destroy(IN tt_sshmsg_t *msg);

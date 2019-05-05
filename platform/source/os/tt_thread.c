@@ -73,7 +73,8 @@ void tt_thread_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __thread_component_init, __thread_component_exit,
+        __thread_component_init,
+        __thread_component_exit,
     };
 
     // init component
@@ -83,8 +84,7 @@ void tt_thread_component_register()
     tt_component_register(&comp);
 }
 
-tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
-                              IN void *param,
+tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine, IN void *param,
                               IN OPT tt_thread_attr_t *attr)
 {
     tt_thread_t *thread;
@@ -113,9 +113,7 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     thread->evp = NULL;
 
     thread->rng = tt_rng_xorshift_create();
-    if (thread->rng == NULL) {
-        goto tc_fail;
-    }
+    if (thread->rng == NULL) { goto tc_fail; }
 
     thread->fiber_sched = NULL;
     thread->task = NULL;
@@ -132,9 +130,7 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     thread->enable_fiber = attr->enable_fiber;
     thread->log = TT_THREAD_LOG_DEFAULT;
 
-    if (!TT_OK(tt_thread_create_ntv(thread))) {
-        goto tc_fail;
-    }
+    if (!TT_OK(tt_thread_create_ntv(thread))) { goto tc_fail; }
     // now the thread is created, and it may be running or even
     // terminate, so accessing the "thread", either reading or
     // writing is unsafe
@@ -147,9 +143,7 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
 
 tc_fail:
 
-    if (thread->rng != NULL) {
-        tt_rng_destroy(thread->rng);
-    }
+    if (thread->rng != NULL) { tt_rng_destroy(thread->rng); }
 
     tt_c_free(thread);
 
@@ -185,9 +179,7 @@ tt_result_t tt_thread_create_local(IN OPT tt_thread_attr_t *attr)
     thread->evp = NULL;
 
     thread->rng = tt_rng_xorshift_create();
-    if (thread->rng == NULL) {
-        goto tcl_fail;
-    }
+    if (thread->rng == NULL) { goto tcl_fail; }
 
     thread->fiber_sched = NULL;
     thread->task = NULL;
@@ -201,17 +193,13 @@ tt_result_t tt_thread_create_local(IN OPT tt_thread_attr_t *attr)
     thread->enable_fiber = attr->enable_fiber;
     thread->log = TT_THREAD_LOG_DEFAULT;
 
-    if (!TT_OK(tt_thread_create_local_ntv(thread))) {
-        goto tcl_fail;
-    }
+    if (!TT_OK(tt_thread_create_local_ntv(thread))) { goto tcl_fail; }
 
     return TT_SUCCESS;
 
 tcl_fail:
 
-    if (thread->rng != NULL) {
-        tt_rng_destroy(thread->rng);
-    }
+    if (thread->rng != NULL) { tt_rng_destroy(thread->rng); }
 
     tt_c_free(thread);
 
@@ -233,9 +221,7 @@ tt_result_t tt_thread_wait(IN tt_thread_t *thread)
     TT_ASSERT((thread != NULL) && (thread != (tt_thread_t *)1));
     TT_ASSERT(!thread->detached && !thread->local);
 
-    if (!TT_OK(tt_thread_wait_ntv(thread))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_thread_wait_ntv(thread))) { return TT_FAIL; }
 
     tt_c_free(thread);
 
@@ -256,9 +242,7 @@ tt_result_t tt_thread_wait_local()
 tt_result_t __thread_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_thread_component_init_ntv())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_thread_component_init_ntv())) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -273,9 +257,7 @@ tt_result_t __thread_on_create(IN tt_thread_t *thread)
     // must be created in new thread context
     if (thread->enable_fiber) {
         thread->fiber_sched = tt_fiber_sched_create(NULL);
-        if (thread->fiber_sched == NULL) {
-            return TT_FAIL;
-        }
+        if (thread->fiber_sched == NULL) { return TT_FAIL; }
 
         TT_ASSERT(thread->fiber_sched->thread == NULL);
         thread->fiber_sched->thread = thread;
@@ -288,21 +270,15 @@ void __thread_on_exit(IN tt_thread_t *thread)
 {
     thread->evp = NULL;
 
-    if (thread->rng != NULL) {
-        tt_rng_destroy(thread->rng);
-    }
+    if (thread->rng != NULL) { tt_rng_destroy(thread->rng); }
 
     if (thread->fiber_sched != NULL) {
         tt_fiber_sched_destroy(thread->fiber_sched);
     }
 
-    if (thread->ctr_drbg != NULL) {
-        tt_ctr_drbg_destroy(thread->ctr_drbg);
-    }
+    if (thread->ctr_drbg != NULL) { tt_ctr_drbg_destroy(thread->ctr_drbg); }
 
-    if (thread->entropy != NULL) {
-        tt_entropy_destroy(thread->entropy);
-    }
+    if (thread->entropy != NULL) { tt_entropy_destroy(thread->entropy); }
 
     if (thread->backtrace != NULL) {
         tt_buf_destroy(thread->backtrace);
@@ -326,7 +302,5 @@ void __thread_on_exit(IN tt_thread_t *thread)
 
     // for non-detached and non-local thread, the struct will
     // be freed in tt_thread_wait
-    if (thread->detached || thread->local) {
-        tt_c_free(thread);
-    }
+    if (thread->detached || thread->local) { tt_c_free(thread); }
 }

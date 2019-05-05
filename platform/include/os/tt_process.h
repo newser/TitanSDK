@@ -76,8 +76,7 @@ tt_export tt_result_t tt_process_create(IN tt_process_t *proc,
 // - exit_code is set only when this function return success
 // - exit_code is set to TT_PROCESS_EXIT_UNKNOWN, when created process is
 //   terminated abnormally so that tt_process_exit() is not called
-tt_export tt_result_t tt_process_wait(IN tt_process_t *proc,
-                                      IN tt_bool_t block,
+tt_export tt_result_t tt_process_wait(IN tt_process_t *proc, IN tt_bool_t block,
                                       IN OPT tt_u8_t *exit_code);
 
 tt_export void tt_process_attr_default(IN tt_process_attr_t *attr);

@@ -51,24 +51,12 @@ TT_TEST_ROUTINE_DECLARE(case_zarc_write_file)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(zip_zarc_case)
 
-TT_TEST_CASE("case_zarc_write_blob",
-             "zip archive: write blob",
-             case_zarc_write_blob,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_zarc_write_blob", "zip archive: write blob",
+             case_zarc_write_blob, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_zarc_write_file",
-                 "zip archive: write file",
-                 case_zarc_write_file,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_zarc_write_file", "zip archive: write file",
+                 case_zarc_write_file, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(zip_zarc_case)
     // =========================================

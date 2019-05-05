@@ -63,8 +63,7 @@ tt_export tt_param_t *tt_param_exe_create(IN const tt_char_t *name,
                                           IN OPT tt_param_attr_t *attr,
                                           IN tt_param_exe_run_t run);
 
-tt_inline tt_result_t tt_param_exe_run(IN tt_param_exe_t *pe,
-                                       IN tt_u32_t argc,
+tt_inline tt_result_t tt_param_exe_run(IN tt_param_exe_t *pe, IN tt_u32_t argc,
                                        IN tt_char_t *argv[],
                                        OUT struct tt_buf_s *output,
                                        OUT tt_u32_t *status)

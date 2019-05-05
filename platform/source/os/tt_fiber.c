@@ -159,8 +159,7 @@ tt_fiber_t *tt_fiber_sched_next(IN tt_fiber_sched_t *fs)
 }
 
 tt_fiber_t *tt_fiber_create(IN OPT const tt_char_t *name,
-                            IN tt_fiber_routine_t routine,
-                            IN void *param,
+                            IN tt_fiber_routine_t routine, IN void *param,
                             IN OPT tt_fiber_attr_t *attr)
 {
     tt_fiber_sched_t *fs;

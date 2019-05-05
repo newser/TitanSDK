@@ -58,24 +58,12 @@ TT_TEST_ROUTINE_DECLARE(case_slab_vs_malloc)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(slab_case)
 
-TT_TEST_CASE("case_slab_cd",
-             "testing mempnc slab create and destroy",
-             case_slab_cd,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_slab_cd", "testing mempnc slab create and destroy",
+             case_slab_cd, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_slab_allocfree",
-                 "testing mempnc slab alloc and free",
-                 case_slab_allocfree,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_slab_allocfree", "testing mempnc slab alloc and free",
+                 case_slab_allocfree, NULL, NULL, NULL, NULL, NULL),
 
 #if 0
 TT_TEST_CASE("case_slab_vs_malloc",
@@ -123,7 +111,6 @@ TT_TEST_CASE("case_slab_vs_malloc",
     void *p;
 
     tt_u32_t tmp;
-
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -202,9 +189,7 @@ TT_TEST_ROUTINE_DEFINE(case_slab_allocfree)
         tt_memset(obj[i], 0xcc, objsize);
     }
     // free all
-    for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) {
-        tt_slab_free(obj[i]);
-    }
+    for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) { tt_slab_free(obj[i]); }
 
     // destroy slab
     tt_slab_destroy(&slab);
@@ -224,9 +209,7 @@ TT_TEST_ROUTINE_DEFINE(case_slab_allocfree)
         tt_memset(obj[i], 0xdd, objsize);
     }
     // free all
-    for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) {
-        tt_slab_free(obj[i]);
-    }
+    for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) { tt_slab_free(obj[i]); }
 
     // destroy slab
     tt_slab_destroy(&slab);
@@ -264,9 +247,7 @@ TT_TEST_ROUTINE_DEFINE(case_slab_vs_malloc)
         obj[i] = tt_slab_alloc(&slab);
         // tt_memset(obj[i], 0xcc, objsize);
     }
-    for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) {
-        tt_slab_free(obj[i]);
-    }
+    for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) { tt_slab_free(obj[i]); }
     end = tt_time_ref();
     t1 = tt_time_ref2ms(end - start);
 
@@ -278,9 +259,7 @@ TT_TEST_ROUTINE_DEFINE(case_slab_vs_malloc)
         obj[i] = tt_malloc(objsize);
         // tt_memset(obj[i], 0xcc, objsize);
     }
-    for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) {
-        tt_free(obj[i]);
-    }
+    for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) { tt_free(obj[i]); }
     end = tt_time_ref();
     t2 = tt_time_ref2ms(end - start);
 

@@ -49,8 +49,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
-                        IN tt_u32_t ev,
+tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms, IN tt_u32_t ev,
                         IN OPT void *param)
 {
     tt_tmr_t *tmr;

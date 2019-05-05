@@ -77,8 +77,7 @@ static tt_sshmsg_itf_t __chopen_op = {
 tt_sshmsg_t *tt_sshmsg_chopen_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_OPEN,
-                            sizeof(tt_sshmsg_chopen_t),
-                            &__chopen_op);
+                            sizeof(tt_sshmsg_chopen_t), &__chopen_op);
 }
 
 void tt_sshmsg_chopen_set_type(IN tt_sshmsg_t *msg, IN tt_ssh_chtype_t type)
@@ -173,9 +172,9 @@ tt_result_t __chopen_render_prepare(IN struct tt_sshmsg_s *msg,
     msg_len += tt_ssh_byte_render_prepare();
 
     // string channel type
-    msg_len += tt_ssh_string_render_prepare(NULL,
-                                            (tt_u32_t)tt_strlen(
-                                                tt_g_ssh_chtype_name[type]));
+    msg_len +=
+        tt_ssh_string_render_prepare(NULL, (tt_u32_t)tt_strlen(
+                                               tt_g_ssh_chtype_name[type]));
 
     // uint32 sender channel
     msg_len += tt_ssh_uint32_render_prepare();
@@ -210,8 +209,7 @@ tt_result_t __chopen_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
 
     // string channel type
     TT_DO(
-        tt_ssh_string_render(buf,
-                             (tt_u8_t *)tt_g_ssh_chtype_name[type],
+        tt_ssh_string_render(buf, (tt_u8_t *)tt_g_ssh_chtype_name[type],
                              (tt_u32_t)tt_strlen(tt_g_ssh_chtype_name[type])));
 
     // uint32 sender channel

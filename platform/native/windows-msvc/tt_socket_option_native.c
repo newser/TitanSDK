@@ -49,16 +49,14 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_skt_set_ttl_ntv(IN tt_skt_ntv_t *skt,
-                               IN tt_net_family_t family,
+tt_result_t tt_skt_set_ttl_ntv(IN tt_skt_ntv_t *skt, IN tt_net_family_t family,
                                IN tt_u8_t ttl)
 {
     DWORD val = ttl;
     if (setsockopt(skt->s,
                    TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
                    TT_COND(family == TT_NET_AF_INET, IP_TTL, IPV6_UNICAST_HOPS),
-                   (char *)&val,
-                   (int)sizeof(val)) == 0) {
+                   (char *)&val, (int)sizeof(val)) == 0) {
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("fail to set ttl to %d", ttl);
@@ -66,8 +64,7 @@ tt_result_t tt_skt_set_ttl_ntv(IN tt_skt_ntv_t *skt,
     }
 }
 
-tt_result_t tt_skt_get_ttl_ntv(IN tt_skt_ntv_t *skt,
-                               IN tt_net_family_t family,
+tt_result_t tt_skt_get_ttl_ntv(IN tt_skt_ntv_t *skt, IN tt_net_family_t family,
                                OUT tt_u8_t *ttl)
 {
     DWORD val;
@@ -75,8 +72,7 @@ tt_result_t tt_skt_get_ttl_ntv(IN tt_skt_ntv_t *skt,
     if (getsockopt(skt->s,
                    TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
                    TT_COND(family == TT_NET_AF_INET, IP_TTL, IPV6_UNICAST_HOPS),
-                   (char *)&val,
-                   &len) == 0) {
+                   (char *)&val, &len) == 0) {
         *ttl = (tt_u8_t)val;
         return TT_SUCCESS;
     } else {
@@ -89,10 +85,7 @@ tt_result_t tt_skt_set_broadcast_ntv(IN tt_skt_ntv_t *skt,
                                      IN tt_bool_t broadcast)
 {
     DWORD val = broadcast ? 1 : 0;
-    if (setsockopt(skt->s,
-                   SOL_SOCKET,
-                   SO_BROADCAST,
-                   (char *)&val,
+    if (setsockopt(skt->s, SOL_SOCKET, SO_BROADCAST, (char *)&val,
                    sizeof(int)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -119,10 +112,7 @@ tt_result_t tt_skt_set_oobinline_ntv(IN tt_skt_ntv_t *skt,
                                      IN tt_bool_t oobinline)
 {
     DWORD val = oobinline ? 1 : 0;
-    if (setsockopt(skt->s,
-                   SOL_SOCKET,
-                   SO_OOBINLINE,
-                   (char *)&val,
+    if (setsockopt(skt->s, SOL_SOCKET, SO_OOBINLINE, (char *)&val,
                    sizeof(int)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -148,10 +138,7 @@ tt_result_t tt_skt_get_oobinline_ntv(IN tt_skt_ntv_t *skt,
 tt_result_t tt_skt_set_sendtime_ntv(IN tt_skt_ntv_t *skt, IN tt_u32_t ms)
 {
     DWORD val = ms;
-    if (setsockopt(skt->s,
-                   SOL_SOCKET,
-                   SO_SNDTIMEO,
-                   (char *)&val,
+    if (setsockopt(skt->s, SOL_SOCKET, SO_SNDTIMEO, (char *)&val,
                    (int)sizeof(val)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -176,10 +163,7 @@ tt_result_t tt_skt_get_sendtime_ntv(IN tt_skt_ntv_t *skt, OUT tt_u32_t *ms)
 tt_result_t tt_skt_set_recvtime_ntv(IN tt_skt_ntv_t *skt, IN tt_u32_t ms)
 {
     DWORD val = ms;
-    if (setsockopt(skt->s,
-                   SOL_SOCKET,
-                   SO_RCVTIMEO,
-                   (char *)&val,
+    if (setsockopt(skt->s, SOL_SOCKET, SO_RCVTIMEO, (char *)&val,
                    (int)sizeof(val)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -258,11 +242,9 @@ tt_result_t tt_skt_set_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
     DWORD val = loop ? 1 : 0;
     if (setsockopt(skt->s,
                    TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
-                   TT_COND(family == TT_NET_AF_INET,
-                           IP_MULTICAST_LOOP,
+                   TT_COND(family == TT_NET_AF_INET, IP_MULTICAST_LOOP,
                            IPV6_MULTICAST_LOOP),
-                   (char *)&val,
-                   (int)sizeof(val)) == 0) {
+                   (char *)&val, (int)sizeof(val)) == 0) {
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("fail to set mcast loop to %d", loop);
@@ -278,11 +260,9 @@ tt_result_t tt_skt_get_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
     int len = (int)sizeof(val);
     if (getsockopt(skt->s,
                    TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
-                   TT_COND(family == TT_NET_AF_INET,
-                           IP_MULTICAST_LOOP,
+                   TT_COND(family == TT_NET_AF_INET, IP_MULTICAST_LOOP,
                            IPV6_MULTICAST_LOOP),
-                   (char *)&val,
-                   &len) == 0) {
+                   (char *)&val, &len) == 0) {
         *loop = TT_BOOL(val);
         return TT_SUCCESS;
     } else {
@@ -292,17 +272,14 @@ tt_result_t tt_skt_get_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
 }
 
 tt_result_t tt_skt_set_mcast_ttl_ntv(IN tt_skt_ntv_t *skt,
-                                     IN tt_net_family_t family,
-                                     IN tt_u8_t ttl)
+                                     IN tt_net_family_t family, IN tt_u8_t ttl)
 {
     DWORD val = ttl;
     if (setsockopt(skt->s,
                    TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
-                   TT_COND(family == TT_NET_AF_INET,
-                           IP_MULTICAST_TTL,
+                   TT_COND(family == TT_NET_AF_INET, IP_MULTICAST_TTL,
                            IPV6_MULTICAST_HOPS),
-                   (char *)&val,
-                   (int)sizeof(val)) == 0) {
+                   (char *)&val, (int)sizeof(val)) == 0) {
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("fail to set mcast ttl to %d", ttl);
@@ -318,11 +295,9 @@ tt_result_t tt_skt_get_mcast_ttl_ntv(IN tt_skt_ntv_t *skt,
     int len = (int)sizeof(val);
     if (getsockopt(skt->s,
                    TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
-                   TT_COND(family == TT_NET_AF_INET,
-                           IP_MULTICAST_TTL,
+                   TT_COND(family == TT_NET_AF_INET, IP_MULTICAST_TTL,
                            IPV6_MULTICAST_HOPS),
-                   (char *)&val,
-                   &len) == 0) {
+                   (char *)&val, &len) == 0) {
         *ttl = (tt_u8_t)val;
         return TT_SUCCESS;
     } else {
@@ -334,11 +309,8 @@ tt_result_t tt_skt_get_mcast_ttl_ntv(IN tt_skt_ntv_t *skt,
 tt_result_t tt_skt_set_mcast_if_ntv(IN tt_skt_ntv_t *skt,
                                     IN tt_sktaddr_ip_t *addr)
 {
-    if (setsockopt(skt->s,
-                   IPPROTO_IP,
-                   IP_MULTICAST_IF,
-                   (char *)&addr->a32.__u32,
-                   sizeof(DWORD)) == 0) {
+    if (setsockopt(skt->s, IPPROTO_IP, IP_MULTICAST_IF,
+                   (char *)&addr->a32.__u32, sizeof(DWORD)) == 0) {
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("fail to set mcast interface");
@@ -364,10 +336,7 @@ tt_result_t tt_skt_get_mcast_if_ntv(IN tt_skt_ntv_t *skt,
 tt_result_t tt_skt_set_mcast_ifidx_ntv(IN tt_skt_ntv_t *skt, IN tt_u32_t ifidx)
 {
     DWORD val = (int)ifidx;
-    if (setsockopt(skt->s,
-                   IPPROTO_IPV6,
-                   IPV6_MULTICAST_IF,
-                   (char *)&val,
+    if (setsockopt(skt->s, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char *)&val,
                    (int)sizeof(val)) == 0) {
         return TT_SUCCESS;
     } else {
@@ -381,10 +350,7 @@ tt_result_t tt_skt_get_mcast_ifidx_ntv(IN tt_skt_ntv_t *skt,
 {
     DWORD val;
     int len = (int)sizeof(val);
-    if (getsockopt(skt->s,
-                   IPPROTO_IPV6,
-                   IPV6_MULTICAST_IF,
-                   (char *)&val,
+    if (getsockopt(skt->s, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char *)&val,
                    &len) == 0) {
         *ifidx = val;
         return TT_SUCCESS;

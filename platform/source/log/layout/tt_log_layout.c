@@ -54,14 +54,10 @@ tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
 {
     tt_loglyt_t *ll;
 
-    if ((itf == NULL) || (itf->format == NULL)) {
-        return NULL;
-    }
+    if ((itf == NULL) || (itf->format == NULL)) { return NULL; }
 
     ll = tt_malloc(sizeof(tt_loglyt_t) + size);
-    if (ll == NULL) {
-        return NULL;
-    }
+    if (ll == NULL) { return NULL; }
 
     ll->itf = itf;
     tt_atomic_s32_set(&ll->ref, 1);
@@ -83,15 +79,12 @@ void __loglyt_destroy(IN tt_loglyt_t *ll)
     tt_free(ll);
 }
 
-tt_result_t tt_loglyt_format(IN tt_loglyt_t *ll,
-                             IN tt_log_entry_t *entry,
+tt_result_t tt_loglyt_format(IN tt_loglyt_t *ll, IN tt_log_entry_t *entry,
                              OUT tt_buf_t *outbuf)
 {
     TT_DO(ll->itf->format(ll, entry, outbuf));
 
-    if (!tt_buf_endwith_u8(outbuf, 0)) {
-        TT_DO(tt_buf_put_u8(outbuf, 0));
-    }
+    if (!tt_buf_endwith_u8(outbuf, 0)) { TT_DO(tt_buf_put_u8(outbuf, 0)); }
 
     return TT_SUCCESS;
 }

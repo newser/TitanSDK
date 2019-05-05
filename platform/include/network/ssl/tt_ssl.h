@@ -67,7 +67,8 @@ typedef struct tt_ssl_s
     mbedtls_ssl_context ctx;
 } tt_ssl_t;
 
-typedef enum {
+typedef enum
+{
     TT_SSL_SHUT_RD,
     TT_SSL_SHUT_WR,
     TT_SSL_SHUT_RDWR,
@@ -103,15 +104,11 @@ tt_export tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
                                        OUT tt_fiber_ev_t **p_fev,
                                        OUT struct tt_tmr_s **p_tmr);
 
-tt_export tt_result_t tt_ssl_send(IN tt_ssl_t *ssl,
-                                  IN tt_u8_t *buf,
-                                  IN tt_u32_t len,
-                                  OUT tt_u32_t *sent);
+tt_export tt_result_t tt_ssl_send(IN tt_ssl_t *ssl, IN tt_u8_t *buf,
+                                  IN tt_u32_t len, OUT tt_u32_t *sent);
 
-tt_export tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
-                                  OUT tt_u8_t *buf,
-                                  IN tt_u32_t len,
-                                  OUT tt_u32_t *recvd,
+tt_export tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl, OUT tt_u8_t *buf,
+                                  IN tt_u32_t len, OUT tt_u32_t *recvd,
                                   OUT tt_fiber_ev_t **p_fev,
                                   OUT struct tt_tmr_s **p_tmr);
 
@@ -122,8 +119,7 @@ tt_export struct tt_ssl_config_s *tt_ssl_get_config(IN tt_ssl_t *ssl);
 tt_export tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl,
                                           IN const tt_char_t *hostname);
 
-tt_export void tt_ssl_set_ca(IN tt_ssl_t *ssl,
-                             IN OPT struct tt_x509cert_s *ca,
+tt_export void tt_ssl_set_ca(IN tt_ssl_t *ssl, IN OPT struct tt_x509cert_s *ca,
                              IN OPT struct tt_x509crl_s *crl);
 
 tt_export tt_result_t tt_ssl_set_cert(IN tt_ssl_t *ssl,

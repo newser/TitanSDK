@@ -49,33 +49,15 @@ TT_TEST_ROUTINE_DECLARE(case_xattr_int)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(xml_xattr_case)
 
-TT_TEST_CASE("case_xattr_rel",
-             "xml: attribute relation",
-             case_xattr_rel,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_xattr_rel", "xml: attribute relation", case_xattr_rel, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_xattr_bool",
-                 "xml: attribute value",
-                 case_xattr_bool,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_xattr_bool", "xml: attribute value", case_xattr_bool,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_xattr_int",
-                 "xml: attribute value int",
-                 case_xattr_int,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_xattr_int", "xml: attribute value int", case_xattr_int,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(xml_xattr_case)
     // =========================================
@@ -153,8 +135,7 @@ TT_TEST_ROUTINE_DEFINE(case_xattr_rel)
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, "xx"),
                           "the last attr is a string"),
-                0,
-                "");
+                0, "");
 
     xa2 = tt_xattr_prev(xa);
     TT_UT_NOT_NULL(xa2, "");
@@ -192,8 +173,7 @@ TT_TEST_ROUTINE_DEFINE(case_xattr_rel)
                           "double_1=\"-2.789\" str_2=\"\" str_1=\"the last "
                           "attr is a string\" attr_app=\"app_val\" "
                           "i_after=\"after_val\" />\n"),
-                0,
-                "");
+                0, "");
 
     // remove
     ret = tt_xnode_remove_attr(xn, xa);
@@ -218,8 +198,7 @@ TT_TEST_ROUTINE_DEFINE(case_xattr_rel)
                           "double_1=\"-2.789\" str_2=\"\" str_1=\"the last "
                           "attr is a string\" attr_app=\"app_val\" "
                           "i_after=\"after_val\" />\n"),
-                0,
-                "");
+                0, "");
 
     tt_xdoc_destroy(&xd);
 
@@ -390,8 +369,7 @@ TT_TEST_ROUTINE_DEFINE(case_xattr_int)
     // double
     xa = tt_xnode_selectxptr_byname(xn, "double_1");
     TT_UT_NOT_NULL(xa, "");
-    TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_TRUE),
-                TT_FALSE,
+    TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_TRUE), TT_FALSE,
                 ""); // not begins with 1
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 0, "");
     TT_UT_EQUAL(tt_xattr_get_s32(xa, 0), -2, ""); // truncated

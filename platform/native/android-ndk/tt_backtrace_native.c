@@ -62,22 +62,17 @@ static _Unwind_Reason_Code __unwind_cb(struct _Unwind_Context *ctx,
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
-                             IN OPT const tt_char_t *prefix,
+tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf, IN OPT const tt_char_t *prefix,
                              IN OPT const tt_char_t *suffix)
 {
     tt_u32_t plen, slen, i;
     __unwind_param_t up;
     tt_result_t result = TT_E_NOMEM;
 
-    if (prefix == NULL) {
-        prefix = "";
-    }
+    if (prefix == NULL) { prefix = ""; }
     plen = (tt_u32_t)tt_strlen(prefix);
 
-    if (suffix == NULL) {
-        suffix = "";
-    }
+    if (suffix == NULL) { suffix = ""; }
     slen = (tt_u32_t)tt_strlen(suffix);
 
     tt_memset(&up, 0, sizeof(__unwind_param_t));

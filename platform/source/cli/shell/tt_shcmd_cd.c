@@ -46,13 +46,14 @@ static const tt_char_t __cd_info[] = "change directory";
 
 static const tt_char_t __cd_usage[] = "testing change directory";
 
-static tt_u32_t __cd_run(IN tt_shell_t *sh,
-                         IN tt_u32_t argc,
-                         IN tt_char_t *arv[],
-                         OUT tt_buf_t *output);
+static tt_u32_t __cd_run(IN tt_shell_t *sh, IN tt_u32_t argc,
+                         IN tt_char_t *arv[], OUT tt_buf_t *output);
 
 tt_shcmd_t tt_g_shcmd_cd = {
-    TT_SHCMD_NAME_CD, __cd_info, __cd_usage, __cd_run,
+    TT_SHCMD_NAME_CD,
+    __cd_info,
+    __cd_usage,
+    __cd_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -63,22 +64,16 @@ tt_shcmd_t tt_g_shcmd_cd = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __cd_run(IN tt_shell_t *sh,
-                  IN tt_u32_t argc,
-                  IN tt_char_t *argv[],
+tt_u32_t __cd_run(IN tt_shell_t *sh, IN tt_u32_t argc, IN tt_char_t *argv[],
                   OUT tt_buf_t *output)
 {
     tt_param_t *p;
     const tt_char_t *path;
 
-    if (argc == 0) {
-        return TT_CLIOC_NOOUT;
-    }
+    if (argc == 0) { return TT_CLIOC_NOOUT; }
 
     path = argv[0];
-    p = tt_param_path_p2n(sh->root,
-                          sh->current,
-                          path,
+    p = tt_param_path_p2n(sh->root, sh->current, path,
                           (tt_u32_t)tt_strlen(path));
     if (p == NULL) {
         tt_buf_putf(output, "not found: %s", path);

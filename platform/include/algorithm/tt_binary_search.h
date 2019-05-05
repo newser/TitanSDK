@@ -72,11 +72,8 @@ search a element with key equaling the param
   block of consecutive memory
 - the function assumes that the elements has been sorted
 */
-tt_export void *tt_bsearch(IN void *key,
-                           IN void *base,
-                           IN tt_u32_t num,
-                           IN tt_u32_t width,
-                           IN tt_cmp_t cmp);
+tt_export void *tt_bsearch(IN void *key, IN void *base, IN tt_u32_t num,
+                           IN tt_u32_t width, IN tt_cmp_t cmp);
 
 /**
 @fn void* tt_bsearch_gteq(IN void *key,
@@ -104,11 +101,8 @@ search the first element with key value larger than the "key"
 - if there is an element with key equaling "key", then its
   position would be returned
 */
-tt_export void *tt_bsearch_gteq(IN void *key,
-                                IN void *base,
-                                IN tt_u32_t num,
-                                IN tt_u32_t width,
-                                IN tt_cmp_t cmp);
+tt_export void *tt_bsearch_gteq(IN void *key, IN void *base, IN tt_u32_t num,
+                                IN tt_u32_t width, IN tt_cmp_t cmp);
 
 /**
 @fn void* tt_bsearch_lteq(IN void *key,
@@ -136,10 +130,7 @@ search the last element with key value less than "key"
 - if there is an element with key equaling "key", then its
   position would be returned
 */
-tt_export void *tt_bsearch_lteq(IN void *key,
-                                IN void *base,
-                                IN tt_u32_t num,
-                                IN tt_u32_t width,
-                                IN tt_cmp_t cmp);
+tt_export void *tt_bsearch_lteq(IN void *key, IN void *base, IN tt_u32_t num,
+                                IN tt_u32_t width, IN tt_cmp_t cmp);
 
 #endif /* __TT_BINARY_SEARCH__ */

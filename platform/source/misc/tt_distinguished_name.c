@@ -72,8 +72,7 @@ void tt_distname_destroy(IN tt_distname_t *dn)
     }
 }
 
-tt_result_t tt_distname_add_rdn(IN tt_distname_t *dn,
-                                IN tt_rdn_type_t type,
+tt_result_t tt_distname_add_rdn(IN tt_distname_t *dn, IN tt_rdn_type_t type,
                                 IN const tt_char_t *value)
 {
     tt_rdn_t *rdn;

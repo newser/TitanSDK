@@ -52,16 +52,13 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
-                             IN tt_log_level_t level,
+tt_result_t tt_logctx_create(IN tt_logctx_t *lctx, IN tt_log_level_t level,
                              IN OPT tt_loglyt_t *lyt,
                              IN OPT tt_logctx_attr_t *attr)
 {
     tt_logctx_attr_t __attr;
 
-    if ((lctx == NULL) || !TT_LOG_LEVEL_VALID(level)) {
-        return TT_E_BADARG;
-    }
+    if ((lctx == NULL) || !TT_LOG_LEVEL_VALID(level)) { return TT_E_BADARG; }
 
     if (attr == NULL) {
         tt_logctx_attr_default(&__attr);
@@ -82,13 +79,9 @@ void tt_logctx_destroy(IN tt_logctx_t *lctx)
     tt_logfltr_t *lf;
     tt_logio_t *lio;
 
-    if (lctx == NULL) {
-        return;
-    }
+    if (lctx == NULL) { return; }
 
-    if (lctx->lyt != NULL) {
-        tt_loglyt_release(lctx->lyt);
-    }
+    if (lctx->lyt != NULL) { tt_loglyt_release(lctx->lyt); }
 
     while ((lf = (tt_logfltr_t *)tt_ptrq_pop_head(&lctx->filter_q)) != NULL) {
         tt_logfltr_release(lf);
@@ -105,9 +98,7 @@ void tt_logctx_destroy(IN tt_logctx_t *lctx)
 
 void tt_logctx_attr_default(IN tt_logctx_attr_t *attr)
 {
-    if (attr == NULL) {
-        return;
-    }
+    if (attr == NULL) { return; }
 
     tt_ptrq_attr_default(&attr->filter_q_attr);
     attr->filter_q_attr.ptr_per_frame = 8;
@@ -120,9 +111,7 @@ void tt_logctx_attr_default(IN tt_logctx_attr_t *attr)
 
 void tt_logctx_set_layout(IN tt_logctx_t *lctx, IN TO tt_loglyt_t *lyt)
 {
-    if (lctx->lyt != NULL) {
-        tt_loglyt_release(lctx->lyt);
-    }
+    if (lctx->lyt != NULL) { tt_loglyt_release(lctx->lyt); }
 
     lctx->lyt = lyt;
     tt_loglyt_ref(lctx->lyt);
@@ -131,9 +120,7 @@ void tt_logctx_set_layout(IN tt_logctx_t *lctx, IN TO tt_loglyt_t *lyt)
 tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
                                     IN tt_logfltr_t *filter)
 {
-    if ((lctx == NULL) || (filter == NULL)) {
-        return TT_E_BADARG;
-    }
+    if ((lctx == NULL) || (filter == NULL)) { return TT_E_BADARG; }
 
     if (TT_OK(tt_ptrq_push_tail(&lctx->filter_q, filter))) {
         tt_logfltr_ref(filter);
@@ -145,9 +132,7 @@ tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
 
 tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx, IN TO tt_logio_t *lio)
 {
-    if ((lctx == NULL) || (lio == NULL)) {
-        return TT_E_BADARG;
-    }
+    if ((lctx == NULL) || (lio == NULL)) { return TT_E_BADARG; }
 
     if (TT_OK(tt_ptrq_push_tail(&lctx->io_q, lio))) {
         tt_logio_ref(lio);
@@ -173,17 +158,13 @@ tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
 
     // format
     tt_buf_clear(buf);
-    if (!TT_OK(tt_loglyt_format(lctx->lyt, entry, buf))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_loglyt_format(lctx->lyt, entry, buf))) { return TT_FAIL; }
 
     // filter
     tt_ptrq_iter(&lctx->filter_q, &iter);
     while ((filter = (tt_logfltr_t *)tt_ptrq_iter_next(&iter)) != NULL) {
         tt_u32_t io = tt_logfltr_input(filter, entry, buf);
-        if (!(io & TT_LOGFLTR_PASS)) {
-            return TT_SUCCESS;
-        }
+        if (!(io & TT_LOGFLTR_PASS)) { return TT_SUCCESS; }
     }
 
     // output

@@ -67,8 +67,7 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_stack_init(IN tt_stack_t *stk,
-                             IN tt_u32_t obj_size,
+tt_export void tt_stack_init(IN tt_stack_t *stk, IN tt_u32_t obj_size,
                              IN OPT tt_stack_attr_t *attr);
 
 tt_export void tt_stack_destroy(IN tt_stack_t *stk);

@@ -48,19 +48,13 @@ struct tt_sshenc_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_sshenc_aes_create_128cbc(IN struct tt_sshenc_s *enc,
-                                                  IN tt_bool_t encrypt,
-                                                  IN tt_u8_t *iv,
-                                                  IN tt_u32_t iv_len,
-                                                  IN tt_u8_t *key,
-                                                  IN tt_u32_t key_leny);
+tt_export tt_result_t tt_sshenc_aes_create_128cbc(
+    IN struct tt_sshenc_s *enc, IN tt_bool_t encrypt, IN tt_u8_t *iv,
+    IN tt_u32_t iv_len, IN tt_u8_t *key, IN tt_u32_t key_leny);
 
-tt_export tt_result_t tt_sshenc_aes_create_256cbc(IN struct tt_sshenc_s *enc,
-                                                  IN tt_bool_t encrypt,
-                                                  IN tt_u8_t *iv,
-                                                  IN tt_u32_t iv_len,
-                                                  IN tt_u8_t *key,
-                                                  IN tt_u32_t key_len);
+tt_export tt_result_t tt_sshenc_aes_create_256cbc(
+    IN struct tt_sshenc_s *enc, IN tt_bool_t encrypt, IN tt_u8_t *iv,
+    IN tt_u32_t iv_len, IN tt_u8_t *key, IN tt_u32_t key_len);
 
 tt_export void tt_sshenc_aes_destroy(IN struct tt_sshenc_s *enc);
 

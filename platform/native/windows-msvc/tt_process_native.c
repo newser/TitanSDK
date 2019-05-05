@@ -81,9 +81,7 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
         tt_char_t *arg;
         tt_char_t *utf8_cli;
 
-        if (argv == NULL) {
-            break;
-        }
+        if (argv == NULL) { break; }
 
         // utf8 length
         i = 0;
@@ -91,9 +89,7 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
         while ((arg = argv[i++]) != NULL) {
             len += (tt_u32_t)strlen(arg) + 1; // seperating space
         }
-        if (len == 0) {
-            break;
-        }
+        if (len == 0) { break; }
 
         // utf8 string
         utf8_len = len + 1;
@@ -128,15 +124,9 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
     // debug
     dwCreationFlags |= CREATE_NEW_CONSOLE;
 
-    if (!CreateProcessW(wc_file,
-                        lpCommandLine,
-                        NULL,
-                        NULL,
+    if (!CreateProcessW(wc_file, lpCommandLine, NULL, NULL,
                         FALSE, // no inherit handles
-                        dwCreationFlags,
-                        NULL,
-                        NULL,
-                        &si,
+                        dwCreationFlags, NULL, NULL, &si,
                         &sys_proc->proc_info)) {
         TT_ERROR_NTV("create process failed");
         goto __pc_out;
@@ -147,20 +137,15 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
 
 __pc_out:
 
-    if (lpCommandLine != NULL) {
-        tt_wchar_destroy(lpCommandLine);
-    }
+    if (lpCommandLine != NULL) { tt_wchar_destroy(lpCommandLine); }
 
-    if (wc_file != NULL) {
-        tt_wchar_destroy(wc_file);
-    }
+    if (wc_file != NULL) { tt_wchar_destroy(wc_file); }
 
     return result;
 }
 
 tt_result_t tt_process_wait_ntv(IN tt_process_ntv_t *sys_proc,
-                                IN tt_bool_t block,
-                                IN OPT tt_u8_t *exit_code)
+                                IN tt_bool_t block, IN OPT tt_u8_t *exit_code)
 {
     DWORD ret = WaitForSingleObject(sys_proc->proc_info.hProcess,
                                     TT_COND(block, INFINITE, 0));
@@ -293,9 +278,7 @@ tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
     }
 
     upath = tt_utf8_create(wpath, 0, NULL);
-    if (upath == NULL) {
-        return TT_FAIL;
-    }
+    if (upath == NULL) { return TT_FAIL; }
 
     p = tt_strrchr(upath, '\\');
     if (p != NULL) {

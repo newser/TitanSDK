@@ -55,7 +55,8 @@ this file defines network interface APIs
 
 struct tt_netif_s;
 
-typedef enum {
+typedef enum
+{
     TT_NETIF_TYPE_OTHER,
     TT_NETIF_TYPE_ETHERNET,
     TT_NETIF_TYPE_CSMA_CD,
@@ -73,7 +74,8 @@ typedef enum {
 } tt_netif_type_t;
 #define TT_NETIF_TYPE_VALID(t) ((t) < TT_NETIF_TYPE_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_NETIF_STATUS_NOT_EXIST,
     TT_NETIF_STATUS_DOWN,
     TT_NETIF_STATUS_UP,
@@ -130,8 +132,7 @@ tt_inline tt_result_t tt_netif_name2idx(IN const tt_char_t *name,
     return tt_netif_name2idx_ntv(name, idx);
 }
 
-tt_inline tt_result_t tt_netif_idx2name(IN tt_u32_t idx,
-                                        OUT tt_char_t *name,
+tt_inline tt_result_t tt_netif_idx2name(IN tt_u32_t idx, OUT tt_char_t *name,
                                         IN tt_u32_t len)
 {
     return tt_netif_idx2name_ntv(idx, name, len);

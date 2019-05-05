@@ -59,70 +59,64 @@ static void __svr_authdone_pkt_chopen(IN tt_sshsvrconn_t *svrconn,
                                       OUT tt_sshsvr_action_t *svract);
 
 static tt_result_t __send_chopc(IN tt_sshsvrconn_t *svrconn,
-                                IN tt_u32_t rcv_chnum,
-                                IN tt_u32_t snd_chnum,
-                                IN tt_u32_t win_size,
-                                IN tt_u32_t pkt_size);
+                                IN tt_u32_t rcv_chnum, IN tt_u32_t snd_chnum,
+                                IN tt_u32_t win_size, IN tt_u32_t pkt_size);
 static tt_result_t __send_chopf(IN tt_sshsvrconn_t *svrconn,
-                                IN tt_u32_t rcv_chnum,
-                                IN tt_u32_t reason_code);
+                                IN tt_u32_t rcv_chnum, IN tt_u32_t reason_code);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
 void tt_sshsvr_state_authdone(IN struct tt_sshsvrconn_s *svrconn,
-                              IN tt_sshsvr_event_t event,
-                              IN void *param,
+                              IN tt_sshsvr_event_t event, IN void *param,
                               OUT tt_sshsvr_action_t *svract)
 {
     TT_ASSERT(event < TT_SSHSVREV_NUM);
 
     switch (event) {
-        case TT_SSHSVREV_PACKET: {
-            __svr_authdone_packet(svrconn, (tt_sshmsg_t *)param, svract);
-            return;
-        } break;
+    case TT_SSHSVREV_PACKET: {
+        __svr_authdone_packet(svrconn, (tt_sshmsg_t *)param, svract);
+        return;
+    } break;
 
-        default: {
-            TT_SSH_EV_IGNORED(TT_SSHSVRST_AUTH_DONE, event);
-            return;
-        } break;
+    default: {
+        TT_SSH_EV_IGNORED(TT_SSHSVRST_AUTH_DONE, event);
+        return;
+    } break;
     }
 }
 
-void __svr_authdone_packet(IN tt_sshsvrconn_t *svrconn,
-                           IN tt_sshmsg_t *msg,
+void __svr_authdone_packet(IN tt_sshsvrconn_t *svrconn, IN tt_sshmsg_t *msg,
                            OUT tt_sshsvr_action_t *svract)
 {
     switch (msg->msg_id) {
-        case TT_SSH_MSGID_USERAUTH_REQUEST: {
-            return;
-        } break;
-        case TT_SSH_MSGID_CHANNEL_OPEN: {
-            __svr_authdone_pkt_chopen(svrconn, msg, svract);
-            return;
-        } break;
-        case TT_SSH_MSGID_CHANNEL_WINDOW_ADJUST:
-        case TT_SSH_MSGID_CHANNEL_EOF:
-        case TT_SSH_MSGID_CHANNEL_CLOSE:
-        case TT_SSH_MSGID_CHANNEL_DATA:
-        case TT_SSH_MSGID_CHANNEL_REQUEST: {
-            tt_sshsvrconn_ch_pkt_handler(svrconn, msg, svract);
-            return;
-        } break;
+    case TT_SSH_MSGID_USERAUTH_REQUEST: {
+        return;
+    } break;
+    case TT_SSH_MSGID_CHANNEL_OPEN: {
+        __svr_authdone_pkt_chopen(svrconn, msg, svract);
+        return;
+    } break;
+    case TT_SSH_MSGID_CHANNEL_WINDOW_ADJUST:
+    case TT_SSH_MSGID_CHANNEL_EOF:
+    case TT_SSH_MSGID_CHANNEL_CLOSE:
+    case TT_SSH_MSGID_CHANNEL_DATA:
+    case TT_SSH_MSGID_CHANNEL_REQUEST: {
+        tt_sshsvrconn_ch_pkt_handler(svrconn, msg, svract);
+        return;
+    } break;
 
-        default: {
-            TT_SSH_MSG_FAILURE(TT_SSHSVRST_AUTH_DONE, msg->msg_id);
-            svract->new_event = TT_SSHSVREV_DISCONNECT;
+    default: {
+        TT_SSH_MSG_FAILURE(TT_SSHSVRST_AUTH_DONE, msg->msg_id);
+        svract->new_event = TT_SSHSVREV_DISCONNECT;
 
-            return;
-        } break;
+        return;
+    } break;
     }
 }
 
-void __svr_authdone_pkt_chopen(IN tt_sshsvrconn_t *svrconn,
-                               IN tt_sshmsg_t *msg,
+void __svr_authdone_pkt_chopen(IN tt_sshsvrconn_t *svrconn, IN tt_sshmsg_t *msg,
                                OUT tt_sshsvr_action_t *svract)
 {
     tt_sshmsg_chopen_t *chopen = TT_SSHMSG_CAST(msg, tt_sshmsg_chopen_t);
@@ -132,8 +126,7 @@ void __svr_authdone_pkt_chopen(IN tt_sshsvrconn_t *svrconn,
     // todo: ask if type is supported
     ch = tt_sshsvrconn_ch_create(svrconn, chopen->type);
     if (ch == NULL) {
-        __send_chopf(svrconn,
-                     chopen->snd_chnum,
+        __send_chopf(svrconn, chopen->snd_chnum,
                      TT_SSH_CHOPF_RC_RESOURCE_SHORTAGE);
         return;
     }
@@ -152,15 +145,11 @@ void __svr_authdone_pkt_chopen(IN tt_sshsvrconn_t *svrconn,
         return;
     }
 
-    if (ch->cb->on_connect != NULL) {
-        ch->cb->on_connect(ch, chopen);
-    }
+    if (ch->cb->on_connect != NULL) { ch->cb->on_connect(ch, chopen); }
 }
 
-tt_result_t __send_chopc(IN tt_sshsvrconn_t *svrconn,
-                         IN tt_u32_t rcv_chnum,
-                         IN tt_u32_t snd_chnum,
-                         IN tt_u32_t win_size,
+tt_result_t __send_chopc(IN tt_sshsvrconn_t *svrconn, IN tt_u32_t rcv_chnum,
+                         IN tt_u32_t snd_chnum, IN tt_u32_t win_size,
                          IN tt_u32_t pkt_size)
 {
     tt_sshmsg_t *chopc;
@@ -179,8 +168,7 @@ tt_result_t __send_chopc(IN tt_sshsvrconn_t *svrconn,
     return tt_sshsvrconn_send(svrconn, chopc);
 }
 
-tt_result_t __send_chopf(IN tt_sshsvrconn_t *svrconn,
-                         IN tt_u32_t rcv_chnum,
+tt_result_t __send_chopf(IN tt_sshsvrconn_t *svrconn, IN tt_u32_t rcv_chnum,
                          IN tt_u32_t reason_code)
 {
     tt_sshmsg_t *chopf;

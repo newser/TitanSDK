@@ -66,22 +66,16 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_log_debug(IN const tt_char_t *func,
-                  IN tt_u32_t line,
-                  IN const tt_char_t *format,
-                  ...)
+void tt_log_debug(IN const tt_char_t *func, IN tt_u32_t line,
+                  IN const tt_char_t *format, ...)
 {
     tt_thread_log_t l;
     va_list ap;
 
-    if (!tt_g_logmgr_ok) {
-        return;
-    }
+    if (!tt_g_logmgr_ok) { return; }
 
     l = tt_thread_get_log(NULL);
-    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
-        return;
-    }
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) { return; }
 
     va_start(ap, format);
     if (l == TT_THREAD_LOG_DEFAULT) {
@@ -93,22 +87,16 @@ void tt_log_debug(IN const tt_char_t *func,
     va_end(ap);
 }
 
-void tt_log_info(IN const tt_char_t *func,
-                 IN tt_u32_t line,
-                 IN const tt_char_t *format,
-                 ...)
+void tt_log_info(IN const tt_char_t *func, IN tt_u32_t line,
+                 IN const tt_char_t *format, ...)
 {
     tt_thread_log_t l;
     va_list ap;
 
-    if (!tt_g_logmgr_ok) {
-        return;
-    }
+    if (!tt_g_logmgr_ok) { return; }
 
     l = tt_thread_get_log(NULL);
-    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
-        return;
-    }
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) { return; }
 
     va_start(ap, format);
     if (l == TT_THREAD_LOG_DEFAULT) {
@@ -120,22 +108,16 @@ void tt_log_info(IN const tt_char_t *func,
     va_end(ap);
 }
 
-void tt_log_warn(IN const tt_char_t *func,
-                 IN tt_u32_t line,
-                 IN const tt_char_t *format,
-                 ...)
+void tt_log_warn(IN const tt_char_t *func, IN tt_u32_t line,
+                 IN const tt_char_t *format, ...)
 {
     tt_thread_log_t l;
     va_list ap;
 
-    if (!tt_g_logmgr_ok) {
-        return;
-    }
+    if (!tt_g_logmgr_ok) { return; }
 
     l = tt_thread_get_log(NULL);
-    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
-        return;
-    }
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) { return; }
 
     va_start(ap, format);
     if (l == TT_THREAD_LOG_DEFAULT) {
@@ -147,22 +129,16 @@ void tt_log_warn(IN const tt_char_t *func,
     va_end(ap);
 }
 
-void tt_log_error(IN const tt_char_t *func,
-                  IN tt_u32_t line,
-                  IN const tt_char_t *format,
-                  ...)
+void tt_log_error(IN const tt_char_t *func, IN tt_u32_t line,
+                  IN const tt_char_t *format, ...)
 {
     tt_thread_log_t l;
     va_list ap;
 
-    if (!tt_g_logmgr_ok) {
-        return;
-    }
+    if (!tt_g_logmgr_ok) { return; }
 
     l = tt_thread_get_log(NULL);
-    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
-        return;
-    }
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) { return; }
 
     va_start(ap, format);
     if (l == TT_THREAD_LOG_DEFAULT) {
@@ -174,22 +150,16 @@ void tt_log_error(IN const tt_char_t *func,
     va_end(ap);
 }
 
-void tt_log_fatal(IN const tt_char_t *func,
-                  IN tt_u32_t line,
-                  IN const tt_char_t *format,
-                  ...)
+void tt_log_fatal(IN const tt_char_t *func, IN tt_u32_t line,
+                  IN const tt_char_t *format, ...)
 {
     tt_thread_log_t l;
     va_list ap;
 
-    if (!tt_g_logmgr_ok) {
-        return;
-    }
+    if (!tt_g_logmgr_ok) { return; }
 
     l = tt_thread_get_log(NULL);
-    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
-        return;
-    }
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) { return; }
 
     va_start(ap, format);
     if (l == TT_THREAD_LOG_DEFAULT) {

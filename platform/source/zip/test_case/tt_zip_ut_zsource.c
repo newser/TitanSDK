@@ -52,51 +52,22 @@ TT_TEST_ROUTINE_DECLARE(case_zsrc_writefile_off)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(zip_zsrc_case)
 
-TT_TEST_CASE("case_zsrc_blob",
-             "zip source: blob",
-             case_zsrc_blob,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_zsrc_blob", "zip source: blob", case_zsrc_blob, NULL, NULL,
+             NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_zsrc_readfile",
-                 "zip source: read file",
-                 case_zsrc_readfile,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_zsrc_readfile", "zip source: read file",
+                 case_zsrc_readfile, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_zsrc_readfile_off",
-                 "zip source: read file with offset",
-                 case_zsrc_readfile_off,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_zsrc_readfile_off", "zip source: read file with offset",
+                 case_zsrc_readfile_off, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_zsrc_writefile",
-                 "zip source: write file",
-                 case_zsrc_writefile,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_zsrc_writefile", "zip source: write file",
+                 case_zsrc_writefile, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE("case_zsrc_writefile_off",
-                 "zip source: write file with offset",
-                 case_zsrc_writefile_off,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+                 "zip source: write file with offset", case_zsrc_writefile_off,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(zip_zsrc_case)
     // =========================================
@@ -192,9 +163,7 @@ TT_TEST_ROUTINE_DEFINE(case_zsrc_readfile)
 
     tt_fremove(Z_FILE);
     tt_fopen(&f, Z_FILE, TT_FO_CREAT | TT_FO_RDWR, NULL);
-    for (i = 0; i < sizeof(buf); ++i) {
-        buf[i] = i;
-    }
+    for (i = 0; i < sizeof(buf); ++i) { buf[i] = i; }
     tt_fwrite(&f, buf, sizeof(buf), NULL);
     tt_fclose(&f);
 
@@ -277,9 +246,7 @@ TT_TEST_ROUTINE_DEFINE(case_zsrc_readfile_off)
 
     tt_fremove(Z_FILE);
     tt_fopen(&f, Z_FILE, TT_FO_CREAT | TT_FO_RDWR, NULL);
-    for (i = 0; i < sizeof(buf); ++i) {
-        buf[i] = i;
-    }
+    for (i = 0; i < sizeof(buf); ++i) { buf[i] = i; }
     tt_fwrite(&f, buf, sizeof(buf), NULL);
     tt_fclose(&f);
 
@@ -364,9 +331,7 @@ TT_TEST_ROUTINE_DEFINE(case_zsrc_writefile)
 
     tt_fremove(Z_FILE);
 
-    for (i = 0; i < sizeof(buf); ++i) {
-        buf[i] = i;
-    }
+    for (i = 0; i < sizeof(buf); ++i) { buf[i] = i; }
 
     zs = tt_zipsrc_file_create(Z_FILE, 0, 0);
     TT_UT_NOT_NULL(zs, "");
@@ -469,9 +434,7 @@ TT_TEST_ROUTINE_DEFINE(case_zsrc_writefile_off)
 
     tt_fremove(Z_FILE);
 
-    for (i = 0; i < sizeof(buf); ++i) {
-        buf[i] = i;
-    }
+    for (i = 0; i < sizeof(buf); ++i) { buf[i] = i; }
 
     zs = tt_zipsrc_file_create(Z_FILE, 100, 256);
     TT_UT_NOT_NULL(zs, "");

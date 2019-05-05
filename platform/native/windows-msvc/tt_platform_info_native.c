@@ -94,9 +94,7 @@ tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num)
         return TT_FAIL;
     }
     info = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(info_len);
-    if (info == NULL) {
-        return TT_FAIL;
-    }
+    if (info == NULL) { return TT_FAIL; }
     if (!GetLogicalProcessorInformation(info, &info_len)) {
         free(info);
         return TT_FAIL;
@@ -189,9 +187,7 @@ tt_result_t __check_numa_node_id(tt_u32_t node_id)
         return TT_FAIL;
     }
     info = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(info_len);
-    if (info == NULL) {
-        return TT_FAIL;
-    }
+    if (info == NULL) { return TT_FAIL; }
     if (!GetLogicalProcessorInformation(info, &info_len)) {
         free(info);
         return TT_FAIL;
@@ -228,9 +224,7 @@ int __cpu_cache_line_size()
         return -1;
     }
     info = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(info_len);
-    if (info == NULL) {
-        return -1;
-    }
+    if (info == NULL) { return -1; }
     if (!GetLogicalProcessorInformation(info, &info_len)) {
         free(info);
         return -1;
@@ -263,9 +257,7 @@ tt_u32_t __mask_1num(IN ULONG_PTR mask)
     tt_u32_t ret = 0;
 
     for (bit_pos = 0; bit_pos < max_bit_pos; ++bit_pos) {
-        if (mask & (1ULL << bit_pos)) {
-            ++ret;
-        }
+        if (mask & (1ULL << bit_pos)) { ++ret; }
     }
 
     return ret;

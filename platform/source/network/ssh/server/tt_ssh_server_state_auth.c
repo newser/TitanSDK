@@ -59,11 +59,9 @@ static const tt_char_t *__svr_banner =
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __svr_auth_packet(IN tt_sshsvrconn_t *svrconn,
-                              IN tt_sshmsg_t *msg,
+static void __svr_auth_packet(IN tt_sshsvrconn_t *svrconn, IN tt_sshmsg_t *msg,
                               OUT tt_sshsvr_action_t *svract);
-static void __svr_auth_pkt_uar(IN tt_sshsvrconn_t *svrconn,
-                               IN tt_sshmsg_t *msg,
+static void __svr_auth_pkt_uar(IN tt_sshsvrconn_t *svrconn, IN tt_sshmsg_t *msg,
                                OUT tt_sshsvr_action_t *svract);
 
 static tt_result_t __svr_auth_conn(IN tt_sshsvrconn_t *svrconn,
@@ -75,8 +73,7 @@ static tt_result_t __svr_auth_conn_pwd(IN tt_sshsvrconn_t *svrconn,
 
 static tt_result_t __svr_auth_success(IN tt_sshsvrconn_t *svrconn);
 static tt_result_t __svr_auth_fail(IN tt_sshsvrconn_t *svrconn,
-                                   IN tt_ssh_auth_t *auth,
-                                   IN tt_u32_t auth_num,
+                                   IN tt_ssh_auth_t *auth, IN tt_u32_t auth_num,
                                    IN tt_bool_t partial_succ);
 static tt_result_t __svr_auth_banner(IN tt_sshsvrconn_t *svrconn,
                                      IN const tt_char_t *banner);
@@ -86,60 +83,57 @@ static tt_result_t __svr_auth_banner(IN tt_sshsvrconn_t *svrconn,
 ////////////////////////////////////////////////////////////
 
 void tt_sshsvr_state_auth(IN struct tt_sshsvrconn_s *svrconn,
-                          IN tt_sshsvr_event_t event,
-                          IN void *param,
+                          IN tt_sshsvr_event_t event, IN void *param,
                           OUT tt_sshsvr_action_t *svract)
 {
     TT_ASSERT(event < TT_SSHSVREV_NUM);
 
     switch (event) {
-        case TT_SSHSVREV_PACKET: {
-            __svr_auth_packet(svrconn, (tt_sshmsg_t *)param, svract);
-            return;
-        } break;
+    case TT_SSHSVREV_PACKET: {
+        __svr_auth_packet(svrconn, (tt_sshmsg_t *)param, svract);
+        return;
+    } break;
 
-        default: {
-            TT_SSH_EV_IGNORED(TT_SSHSVRST_AUTH, event);
-            return;
-        } break;
+    default: {
+        TT_SSH_EV_IGNORED(TT_SSHSVRST_AUTH, event);
+        return;
+    } break;
     }
 }
 
-void __svr_auth_packet(IN tt_sshsvrconn_t *svrconn,
-                       IN tt_sshmsg_t *msg,
+void __svr_auth_packet(IN tt_sshsvrconn_t *svrconn, IN tt_sshmsg_t *msg,
                        OUT tt_sshsvr_action_t *svract)
 {
     switch (msg->msg_id) {
-        case TT_SSH_MSGID_USERAUTH_REQUEST: {
-            __svr_auth_pkt_uar(svrconn, msg, svract);
-            return;
-        } break;
+    case TT_SSH_MSGID_USERAUTH_REQUEST: {
+        __svr_auth_pkt_uar(svrconn, msg, svract);
+        return;
+    } break;
 
-        default: {
-            TT_SSH_MSG_FAILURE(TT_SSHSVRST_KEX_DONE, msg->msg_id);
-            svract->new_event = TT_SSHSVREV_DISCONNECT;
+    default: {
+        TT_SSH_MSG_FAILURE(TT_SSHSVRST_KEX_DONE, msg->msg_id);
+        svract->new_event = TT_SSHSVREV_DISCONNECT;
 
-            return;
-        } break;
+        return;
+    } break;
     }
 }
 
-void __svr_auth_pkt_uar(IN tt_sshsvrconn_t *svrconn,
-                        IN tt_sshmsg_t *msg,
+void __svr_auth_pkt_uar(IN tt_sshsvrconn_t *svrconn, IN tt_sshmsg_t *msg,
                         OUT tt_sshsvr_action_t *svract)
 {
     tt_sshmsg_uar_t *uar = TT_SSHMSG_CAST(msg, tt_sshmsg_uar_t);
     tt_result_t result;
 
     switch (uar->service) {
-        case TT_SSH_SERVICE_CONNECTION: {
-            result = __svr_auth_conn(svrconn, uar);
-        } break;
+    case TT_SSH_SERVICE_CONNECTION: {
+        result = __svr_auth_conn(svrconn, uar);
+    } break;
 
-        default: {
-            TT_ERROR("can not auth ssh service");
-            result = TT_FAIL;
-        } break;
+    default: {
+        TT_ERROR("can not auth ssh service");
+        result = TT_FAIL;
+    } break;
     }
 
     if (TT_OK(result)) {
@@ -155,26 +149,26 @@ tt_result_t __svr_auth_conn(IN tt_sshsvrconn_t *svrconn,
                             IN tt_sshmsg_uar_t *uar)
 {
     switch (uar->auth) {
-        case TT_SSH_AUTH_PUBLICKEY: {
-            return __svr_auth_conn_pubkey(svrconn, uar);
-        } break;
-        case TT_SSH_AUTH_PASSWORD: {
-            return __svr_auth_conn_pwd(svrconn, uar);
-        } break;
+    case TT_SSH_AUTH_PUBLICKEY: {
+        return __svr_auth_conn_pubkey(svrconn, uar);
+    } break;
+    case TT_SSH_AUTH_PASSWORD: {
+        return __svr_auth_conn_pwd(svrconn, uar);
+    } break;
 
-        default: {
-            tt_ssh_auth_t auth[] = {
-                // TT_SSH_AUTH_PUBLICKEY,
-                TT_SSH_AUTH_PASSWORD,
-            };
-            tt_u32_t auth_num = sizeof(auth) / sizeof(auth[0]);
+    default: {
+        tt_ssh_auth_t auth[] = {
+            // TT_SSH_AUTH_PUBLICKEY,
+            TT_SSH_AUTH_PASSWORD,
+        };
+        tt_u32_t auth_num = sizeof(auth) / sizeof(auth[0]);
 
-            if (TT_OK(__svr_auth_fail(svrconn, auth, auth_num, TT_TRUE))) {
-                return TT_E_PROCEED;
-            } else {
-                return TT_FAIL;
-            }
-        } break;
+        if (TT_OK(__svr_auth_fail(svrconn, auth, auth_num, TT_TRUE))) {
+            return TT_E_PROCEED;
+        } else {
+            return TT_FAIL;
+        }
+    } break;
     }
 }
 
@@ -194,14 +188,10 @@ tt_result_t __svr_auth_conn_pwd(IN tt_sshsvrconn_t *svrconn,
     tt_hex_dump(pwd->pwd.addr, pwd->pwd.len, 8);
 
     // send banner
-    if (!TT_OK(__svr_auth_banner(svrconn, __svr_banner))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__svr_auth_banner(svrconn, __svr_banner))) { return TT_FAIL; }
 
     // send success
-    if (!TT_OK(__svr_auth_success(svrconn))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__svr_auth_success(svrconn))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -210,9 +200,7 @@ tt_result_t __svr_auth_success(IN tt_sshsvrconn_t *svrconn)
 {
     tt_sshmsg_t *msg = tt_sshmsg_uas_create();
 
-    if (msg == NULL) {
-        return TT_FAIL;
-    }
+    if (msg == NULL) { return TT_FAIL; }
 
     if (!TT_OK(tt_sshsvrconn_send(svrconn, msg))) {
         tt_sshmsg_release(msg);
@@ -222,21 +210,15 @@ tt_result_t __svr_auth_success(IN tt_sshsvrconn_t *svrconn)
     return TT_SUCCESS;
 }
 
-tt_result_t __svr_auth_fail(IN tt_sshsvrconn_t *svrconn,
-                            IN tt_ssh_auth_t *auth,
-                            IN tt_u32_t auth_num,
-                            IN tt_bool_t partial_succ)
+tt_result_t __svr_auth_fail(IN tt_sshsvrconn_t *svrconn, IN tt_ssh_auth_t *auth,
+                            IN tt_u32_t auth_num, IN tt_bool_t partial_succ)
 {
     tt_sshmsg_t *msg = tt_sshmsg_uaf_create();
     tt_u32_t i;
 
-    if (msg == NULL) {
-        return TT_FAIL;
-    }
+    if (msg == NULL) { return TT_FAIL; }
 
-    for (i = 0; i < auth_num; ++i) {
-        tt_sshmsg_uaf_add_auth(msg, auth[i]);
-    }
+    for (i = 0; i < auth_num; ++i) { tt_sshmsg_uaf_add_auth(msg, auth[i]); }
 
     tt_sshmsg_uaf_set_parial_succ(msg, partial_succ);
 
@@ -253,9 +235,7 @@ tt_result_t __svr_auth_banner(IN tt_sshsvrconn_t *svrconn,
 {
     tt_sshmsg_t *msg = tt_sshmsg_uab_create();
 
-    if (msg == NULL) {
-        return TT_FAIL;
-    }
+    if (msg == NULL) { return TT_FAIL; }
 
     if (!TT_OK(tt_sshmsg_uab_set_banner(msg, banner))) {
         tt_sshmsg_release(msg);

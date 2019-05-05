@@ -73,13 +73,13 @@ tt_result_t tt_sshkex_create(IN tt_sshkex_t *kex)
 void tt_sshkex_destroy(IN tt_sshkex_t *kex)
 {
     switch (kex->alg) {
-        case TT_SSH_KEX_ALG_DH_G1_SHA1:
-        case TT_SSH_KEX_ALG_DH_G14_SHA1: {
-            tt_sshkexdh_destroy(&kex->alg_u.kexdh);
-        } break;
+    case TT_SSH_KEX_ALG_DH_G1_SHA1:
+    case TT_SSH_KEX_ALG_DH_G14_SHA1: {
+        tt_sshkexdh_destroy(&kex->alg_u.kexdh);
+    } break;
 
-        default: {
-        } break;
+    default: {
+    } break;
     }
 
     tt_buf_destroy(&kex->v_c);
@@ -99,27 +99,25 @@ tt_result_t tt_sshkex_setalg(IN tt_sshkex_t *kex, IN tt_ssh_kex_alg_t alg)
     }
 
     switch (alg) {
-        case TT_SSH_KEX_ALG_DH_G1_SHA1:
-        case TT_SSH_KEX_ALG_DH_G14_SHA1: {
-            if (!TT_OK(tt_sshkexdh_create(&kex->alg_u.kexdh, alg))) {
-                return TT_FAIL;
-            };
-
-            kex->alg = alg;
-            return TT_SUCCESS;
-        } break;
-
-        default: {
-            TT_ERROR("does not support [%s] kex", tt_g_ssh_kex_alg_name[alg]);
+    case TT_SSH_KEX_ALG_DH_G1_SHA1:
+    case TT_SSH_KEX_ALG_DH_G14_SHA1: {
+        if (!TT_OK(tt_sshkexdh_create(&kex->alg_u.kexdh, alg))) {
             return TT_FAIL;
-        } break;
+        };
+
+        kex->alg = alg;
+        return TT_SUCCESS;
+    } break;
+
+    default: {
+        TT_ERROR("does not support [%s] kex", tt_g_ssh_kex_alg_name[alg]);
+        return TT_FAIL;
+    } break;
     }
 }
 
-tt_result_t tt_sshkex_setvc(IN tt_sshkex_t *kex,
-                            IN tt_u8_t *vc,
-                            IN tt_u32_t vc_len,
-                            IN tt_bool_t format)
+tt_result_t tt_sshkex_setvc(IN tt_sshkex_t *kex, IN tt_u8_t *vc,
+                            IN tt_u32_t vc_len, IN tt_bool_t format)
 {
     tt_buf_reset_rwp(&kex->v_c);
     if (format) {
@@ -129,10 +127,8 @@ tt_result_t tt_sshkex_setvc(IN tt_sshkex_t *kex,
     }
 }
 
-tt_result_t tt_sshkex_setvs(IN tt_sshkex_t *kex,
-                            IN tt_u8_t *vs,
-                            IN tt_u32_t vs_len,
-                            IN tt_bool_t format)
+tt_result_t tt_sshkex_setvs(IN tt_sshkex_t *kex, IN tt_u8_t *vs,
+                            IN tt_u32_t vs_len, IN tt_bool_t format)
 {
     tt_buf_reset_rwp(&kex->v_s);
     if (format) {
@@ -142,10 +138,8 @@ tt_result_t tt_sshkex_setvs(IN tt_sshkex_t *kex,
     }
 }
 
-tt_result_t tt_sshkex_setic(IN tt_sshkex_t *kex,
-                            IN tt_u8_t *ic,
-                            IN tt_u32_t ic_len,
-                            IN tt_bool_t format)
+tt_result_t tt_sshkex_setic(IN tt_sshkex_t *kex, IN tt_u8_t *ic,
+                            IN tt_u32_t ic_len, IN tt_bool_t format)
 {
     tt_buf_reset_rwp(&kex->i_c);
     if (format) {
@@ -155,10 +149,8 @@ tt_result_t tt_sshkex_setic(IN tt_sshkex_t *kex,
     }
 }
 
-tt_result_t tt_sshkex_setis(IN tt_sshkex_t *kex,
-                            IN tt_u8_t *is,
-                            IN tt_u32_t is_len,
-                            IN tt_bool_t format)
+tt_result_t tt_sshkex_setis(IN tt_sshkex_t *kex, IN tt_u8_t *is,
+                            IN tt_u32_t is_len, IN tt_bool_t format)
 {
     tt_buf_reset_rwp(&kex->i_s);
     if (format) {
@@ -168,10 +160,8 @@ tt_result_t tt_sshkex_setis(IN tt_sshkex_t *kex,
     }
 }
 
-tt_result_t tt_sshkex_setks(IN tt_sshkex_t *kex,
-                            IN tt_u8_t *ks,
-                            IN tt_u32_t ks_len,
-                            IN tt_bool_t format)
+tt_result_t tt_sshkex_setks(IN tt_sshkex_t *kex, IN tt_u8_t *ks,
+                            IN tt_u32_t ks_len, IN tt_bool_t format)
 {
     tt_buf_reset_rwp(&kex->k_s);
     if (format) {
@@ -181,8 +171,7 @@ tt_result_t tt_sshkex_setks(IN tt_sshkex_t *kex,
     }
 }
 
-tt_result_t tt_sshkex_setks_rsa(IN tt_sshkex_t *kex,
-                                IN tt_blob_t *e,
+tt_result_t tt_sshkex_setks_rsa(IN tt_sshkex_t *kex, IN tt_blob_t *e,
                                 IN tt_blob_t *n)
 {
     tt_u32_t len = 0;
@@ -222,14 +211,14 @@ tt_result_t tt_sshkex_setks_rsa(IN tt_sshkex_t *kex,
 tt_result_t tt_sshkex_calc_h(IN tt_sshkex_t *kex)
 {
     switch (kex->alg) {
-        case TT_SSH_KEX_ALG_DH_G1_SHA1:
-        case TT_SSH_KEX_ALG_DH_G14_SHA1: {
-            return __calc_h_dh_sha1(kex);
-        } break;
+    case TT_SSH_KEX_ALG_DH_G1_SHA1:
+    case TT_SSH_KEX_ALG_DH_G14_SHA1: {
+        return __calc_h_dh_sha1(kex);
+    } break;
 
-        default: {
-            return TT_FAIL;
-        } break;
+    default: {
+        return TT_FAIL;
+    } break;
     }
 }
 
@@ -254,9 +243,7 @@ tt_result_t __calc_h_dh_sha1(IN tt_sshkex_t *kex)
         goto h_out;
     }
     result = tt_sha_update(&sha, TT_BUF_RPOS(data), TT_BUF_RLEN(data));
-    if (!TT_OK(result)) {
-        goto h_out;
-    }
+    if (!TT_OK(result)) { goto h_out; }
 
     // V_S
     data = &kex->v_s;
@@ -265,9 +252,7 @@ tt_result_t __calc_h_dh_sha1(IN tt_sshkex_t *kex)
         goto h_out;
     }
     result = tt_sha_update(&sha, TT_BUF_RPOS(data), TT_BUF_RLEN(data));
-    if (!TT_OK(result)) {
-        goto h_out;
-    }
+    if (!TT_OK(result)) { goto h_out; }
 
     // I_C
     data = &kex->i_c;
@@ -276,9 +261,7 @@ tt_result_t __calc_h_dh_sha1(IN tt_sshkex_t *kex)
         goto h_out;
     }
     result = tt_sha_update(&sha, TT_BUF_RPOS(data), TT_BUF_RLEN(data));
-    if (!TT_OK(result)) {
-        goto h_out;
-    }
+    if (!TT_OK(result)) { goto h_out; }
 
     // I_S
     data = &kex->i_s;
@@ -287,9 +270,7 @@ tt_result_t __calc_h_dh_sha1(IN tt_sshkex_t *kex)
         goto h_out;
     }
     result = tt_sha_update(&sha, TT_BUF_RPOS(data), TT_BUF_RLEN(data));
-    if (!TT_OK(result)) {
-        goto h_out;
-    }
+    if (!TT_OK(result)) { goto h_out; }
 
     // K_S
     data = &kex->k_s;
@@ -298,9 +279,7 @@ tt_result_t __calc_h_dh_sha1(IN tt_sshkex_t *kex)
         goto h_out;
     }
     result = tt_sha_update(&sha, TT_BUF_RPOS(data), TT_BUF_RLEN(data));
-    if (!TT_OK(result)) {
-        goto h_out;
-    }
+    if (!TT_OK(result)) { goto h_out; }
 
     // e
     data = &kex->alg_u.kexdh.e;
@@ -309,9 +288,7 @@ tt_result_t __calc_h_dh_sha1(IN tt_sshkex_t *kex)
         goto h_out;
     }
     result = tt_sha_update(&sha, TT_BUF_RPOS(data), TT_BUF_RLEN(data));
-    if (!TT_OK(result)) {
-        goto h_out;
-    }
+    if (!TT_OK(result)) { goto h_out; }
 
     // f
     data = &kex->alg_u.kexdh.f;
@@ -320,9 +297,7 @@ tt_result_t __calc_h_dh_sha1(IN tt_sshkex_t *kex)
         goto h_out;
     }
     result = tt_sha_update(&sha, TT_BUF_RPOS(data), TT_BUF_RLEN(data));
-    if (!TT_OK(result)) {
-        goto h_out;
-    }
+    if (!TT_OK(result)) { goto h_out; }
 
     // K
     data = &kex->k;
@@ -331,9 +306,7 @@ tt_result_t __calc_h_dh_sha1(IN tt_sshkex_t *kex)
         goto h_out;
     }
     result = tt_sha_update(&sha, TT_BUF_RPOS(data), TT_BUF_RLEN(data));
-    if (!TT_OK(result)) {
-        goto h_out;
-    }
+    if (!TT_OK(result)) { goto h_out; }
 
     // hash
     tt_buf_reset_rwp(&kex->h);

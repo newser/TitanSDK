@@ -77,22 +77,19 @@ void tt_mempool_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __mp_component_init, __mp_component_exit,
+        __mp_component_init,
+        __mp_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_MEMORY_POOL,
-                      "Memory Pool",
-                      NULL,
+    tt_component_init(&comp, TT_COMPONENT_MEMORY_POOL, "Memory Pool", NULL,
                       &itf);
 
     // register component
     tt_component_register(&comp);
 }
 
-void tt_mempool_init(IN tt_mempool_t *mp,
-                     IN tt_u32_t max_block_size,
+void tt_mempool_init(IN tt_mempool_t *mp, IN tt_u32_t max_block_size,
                      IN OPT tt_mempool_attr_t *attr)
 {
     tt_mempool_attr_t __attr;
@@ -144,9 +141,7 @@ void *tt_mp_alloc(IN tt_mempool_t *mp, IN tt_u32_t size)
 {
     TT_ASSERT(mp != NULL);
 
-    if (size == 0) {
-        return NULL;
-    }
+    if (size == 0) { return NULL; }
 
     TT_U32_ALIGN_INC_CPU(size);
     if (size > mp->frame_size) {

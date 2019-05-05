@@ -125,17 +125,14 @@ void tt_sshkexdh_destroy(IN tt_sshkexdh_t *kexdh)
     tt_buf_destroy(&kexdh->f);
 }
 
-tt_result_t tt_sshkexdh_compute(IN tt_sshkexdh_t *kexdh,
-                                IN tt_u8_t *peerpub,
+tt_result_t tt_sshkexdh_compute(IN tt_sshkexdh_t *kexdh, IN tt_u8_t *peerpub,
                                 IN tt_u32_t peerpub_len)
 {
     return tt_dh_compute(&kexdh->dh, peerpub, peerpub_len);
 }
 
-tt_result_t tt_sshkexdh_set_e(IN tt_sshkexdh_t *kexdh,
-                              IN tt_u8_t *e,
-                              IN tt_u32_t e_len,
-                              IN tt_bool_t format)
+tt_result_t tt_sshkexdh_set_e(IN tt_sshkexdh_t *kexdh, IN tt_u8_t *e,
+                              IN tt_u32_t e_len, IN tt_bool_t format)
 {
     tt_buf_reset_rwp(&kexdh->e);
     if (format) {
@@ -151,10 +148,8 @@ tt_result_t tt_sshkexdh_load_e(IN tt_sshkexdh_t *kexdh)
     return tt_dh_get_pubkey_buf(&kexdh->dh, &kexdh->e, TT_CRYPTO_FMT_SSH_MPINT);
 }
 
-tt_result_t tt_sshkexdh_set_f(IN tt_sshkexdh_t *kexdh,
-                              IN tt_u8_t *f,
-                              IN tt_u32_t f_len,
-                              IN tt_bool_t format)
+tt_result_t tt_sshkexdh_set_f(IN tt_sshkexdh_t *kexdh, IN tt_u8_t *f,
+                              IN tt_u32_t f_len, IN tt_bool_t format)
 {
     tt_buf_reset_rwp(&kexdh->f);
     if (format) {

@@ -59,33 +59,16 @@ TT_TEST_ROUTINE_DECLARE(case_spin_lock_mt)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(spin_lock_case)
 
-TT_TEST_CASE("case_spin_lock_basic_mp",
-             "testing basic spin lock API for smp",
-             case_spin_lock_basic_mp,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_spin_lock_basic_mp", "testing basic spin lock API for smp",
+             case_spin_lock_basic_mp, NULL, NULL, NULL, NULL, NULL)
 ,
 
     TT_TEST_CASE("case_spin_lock_basic_sp",
                  "basic spin lock API for single processor",
-                 case_spin_lock_basic_sp,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+                 case_spin_lock_basic_sp, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_spin_lock_mt",
-                 "testing spin lock API in multithread",
-                 case_spin_lock_mt,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_spin_lock_mt", "testing spin lock API in multithread",
+                 case_spin_lock_mt, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(spin_lock_case)
     // =========================================
@@ -249,9 +232,7 @@ static tt_result_t test_routine_1(IN void *param)
     }
 
     tt_spinlock_acquire(&slock);
-    if (thread_node.lst != NULL) {
-        tt_list_remove(&thread_node);
-    }
+    if (thread_node.lst != NULL) { tt_list_remove(&thread_node); }
     tt_spinlock_release(&slock);
 
     return TT_SUCCESS;
@@ -269,7 +250,7 @@ TT_TEST_ROUTINE_DEFINE(case_spin_lock_mt)
     // tt_u32_t real_cpu_num = tt_g_cpu_num;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #if 0
     // test spinlock on smp platform

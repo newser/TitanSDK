@@ -42,13 +42,11 @@ extern "C" {
 // internal type
 ////////////////////////////////////////////////////////////
 
-class __xw_mem : public pugi::xml_writer
+class __xw_mem: public pugi::xml_writer
 {
-  public:
-    __xw_mem(IN tt_u8_t *buf, IN tt_u32_t len)
-        : buf_(buf)
-        , len_(len)
-        , error_(TT_FALSE)
+public:
+    __xw_mem(IN tt_u8_t *buf, IN tt_u32_t len):
+        buf_(buf), len_(len), error_(TT_FALSE)
     {
     }
 
@@ -65,40 +63,32 @@ class __xw_mem : public pugi::xml_writer
         }
     }
 
-    tt_bool_t error()
-    {
-        return error_;
-    }
+    tt_bool_t error() { return error_; }
 
-  private:
+private:
     tt_u8_t *buf_;
     tt_u32_t len_;
     tt_bool_t error_ : 1;
 };
 
-class __xw_file : public pugi::xml_writer
+class __xw_file: public pugi::xml_writer
 {
-  public:
-    __xw_file(IN const tt_char_t *path)
-        : path_(path)
-        , error_(TT_FALSE)
-        , opened_(TT_FALSE)
+public:
+    __xw_file(IN const tt_char_t *path):
+        path_(path), error_(TT_FALSE), opened_(TT_FALSE)
     {
     }
 
     ~__xw_file()
     {
-        if (opened_) {
-            tt_fclose(&f_);
-        }
+        if (opened_) { tt_fclose(&f_); }
     }
 
     void write(const void *data, size_t size)
     {
         if (!error_) {
             if (!opened_) {
-                if (!TT_OK(tt_fopen(&f_,
-                                    path_,
+                if (!TT_OK(tt_fopen(&f_, path_,
                                     TT_FO_CREAT | TT_FO_TRUNC | TT_FO_WRITE,
                                     NULL))) {
                     error_ = TT_TRUE;
@@ -114,12 +104,9 @@ class __xw_file : public pugi::xml_writer
         }
     }
 
-    tt_bool_t error()
-    {
-        return error_;
-    }
+    tt_bool_t error() { return error_; }
 
-  private:
+private:
     const tt_char_t *path_;
     tt_file_t f_;
     tt_bool_t error_ : 1;
@@ -135,12 +122,8 @@ class __xw_file : public pugi::xml_writer
 ////////////////////////////////////////////////////////////
 
 static pugi::xml_encoding __encoding_map[TT_XDOC_ENCODING_NUM] = {
-    pugi::encoding_auto,
-    pugi::encoding_utf8,
-    pugi::encoding_utf16_le,
-    pugi::encoding_utf16_be,
-    pugi::encoding_utf32_le,
-    pugi::encoding_utf32_be,
+    pugi::encoding_auto,     pugi::encoding_utf8,     pugi::encoding_utf16_le,
+    pugi::encoding_utf16_be, pugi::encoding_utf32_le, pugi::encoding_utf32_be,
 };
 
 ////////////////////////////////////////////////////////////
@@ -197,9 +180,7 @@ void tt_xdoc_parse_attr_default(IN tt_xdoc_parse_attr_t *attr)
     attr->embed_pcdata = TT_FALSE;
 }
 
-tt_result_t tt_xdoc_parse(IN tt_xdoc_t *xd,
-                          IN tt_u8_t *buf,
-                          IN tt_u32_t len,
+tt_result_t tt_xdoc_parse(IN tt_xdoc_t *xd, IN tt_u8_t *buf, IN tt_u32_t len,
                           IN OPT tt_xdoc_parse_attr_t *attr)
 {
     TT_ASSERT(xd != NULL);
@@ -224,9 +205,7 @@ tt_result_t tt_xdoc_parse(IN tt_xdoc_t *xd,
     }
 
     pugi::xml_parse_result r;
-    r = p->load_buffer(buf,
-                       len,
-                       __parse_option(attr),
+    r = p->load_buffer(buf, len, __parse_option(attr),
                        __encoding_map[attr->encoding]);
     if (!r) {
         TT_ERROR("fail to parse xml: %s", r.description());
@@ -238,8 +217,7 @@ tt_result_t tt_xdoc_parse(IN tt_xdoc_t *xd,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_xdoc_parse_file(IN tt_xdoc_t *xd,
-                               IN const tt_char_t *path,
+tt_result_t tt_xdoc_parse_file(IN tt_xdoc_t *xd, IN const tt_char_t *path,
                                IN OPT tt_xdoc_parse_attr_t *attr)
 {
     TT_ASSERT(xd != NULL);
@@ -272,10 +250,8 @@ tt_result_t tt_xdoc_parse_file(IN tt_xdoc_t *xd,
     }
 
     pugi::xml_parse_result r;
-    r = p->load_buffer(TT_BUF_RPOS(&buf),
-                       TT_BUF_RLEN(&buf),
-                       __parse_option(attr),
-                       __encoding_map[attr->encoding]);
+    r = p->load_buffer(TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf),
+                       __parse_option(attr), __encoding_map[attr->encoding]);
     tt_buf_destroy(&buf);
     if (!r) {
         TT_ERROR("fail to parse xml: %s", r.description());
@@ -303,9 +279,7 @@ void tt_xdoc_render_attr_default(IN tt_xdoc_render_attr_t *attr)
     attr->no_empty_element_tags = TT_FALSE;
 }
 
-tt_result_t tt_xdoc_render(IN tt_xdoc_t *xd,
-                           IN tt_u8_t *buf,
-                           IN tt_u32_t len,
+tt_result_t tt_xdoc_render(IN tt_xdoc_t *xd, IN tt_u8_t *buf, IN tt_u32_t len,
                            IN OPT tt_xdoc_render_attr_t *attr)
 {
     TT_ASSERT(xd != NULL);
@@ -321,9 +295,7 @@ tt_result_t tt_xdoc_render(IN tt_xdoc_t *xd,
     }
 
     __xw_mem xwm(buf, len);
-    p->save(xwm,
-            attr->indent,
-            __render_option(attr),
+    p->save(xwm, attr->indent, __render_option(attr),
             __encoding_map[attr->encoding]);
     if (xwm.error()) {
         TT_ERROR("fail to render xml");
@@ -333,8 +305,7 @@ tt_result_t tt_xdoc_render(IN tt_xdoc_t *xd,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
-                                IN const tt_char_t *path,
+tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd, IN const tt_char_t *path,
                                 IN OPT tt_xdoc_render_attr_t *attr)
 {
     TT_ASSERT(xd != NULL);
@@ -350,9 +321,7 @@ tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
     }
 
     __xw_file xwf(path);
-    p->save(xwf,
-            attr->indent,
-            __render_option(attr),
+    p->save(xwf, attr->indent, __render_option(attr),
             __encoding_map[attr->encoding]);
     if (xwf.error()) {
         TT_ERROR("fail to render xml");
@@ -366,10 +335,8 @@ tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
 // xml path
 // ========================================
 
-void tt_xdoc_select(IN tt_xdoc_t *xd,
-                    IN const tt_char_t *xp,
-                    IN OPT tt_xpvars_t *xpvs,
-                    OUT tt_xnode_t *o_xn,
+void tt_xdoc_select(IN tt_xdoc_t *xd, IN const tt_char_t *xp,
+                    IN OPT tt_xpvars_t *xpvs, OUT tt_xnode_t *o_xn,
                     OUT tt_xattr_t *o_xa)
 {
     pugi::xpath_node p =
@@ -382,19 +349,15 @@ void tt_xdoc_select(IN tt_xdoc_t *xd,
     *o_xa = TA(pa);
 }
 
-void tt_xdoc_select_all(IN tt_xdoc_t *xd,
-                        IN const tt_char_t *xp,
-                        IN OPT tt_xpvars_t *xpvs,
-                        OUT tt_xpnodes_t *xpns)
+void tt_xdoc_select_all(IN tt_xdoc_t *xd, IN const tt_char_t *xp,
+                        IN OPT tt_xpvars_t *xpvs, OUT tt_xpnodes_t *xpns)
 {
     *P_XPNS(xpns) =
         static_cast<pugi::xml_document *>(xd->p)->select_nodes(xp,
                                                                P_XPVS(xpvs));
 }
 
-void tt_xdoc_selectxp(IN tt_xdoc_t *xd,
-                      IN tt_xpath_t *xp,
-                      OUT tt_xnode_t *o_xn,
+void tt_xdoc_selectxp(IN tt_xdoc_t *xd, IN tt_xpath_t *xp, OUT tt_xnode_t *o_xn,
                       OUT tt_xattr_t *o_xa)
 {
     pugi::xpath_node p =
@@ -407,8 +370,7 @@ void tt_xdoc_selectxp(IN tt_xdoc_t *xd,
     *o_xa = TA(pa);
 }
 
-void tt_xdoc_selectxp_all(IN tt_xdoc_t *xd,
-                          IN tt_xpath_t *xp,
+void tt_xdoc_selectxp_all(IN tt_xdoc_t *xd, IN tt_xpath_t *xp,
                           OUT tt_xpnodes_t *xpns)
 {
     *P_XPNS(xpns) =
@@ -429,14 +391,11 @@ tt_double_t tt_xdoc_eval_number(IN tt_xdoc_t *xd, IN struct tt_xpath_s *xp)
     return P_XP(xp)->evaluate_number(*static_cast<pugi::xml_document *>(xd->p));
 }
 
-tt_u32_t tt_xdoc_eval_cstr(IN tt_xdoc_t *xd,
-                           IN struct tt_xpath_s *xp,
-                           OUT tt_char_t *buf,
-                           IN tt_u32_t len)
+tt_u32_t tt_xdoc_eval_cstr(IN tt_xdoc_t *xd, IN struct tt_xpath_s *xp,
+                           OUT tt_char_t *buf, IN tt_u32_t len)
 {
     return (tt_u32_t)P_XP(xp)
-        ->evaluate_string(buf,
-                          len,
+        ->evaluate_string(buf, len,
                           (*static_cast<pugi::xml_document *>(xd->p)));
 }
 
@@ -444,48 +403,20 @@ unsigned int __parse_option(IN tt_xdoc_parse_attr_t *attr)
 {
     unsigned int options = 0;
 
-    if (attr->pi) {
-        options |= pugi::parse_pi;
-    }
-    if (attr->comments) {
-        options |= pugi::parse_comments;
-    }
-    if (attr->cdata) {
-        options |= pugi::parse_cdata;
-    }
-    if (attr->ws_pcdata) {
-        options |= pugi::parse_ws_pcdata;
-    }
-    if (attr->escapes) {
-        options |= pugi::parse_escapes;
-    }
-    if (attr->eol) {
-        options |= pugi::parse_eol;
-    }
-    if (attr->wconv_attribute) {
-        options |= pugi::parse_wconv_attribute;
-    }
-    if (attr->wnorm_attribute) {
-        options |= pugi::parse_wnorm_attribute;
-    }
-    if (attr->declaration) {
-        options |= pugi::parse_declaration;
-    }
-    if (attr->doctype) {
-        options |= pugi::parse_doctype;
-    }
-    if (attr->ws_pcdata_single) {
-        options |= pugi::parse_ws_pcdata_single;
-    }
-    if (attr->trim_pcdata) {
-        options |= pugi::parse_trim_pcdata;
-    }
-    if (attr->fragment) {
-        options |= pugi::parse_fragment;
-    }
-    if (attr->embed_pcdata) {
-        options |= pugi::parse_embed_pcdata;
-    }
+    if (attr->pi) { options |= pugi::parse_pi; }
+    if (attr->comments) { options |= pugi::parse_comments; }
+    if (attr->cdata) { options |= pugi::parse_cdata; }
+    if (attr->ws_pcdata) { options |= pugi::parse_ws_pcdata; }
+    if (attr->escapes) { options |= pugi::parse_escapes; }
+    if (attr->eol) { options |= pugi::parse_eol; }
+    if (attr->wconv_attribute) { options |= pugi::parse_wconv_attribute; }
+    if (attr->wnorm_attribute) { options |= pugi::parse_wnorm_attribute; }
+    if (attr->declaration) { options |= pugi::parse_declaration; }
+    if (attr->doctype) { options |= pugi::parse_doctype; }
+    if (attr->ws_pcdata_single) { options |= pugi::parse_ws_pcdata_single; }
+    if (attr->trim_pcdata) { options |= pugi::parse_trim_pcdata; }
+    if (attr->fragment) { options |= pugi::parse_fragment; }
+    if (attr->embed_pcdata) { options |= pugi::parse_embed_pcdata; }
 
     return options;
 }
@@ -494,24 +425,12 @@ unsigned int __render_option(IN tt_xdoc_render_attr_t *attr)
 {
     unsigned int options = 0;
 
-    if (attr->do_indent) {
-        options |= pugi::format_indent;
-    }
-    if (attr->write_bom) {
-        options |= pugi::format_write_bom;
-    }
-    if (attr->raw) {
-        options |= pugi::format_raw;
-    }
-    if (attr->no_declaration) {
-        options |= pugi::format_no_declaration;
-    }
-    if (attr->no_escapes) {
-        options |= pugi::format_no_escapes;
-    }
-    if (attr->indent_attributes) {
-        options |= pugi::format_indent_attributes;
-    }
+    if (attr->do_indent) { options |= pugi::format_indent; }
+    if (attr->write_bom) { options |= pugi::format_write_bom; }
+    if (attr->raw) { options |= pugi::format_raw; }
+    if (attr->no_declaration) { options |= pugi::format_no_declaration; }
+    if (attr->no_escapes) { options |= pugi::format_no_escapes; }
+    if (attr->indent_attributes) { options |= pugi::format_indent_attributes; }
     if (attr->no_empty_element_tags) {
         options |= pugi::format_no_empty_element_tags;
     }

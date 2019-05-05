@@ -92,9 +92,7 @@ tt_inline void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *slock)
 tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
     int ret = pthread_spin_lock(&slock->lk);
-    if (ret != 0) {
-        tt_throw_exception_ntv(NULL);
-    }
+    if (ret != 0) { tt_throw_exception_ntv(NULL); }
 }
 
 tt_inline tt_bool_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
@@ -113,9 +111,7 @@ tt_inline tt_bool_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 tt_inline void tt_spinlock_release_ntv(IN tt_spinlock_ntv_t *slock)
 {
     int ret = pthread_spin_unlock(&slock->lk);
-    if (ret != 0) {
-        tt_throw_exception_ntv(NULL);
-    }
+    if (ret != 0) { tt_throw_exception_ntv(NULL); }
 }
 
 #endif // __TT_SPIN_LOCK_NATIVE__

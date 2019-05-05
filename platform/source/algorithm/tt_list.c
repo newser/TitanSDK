@@ -178,9 +178,7 @@ tt_lnode_t *tt_list_remove(IN tt_lnode_t *node)
     tt_lnode_t *next;
 
     lst = node->lst;
-    if (lst == NULL) {
-        return NULL;
-    }
+    if (lst == NULL) { return NULL; }
 
     next = node->next;
 

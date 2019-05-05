@@ -133,14 +133,11 @@ static tt_result_t __stdin_term_cbreak();
 
 static tt_result_t __stdin_term_raw();
 
-static tt_bool_t __recv_keycode(IN tt_u8_t *key,
-                                IN tt_u32_t key_len,
+static tt_bool_t __recv_keycode(IN tt_u8_t *key, IN tt_u32_t key_len,
                                 IN __cons_keycode_t *kc_table,
-                                OUT tt_u8_t *mapped,
-                                OUT tt_u32_t *eaten);
+                                OUT tt_u8_t *mapped, OUT tt_u32_t *eaten);
 
-static tt_result_t __send_keycode(IN tt_u8_t *key,
-                                  IN tt_u32_t key_num,
+static tt_result_t __send_keycode(IN tt_u8_t *key, IN tt_u32_t key_num,
                                   IN __cons_keycode_t *kc_table);
 
 ////////////////////////////////////////////////////////////
@@ -176,9 +173,7 @@ tt_result_t tt_console_enter_ntv()
     // todo:
     // set term according to params configured by tt_console_config_ntv()
 
-    if (!TT_OK(__stdin_term_cbreak())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__stdin_term_cbreak())) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -221,42 +216,16 @@ void tt_console_set_color_ntv(IN tt_console_color_t foreground,
                               IN tt_console_color_t background)
 {
     static const tt_char_t *__fc_keycode[TT_CONSOLE_COLOR_NUM] = {
-        NULL,
-        "\033[30m",
-        "\033[31m",
-        "\033[32m",
-        "\033[33m",
-        "\033[34m",
-        "\033[35m",
-        "\033[36m",
-        "\033[37m",
-        "\033[1;30m",
-        "\033[1;31m",
-        "\033[1;32m",
-        "\033[1;33m",
-        "\033[1;34m",
-        "\033[1;35m",
-        "\033[1;36m",
-        "\033[1;37m",
+        NULL,         "\033[30m",   "\033[31m",   "\033[32m",   "\033[33m",
+        "\033[34m",   "\033[35m",   "\033[36m",   "\033[37m",   "\033[1;30m",
+        "\033[1;31m", "\033[1;32m", "\033[1;33m", "\033[1;34m", "\033[1;35m",
+        "\033[1;36m", "\033[1;37m",
     };
     static const tt_char_t *__bc_keycode[TT_CONSOLE_COLOR_NUM] = {
-        NULL,
-        "\033[40m",
-        "\033[41m",
-        "\033[42m",
-        "\033[43m",
-        "\033[44m",
-        "\033[45m",
-        "\033[46m",
-        "\033[47m",
-        "\033[100m",
-        "\033[101m",
-        "\033[102m",
-        "\033[103m",
-        "\033[104m",
-        "\033[105m",
-        "\033[106m",
-        "\033[107m",
+        NULL,        "\033[40m",  "\033[41m",  "\033[42m",  "\033[43m",
+        "\033[44m",  "\033[45m",  "\033[46m",  "\033[47m",  "\033[100m",
+        "\033[101m", "\033[102m", "\033[103m", "\033[104m", "\033[105m",
+        "\033[106m", "\033[107m",
     };
 
     if (foreground != TT_CONSOLE_COLOR_CURRENT) {
@@ -275,18 +244,14 @@ void __install_cons_itf(IN tt_console_input_mode_t imode,
 {
     // input mode
     switch (imode) {
-        case TT_CONSOLE_IMODE_DEFAULT:
-        default:
-            __cons_itf.recv = __def_recv;
-            break;
+    case TT_CONSOLE_IMODE_DEFAULT:
+    default: __cons_itf.recv = __def_recv; break;
     }
 
     // output mode
     switch (omode) {
-        case TT_CONSOLE_OMODE_DEFAULT:
-        default:
-            __cons_itf.send = __def_send;
-            break;
+    case TT_CONSOLE_OMODE_DEFAULT:
+    default: __cons_itf.send = __def_send; break;
     }
 }
 
@@ -382,17 +347,13 @@ tt_result_t __stdin_term_raw()
     return TT_SUCCESS;
 }
 
-tt_bool_t __recv_keycode(IN tt_u8_t *key,
-                         IN tt_u32_t key_len,
-                         IN __cons_keycode_t *kc_table,
-                         OUT tt_u8_t *mapped,
+tt_bool_t __recv_keycode(IN tt_u8_t *key, IN tt_u32_t key_len,
+                         IN __cons_keycode_t *kc_table, OUT tt_u8_t *mapped,
                          OUT tt_u32_t *eaten)
 {
     tt_u32_t i;
 
-    if (key_len == 0) {
-        return TT_FALSE;
-    }
+    if (key_len == 0) { return TT_FALSE; }
 
     for (i = 0; i < TT_CONS_EXTKEY_NUM; ++i) {
         __cons_keycode_t *kc = &kc_table[i];
@@ -418,8 +379,7 @@ tt_bool_t __recv_keycode(IN tt_u8_t *key,
     return TT_FALSE;
 }
 
-tt_result_t __send_keycode(IN tt_u8_t *key,
-                           IN tt_u32_t key_num,
+tt_result_t __send_keycode(IN tt_u8_t *key, IN tt_u32_t key_num,
                            IN __cons_keycode_t *kc_table)
 {
     tt_u32_t head, pos;
@@ -499,11 +459,8 @@ tt_result_t __def_recv(OUT tt_cons_ev_t *ev, OUT tt_cons_ev_data_t *ev_data)
             continue;
         }
 
-        if (__recv_keycode(&__stdin_rbuf[i],
-                           (tt_u32_t)(len - i),
-                           __def_ikeycode,
-                           &k,
-                           &eaten)) {
+        if (__recv_keycode(&__stdin_rbuf[i], (tt_u32_t)(len - i),
+                           __def_ikeycode, &k, &eaten)) {
             __stdin_mbuf[key_num++] = k;
             i += eaten;
             continue;
@@ -523,12 +480,10 @@ tt_result_t __def_recv(OUT tt_cons_ev_t *ev, OUT tt_cons_ev_data_t *ev_data)
 tt_result_t __def_send(IN tt_cons_ev_t ev, IN tt_cons_ev_data_t *ev_data)
 {
     switch (ev) {
-        case TT_CONS_EV_KEY:
-            return __send_keycode(ev_data->key.key,
-                                  ev_data->key.key_num,
-                                  __def_okeycode);
+    case TT_CONS_EV_KEY:
+        return __send_keycode(ev_data->key.key, ev_data->key.key_num,
+                              __def_okeycode);
 
-        default:
-            return TT_FAIL;
+    default: return TT_FAIL;
     }
 }

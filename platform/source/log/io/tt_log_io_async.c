@@ -55,8 +55,7 @@ enum
 
 static void __lio_async_destroy(IN tt_logio_t *lio);
 
-static void __lio_async_output(IN tt_logio_t *lio,
-                               IN const tt_char_t *data,
+static void __lio_async_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                                IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_async_itf = {
@@ -99,9 +98,7 @@ tt_logio_t *tt_logio_async_create(IN OPT tt_logio_async_attr_t *attr)
     }
 
     lio = tt_logio_create(sizeof(tt_logio_async_t), &tt_s_logio_async_itf);
-    if (lio == NULL) {
-        return NULL;
-    }
+    if (lio == NULL) { return NULL; }
 
     lio_async = TT_LOGIO_CAST(lio, tt_logio_async_t);
 
@@ -122,12 +119,8 @@ tt_logio_t *tt_logio_async_create(IN OPT tt_logio_async_attr_t *attr)
 
     TT_DO_G(fail, tt_task_create(&lio_async->task, &attr->task_attr));
     __done |= __LA_TASK;
-    TT_DO_G(fail,
-            tt_task_add_fiber(&lio_async->task,
-                              __F_NAME,
-                              __logio_async,
-                              lio_async,
-                              NULL));
+    TT_DO_G(fail, tt_task_add_fiber(&lio_async->task, __F_NAME, __logio_async,
+                                    lio_async, NULL));
     TT_DO_G(fail, tt_task_run(&lio_async->task));
     __done |= __LA_TASK_RUN;
 
@@ -140,29 +133,17 @@ tt_logio_t *tt_logio_async_create(IN OPT tt_logio_async_attr_t *attr)
 
 fail:
 
-    if (__done & __LA_TASK_RUN) {
-        tt_task_exit(&lio_async->task);
-    }
+    if (__done & __LA_TASK_RUN) { tt_task_exit(&lio_async->task); }
 
-    if (__done & __LA_TASK) {
-        tt_task_wait(&lio_async->task);
-    }
+    if (__done & __LA_TASK) { tt_task_wait(&lio_async->task); }
 
-    if (__done & __LA_LOCK) {
-        tt_spinlock_destroy(&lio_async->lock);
-    }
+    if (__done & __LA_LOCK) { tt_spinlock_destroy(&lio_async->lock); }
 
-    if (__done & __LA_OBUF) {
-        tt_buf_destroy(&lio_async->obuf);
-    }
+    if (__done & __LA_OBUF) { tt_buf_destroy(&lio_async->obuf); }
 
-    if (__done & __LA_IBUF) {
-        tt_buf_destroy(&lio_async->ibuf);
-    }
+    if (__done & __LA_IBUF) { tt_buf_destroy(&lio_async->ibuf); }
 
-    if (__done & __LA_IOQ) {
-        tt_ptrq_destroy(&lio_async->io_q);
-    }
+    if (__done & __LA_IOQ) { tt_ptrq_destroy(&lio_async->io_q); }
 
     tt_free(lio);
     tt_thread_set_log(t, l);
@@ -181,9 +162,7 @@ void tt_logio_async_attr_default(IN tt_logio_async_attr_t *attr)
 tt_result_t tt_logio_async_append(IN tt_logio_t *lio_async,
                                   IN TO tt_logio_t *lio)
 {
-    if (lio_async->itf->type != TT_LOGIO_ASYNC) {
-        return TT_E_BADARG;
-    }
+    if (lio_async->itf->type != TT_LOGIO_ASYNC) { return TT_E_BADARG; }
 
     if (TT_OK(
             tt_ptrq_push_tail(&TT_LOGIO_CAST(lio_async, tt_logio_async_t)->io_q,
@@ -215,8 +194,7 @@ void __lio_async_destroy(IN tt_logio_t *lio)
     tt_spinlock_destroy(&lio_async->lock);
 }
 
-void __lio_async_output(IN tt_logio_t *lio,
-                        IN const tt_char_t *data,
+void __lio_async_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                         IN tt_u32_t data_len)
 {
     tt_logio_async_t *lio_async = TT_LOGIO_CAST(lio, tt_logio_async_t);

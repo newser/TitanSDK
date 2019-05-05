@@ -65,7 +65,8 @@ void tt_ipc_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __ipc_component_init, __ipc_component_exit,
+        __ipc_component_init,
+        __ipc_component_exit,
     };
 
     // init component
@@ -83,9 +84,7 @@ void tt_ipc_status_dump(IN tt_u32_t flag)
                   tt_atomic_s32_get(&__ipc_num));
     }
 
-    if (flag & TT_IPC_STATUS_NATIVE) {
-        tt_ipc_status_dump_ntv(flag);
-    }
+    if (flag & TT_IPC_STATUS_NATIVE) { tt_ipc_status_dump_ntv(flag); }
 }
 
 tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,
@@ -149,8 +148,7 @@ tt_result_t tt_ipc_connect(IN tt_ipc_t *ipc, IN const tt_char_t *addr)
     return tt_ipc_connect_ntv(&ipc->sys_ipc, addr);
 }
 
-tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
-                                 IN const tt_char_t *addr,
+tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc, IN const tt_char_t *addr,
                                  IN tt_u32_t interval_ms,
                                  IN tt_u32_t retry_count)
 {
@@ -169,10 +167,8 @@ tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
     return result;
 }
 
-tt_result_t tt_ipc_accept(IN tt_ipc_t *ipc,
-                          IN OPT tt_ipc_attr_t *new_attr,
-                          OUT tt_ipc_t **new_ipc,
-                          OUT tt_fiber_ev_t **p_fev,
+tt_result_t tt_ipc_accept(IN tt_ipc_t *ipc, IN OPT tt_ipc_attr_t *new_attr,
+                          OUT tt_ipc_t **new_ipc, OUT tt_fiber_ev_t **p_fev,
                           OUT struct tt_tmr_s **p_tmr)
 {
     tt_ipc_attr_t __attr;
@@ -186,26 +182,20 @@ tt_result_t tt_ipc_accept(IN tt_ipc_t *ipc,
     }
 
     result = tt_ipc_accept_ntv(&ipc->sys_ipc, new_attr, new_ipc, p_fev, p_tmr);
-    if (TT_OK(result) && (*new_ipc != NULL)) {
-        tt_atomic_s32_inc(&__ipc_num);
-    }
+    if (TT_OK(result) && (*new_ipc != NULL)) { tt_atomic_s32_inc(&__ipc_num); }
     return result;
 }
 
-tt_result_t tt_ipc_local_addr(IN tt_ipc_t *ipc,
-                              OUT OPT tt_char_t *addr,
-                              IN tt_u32_t size,
-                              OUT OPT tt_u32_t *len)
+tt_result_t tt_ipc_local_addr(IN tt_ipc_t *ipc, OUT OPT tt_char_t *addr,
+                              IN tt_u32_t size, OUT OPT tt_u32_t *len)
 {
     TT_ASSERT(ipc != NULL);
 
     return tt_ipc_local_addr_ntv(&ipc->sys_ipc, addr, size, len);
 }
 
-tt_result_t tt_ipc_remote_addr(IN tt_ipc_t *ipc,
-                               OUT OPT tt_char_t *addr,
-                               IN tt_u32_t size,
-                               OUT OPT tt_u32_t *len)
+tt_result_t tt_ipc_remote_addr(IN tt_ipc_t *ipc, OUT OPT tt_char_t *addr,
+                               IN tt_u32_t size, OUT OPT tt_u32_t *len)
 {
     TT_ASSERT(ipc != NULL);
 

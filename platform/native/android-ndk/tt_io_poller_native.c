@@ -80,15 +80,8 @@ static tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
 static tt_bool_t __dns_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
 
 static __io_handler_t __io_handler[TT_IO_NUM] = {
-    __worker_io,
-    __poller_io,
-    NULL,
-    __skt_io,
-    __ipc_io,
-    NULL,
-    __dns_io,
-    NULL,
-    NULL,
+    __worker_io, __poller_io, NULL, __skt_io, __ipc_io,
+    NULL,        __dns_io,    NULL, NULL,
 };
 
 static tt_io_ev_t __s_poller_io_ev;
@@ -202,17 +195,11 @@ fail:
         __RETRY_IF_EINTR(close(sys_iop->poller_evfd) != 0);
     }
 
-    if (__done & __PC_EP) {
-        __RETRY_IF_EINTR(close(sys_iop->ep) != 0);
-    }
+    if (__done & __PC_EP) { __RETRY_IF_EINTR(close(sys_iop->ep) != 0); }
 
-    if (__done & __PC_W_LOCK) {
-        tt_spinlock_destroy(&sys_iop->worker_lock);
-    }
+    if (__done & __PC_W_LOCK) { tt_spinlock_destroy(&sys_iop->worker_lock); }
 
-    if (__done & __PC_P_LOCK) {
-        tt_spinlock_destroy(&sys_iop->poller_lock);
-    }
+    if (__done & __PC_P_LOCK) { tt_spinlock_destroy(&sys_iop->poller_lock); }
 
     return TT_FAIL;
 }
@@ -269,9 +256,7 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
             }
 
             io_ev->epev = &ev[i];
-            if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
-                return TT_FALSE;
-            }
+            if (!__io_handler[io_ev->io](io_ev, sys_iop)) { return TT_FALSE; }
         }
     } else if ((nev != 0) && (errno != EINTR)) {
         TT_ERROR_NTV("epoll fail");
@@ -415,9 +400,7 @@ tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
             tt_fiber_t *dst = io_ev->dst;
             TT_ASSERT(&dst->fs->thread->task->iop.sys_iop == sys_iop);
             tt_dlist_push_tail(&dst->ev, &io_ev->node);
-            if (dst->recving) {
-                tt_fiber_resume(dst, TT_FALSE);
-            }
+            if (dst->recving) { tt_fiber_resume(dst, TT_FALSE); }
         } else {
             TT_ASSERT(io_ev->io == TT_IO_TASK);
             tt_task_poller_io(io_ev);

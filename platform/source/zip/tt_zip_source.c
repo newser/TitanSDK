@@ -48,24 +48,23 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_zipsrc_seek(IN tt_zipsrc_t *zs,
-                           IN tt_u32_t whence,
+tt_result_t tt_zipsrc_seek(IN tt_zipsrc_t *zs, IN tt_u32_t whence,
                            IN tt_s64_t offset)
 {
     int w;
 
     TT_ASSERT(whence <= TT_ZSSEEK_END);
     switch (whence) {
-        case TT_ZSSEEK_BEGIN: {
-            w = SEEK_SET;
-        } break;
-        case TT_ZSSEEK_CUR: {
-            w = SEEK_CUR;
-        } break;
-        default:
-        case TT_ZSSEEK_END: {
-            w = SEEK_END;
-        } break;
+    case TT_ZSSEEK_BEGIN: {
+        w = SEEK_SET;
+    } break;
+    case TT_ZSSEEK_CUR: {
+        w = SEEK_CUR;
+    } break;
+    default:
+    case TT_ZSSEEK_END: {
+        w = SEEK_END;
+    } break;
     }
 
     if (zip_source_seek(zs, offset, w) == 0) {
@@ -77,24 +76,23 @@ tt_result_t tt_zipsrc_seek(IN tt_zipsrc_t *zs,
     }
 }
 
-tt_result_t tt_zipsrc_seek_write(IN tt_zipsrc_t *zs,
-                                 IN tt_u32_t whence,
+tt_result_t tt_zipsrc_seek_write(IN tt_zipsrc_t *zs, IN tt_u32_t whence,
                                  IN tt_s64_t offset)
 {
     int w;
 
     TT_ASSERT(whence <= TT_ZSSEEK_END);
     switch (whence) {
-        case TT_ZSSEEK_BEGIN: {
-            w = SEEK_SET;
-        } break;
-        case TT_ZSSEEK_CUR: {
-            w = SEEK_CUR;
-        } break;
-        default:
-        case TT_ZSSEEK_END: {
-            w = SEEK_END;
-        } break;
+    case TT_ZSSEEK_BEGIN: {
+        w = SEEK_SET;
+    } break;
+    case TT_ZSSEEK_CUR: {
+        w = SEEK_CUR;
+    } break;
+    default:
+    case TT_ZSSEEK_END: {
+        w = SEEK_END;
+    } break;
     }
 
     if (zip_source_seek_write(zs, offset, w) == 0) {

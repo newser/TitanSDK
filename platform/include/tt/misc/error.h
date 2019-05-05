@@ -50,7 +50,8 @@ public:
     enum code
     {
         e_ok = 0,
-        e_fail = 0,
+        e_fail,
+        e_timeout,
 
         err_num
     };

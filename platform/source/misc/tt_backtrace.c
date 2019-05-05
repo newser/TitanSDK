@@ -63,7 +63,8 @@ void tt_backtrace_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __bt_component_init, __bt_component_exit,
+        __bt_component_init,
+        __bt_component_exit,
     };
 
     // init component
@@ -80,23 +81,17 @@ const tt_char_t *tt_backtrace(IN OPT const tt_char_t *prefix,
     tt_buf_t *buf;
 
     t = tt_current_thread();
-    if (t == NULL) {
-        return "";
-    }
+    if (t == NULL) { return ""; }
 
     if (t->backtrace == NULL) {
         t->backtrace = tt_malloc(sizeof(tt_buf_t));
-        if (t->backtrace == NULL) {
-            return "";
-        }
+        if (t->backtrace == NULL) { return ""; }
         tt_buf_init(t->backtrace, NULL);
     }
     buf = t->backtrace;
 
     tt_buf_clear(buf);
-    if (!TT_OK(tt_backtrace_ntv(buf, prefix, suffix))) {
-        return "";
-    }
+    if (!TT_OK(tt_backtrace_ntv(buf, prefix, suffix))) { return ""; }
     tt_buf_put_u8(buf, 0);
 
     return (tt_char_t *)TT_BUF_RPOS(buf);

@@ -43,7 +43,8 @@ this file includes syslog definitions
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_SYSLOG_KERN,
     TT_SYSLOG_USER,
     TT_SYSLOG_MAIL,
@@ -69,7 +70,8 @@ typedef enum {
 } tt_syslog_facility_t;
 #define TT_SYSLOG_FACILITY_VALID(f) ((f) < TT_SYSLOG_FACILITY_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_SYSLOG_EMERG,
     TT_SYSLOG_ALERT,
     TT_SYSLOG_CRIT,

@@ -62,11 +62,8 @@
 
 #ifdef __SIMU_FAIL_WSASocketW
 #define WSASocketW __sf_WSASocketW
-SOCKET __sf_WSASocketW(int af,
-                       int type,
-                       int protocol,
-                       LPWSAPROTOCOL_INFOW lpProtocolInfo,
-                       GROUP g,
+SOCKET __sf_WSASocketW(int af, int type, int protocol,
+                       LPWSAPROTOCOL_INFOW lpProtocolInfo, GROUP g,
                        DWORD dwFlags);
 #endif
 
@@ -92,71 +89,49 @@ int __sf_listen(SOCKET s, int backlog);
 
 #ifdef __SIMU_FAIL_AcceptEx
 #define AcceptEx __sf_AcceptEx
-BOOL __sf_AcceptEx(SOCKET sListenSocket,
-                   SOCKET sAcceptSocket,
-                   PVOID lpOutputBuffer,
-                   DWORD dwReceiveDataLength,
-                   DWORD dwLocalAddressLength,
-                   DWORD dwRemoteAddressLength,
-                   LPDWORD lpdwBytesReceived,
-                   LPOVERLAPPED lpOverlapped);
+BOOL __sf_AcceptEx(SOCKET sListenSocket, SOCKET sAcceptSocket,
+                   PVOID lpOutputBuffer, DWORD dwReceiveDataLength,
+                   DWORD dwLocalAddressLength, DWORD dwRemoteAddressLength,
+                   LPDWORD lpdwBytesReceived, LPOVERLAPPED lpOverlapped);
 #endif
 
 #ifdef __SIMU_FAIL_ConnectEx
 #define ConnectEx __sf_ConnectEx
-BOOL PASCAL __sf_ConnectEx(SOCKET s,
-                           const struct sockaddr *name,
-                           int namelen,
-                           __in_opt PVOID lpSendBuffer,
-                           DWORD dwSendDataLength,
-                           LPDWORD lpdwBytesSent,
-                           LPOVERLAPPED lpOverlapped);
+BOOL PASCAL __sf_ConnectEx(SOCKET s, const struct sockaddr *name, int namelen,
+                           __in_opt PVOID lpSendBuffer, DWORD dwSendDataLength,
+                           LPDWORD lpdwBytesSent, LPOVERLAPPED lpOverlapped);
 #endif
 
 #ifdef __SIMU_FAIL_WSASend
 #define WSASend __sf_WSASend
-int __sf_WSASend(SOCKET s,
-                 LPWSABUF lpBuffers,
-                 DWORD dwBufferCount,
-                 LPDWORD lpNumberOfBytesSent,
-                 DWORD dwFlags,
+int __sf_WSASend(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+                 LPDWORD lpNumberOfBytesSent, DWORD dwFlags,
                  LPWSAOVERLAPPED lpOverlapped,
                  LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 #endif
 
 #ifdef __SIMU_FAIL_WSARecv
 #define WSARecv __sf_WSARecv
-int __sf_WSARecv(SOCKET s,
-                 LPWSABUF lpBuffers,
-                 DWORD dwBufferCount,
-                 LPDWORD lpNumberOfBytesRecvd,
-                 LPDWORD lpFlags,
+int __sf_WSARecv(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+                 LPDWORD lpNumberOfBytesRecvd, LPDWORD lpFlags,
                  LPWSAOVERLAPPED lpOverlapped,
                  LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 #endif
 
 #ifdef __SIMU_FAIL_WSASendTo
 #define WSASendTo __sf_WSASendTo
-int __sf_WSASendTo(SOCKET s,
-                   LPWSABUF lpBuffers,
-                   DWORD dwBufferCount,
-                   LPDWORD lpNumberOfBytesSent,
-                   DWORD dwFlags,
-                   const struct sockaddr *lpTo,
-                   int iToLen,
+int __sf_WSASendTo(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+                   LPDWORD lpNumberOfBytesSent, DWORD dwFlags,
+                   const struct sockaddr *lpTo, int iToLen,
                    LPWSAOVERLAPPED lpOverlapped,
                    LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 #endif
 
 #ifdef __SIMU_FAIL_WSARecvFrom
 #define WSARecvFrom __sf_WSARecvFrom
-int __sf_WSARecvFrom(SOCKET s,
-                     LPWSABUF lpBuffers,
-                     DWORD dwBufferCount,
-                     LPDWORD lpNumberOfBytesRecvd,
-                     LPDWORD lpFlags,
-                     struct sockaddr *lpFrom,
-                     LPINT lpFromlen,
+int __sf_WSARecvFrom(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+                     LPDWORD lpNumberOfBytesRecvd, LPDWORD lpFlags,
+                     struct sockaddr *lpFrom, LPINT lpFromlen,
                      LPWSAOVERLAPPED lpOverlapped,
                      LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 #endif
@@ -279,16 +254,10 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 BOOL(PASCAL FAR *tt_ConnectEx)
-(SOCKET s,
- const struct sockaddr *name,
- int namelen,
- PVOID lpSendBuffer,
- DWORD dwSendDataLength,
- LPDWORD lpdwBytesSent,
- LPOVERLAPPED lpOverlapped);
+(SOCKET s, const struct sockaddr *name, int namelen, PVOID lpSendBuffer,
+ DWORD dwSendDataLength, LPDWORD lpdwBytesSent, LPOVERLAPPED lpOverlapped);
 
-static BOOL(PASCAL FAR *tt_AcceptEx)(SOCKET sListenSocket,
-                                     SOCKET sAcceptSocket,
+static BOOL(PASCAL FAR *tt_AcceptEx)(SOCKET sListenSocket, SOCKET sAcceptSocket,
                                      PVOID lpOutputBuffer,
                                      DWORD dwReceiveDataLength,
                                      DWORD dwLocalAddressLength,
@@ -296,23 +265,16 @@ static BOOL(PASCAL FAR *tt_AcceptEx)(SOCKET sListenSocket,
                                      LPDWORD lpdwBytesReceived,
                                      LPOVERLAPPED lpOverlapped);
 
-static void(PASCAL FAR *tt_GetAcceptExSockaddrs)(PVOID lpOutputBuffer,
-                                                 DWORD dwReceiveDataLength,
-                                                 DWORD dwLocalAddressLength,
-                                                 DWORD dwRemoteAddressLength,
-                                                 LPSOCKADDR *LocalSockaddr,
-                                                 LPINT LocalSockaddrLength,
-                                                 LPSOCKADDR *RemoteSockaddr,
-                                                 LPINT RemoteSockaddrLength);
+static void(PASCAL FAR *tt_GetAcceptExSockaddrs)(
+    PVOID lpOutputBuffer, DWORD dwReceiveDataLength, DWORD dwLocalAddressLength,
+    DWORD dwRemoteAddressLength, LPSOCKADDR *LocalSockaddr,
+    LPINT LocalSockaddrLength, LPSOCKADDR *RemoteSockaddr,
+    LPINT RemoteSockaddrLength);
 
 static BOOL(PASCAL FAR *tt_TransmitFile)(
-    SOCKET hSocket,
-    HANDLE hFile,
-    DWORD nNumberOfBytesToWrite,
-    DWORD nNumberOfBytesPerSend,
-    LPOVERLAPPED lpOverlapped,
-    LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers,
-    DWORD dwFlags);
+    SOCKET hSocket, HANDLE hFile, DWORD nNumberOfBytesToWrite,
+    DWORD nNumberOfBytesPerSend, LPOVERLAPPED lpOverlapped,
+    LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers, DWORD dwFlags);
 
 static tt_bool_t __do_accept(IN tt_io_ev_t *io_ev);
 
@@ -329,13 +291,8 @@ static tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev);
 static tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev);
 
 static tt_poller_io_t __skt_poller_io[__SKT_EV_NUM] = {
-    __do_accept,
-    __do_connect,
-    __do_send,
-    __do_recv,
-    __do_sendto,
-    __do_recvfrom,
-    __do_sendfile,
+    __do_accept, __do_connect,  __do_send,     __do_recv,
+    __do_sendto, __do_recvfrom, __do_sendfile,
 };
 
 ////////////////////////////////////////////////////////////
@@ -370,9 +327,7 @@ tt_inline tt_result_t __set_nonblock(IN SOCKET s, IN tt_bool_t nonblock)
 
 tt_result_t tt_skt_component_init_ntv(IN tt_profile_t *profile)
 {
-    if (!TT_OK(__init_api())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__init_api())) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -386,8 +341,7 @@ void tt_skt_status_dump_ntv(IN tt_u32_t flag)
     tt_ntdll_dump_skt(flag);
 }
 
-tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
-                              IN tt_net_family_t family,
+tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt, IN tt_net_family_t family,
                               IN tt_net_protocol_t protocol,
                               IN OPT tt_skt_attr_t *attr)
 {
@@ -419,15 +373,8 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
     if (protocol == TT_NET_PROTO_UDP) {
         BOOL bNewBehavior = FALSE;
         DWORD dwBytesReturned = 0;
-        if (WSAIoctl(s,
-                     SIO_UDP_CONNRESET,
-                     &bNewBehavior,
-                     sizeof(bNewBehavior),
-                     NULL,
-                     0,
-                     &dwBytesReturned,
-                     NULL,
-                     NULL) == SOCKET_ERROR) {
+        if (WSAIoctl(s, SIO_UDP_CONNRESET, &bNewBehavior, sizeof(bNewBehavior),
+                     NULL, 0, &dwBytesReturned, NULL, NULL) == SOCKET_ERROR) {
             TT_NET_ERROR_NTV("fail to disable SIO_UDP_CONNRESET");
             // ignore?
         }
@@ -448,9 +395,7 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
 
 void tt_skt_destroy_ntv(IN tt_skt_ntv_t *skt)
 {
-    if (closesocket(skt->s) != 0) {
-        TT_NET_ERROR_NTV("fail to close socket");
-    }
+    if (closesocket(skt->s) != 0) { TT_NET_ERROR_NTV("fail to close socket"); }
 }
 
 tt_result_t tt_skt_shutdown_ntv(IN tt_skt_ntv_t *skt, IN tt_skt_shut_t shut)
@@ -494,10 +439,8 @@ tt_result_t tt_skt_listen_ntv(IN tt_skt_ntv_t *skt)
     }
 }
 
-tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
-                            OUT tt_sktaddr_t *addr,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr)
+tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt, OUT tt_sktaddr_t *addr,
+                            OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr)
 {
     __skt_accept_t skt_accept;
     HANDLE iocp;
@@ -509,20 +452,12 @@ tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     *p_tmr = NULL;
 
     iocp = __skt_ev_init(&skt_accept.io_ev, __SKT_ACCEPT);
-    if (!TT_OK(__bind_iocp(skt, iocp))) {
-        return NULL;
-    }
+    if (!TT_OK(__bind_iocp(skt, iocp))) { return NULL; }
 
     cfb = skt_accept.io_ev.src;
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return NULL;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return NULL; }
 
-    new_s = WSASocketW(skt->af,
-                       SOCK_STREAM,
-                       IPPROTO_TCP,
-                       NULL,
-                       0,
+    new_s = WSASocketW(skt->af, SOCK_STREAM, IPPROTO_TCP, NULL, 0,
                        WSA_FLAG_OVERLAPPED);
     if (new_s == INVALID_SOCKET) {
         TT_NET_ERROR_NTV("fail to create accept socket");
@@ -538,13 +473,9 @@ tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     skt_accept.done = TT_FALSE;
     skt_accept.canceled = TT_FALSE;
 
-    if (tt_AcceptEx(skt->s,
-                    new_s,
-                    skt_accept.buf,
-                    0,
+    if (tt_AcceptEx(skt->s, new_s, skt_accept.buf, 0,
                     sizeof(SOCKADDR_STORAGE) + 16,
-                    sizeof(SOCKADDR_STORAGE) + 16,
-                    &dwBytesReceived,
+                    sizeof(SOCKADDR_STORAGE) + 16, &dwBytesReceived,
                     &skt_accept.io_ev.u.wov) ||
         (WSAGetLastError() == ERROR_IO_PENDING)) {
         cfb->recving = TT_TRUE;
@@ -579,10 +510,8 @@ tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
     HANDLE iocp;
 
     // ConnectEx need a bind
-    tt_sktaddr_init(&a,
-                    TT_COND(skt->af == AF_INET,
-                            TT_NET_AF_INET,
-                            TT_NET_AF_INET6));
+    tt_sktaddr_init(&a, TT_COND(skt->af == AF_INET, TT_NET_AF_INET,
+                                TT_NET_AF_INET6));
     tt_sktaddr_set_ip_n(&a, TT_IP_ANY);
     // on windows, port 0 means allocate a port
     tt_sktaddr_set_port(&a, 0);
@@ -592,24 +521,18 @@ tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
     }
 
     iocp = __skt_ev_init(&skt_connect.io_ev, __SKT_CONNECT);
-    if (!TT_OK(__bind_iocp(skt, iocp))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__bind_iocp(skt, iocp))) { return TT_FAIL; }
 
     skt_connect.skt = skt;
     skt_connect.addr = addr;
 
     skt_connect.result = TT_FAIL;
 
-    if (!tt_ConnectEx(skt->s,
-                      (const struct sockaddr *)addr,
+    if (!tt_ConnectEx(skt->s, (const struct sockaddr *)addr,
                       TT_COND(tt_sktaddr_get_family(addr) == TT_NET_AF_INET,
                               sizeof(struct sockaddr_in),
                               sizeof(struct sockaddr_in6)),
-                      NULL,
-                      0,
-                      NULL,
-                      &skt_connect.io_ev.u.wov) &&
+                      NULL, 0, NULL, &skt_connect.io_ev.u.wov) &&
         (WSAGetLastError() != WSA_IO_PENDING)) {
         TT_NET_ERROR_NTV("ConnectEx fail");
         return TT_FAIL;
@@ -643,13 +566,10 @@ tt_result_t tt_skt_remote_addr_ntv(IN tt_skt_ntv_t *skt, OUT tt_sktaddr_t *addr)
     }
 }
 
-tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
-                                OUT tt_u8_t *buf,
-                                IN tt_u32_t len,
-                                OUT tt_u32_t *recvd,
+tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt, OUT tt_u8_t *buf,
+                                IN tt_u32_t len, OUT tt_u32_t *recvd,
                                 OUT tt_sktaddr_t *addr,
-                                OUT tt_fiber_ev_t **p_fev,
-                                OUT tt_tmr_t **p_tmr)
+                                OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr)
 {
     __skt_recvfrom_t skt_recvfrom;
     HANDLE iocp;
@@ -663,14 +583,10 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     *p_tmr = NULL;
 
     iocp = __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
-    if (!TT_OK(__bind_iocp(skt, iocp))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__bind_iocp(skt, iocp))) { return TT_FAIL; }
 
     cfb = skt_recvfrom.io_ev.src;
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return TT_SUCCESS;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return TT_SUCCESS; }
 
     skt_recvfrom.skt = skt;
     skt_recvfrom.buf = buf;
@@ -695,15 +611,9 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
 
     Buffers.buf = (char *)buf;
     Buffers.len = len;
-    if ((WSARecvFrom(skt->s,
-                     &Buffers,
-                     1,
-                     NULL,
-                     &Flags,
-                     (struct sockaddr *)skt_recvfrom.addr,
-                     (LPINT)&Fromlen,
-                     &skt_recvfrom.io_ev.u.wov,
-                     NULL) == 0) ||
+    if ((WSARecvFrom(skt->s, &Buffers, 1, NULL, &Flags,
+                     (struct sockaddr *)skt_recvfrom.addr, (LPINT)&Fromlen,
+                     &skt_recvfrom.io_ev.u.wov, NULL) == 0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
         cfb->recving = TT_TRUE;
         while (!skt_recvfrom.done) {
@@ -731,10 +641,8 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     return TT_FAIL;
 }
 
-tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
-                              IN tt_u8_t *buf,
-                              IN tt_u32_t len,
-                              OUT OPT tt_u32_t *sent,
+tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t *buf,
+                              IN tt_u32_t len, OUT OPT tt_u32_t *sent,
                               IN tt_sktaddr_t *addr)
 {
 #if 0
@@ -793,15 +701,8 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
 
     Buffers.buf = (char *)buf;
     Buffers.len = len;
-    if (WSASendTo(skt->s,
-                  &Buffers,
-                  1,
-                  &NumberOfBytesSent,
-                  0,
-                  (struct sockaddr *)addr,
-                  iToLen,
-                  NULL,
-                  NULL) == 0) {
+    if (WSASendTo(skt->s, &Buffers, 1, &NumberOfBytesSent, 0,
+                  (struct sockaddr *)addr, iToLen, NULL, NULL) == 0) {
         TT_SAFE_ASSIGN(sent, NumberOfBytesSent);
         return TT_SUCCESS;
     }
@@ -818,10 +719,8 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
 #endif
 }
 
-tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
-                            IN tt_u8_t *buf,
-                            IN tt_u32_t len,
-                            OUT OPT tt_u32_t *sent)
+tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t *buf,
+                            IN tt_u32_t len, OUT OPT tt_u32_t *sent)
 {
 #if 0
     __skt_send_t skt_send;
@@ -974,10 +873,8 @@ tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
 #endif
 }
 
-tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
-                                IN tt_file_t *f,
-                                IN tt_u64_t offset,
-                                IN tt_u32_t len,
+tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f,
+                                IN tt_u64_t offset, IN tt_u32_t len,
                                 OUT tt_u64_t *sent)
 {
     __skt_sendfile_t skt_sendfile;
@@ -985,9 +882,7 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
     DWORD dwError;
 
     iocp = __skt_ev_init(&skt_sendfile.io_ev, __SKT_SENDFILE);
-    if (!TT_OK(__bind_iocp(skt, iocp))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__bind_iocp(skt, iocp))) { return TT_FAIL; }
 
     skt_sendfile.io_ev.u.wov.OffsetHigh = (DWORD)(offset >> 32);
     skt_sendfile.io_ev.u.wov.Offset = (DWORD)offset;
@@ -999,13 +894,8 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
     // by experiment, TransmitFile() does not block even if the local
     // socket send buffer was full, but outgoing data order may need
     // be confirmed in case: send(), sendfile(), send(), ...
-    if (tt_TransmitFile(skt->s,
-                        f->sys_file.hf,
-                        len,
-                        0,
-                        &skt_sendfile.io_ev.u.wov,
-                        NULL,
-                        0) ||
+    if (tt_TransmitFile(skt->s, f->sys_file.hf, len, 0,
+                        &skt_sendfile.io_ev.u.wov, NULL, 0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
         tt_fiber_suspend();
         return skt_sendfile.result;
@@ -1015,12 +905,9 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
     return TT_FAIL;
 }
 
-tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
-                            OUT tt_u8_t *buf,
-                            IN tt_u32_t len,
-                            OUT tt_u32_t *recvd,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr)
+tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt, OUT tt_u8_t *buf,
+                            IN tt_u32_t len, OUT tt_u32_t *recvd,
+                            OUT tt_fiber_ev_t **p_fev, OUT tt_tmr_t **p_tmr)
 {
     __skt_recv_t skt_recv;
     HANDLE iocp;
@@ -1033,14 +920,10 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     *p_tmr = NULL;
 
     iocp = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
-    if (!TT_OK(__bind_iocp(skt, iocp))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__bind_iocp(skt, iocp))) { return TT_FAIL; }
 
     cfb = skt_recv.io_ev.src;
-    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return TT_SUCCESS;
-    }
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) { return TT_SUCCESS; }
 
     skt_recv.skt = skt;
     skt_recv.buf = buf;
@@ -1053,12 +936,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
 
     Buffers.buf = (char *)buf;
     Buffers.len = len;
-    if ((WSARecv(skt->s,
-                 &Buffers,
-                 1,
-                 NULL,
-                 &Flags,
-                 &skt_recv.io_ev.u.wov,
+    if ((WSARecv(skt->s, &Buffers, 1, NULL, &Flags, &skt_recv.io_ev.u.wov,
                  NULL) == 0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
         cfb->recving = TT_TRUE;
@@ -1101,15 +979,10 @@ tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
 {
     if (family == TT_NET_AF_INET) {
         struct ip_mreq mreq;
-        if (!TT_OK(__addr_to_mreq(addr, itf, &mreq))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(__addr_to_mreq(addr, itf, &mreq))) { return TT_FAIL; }
 
         // join multicast group
-        if (setsockopt(skt->s,
-                       IPPROTO_IP,
-                       IP_ADD_MEMBERSHIP,
-                       (char *)&mreq,
+        if (setsockopt(skt->s, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq,
                        (int)sizeof(struct ip_mreq)) == 0) {
             return TT_SUCCESS;
         } else {
@@ -1121,15 +994,10 @@ tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
 
         TT_ASSERT_SKT(family == TT_NET_AF_INET6);
 
-        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) { return TT_FAIL; }
 
         // join multicast group
-        if (setsockopt(skt->s,
-                       IPPROTO_IPV6,
-                       IPV6_JOIN_GROUP,
-                       (char *)&mreq,
+        if (setsockopt(skt->s, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char *)&mreq,
                        (int)sizeof(struct ipv6_mreq)) == 0) {
             return TT_SUCCESS;
         } else {
@@ -1146,15 +1014,10 @@ tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
 {
     if (family == TT_NET_AF_INET) {
         struct ip_mreq mreq;
-        if (!TT_OK(__addr_to_mreq(addr, itf, &mreq))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(__addr_to_mreq(addr, itf, &mreq))) { return TT_FAIL; }
 
         // leave multicast group
-        if (setsockopt(skt->s,
-                       IPPROTO_IP,
-                       IP_DROP_MEMBERSHIP,
-                       (char *)&mreq,
+        if (setsockopt(skt->s, IPPROTO_IP, IP_DROP_MEMBERSHIP, (char *)&mreq,
                        (int)sizeof(struct ip_mreq)) == 0) {
             return TT_SUCCESS;
         } else {
@@ -1166,16 +1029,11 @@ tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
 
         TT_ASSERT_SKT(family == TT_NET_AF_INET6);
 
-        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) { return TT_FAIL; }
 
         // leave multicast group
-        if (setsockopt(skt->s,
-                       IPPROTO_IPV6,
-                       IPV6_DROP_MEMBERSHIP,
-                       (char *)&mreq,
-                       (int)sizeof(struct ipv6_mreq)) == 0) {
+        if (setsockopt(skt->s, IPPROTO_IPV6, IPV6_DROP_MEMBERSHIP,
+                       (char *)&mreq, (int)sizeof(struct ipv6_mreq)) == 0) {
             return TT_SUCCESS;
         } else {
             TT_NET_ERROR_NTV("fail to leave multicast group");
@@ -1201,8 +1059,7 @@ HANDLE __skt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
     return io_ev->src->fs->thread->task->iop.sys_iop.iocp;
 }
 
-tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
-                           IN const tt_char_t *itf,
+tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr, IN const tt_char_t *itf,
                            OUT struct ip_mreq *mreq)
 {
     // address
@@ -1216,9 +1073,7 @@ tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
         NET_IFINDEX ifidx;
 
         InterfaceName = tt_wchar_create(itf, 0, NULL);
-        if (InterfaceName == NULL) {
-            return TT_FAIL;
-        }
+        if (InterfaceName == NULL) { return TT_FAIL; }
 
         ns = ConvertInterfaceNameToLuidW(InterfaceName, &luid);
         tt_wchar_destroy(InterfaceName);
@@ -1246,8 +1101,7 @@ tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
     return TT_SUCCESS;
 }
 
-tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
-                            IN const tt_char_t *itf,
+tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr, IN const tt_char_t *itf,
                             OUT struct ipv6_mreq *mreq)
 {
     // address
@@ -1261,9 +1115,7 @@ tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
         NET_IFINDEX ifidx;
 
         InterfaceName = tt_wchar_create(itf, 0, NULL);
-        if (InterfaceName == NULL) {
-            return TT_FAIL;
-        }
+        if (InterfaceName == NULL) { return TT_FAIL; }
 
         ns = ConvertInterfaceNameToLuidW(InterfaceName, &luid);
         tt_wchar_destroy(InterfaceName);
@@ -1295,15 +1147,10 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
 
     skt_accept->done = TT_TRUE;
 
-    if (!TT_OK(io_ev->io_result)) {
-        goto fail;
-    }
+    if (!TT_OK(io_ev->io_result)) { goto fail; }
 
-    if (setsockopt(new_s,
-                   SOL_SOCKET,
-                   SO_UPDATE_ACCEPT_CONTEXT,
-                   (char *)&skt_accept->skt->s,
-                   sizeof(SOCKET)) != 0) {
+    if (setsockopt(new_s, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT,
+                   (char *)&skt_accept->skt->s, sizeof(SOCKET)) != 0) {
         TT_NET_ERROR_NTV("fail to set SO_UPDATE_ACCEPT_CONTEXT");
         goto fail;
     }
@@ -1326,13 +1173,9 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
 
     LocalSockaddrLength = sizeof(tt_sktaddr_ntv_t);
     RemoteSockaddrLength = sizeof(tt_sktaddr_t);
-    tt_GetAcceptExSockaddrs(skt_accept->buf,
-                            0,
-                            sizeof(SOCKADDR_STORAGE) + 16,
-                            sizeof(SOCKADDR_STORAGE) + 16,
-                            &LocalSockaddr,
-                            &LocalSockaddrLength,
-                            &RemoteSockaddr,
+    tt_GetAcceptExSockaddrs(skt_accept->buf, 0, sizeof(SOCKADDR_STORAGE) + 16,
+                            sizeof(SOCKADDR_STORAGE) + 16, &LocalSockaddr,
+                            &LocalSockaddrLength, &RemoteSockaddr,
                             &RemoteSockaddrLength);
 
     TT_ASSERT_SKT(RemoteSockaddrLength <= sizeof(tt_sktaddr_t));
@@ -1344,9 +1187,7 @@ fail:
 
     closesocket(new_s);
 
-    if (new_skt != NULL) {
-        tt_free(new_skt);
-    }
+    if (new_skt != NULL) { tt_free(new_skt); }
 
     return TT_TRUE;
 }
@@ -1362,11 +1203,8 @@ tt_bool_t __do_connect(IN tt_io_ev_t *io_ev)
 
     // The socket s does not enable previously set properties or
     // options until SO_UPDATE_CONNECT_CONTEXT is set on the socket
-    if (setsockopt(skt_connect->skt->s,
-                   SOL_SOCKET,
-                   SO_UPDATE_CONNECT_CONTEXT,
-                   NULL,
-                   0) != 0) {
+    if (setsockopt(skt_connect->skt->s, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT,
+                   NULL, 0) != 0) {
         TT_NET_ERROR_NTV("fail to set SO_UPDATE_CONNECT_CONTEXT");
         skt_connect->result = TT_FAIL;
         return TT_TRUE;
@@ -1407,12 +1245,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
     Buffers.buf = TT_PTR_INC(char, skt_send->buf, skt_send->pos);
     Buffers.len = skt_send->len - skt_send->pos;
     tt_memset(&skt_send->io_ev.u.wov, 0, sizeof(WSAOVERLAPPED));
-    if ((WSASend(skt_send->skt->s,
-                 &Buffers,
-                 1,
-                 NULL,
-                 0,
-                 &skt_send->io_ev.u.wov,
+    if ((WSASend(skt_send->skt->s, &Buffers, 1, NULL, 0, &skt_send->io_ev.u.wov,
                  NULL) == 0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
         return TT_FALSE;
@@ -1479,15 +1312,9 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
     Buffers.buf = TT_PTR_INC(char, skt_sendto->buf, skt_sendto->pos);
     Buffers.len = skt_sendto->len - skt_sendto->pos;
     tt_memset(&skt_sendto->io_ev.u.wov, 0, sizeof(WSAOVERLAPPED));
-    if ((WSASendTo(skt_sendto->skt->s,
-                   &Buffers,
-                   1,
-                   NULL,
-                   0,
-                   (struct sockaddr *)skt_sendto->addr,
-                   skt_sendto->addr_len,
-                   &skt_sendto->io_ev.u.wov,
-                   NULL) == 0) ||
+    if ((WSASendTo(skt_sendto->skt->s, &Buffers, 1, NULL, 0,
+                   (struct sockaddr *)skt_sendto->addr, skt_sendto->addr_len,
+                   &skt_sendto->io_ev.u.wov, NULL) == 0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
         return TT_FALSE;
     }
@@ -1549,8 +1376,7 @@ tt_result_t __init_api()
 
     if (!TT_OK(__load_api(s, &guid_ConnectEx, (void **)&tt_ConnectEx)) ||
         !TT_OK(__load_api(s, &guid_AcceptEx, (void **)&tt_AcceptEx)) ||
-        !TT_OK(__load_api(s,
-                          &guid_GetAcceptExSockaddrs,
+        !TT_OK(__load_api(s, &guid_GetAcceptExSockaddrs,
                           (void **)&tt_GetAcceptExSockaddrs)) ||
         !TT_OK(__load_api(s, &guid_TransmitFile, (void **)&tt_TransmitFile))) {
         closesocket(s);
@@ -1570,14 +1396,8 @@ tt_result_t __init_api()
 tt_result_t __load_api(IN SOCKET s, const IN GUID *guid, IN void **pfn)
 {
     DWORD bytes;
-    if ((WSAIoctl(s,
-                  SIO_GET_EXTENSION_FUNCTION_POINTER,
-                  (LPVOID)guid,
-                  sizeof(GUID),
-                  pfn,
-                  sizeof(void *),
-                  &bytes,
-                  NULL,
+    if ((WSAIoctl(s, SIO_GET_EXTENSION_FUNCTION_POINTER, (LPVOID)guid,
+                  sizeof(GUID), pfn, sizeof(void *), &bytes, NULL,
                   NULL) == 0) &&
         (*pfn != NULL)) {
         return TT_SUCCESS;
@@ -1589,9 +1409,7 @@ tt_result_t __load_api(IN SOCKET s, const IN GUID *guid, IN void **pfn)
 
 tt_result_t __bind_iocp(IN tt_skt_ntv_t *skt, IN HANDLE iocp)
 {
-    if (skt->iocp) {
-        return TT_SUCCESS;
-    }
+    if (skt->iocp) { return TT_SUCCESS; }
 
     if (iocp == NULL) {
         iocp = tt_current_fiber()->fs->thread->task->iop.sys_iop.iocp;
@@ -1609,11 +1427,8 @@ tt_result_t __bind_iocp(IN tt_skt_ntv_t *skt, IN HANDLE iocp)
 
 #ifdef __SIMU_FAIL_WSASocketW
 #undef WSASocketW
-SOCKET __sf_WSASocketW(int af,
-                       int type,
-                       int protocol,
-                       LPWSAPROTOCOL_INFOW lpProtocolInfo,
-                       GROUP g,
+SOCKET __sf_WSASocketW(int af, int type, int protocol,
+                       LPWSAPROTOCOL_INFOW lpProtocolInfo, GROUP g,
                        DWORD dwFlags)
 {
     return INVALID_SOCKET;
@@ -1655,14 +1470,10 @@ int __sf_listen(SOCKET s, int backlog)
 
 #ifdef __SIMU_FAIL_AcceptEx
 #undef AcceptEx
-BOOL __sf_AcceptEx(SOCKET sListenSocket,
-                   SOCKET sAcceptSocket,
-                   PVOID lpOutputBuffer,
-                   DWORD dwReceiveDataLength,
-                   DWORD dwLocalAddressLength,
-                   DWORD dwRemoteAddressLength,
-                   LPDWORD lpdwBytesReceived,
-                   LPOVERLAPPED lpOverlapped)
+BOOL __sf_AcceptEx(SOCKET sListenSocket, SOCKET sAcceptSocket,
+                   PVOID lpOutputBuffer, DWORD dwReceiveDataLength,
+                   DWORD dwLocalAddressLength, DWORD dwRemoteAddressLength,
+                   LPDWORD lpdwBytesReceived, LPOVERLAPPED lpOverlapped)
 {
     return FALSE;
 }
@@ -1670,13 +1481,9 @@ BOOL __sf_AcceptEx(SOCKET sListenSocket,
 
 #ifdef __SIMU_FAIL_ConnectEx
 #undef ConnectEx
-BOOL PASCAL __sf_ConnectEx(SOCKET s,
-                           const struct sockaddr *name,
-                           int namelen,
-                           __in_opt PVOID lpSendBuffer,
-                           DWORD dwSendDataLength,
-                           LPDWORD lpdwBytesSent,
-                           LPOVERLAPPED lpOverlapped)
+BOOL PASCAL __sf_ConnectEx(SOCKET s, const struct sockaddr *name, int namelen,
+                           __in_opt PVOID lpSendBuffer, DWORD dwSendDataLength,
+                           LPDWORD lpdwBytesSent, LPOVERLAPPED lpOverlapped)
 {
     return FALSE;
 }
@@ -1684,11 +1491,8 @@ BOOL PASCAL __sf_ConnectEx(SOCKET s,
 
 #ifdef __SIMU_FAIL_WSASend
 #undef WSASend
-int __sf_WSASend(SOCKET s,
-                 LPWSABUF lpBuffers,
-                 DWORD dwBufferCount,
-                 LPDWORD lpNumberOfBytesSent,
-                 DWORD dwFlags,
+int __sf_WSASend(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+                 LPDWORD lpNumberOfBytesSent, DWORD dwFlags,
                  LPWSAOVERLAPPED lpOverlapped,
                  LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
@@ -1699,24 +1503,16 @@ int __sf_WSASend(SOCKET s,
         // TT_INFO("org send: %d", lpBuffers[0].len);
         lpBuffers[0].len = tt_rand_u32() % lpBuffers[0].len + 1;
         // TT_INFO("but send: %d", lpBuffers[0].len);
-        return WSASend(s,
-                       lpBuffers,
-                       dwBufferCount,
-                       lpNumberOfBytesSent,
-                       dwFlags,
-                       lpOverlapped,
-                       lpCompletionRoutine);
+        return WSASend(s, lpBuffers, dwBufferCount, lpNumberOfBytesSent,
+                       dwFlags, lpOverlapped, lpCompletionRoutine);
     }
 }
 #endif
 
 #ifdef __SIMU_FAIL_WSARecv
 #undef WSARecv
-int __sf_WSARecv(SOCKET s,
-                 LPWSABUF lpBuffers,
-                 DWORD dwBufferCount,
-                 LPDWORD lpNumberOfBytesRecvd,
-                 LPDWORD lpFlags,
+int __sf_WSARecv(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+                 LPDWORD lpNumberOfBytesRecvd, LPDWORD lpFlags,
                  LPWSAOVERLAPPED lpOverlapped,
                  LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
@@ -1727,26 +1523,17 @@ int __sf_WSARecv(SOCKET s,
         // TT_INFO("org recv: %d", lpBuffers[0].len);
         lpBuffers[0].len = tt_rand_u32() % lpBuffers[0].len + 1;
         // TT_INFO("org recv: %d", lpBuffers[0].len);
-        return WSARecv(s,
-                       lpBuffers,
-                       dwBufferCount,
-                       lpNumberOfBytesRecvd,
-                       lpFlags,
-                       lpOverlapped,
-                       lpCompletionRoutine);
+        return WSARecv(s, lpBuffers, dwBufferCount, lpNumberOfBytesRecvd,
+                       lpFlags, lpOverlapped, lpCompletionRoutine);
     }
 }
 #endif
 
 #ifdef __SIMU_FAIL_WSASendTo
 #undef WSASendTo
-int __sf_WSASendTo(SOCKET s,
-                   LPWSABUF lpBuffers,
-                   DWORD dwBufferCount,
-                   LPDWORD lpNumberOfBytesSent,
-                   DWORD dwFlags,
-                   const struct sockaddr *lpTo,
-                   int iToLen,
+int __sf_WSASendTo(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+                   LPDWORD lpNumberOfBytesSent, DWORD dwFlags,
+                   const struct sockaddr *lpTo, int iToLen,
                    LPWSAOVERLAPPED lpOverlapped,
                    LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
@@ -1755,14 +1542,8 @@ int __sf_WSASendTo(SOCKET s,
         return SOCKET_ERROR;
     } else {
         lpBuffers[0].len = tt_rand_u32() % lpBuffers[0].len + 1;
-        return WSASendTo(s,
-                         lpBuffers,
-                         dwBufferCount,
-                         lpNumberOfBytesSent,
-                         dwFlags,
-                         lpTo,
-                         iToLen,
-                         lpOverlapped,
+        return WSASendTo(s, lpBuffers, dwBufferCount, lpNumberOfBytesSent,
+                         dwFlags, lpTo, iToLen, lpOverlapped,
                          lpCompletionRoutine);
     }
 }
@@ -1770,13 +1551,9 @@ int __sf_WSASendTo(SOCKET s,
 
 #ifdef __SIMU_FAIL_WSARecvFrom
 #undef WSARecvFrom
-int __sf_WSARecvFrom(SOCKET s,
-                     LPWSABUF lpBuffers,
-                     DWORD dwBufferCount,
-                     LPDWORD lpNumberOfBytesRecvd,
-                     LPDWORD lpFlags,
-                     struct sockaddr *lpFrom,
-                     LPINT lpFromlen,
+int __sf_WSARecvFrom(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+                     LPDWORD lpNumberOfBytesRecvd, LPDWORD lpFlags,
+                     struct sockaddr *lpFrom, LPINT lpFromlen,
                      LPWSAOVERLAPPED lpOverlapped,
                      LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
@@ -1785,14 +1562,8 @@ int __sf_WSARecvFrom(SOCKET s,
         return SOCKET_ERROR;
     } else {
         lpBuffers[0].len = tt_rand_u32() % lpBuffers[0].len + 1;
-        return WSARecvFrom(s,
-                           lpBuffers,
-                           dwBufferCount,
-                           lpNumberOfBytesRecvd,
-                           lpFlags,
-                           lpFrom,
-                           lpFromlen,
-                           lpOverlapped,
+        return WSARecvFrom(s, lpBuffers, dwBufferCount, lpNumberOfBytesRecvd,
+                           lpFlags, lpFrom, lpFromlen, lpOverlapped,
                            lpCompletionRoutine);
     }
 }

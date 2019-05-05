@@ -56,8 +56,7 @@
 
 #ifdef __SIMU_FAIL_CreateFileW
 #define CreateFileW __sf_CreateFileW
-HANDLE WINAPI __sf_CreateFileW(LPCWSTR lpFileName,
-                               DWORD dwDesiredAccess,
+HANDLE WINAPI __sf_CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess,
                                DWORD dwShareMode,
                                LPSECURITY_ATTRIBUTES lpSecurityAttributes,
                                DWORD dwCreationDisposition,
@@ -72,8 +71,7 @@ BOOL WINAPI __sf_DeleteFileW(LPCWSTR lpFileName);
 
 #ifdef __SIMU_FAIL_ReadFile
 #define ReadFile __sf_ReadFile
-BOOL WINAPI __sf_ReadFile(HANDLE hFile,
-                          __out LPVOID lpBuffer,
+BOOL WINAPI __sf_ReadFile(HANDLE hFile, __out LPVOID lpBuffer,
                           DWORD nNumberOfBytesToRead,
                           __out_opt LPDWORD lpNumberOfBytesRead,
                           __inout_opt LPOVERLAPPED lpOverlapped);
@@ -81,8 +79,7 @@ BOOL WINAPI __sf_ReadFile(HANDLE hFile,
 
 #ifdef __SIMU_FAIL_WriteFile
 #define WriteFile __sf_WriteFile
-BOOL WINAPI __sf_WriteFile(HANDLE hFile,
-                           LPCVOID lpBuffer,
+BOOL WINAPI __sf_WriteFile(HANDLE hFile, LPCVOID lpBuffer,
                            DWORD nNumberOfBytesToWrite,
                            __out_opt LPDWORD lpNumberOfBytesWritten,
                            __inout_opt LPOVERLAPPED lpOverlapped);
@@ -90,8 +87,7 @@ BOOL WINAPI __sf_WriteFile(HANDLE hFile,
 
 #ifdef __SIMU_FAIL_SetFilePointer
 #define SetFilePointer __sf_SetFilePointer
-DWORD WINAPI __sf_SetFilePointer(HANDLE hFile,
-                                 LONG lDistanceToMove,
+DWORD WINAPI __sf_SetFilePointer(HANDLE hFile, LONG lDistanceToMove,
                                  __inout_opt PLONG lpDistanceToMoveHigh,
                                  DWORD dwMoveMethod);
 #endif
@@ -559,9 +555,7 @@ static void __date2filetime(IN tt_date_t *d, IN FILETIME *t);
 
 tt_result_t tt_fs_component_init_ntv()
 {
-    if (!TT_OK(tt_ntdll_component_init_ntv())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_ntdll_component_init_ntv())) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -609,10 +603,8 @@ tt_result_t tt_fremove_ntv(IN const tt_char_t *path)
 }
 
 // this function can not open directory
-tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file,
-                         IN const tt_char_t *path,
-                         IN tt_u32_t flag,
-                         IN struct tt_file_attr_s *attr)
+tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file, IN const tt_char_t *path,
+                         IN tt_u32_t flag, IN struct tt_file_attr_s *attr)
 {
     __fopen_t fopen;
 
@@ -643,10 +635,8 @@ void tt_fclose_ntv(IN tt_file_ntv_t *file)
     tt_fiber_suspend();
 }
 
-tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file,
-                         IN tt_u32_t whence,
-                         IN tt_s64_t offset,
-                         OUT tt_u64_t *location)
+tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file, IN tt_u32_t whence,
+                         IN tt_s64_t offset, OUT tt_u64_t *location)
 {
     __fseek_t fseek;
 
@@ -663,10 +653,8 @@ tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file,
 }
 
 // avoid calling fread and fwrite by multi thread at same time
-tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
-                         OUT tt_u8_t *buf,
-                         IN tt_u32_t buf_len,
-                         OUT tt_u32_t *read_len)
+tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file, OUT tt_u8_t *buf,
+                         IN tt_u32_t buf_len, OUT tt_u32_t *read_len)
 {
     __fread_t fread;
     DWORD dwError;
@@ -704,10 +692,8 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
     return fread.result;
 }
 
-tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
-                          IN tt_u8_t *buf,
-                          IN tt_u32_t buf_len,
-                          OUT tt_u32_t *write_len)
+tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file, IN tt_u8_t *buf,
+                          IN tt_u32_t buf_len, OUT tt_u32_t *write_len)
 {
     __fwrite_t fwrite;
 
@@ -782,8 +768,7 @@ tt_result_t tt_ftrunc_ntv(IN tt_file_ntv_t *file, IN tt_u64_t len)
     return ftrunc.result;
 }
 
-tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst,
-                         IN const tt_char_t *src,
+tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst, IN const tt_char_t *src,
                          IN tt_u32_t flag)
 {
     __fcopy_t fcopy;
@@ -816,8 +801,7 @@ tt_result_t tt_fsync_ntv(IN tt_file_ntv_t *file)
     return fsync.result;
 }
 
-tt_result_t tt_futime_ntv(IN tt_file_ntv_t *file,
-                          IN tt_date_t *accessed,
+tt_result_t tt_futime_ntv(IN tt_file_ntv_t *file, IN tt_date_t *accessed,
                           IN tt_date_t *modified)
 {
     __futime_t futime;
@@ -866,8 +850,7 @@ tt_result_t tt_dremove_ntv(IN const tt_char_t *path)
     return dremove.result;
 }
 
-tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir,
-                         IN const tt_char_t *path,
+tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir, IN const tt_char_t *path,
                          IN tt_dir_attr_t *attr)
 {
     __dopen_t dopen;
@@ -913,8 +896,7 @@ tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir, OUT tt_dirent_t *entry)
     return dread.result;
 }
 
-tt_result_t tt_dcopy_ntv(IN const tt_char_t *dst,
-                         IN const tt_char_t *src,
+tt_result_t tt_dcopy_ntv(IN const tt_char_t *dst, IN const tt_char_t *src,
                          IN tt_u32_t flag)
 {
     __dcopy_t dcopy;
@@ -996,8 +978,7 @@ tt_result_t tt_fs_symlink_ntv(IN const tt_char_t *path,
     return fs_symlink.result;
 }
 
-tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link,
-                               OUT tt_char_t *path,
+tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link, OUT tt_char_t *path,
                                IN tt_u32_t len)
 {
     __fs_readlink_t fs_readlink;
@@ -1016,8 +997,7 @@ tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link,
 }
 
 tt_result_t tt_fs_realpath_ntv(IN const tt_char_t *path,
-                               OUT tt_char_t *resolved,
-                               IN tt_u32_t len)
+                               OUT tt_char_t *resolved, IN tt_u32_t len)
 {
     __fs_realpath_t fs_realpath;
 
@@ -1103,13 +1083,9 @@ void __do_fcreate(IN tt_io_ev_t *io_ev)
         return;
     }
 
-    hf = CreateFileW(w_path,
-                     FILE_GENERIC_READ | FILE_GENERIC_WRITE,
+    hf = CreateFileW(w_path, FILE_GENERIC_READ | FILE_GENERIC_WRITE,
                      FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                     NULL,
-                     CREATE_NEW,
-                     FILE_ATTRIBUTE_NORMAL,
-                     NULL);
+                     NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hf != INVALID_HANDLE_VALUE) {
         CloseHandle(hf);
         fcreate->result = TT_SUCCESS;
@@ -1161,16 +1137,16 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
     wchar_t *w_path;
 
     switch (fopen->flag & (TT_FO_READ | TT_FO_WRITE)) {
-        case TT_FO_WRITE: {
-            dwDesiredAccess = FILE_GENERIC_WRITE;
-        } break;
-        case (TT_FO_READ | TT_FO_WRITE): {
-            dwDesiredAccess = (FILE_GENERIC_WRITE | FILE_GENERIC_READ);
-        } break;
-        default: {
-            // readonly by default
-            dwDesiredAccess = FILE_GENERIC_READ;
-        } break;
+    case TT_FO_WRITE: {
+        dwDesiredAccess = FILE_GENERIC_WRITE;
+    } break;
+    case (TT_FO_READ | TT_FO_WRITE): {
+        dwDesiredAccess = (FILE_GENERIC_WRITE | FILE_GENERIC_READ);
+    } break;
+    default: {
+        // readonly by default
+        dwDesiredAccess = FILE_GENERIC_READ;
+    } break;
     }
 
     if (fopen->flag & TT_FO_APPEND) {
@@ -1179,26 +1155,26 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
     }
 
     switch (fopen->flag & (TT_FO_CREAT | TT_FO_EXCL | TT_FO_TRUNC)) {
-        case TT_FO_CREAT: {
-            // if exist, open it
-            // if not exist, create it
-            dwCreationDisposition = OPEN_ALWAYS;
-        } break;
-        case TT_FO_CREAT | TT_FO_EXCL:
-        case TT_FO_CREAT | TT_FO_EXCL | TT_FO_TRUNC: {
-            // if exist, fail
-            // if not exist, create it
-            dwCreationDisposition = CREATE_NEW;
-        } break;
-        case TT_FO_TRUNC:
-        case TT_FO_CREAT | TT_FO_TRUNC: {
-            // if exist, truncate it
-            // if not exist, create it
-            dwCreationDisposition = CREATE_ALWAYS;
-        } break;
-        default: {
-            dwCreationDisposition = OPEN_EXISTING;
-        } break;
+    case TT_FO_CREAT: {
+        // if exist, open it
+        // if not exist, create it
+        dwCreationDisposition = OPEN_ALWAYS;
+    } break;
+    case TT_FO_CREAT | TT_FO_EXCL:
+    case TT_FO_CREAT | TT_FO_EXCL | TT_FO_TRUNC: {
+        // if exist, fail
+        // if not exist, create it
+        dwCreationDisposition = CREATE_NEW;
+    } break;
+    case TT_FO_TRUNC:
+    case TT_FO_CREAT | TT_FO_TRUNC: {
+        // if exist, truncate it
+        // if not exist, create it
+        dwCreationDisposition = CREATE_ALWAYS;
+    } break;
+    default: {
+        dwCreationDisposition = OPEN_EXISTING;
+    } break;
     }
 
     if (_umask_s(0, &mode) && !(~mode & _S_IWRITE)) {
@@ -1216,26 +1192,19 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
     }
 
     file->hf =
-        CreateFileW(w_path,
-                    dwDesiredAccess,
+        CreateFileW(w_path, dwDesiredAccess,
                     FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                    NULL,
-                    dwCreationDisposition,
-                    dwFlagsAndAttributes,
-                    NULL);
+                    NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
     if (file->hf == INVALID_HANDLE_VALUE) {
         fopen->result = TT_COND(GetLastError() == ERROR_FILE_NOT_FOUND,
-                                TT_E_NOEXIST,
-                                TT_FAIL);
+                                TT_E_NOEXIST, TT_FAIL);
         TT_ERROR_NTV("fail to open file: %s", fopen->path);
         tt_wchar_destroy(w_path);
         return;
     }
     tt_wchar_destroy(w_path);
 
-    if (CreateIoCompletionPort(file->hf,
-                               fopen->iocp,
-                               (ULONG_PTR)fopen->file,
+    if (CreateIoCompletionPort(file->hf, fopen->iocp, (ULONG_PTR)fopen->file,
                                0) == NULL) {
         TT_ERROR_NTV("fail to associate file with iocp");
         CloseHandle(file->hf);
@@ -1253,9 +1222,7 @@ void __do_fclose(IN tt_io_ev_t *io_ev)
 {
     __fclose_t *fclose = (__fclose_t *)io_ev;
 
-    if (!CloseHandle(fclose->file->hf)) {
-        TT_ERROR_NTV("fail to close file");
-    }
+    if (!CloseHandle(fclose->file->hf)) { TT_ERROR_NTV("fail to close file"); }
 }
 
 tt_bool_t __do_fread(IN tt_io_ev_t *io_ev)
@@ -1290,11 +1257,8 @@ tt_bool_t __do_fread(IN tt_io_ev_t *io_ev)
     fread->io_ev.u.ov.Offset = (tt_u32_t)file->offset;
     fread->io_ev.u.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
 
-    if (!ReadFile(fread->file->hf,
-                  TT_PTR_INC(tt_u8_t, fread->buf, fread->pos),
-                  fread->buf_len - fread->pos,
-                  NULL,
-                  &fread->io_ev.u.ov) &&
+    if (!ReadFile(fread->file->hf, TT_PTR_INC(tt_u8_t, fread->buf, fread->pos),
+                  fread->buf_len - fread->pos, NULL, &fread->io_ev.u.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
         if (fread->pos > 0) {
             TT_SAFE_ASSIGN(fread->read_len, fread->pos);
@@ -1359,9 +1323,7 @@ tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev)
     // buf is not full
     if (!WriteFile(fwrite->file->hf,
                    TT_PTR_INC(tt_u8_t, fwrite->buf, fwrite->pos),
-                   fwrite->buf_len - fwrite->pos,
-                   NULL,
-                   &fwrite->io_ev.u.ov) &&
+                   fwrite->buf_len - fwrite->pos, NULL, &fwrite->io_ev.u.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
         if (fwrite->pos > 0) {
             TT_SAFE_ASSIGN(fwrite->write_len, fwrite->pos);
@@ -1424,11 +1386,9 @@ void __do_fstat(IN tt_io_ev_t *io_ev)
     BY_HANDLE_FILE_INFORMATION info;
     tt_fstat_t *fst = fstat_ev->fst;
 
-
     if (!GetFileInformationByHandle(fstat_ev->file->hf, &info)) {
         fstat_ev->result = TT_COND(GetLastError() == ERROR_FILE_NOT_FOUND,
-                                   TT_E_NOEXIST,
-                                   TT_FAIL);
+                                   TT_E_NOEXIST, TT_FAIL);
         TT_ERROR_NTV("fstat failed");
         return;
     }
@@ -1466,10 +1426,8 @@ void __do_ftrunc(IN tt_io_ev_t *io_ev)
 
     info.EndOfFile.QuadPart = ftrunc_ev->len;
 
-    if (SetFileInformationByHandle(ftrunc_ev->file->hf,
-                                   FileEndOfFileInfo,
-                                   &info,
-                                   sizeof(FILE_END_OF_FILE_INFO))) {
+    if (SetFileInformationByHandle(ftrunc_ev->file->hf, FileEndOfFileInfo,
+                                   &info, sizeof(FILE_END_OF_FILE_INFO))) {
         ftrunc_ev->result = TT_SUCCESS;
     } else {
         ftrunc_ev->result = TT_FAIL;
@@ -1577,10 +1535,7 @@ void __do_dremove(IN tt_io_ev_t *io_ev)
     wchar_t *w_path;
     SHFILEOPSTRUCTW FileOp;
 
-    w_path = tt_wchar_create_ex(dremove->path,
-                                0,
-                                NULL,
-                                TT_WCHAR_CREATE_LONGER,
+    w_path = tt_wchar_create_ex(dremove->path, 0, NULL, TT_WCHAR_CREATE_LONGER,
                                 (void *)1);
     if (w_path == NULL) {
         dremove->result = TT_FAIL;
@@ -1619,9 +1574,7 @@ void __do_dopen(IN tt_io_ev_t *io_ev)
     tt_u32_t path_len;
 
     w_path = tt_wchar_create(dopen->path, 0, NULL);
-    if (w_path == NULL) {
-        goto out;
-    }
+    if (w_path == NULL) { goto out; }
 
     if (!(GetFileAttributesW(w_path) & FILE_ATTRIBUTE_DIRECTORY)) {
         TT_ERROR("path[%ls] is not directory", path);
@@ -1666,22 +1619,16 @@ out:
 
     dopen->result = result;
 
-    if (path != NULL) {
-        tt_free(path);
-    }
+    if (path != NULL) { tt_free(path); }
 
-    if (w_path != NULL) {
-        tt_wchar_destroy(w_path);
-    }
+    if (w_path != NULL) { tt_wchar_destroy(w_path); }
 }
 
 void __do_dclose(IN tt_io_ev_t *io_ev)
 {
     __dclose_t *dclose = (__dclose_t *)io_ev;
 
-    if (!FindClose(dclose->dir->hd)) {
-        TT_ERROR_NTV("fail to close diretory");
-    }
+    if (!FindClose(dclose->dir->hd)) { TT_ERROR_NTV("fail to close diretory"); }
 }
 
 void __do_dread(IN tt_io_ev_t *io_ev)
@@ -1703,9 +1650,7 @@ void __do_dread(IN tt_io_ev_t *io_ev)
         return;
     }
 
-    if (strncpy_s(entry->name,
-                  TT_MAX_FILE_NAME_LEN,
-                  utf8_name,
+    if (strncpy_s(entry->name, TT_MAX_FILE_NAME_LEN, utf8_name,
                   TT_MAX_FILE_NAME_LEN) != 0) {
         TT_WARN("fail to return found file name: %s", dir->find_data.cFileName);
     }
@@ -1743,10 +1688,7 @@ void __do_dcopy(IN tt_io_ev_t *io_ev)
     }
 #endif
 
-    from = tt_wchar_create_ex(dcopy_ev->src,
-                              0,
-                              NULL,
-                              TT_WCHAR_CREATE_LONGER,
+    from = tt_wchar_create_ex(dcopy_ev->src, 0, NULL, TT_WCHAR_CREATE_LONGER,
                               (void *)2);
     if (from == NULL) {
         TT_ERROR("no mem for from path");
@@ -1754,10 +1696,7 @@ void __do_dcopy(IN tt_io_ev_t *io_ev)
         return;
     }
 
-    to = tt_wchar_create_ex(dcopy_ev->dst,
-                            0,
-                            NULL,
-                            TT_WCHAR_CREATE_LONGER,
+    to = tt_wchar_create_ex(dcopy_ev->dst, 0, NULL, TT_WCHAR_CREATE_LONGER,
                             (void *)2);
     if (to == NULL) {
         TT_ERROR("no mem for to path");
@@ -1830,8 +1769,7 @@ void __do_fs_rename(IN tt_io_ev_t *io_ev)
     if (ret) {
         fs_rename->result = TT_SUCCESS;
     } else {
-        TT_ERROR_NTV("fail to rename from %s to %s",
-                     fs_rename->from,
+        TT_ERROR_NTV("fail to rename from %s to %s", fs_rename->from,
                      fs_rename->to);
         fs_rename->result = TT_FAIL;
     }
@@ -1931,11 +1869,7 @@ void __do_fs_readlink(IN tt_io_ev_t *io_ev)
         return;
     }
 
-    h = CreateFileW(w_link,
-                    0,
-                    0,
-                    NULL,
-                    OPEN_EXISTING,
+    h = CreateFileW(w_link, 0, 0, NULL, OPEN_EXISTING,
                     FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
                     NULL);
     tt_wchar_destroy(w_link);
@@ -1945,14 +1879,8 @@ void __do_fs_readlink(IN tt_io_ev_t *io_ev)
         return;
     }
 
-    if (!DeviceIoControl(h,
-                         FSCTL_GET_REPARSE_POINT,
-                         NULL,
-                         0,
-                         buf,
-                         sizeof(buf),
-                         NULL,
-                         NULL)) {
+    if (!DeviceIoControl(h, FSCTL_GET_REPARSE_POINT, NULL, 0, buf, sizeof(buf),
+                         NULL, NULL)) {
         TT_ERROR_NTV("fail to get reparse poing");
         CloseHandle(h);
         fs_readlink->result = TT_FAIL;
@@ -1969,8 +1897,9 @@ void __do_fs_readlink(IN tt_io_ev_t *io_ev)
 
         if ((len >= 4) && (target[0] == L'\\') && (target[1] == L'\?') &&
             (target[2] == L'?') && (target[3] == L'\\')) {
-            if ((len >= 6) && (((target[4] >= L'A') && (target[4] <= L'Z')) ||
-                               ((target[4] >= L'a') && (target[4] <= L'z'))) &&
+            if ((len >= 6) &&
+                (((target[4] >= L'A') && (target[4] <= L'Z')) ||
+                 ((target[4] >= L'a') && (target[4] <= L'z'))) &&
                 (target[5] == L':') && ((len == 6) || (target[6] == L'\\'))) {
                 /* \\?\<drive>:\ */
                 target += 4;
@@ -2045,13 +1974,8 @@ void __do_fs_realpath(IN tt_io_ev_t *io_ev)
         return;
     }
 
-    h = CreateFileW(w_path,
-                    0,
-                    0,
-                    NULL,
-                    OPEN_EXISTING,
-                    FILE_FLAG_BACKUP_SEMANTICS | FILE_ATTRIBUTE_NORMAL,
-                    NULL);
+    h = CreateFileW(w_path, 0, 0, NULL, OPEN_EXISTING,
+                    FILE_FLAG_BACKUP_SEMANTICS | FILE_ATTRIBUTE_NORMAL, NULL);
     tt_wchar_destroy(w_path);
     if (h == INVALID_HANDLE_VALUE) {
         TT_ERROR_NTV("fail to open path");
@@ -2122,13 +2046,11 @@ void __do_fs_realpath(IN tt_io_ev_t *io_ev)
 
 #ifdef CreateFileW
 #undef CreateFileW
-HANDLE WINAPI __sf_CreateFileW(LPCWSTR lpFileName,
-                               DWORD dwDesiredAccess,
+HANDLE WINAPI __sf_CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess,
                                DWORD dwShareMode,
                                LPSECURITY_ATTRIBUTES lpSecurityAttributes,
                                DWORD dwCreationDisposition,
-                               DWORD dwFlagsAndAttributes,
-                               HANDLE hTemplateFile)
+                               DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
     return INVALID_HANDLE_VALUE;
 }
@@ -2148,54 +2070,41 @@ BOOL WINAPI __sf_DeleteFileW(LPCWSTR lpFileName)
 
 #ifdef ReadFile
 #undef ReadFile
-BOOL WINAPI __sf_ReadFile(HANDLE hFile,
-                          __out LPVOID lpBuffer,
+BOOL WINAPI __sf_ReadFile(HANDLE hFile, __out LPVOID lpBuffer,
                           DWORD nNumberOfBytesToRead,
                           __out_opt LPDWORD lpNumberOfBytesRead,
                           __inout_opt LPOVERLAPPED lpOverlapped)
 {
-    if ((tt_rand_u32() % 4) == 0) {
-        return FALSE;
-    }
+    if ((tt_rand_u32() % 4) == 0) { return FALSE; }
 
     if (nNumberOfBytesToRead > 1) {
         nNumberOfBytesToRead = tt_rand_u32() % nNumberOfBytesToRead;
     }
-    return ReadFile(hFile,
-                    lpBuffer,
-                    nNumberOfBytesToRead,
-                    lpNumberOfBytesRead,
+    return ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead,
                     lpOverlapped);
 }
 #endif
 
 #ifdef WriteFile
 #undef WriteFile
-BOOL WINAPI __sf_WriteFile(HANDLE hFile,
-                           LPCVOID lpBuffer,
+BOOL WINAPI __sf_WriteFile(HANDLE hFile, LPCVOID lpBuffer,
                            DWORD nNumberOfBytesToWrite,
                            __out_opt LPDWORD lpNumberOfBytesWritten,
                            __inout_opt LPOVERLAPPED lpOverlapped)
 {
-    if ((tt_rand_u32() % 4) == 0) {
-        return FALSE;
-    }
+    if ((tt_rand_u32() % 4) == 0) { return FALSE; }
 
     if (nNumberOfBytesToWrite > 1) {
         nNumberOfBytesToWrite = tt_rand_u32() % nNumberOfBytesToWrite;
     }
-    return WriteFile(hFile,
-                     lpBuffer,
-                     nNumberOfBytesToWrite,
-                     lpNumberOfBytesWritten,
-                     lpOverlapped);
+    return WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite,
+                     lpNumberOfBytesWritten, lpOverlapped);
 }
 #endif
 
 #ifdef SetFilePointer
 #undef SetFilePointer
-DWORD WINAPI __sf_SetFilePointer(HANDLE hFile,
-                                 LONG lDistanceToMove,
+DWORD WINAPI __sf_SetFilePointer(HANDLE hFile, LONG lDistanceToMove,
                                  __inout_opt PLONG lpDistanceToMoveHigh,
                                  DWORD dwMoveMethod)
 {

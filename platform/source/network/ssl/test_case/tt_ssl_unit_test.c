@@ -33,7 +33,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     SSL_UT_BEGIN = 0,
 
     SSL_UT_X509 = SSL_UT_BEGIN,
@@ -54,7 +55,8 @@ TT_SSL_UT_DECLARE(SSL_UT_IO)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_ssl_ut_list[SSL_UT_NUM] = {
-    &TT_MAKE_TEST_UNIT_NAME(SSL_UT_X509), &TT_MAKE_TEST_UNIT_NAME(SSL_UT_IO),
+    &TT_MAKE_TEST_UNIT_NAME(SSL_UT_X509),
+    &TT_MAKE_TEST_UNIT_NAME(SSL_UT_IO),
 };
 
 ////////////////////////////////////////////////////////////
@@ -73,9 +75,7 @@ tt_result_t tt_ssl_ut_init(IN tt_ptr_t reserved)
 
         if (tt_g_ssl_ut_list[unit_id] != NULL) {
             result = tt_test_unit_to_class(tt_g_ssl_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
+            if (!TT_OK(result)) { return TT_FAIL; }
         }
 
         // next

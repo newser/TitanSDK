@@ -49,8 +49,7 @@ typedef tt_result_t (*tt_param_read_t)(IN struct tt_param_s *p,
                                        OUT struct tt_buf_s *output);
 
 typedef tt_result_t (*tt_param_write_t)(IN struct tt_param_s *p,
-                                        IN tt_u8_t *val,
-                                        IN tt_u32_t val_len);
+                                        IN tt_u8_t *val, IN tt_u32_t val_len);
 
 typedef struct tt_param_itf_s
 {
@@ -59,7 +58,8 @@ typedef struct tt_param_itf_s
     tt_param_write_t write;
 } tt_param_itf_t;
 
-typedef enum {
+typedef enum
+{
     TT_PARAM_U32,
     TT_PARAM_S32,
     TT_PARAM_DIR,

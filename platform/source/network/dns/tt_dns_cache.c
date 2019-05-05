@@ -69,14 +69,11 @@ static tt_s32_t __de_cmp(IN void *l, IN void *r);
 
 static void __de_destroy(IN tt_hnode_t *hnode);
 
-tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
-                         IN const tt_char_t *name,
+tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc, IN const tt_char_t *name,
                          IN tt_bool_t create);
 
-static tt_bool_t __de_check_inuse(IN tt_u8_t *key,
-                                  IN tt_u32_t key_len,
-                                  IN tt_hnode_t *hnode,
-                                  IN void *param);
+static tt_bool_t __de_check_inuse(IN tt_u8_t *key, IN tt_u32_t key_len,
+                                  IN tt_hnode_t *hnode, IN void *param);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -87,7 +84,8 @@ void tt_dns_cache_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __dc_component_init, __dc_component_exit,
+        __dc_component_init,
+        __dc_component_exit,
     };
 
     // init component
@@ -256,8 +254,7 @@ void __de_destroy(IN tt_hnode_t *hnode)
     tt_dns_entry_destroy(TT_CONTAINER(hnode, tt_dns_entry_t, hnode));
 }
 
-tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
-                         IN const tt_char_t *name,
+tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc, IN const tt_char_t *name,
                          IN tt_bool_t create)
 {
     tt_u32_t len;
@@ -274,10 +271,8 @@ tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
     }
 }
 
-tt_bool_t __de_check_inuse(IN tt_u8_t *key,
-                           IN tt_u32_t key_len,
-                           IN tt_hnode_t *hnode,
-                           IN void *param)
+tt_bool_t __de_check_inuse(IN tt_u8_t *key, IN tt_u32_t key_len,
+                           IN tt_hnode_t *hnode, IN void *param)
 {
     tt_dns_entry_t *de = TT_CONTAINER(hnode, tt_dns_entry_t, hnode);
     if (!tt_dns_entry_inuse(de, *(tt_s64_t *)param, __s_inuse_limit)) {

@@ -87,23 +87,16 @@ tt_export tt_s32_t tt_date_cmp_date(IN tt_date_t *a, IN tt_date_t *b);
 
 tt_export tt_s32_t tt_date_cmp_time(IN tt_date_t *a, IN tt_date_t *b);
 
-tt_export tt_s32_t tt_date_cmp_v(IN tt_date_t *date,
-                                 IN tt_u32_t year,
-                                 IN tt_month_t month,
-                                 IN tt_u32_t mday,
-                                 IN tt_u32_t hour,
-                                 IN tt_month_t minute,
+tt_export tt_s32_t tt_date_cmp_v(IN tt_date_t *date, IN tt_u32_t year,
+                                 IN tt_month_t month, IN tt_u32_t mday,
+                                 IN tt_u32_t hour, IN tt_month_t minute,
                                  IN tt_u32_t second);
 
-tt_export tt_s32_t tt_date_cmp_vdate(IN tt_date_t *date,
-                                     IN tt_u32_t year,
-                                     IN tt_month_t month,
-                                     IN tt_u32_t mday);
+tt_export tt_s32_t tt_date_cmp_vdate(IN tt_date_t *date, IN tt_u32_t year,
+                                     IN tt_month_t month, IN tt_u32_t mday);
 
-tt_export tt_s32_t tt_date_cmp_vtime(IN tt_date_t *date,
-                                     IN tt_u32_t hour,
-                                     IN tt_month_t minute,
-                                     IN tt_u32_t second);
+tt_export tt_s32_t tt_date_cmp_vtime(IN tt_date_t *date, IN tt_u32_t hour,
+                                     IN tt_month_t minute, IN tt_u32_t second);
 
 tt_export tt_result_t tt_date_change_tmzone(IN tt_date_t *date,
                                             IN tt_tmzone_t tz);
@@ -198,27 +191,20 @@ tt_inline tt_u32_t tt_date_get_second(IN tt_date_t *date)
     return date->second;
 }
 
-tt_export tt_result_t tt_date_set_date(IN tt_date_t *date,
-                                       IN tt_u32_t year,
-                                       IN tt_month_t month,
-                                       IN tt_u32_t mday);
+tt_export tt_result_t tt_date_set_date(IN tt_date_t *date, IN tt_u32_t year,
+                                       IN tt_month_t month, IN tt_u32_t mday);
 
-tt_inline void tt_date_set_time(IN tt_date_t *date,
-                                IN tt_u32_t hour,
-                                IN tt_u32_t minute,
-                                IN tt_u32_t second)
+tt_inline void tt_date_set_time(IN tt_date_t *date, IN tt_u32_t hour,
+                                IN tt_u32_t minute, IN tt_u32_t second)
 {
     tt_date_set_hour(date, hour);
     tt_date_set_minute(date, minute);
     tt_date_set_second(date, second);
 }
 
-tt_inline tt_result_t tt_date_set(IN tt_date_t *date,
-                                  IN tt_u32_t year,
-                                  IN tt_month_t month,
-                                  IN tt_u32_t mday,
-                                  IN tt_u32_t hour,
-                                  IN tt_u32_t minute,
+tt_inline tt_result_t tt_date_set(IN tt_date_t *date, IN tt_u32_t year,
+                                  IN tt_month_t month, IN tt_u32_t mday,
+                                  IN tt_u32_t hour, IN tt_u32_t minute,
                                   IN tt_u32_t second)
 {
     if (TT_OK(tt_date_set_date(date, year, month, mday))) {

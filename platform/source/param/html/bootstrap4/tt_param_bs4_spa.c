@@ -123,8 +123,7 @@ static tt_result_t __render_head(IN tt_param_bs4spa_t *spa, OUT tt_buf_t *buf);
 
 static tt_result_t __render_body(IN tt_param_bs4spa_t *spa,
                                  IN tt_param_t *param,
-                                 IN tt_param_bs4level_t lv,
-                                 OUT tt_buf_t *buf);
+                                 IN tt_param_bs4level_t lv, OUT tt_buf_t *buf);
 
 static tt_result_t __render_body_modal(IN tt_param_bs4spa_t *spa,
                                        OUT tt_buf_t *buf);
@@ -174,13 +173,10 @@ void tt_param_bs4spa_init(IN tt_param_bs4spa_t *spa)
 
 tt_result_t tt_param_bs4spa_render(IN tt_param_bs4spa_t *spa,
                                    IN tt_param_t *param,
-                                   IN tt_param_bs4level_t lv,
-                                   OUT tt_buf_t *buf)
+                                   IN tt_param_bs4level_t lv, OUT tt_buf_t *buf)
 {
     // only render spa for directory
-    if (param->type != TT_PARAM_DIR) {
-        return TT_SUCCESS;
-    }
+    if (param->type != TT_PARAM_DIR) { return TT_SUCCESS; }
 
     __prepare_render(spa);
 
@@ -204,9 +200,7 @@ tt_result_t tt_param_bs4spa_render_js(IN tt_param_bs4spa_t *spa,
     tt_param_t *p;
 
     // only render spa for directory
-    if (param->type != TT_PARAM_DIR) {
-        return TT_SUCCESS;
-    }
+    if (param->type != TT_PARAM_DIR) { return TT_SUCCESS; }
     dir = TT_PARAM_CAST(param, tt_param_dir_t);
 
     __prepare_render(spa);
@@ -221,9 +215,7 @@ tt_result_t tt_param_bs4spa_render_js(IN tt_param_bs4spa_t *spa,
     __PUT_CSTR(buf, __JS_MAIN_START);
 
     p = tt_param_dir_head(dir);
-    if (p != NULL) {
-        TT_DO(tt_buf_putf(buf, __JS_ACTIVE, tt_param_name(p)));
-    }
+    if (p != NULL) { TT_DO(tt_buf_putf(buf, __JS_ACTIVE, tt_param_name(p))); }
 
     for (; p != NULL; p = tt_param_dir_next(p)) {
         TT_DO(tt_buf_putf(buf, __JS_CLICK, tt_param_name(p), tt_param_name(p)));
@@ -257,10 +249,8 @@ tt_result_t __render_head(IN tt_param_bs4spa_t *spa, OUT tt_buf_t *buf)
     return TT_SUCCESS;
 }
 
-tt_result_t __render_body(IN tt_param_bs4spa_t *spa,
-                          IN tt_param_t *param,
-                          IN tt_param_bs4level_t lv,
-                          OUT tt_buf_t *buf)
+tt_result_t __render_body(IN tt_param_bs4spa_t *spa, IN tt_param_t *param,
+                          IN tt_param_bs4level_t lv, OUT tt_buf_t *buf)
 {
     TT_DO(__PUT_CSTR(buf, __SPA_BODY_START));
 
@@ -297,8 +287,7 @@ tt_result_t __render_body_modal(IN tt_param_bs4spa_t *spa, OUT tt_buf_t *buf)
 }
 
 tt_result_t __render_body_header(IN tt_param_bs4spa_t *spa,
-                                 IN tt_param_t *param,
-                                 OUT tt_buf_t *buf)
+                                 IN tt_param_t *param, OUT tt_buf_t *buf)
 {
     TT_ASSERT(param->type == TT_PARAM_DIR);
 
@@ -311,10 +300,8 @@ tt_result_t __render_body_header(IN tt_param_bs4spa_t *spa,
     return TT_SUCCESS;
 }
 
-tt_result_t __render_body_main(IN tt_param_bs4spa_t *spa,
-                               IN tt_param_t *param,
-                               IN tt_param_bs4level_t lv,
-                               OUT tt_buf_t *buf)
+tt_result_t __render_body_main(IN tt_param_bs4spa_t *spa, IN tt_param_t *param,
+                               IN tt_param_bs4level_t lv, OUT tt_buf_t *buf)
 {
     tt_param_dir_t *dir;
     tt_param_t *p;
@@ -340,9 +327,7 @@ tt_result_t __render_body_main(IN tt_param_bs4spa_t *spa,
 tt_result_t __render_body_footer(IN tt_param_bs4spa_t *spa, OUT tt_buf_t *buf)
 {
     if (spa->footer_text != NULL) {
-        TT_DO(tt_buf_putf(buf,
-                          __SPA_FOOTER,
-                          spa->footer_class,
+        TT_DO(tt_buf_putf(buf, __SPA_FOOTER, spa->footer_class,
                           spa->footer_text));
     }
 

@@ -40,7 +40,9 @@
 static void __dir_on_destroy(IN tt_param_t *p);
 
 static tt_param_itf_t __dir_itf = {
-    __dir_on_destroy, NULL, NULL,
+    __dir_on_destroy,
+    NULL,
+    NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,15 +63,9 @@ tt_param_t *tt_param_dir_create(IN const tt_char_t *name,
     tt_param_t *p;
     tt_param_dir_t *pd;
 
-    p = tt_param_create(sizeof(tt_param_dir_t),
-                        TT_PARAM_DIR,
-                        name,
-                        &__dir_itf,
-                        NULL,
-                        attr);
-    if (p == NULL) {
-        return NULL;
-    }
+    p = tt_param_create(sizeof(tt_param_dir_t), TT_PARAM_DIR, name, &__dir_itf,
+                        NULL, attr);
+    if (p == NULL) { return NULL; }
 
     pd = TT_PARAM_CAST(p, tt_param_dir_t);
 
@@ -94,12 +90,8 @@ tt_result_t tt_param_dir_add(IN tt_param_dir_t *pd, IN tt_param_t *child)
     }
 
     // name + slash
-    if (child->type == TT_PARAM_DIR) {
-        n += 1;
-    }
-    if (pd->child_name_len < n) {
-        pd->child_name_len = n;
-    }
+    if (child->type == TT_PARAM_DIR) { n += 1; }
+    if (pd->child_name_len < n) { pd->child_name_len = n; }
 
 #if 0
     if (child->type == TT_PARAM_DIR) {
@@ -168,8 +160,7 @@ void tt_param_dir_remove(IN tt_param_dir_t *pd, IN tt_param_t *child)
     pd->tidmap_updated = TT_FALSE;
 }
 
-tt_param_t *tt_param_dir_find(IN tt_param_dir_t *pd,
-                              IN const tt_char_t *name,
+tt_param_t *tt_param_dir_find(IN tt_param_dir_t *pd, IN const tt_char_t *name,
                               IN tt_u32_t name_len)
 {
     tt_lnode_t *node;
@@ -184,12 +175,9 @@ tt_param_t *tt_param_dir_find(IN tt_param_dir_t *pd,
 
         if (child->type == TT_PARAM_DIR) {
             tt_param_t *sub;
-            sub = tt_param_dir_find(TT_PARAM_CAST(child, tt_param_dir_t),
-                                    name,
+            sub = tt_param_dir_find(TT_PARAM_CAST(child, tt_param_dir_t), name,
                                     name_len);
-            if (sub != NULL) {
-                return sub;
-            }
+            if (sub != NULL) { return sub; }
         }
     }
     return NULL;
@@ -208,9 +196,7 @@ tt_param_t *tt_param_dir_find_tid(IN tt_param_dir_t *pd, IN tt_s32_t tid)
                 tt_param_t *sub;
                 sub = tt_param_dir_find_tid(TT_PARAM_CAST(p, tt_param_dir_t),
                                             tid);
-                if (sub != NULL) {
-                    return sub;
-                }
+                if (sub != NULL) { return sub; }
             }
         }
         return NULL;

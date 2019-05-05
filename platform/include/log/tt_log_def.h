@@ -48,7 +48,8 @@ this file declare log definition
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_LOG_DEBUG,
     TT_LOG_INFO,
     TT_LOG_WARN,
@@ -59,7 +60,8 @@ typedef enum {
 } tt_log_level_t;
 #define TT_LOG_LEVEL_VALID(l) ((l) < TT_LOG_LEVEL_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_LOGIO_STANDARD,
     TT_LOGIO_LOGCAT, // for android
     TT_LOGIO_FILE,
@@ -74,7 +76,8 @@ typedef enum {
 } tt_logio_type_t;
 #define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_LOGFLD_LOGGER,
     TT_LOGFLD_FUNC,
     TT_LOGFLD_CONTENT,

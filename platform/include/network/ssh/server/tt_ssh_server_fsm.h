@@ -40,20 +40,17 @@
 #define TT_SSH_EV_IGNORED(state, event)                                        \
     do {                                                                       \
         TT_INFO("event[%s] is ignored at state[%s]",                           \
-                tt_sshsvr_event_name[(event)],                                 \
-                tt_sshsvr_state_name[(state)]);                                \
+                tt_sshsvr_event_name[(event)], tt_sshsvr_state_name[(state)]); \
     } while (0)
 
 #define TT_SSH_MSGID_IGNORED(state, msg_id)                                    \
     do {                                                                       \
-        TT_INFO("message[%d] is ignored at state[%s]",                         \
-                (msg_id),                                                      \
+        TT_INFO("message[%d] is ignored at state[%s]", (msg_id),               \
                 tt_sshsvr_state_name[(state)]);                                \
     } while (0)
 #define TT_SSH_MSG_FAILURE(state, msg_id)                                      \
     do {                                                                       \
-        TT_INFO("can not handle message[%d] at state[%s]",                     \
-                (msg_id),                                                      \
+        TT_INFO("can not handle message[%d] at state[%s]", (msg_id),           \
                 tt_sshsvr_state_name[(state)]);                                \
     } while (0)
 
@@ -63,7 +60,8 @@
 
 struct tt_sshsvrconn_s;
 
-typedef enum {
+typedef enum
+{
     // initial states
     TT_SSHSVRST_VERXCHG,
 
@@ -82,7 +80,8 @@ typedef enum {
 } tt_sshsvr_state_t;
 #define TT_SSHSVR_STATE_VALID(state) ((state) < TT_SSHSVRST_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_SSHSVREV_PACKET,
 
     // the proper way to send ssh disconnect is to post a
@@ -138,8 +137,7 @@ tt_export const tt_char_t *tt_sshsvr_event_name[TT_SSHSVREV_NUM];
 //  - TT_E_END, app should shutdown ssh conn and then destroy
 //  - TT_FAIL, error occurred, app should destroy ssh conn
 tt_export tt_result_t tt_sshsvr_fsm(IN struct tt_sshsvrconn_s *svrconn,
-                                    IN tt_sshsvr_event_t event,
-                                    IN void *param);
+                                    IN tt_sshsvr_event_t event, IN void *param);
 
 tt_export void tt_sshsvr_new_state(IN struct tt_sshsvrconn_s *svrconn,
                                    IN tt_sshsvr_state_t new_state,

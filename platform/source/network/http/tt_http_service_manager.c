@@ -43,8 +43,7 @@
     }                                                                          \
                                                                                \
     tt_inline void __##name##_ctx_set(IN tt_http_##name##_ctx_t *c,            \
-                                      IN tt_http_##name##_t *s,                \
-                                      IN void *ctx)                            \
+                                      IN tt_http_##name##_t *s, IN void *ctx)  \
     {                                                                          \
         tt_http_##name##_ref(s);                                               \
         c->s = s;                                                              \
@@ -64,9 +63,7 @@
     tt_inline void __##name##_ctx_clear(IN tt_http_##name##_ctx_t *c)          \
     {                                                                          \
         if (c->s != NULL) {                                                    \
-            if (c->ctx != NULL) {                                              \
-                tt_http_##name##_clear_ctx(c->s, c->ctx);                      \
-            }                                                                  \
+            if (c->ctx != NULL) { tt_http_##name##_clear_ctx(c->s, c->ctx); }  \
             tt_http_##name##_clear(c->s);                                      \
         }                                                                      \
     }                                                                          \
@@ -74,9 +71,7 @@
     tt_inline void __##name##_ctx_clear_dynamic(IN tt_http_##name##_ctx_t *c)  \
     {                                                                          \
         if (c->s != NULL) {                                                    \
-            if (c->ctx != NULL) {                                              \
-                tt_http_##name##_clear_ctx(c->s, c->ctx);                      \
-            }                                                                  \
+            if (c->ctx != NULL) { tt_http_##name##_clear_ctx(c->s, c->ctx); }  \
             tt_http_##name##_release(c->s);                                    \
         }                                                                      \
     }
@@ -136,9 +131,7 @@ void tt_http_svcmgr_init(IN tt_http_svcmgr_t *sm)
     sm->outserv_num = 0;
     sm->outserv_max = TT_HTTP_INLINE_OUTSERV_NUM;
 
-    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
-        sm->encserv[i] = NULL;
-    }
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) { sm->encserv[i] = NULL; }
 
     sm->created_cond_ctx = TT_FALSE;
     sm->created_file_ctx = TT_FALSE;
@@ -164,14 +157,10 @@ void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm)
     for (i = 0; i < sm->outserv_num; ++i) {
         tt_http_outserv_release(sm->outserv[i]);
     }
-    if (sm->outserv != sm->inline_outserv) {
-        tt_free(sm->outserv);
-    }
+    if (sm->outserv != sm->inline_outserv) { tt_free(sm->outserv); }
 
     for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
-        if (sm->encserv[i] != NULL) {
-            tt_http_encserv_release(sm->encserv[i]);
-        }
+        if (sm->encserv[i] != NULL) { tt_http_encserv_release(sm->encserv[i]); }
     }
 }
 
@@ -184,9 +173,7 @@ void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
     sm->host = NULL;
     sm->owner = NULL;
 
-    for (i = 0; i < sm->inserv_num; ++i) {
-        __inserv_ctx_clear(&sm->inserv[i]);
-    }
+    for (i = 0; i < sm->inserv_num; ++i) { __inserv_ctx_clear(&sm->inserv[i]); }
 
     for (i = 0; i < sm->dynamic_inserv_num; ++i) {
         __inserv_ctx_clear_dynamic(&sm->dynamic_inserv[i]);
@@ -198,9 +185,7 @@ void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
     }
 
     for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
-        if (sm->encserv[i] != NULL) {
-            tt_http_encserv_clear(sm->encserv[i]);
-        }
+        if (sm->encserv[i] != NULL) { tt_http_encserv_clear(sm->encserv[i]); }
     }
 
     // DO NOT modify created_xxx_ctx
@@ -220,9 +205,7 @@ tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_http_inserv_create_ctx(s, ctx))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_http_inserv_create_ctx(s, ctx))) { return TT_FAIL; }
     __inserv_ctx_set(&sm->inserv[sm->inserv_num++], s, ctx);
     return TT_SUCCESS;
 }
@@ -240,9 +223,7 @@ tt_result_t tt_http_svcmgr_add_dynamic_inserv(IN tt_http_svcmgr_t *sm,
     }
 
     if (!*ctx_created) {
-        if (!TT_OK(tt_http_inserv_create_ctx(s, ctx))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(tt_http_inserv_create_ctx(s, ctx))) { return TT_FAIL; }
         *ctx_created = TT_TRUE;
     }
     __inserv_ctx_set(&sm->dynamic_inserv[sm->dynamic_inserv_num++], s, ctx);
@@ -256,8 +237,7 @@ tt_result_t tt_http_svcmgr_add_inserv_host(IN tt_http_svcmgr_t *sm)
 
 tt_result_t tt_http_svcmgr_add_inserv_param(IN tt_http_svcmgr_t *sm)
 {
-    return tt_http_svcmgr_add_inserv(sm,
-                                     tt_g_http_inserv_param,
+    return tt_http_svcmgr_add_inserv(sm, tt_g_http_inserv_param,
                                      &sm->param_ctx);
 }
 
@@ -272,13 +252,10 @@ tt_result_t tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
             TT_ERROR("fail to expand outserv array");
             return TT_E_NOMEM;
         }
-        tt_memcpy(s,
-                  sm->outserv,
+        tt_memcpy(s, sm->outserv,
                   sizeof(tt_http_outserv_t *) * sm->outserv_num);
 
-        if (sm->outserv != sm->inline_outserv) {
-            tt_free(sm->outserv);
-        }
+        if (sm->outserv != sm->inline_outserv) { tt_free(sm->outserv); }
         sm->outserv = s;
         sm->outserv_max = new_num;
     }
@@ -299,9 +276,7 @@ void tt_http_svcmgr_set_encserv(IN tt_http_svcmgr_t *sm,
     }
 
     sm->encserv[txenc] = s;
-    if (s != NULL) {
-        tt_http_encserv_ref(s);
-    }
+    if (s != NULL) { tt_http_encserv_ref(s); }
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
@@ -311,9 +286,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
     tt_u32_t i;
     tt_http_inserv_action_t act = TT_HTTP_INSERV_ACT_PASS;
 
-    if (sm->discarding) {
-        return TT_HTTP_INSERV_ACT_DISCARD;
-    }
+    if (sm->discarding) { return TT_HTTP_INSERV_ACT_DISCARD; }
 
     TT_ASSERT(sm->owner == NULL);
     for (i = 0; i < sm->inserv_num; ++i) {
@@ -339,9 +312,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
         }
     }
 
-    if (!TT_OK(__load_dynamic_inserv(sm))) {
-        return TT_HTTP_INSERV_ACT_CLOSE;
-    }
+    if (!TT_OK(__load_dynamic_inserv(sm))) { return TT_HTTP_INSERV_ACT_CLOSE; }
 
     for (i = 0; i < sm->dynamic_inserv_num; ++i) {
         tt_http_inserv_ctx_t *c = &sm->dynamic_inserv[i];
@@ -355,9 +326,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
             sm->discarding = TT_TRUE;
             return this_act;
         } else if (this_act == TT_HTTP_INSERV_ACT_OWNER) {
-            if (sm->owner == NULL) {
-                sm->owner = c;
-            }
+            if (sm->owner == NULL) { sm->owner = c; }
             return TT_HTTP_INSERV_ACT_OWNER;
         }
     }
@@ -366,22 +335,17 @@ tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_header(
-    IN tt_http_svcmgr_t *sm,
-    IN tt_http_parser_t *req,
+    IN tt_http_svcmgr_t *sm, IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp)
 {
     tt_u32_t i;
     tt_http_inserv_action_t act = TT_HTTP_INSERV_ACT_PASS;
     tt_http_uri_t *uri;
 
-    if (sm->discarding) {
-        return TT_HTTP_INSERV_ACT_DISCARD;
-    }
+    if (sm->discarding) { return TT_HTTP_INSERV_ACT_DISCARD; }
 
     if (sm->owner != NULL) {
-        return tt_http_inserv_on_header(sm->owner->s,
-                                        sm->owner->ctx,
-                                        req,
+        return tt_http_inserv_on_header(sm->owner->s, sm->owner->ctx, req,
                                         resp);
     }
 
@@ -397,16 +361,12 @@ tt_http_inserv_action_t tt_http_svcmgr_on_header(
             sm->discarding = TT_TRUE;
             return this_act;
         } else if (this_act == TT_HTTP_INSERV_ACT_OWNER) {
-            if (sm->owner == NULL) {
-                sm->owner = c;
-            }
+            if (sm->owner == NULL) { sm->owner = c; }
             return TT_HTTP_INSERV_ACT_OWNER;
         }
     }
 
-    if (!TT_OK(__load_dynamic_inserv(sm))) {
-        return TT_HTTP_INSERV_ACT_CLOSE;
-    }
+    if (!TT_OK(__load_dynamic_inserv(sm))) { return TT_HTTP_INSERV_ACT_CLOSE; }
 
     for (i = 0; i < sm->dynamic_inserv_num; ++i) {
         tt_http_inserv_ctx_t *c = &sm->dynamic_inserv[i];
@@ -420,9 +380,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_header(
             sm->discarding = TT_TRUE;
             return this_act;
         } else if (this_act == TT_HTTP_INSERV_ACT_OWNER) {
-            if (sm->owner == NULL) {
-                sm->owner = c;
-            }
+            if (sm->owner == NULL) { sm->owner = c; }
             return TT_HTTP_INSERV_ACT_OWNER;
         }
     }
@@ -436,9 +394,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_body(IN tt_http_svcmgr_t *sm,
 {
     tt_http_inserv_action_t act;
 
-    if (sm->discarding) {
-        return TT_HTTP_INSERV_ACT_DISCARD;
-    }
+    if (sm->discarding) { return TT_HTTP_INSERV_ACT_DISCARD; }
 
     if (sm->owner == NULL) {
         // this is unexpected as there should be at least a default service
@@ -450,22 +406,17 @@ tt_http_inserv_action_t tt_http_svcmgr_on_body(IN tt_http_svcmgr_t *sm,
     }
 
     act = tt_http_inserv_on_body(sm->owner->s, sm->owner->ctx, req, resp);
-    if (act == TT_HTTP_INSERV_ACT_DISCARD) {
-        sm->discarding = TT_TRUE;
-    }
+    if (act == TT_HTTP_INSERV_ACT_DISCARD) { sm->discarding = TT_TRUE; }
     return act;
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_trailing(
-    IN tt_http_svcmgr_t *sm,
-    IN tt_http_parser_t *req,
+    IN tt_http_svcmgr_t *sm, IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_action_t act;
 
-    if (sm->discarding) {
-        return TT_HTTP_INSERV_ACT_DISCARD;
-    }
+    if (sm->discarding) { return TT_HTTP_INSERV_ACT_DISCARD; }
 
     if (sm->owner == NULL) {
         tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_NOT_FOUND);
@@ -475,15 +426,12 @@ tt_http_inserv_action_t tt_http_svcmgr_on_trailing(
     }
 
     act = tt_http_inserv_on_trailing(sm->owner->s, sm->owner->ctx, req, resp);
-    if (act == TT_HTTP_INSERV_ACT_DISCARD) {
-        sm->discarding = TT_TRUE;
-    }
+    if (act == TT_HTTP_INSERV_ACT_DISCARD) { sm->discarding = TT_TRUE; }
     return act;
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_complete(
-    IN tt_http_svcmgr_t *sm,
-    IN tt_http_parser_t *req,
+    IN tt_http_svcmgr_t *sm, IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp)
 {
     if (sm->discarding) {
@@ -513,19 +461,14 @@ tt_http_inserv_action_t tt_http_svcmgr_get_body(IN tt_http_svcmgr_t *sm,
 {
     // no need to set response status
 
-    if (sm->discarding) {
-        return TT_HTTP_INSERV_ACT_DISCARD;
-    }
+    if (sm->discarding) { return TT_HTTP_INSERV_ACT_DISCARD; }
 
     if (sm->owner == NULL) {
         sm->discarding = TT_TRUE;
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
-    return tt_http_inserv_get_body(sm->owner->s,
-                                   sm->owner->ctx,
-                                   req,
-                                   resp,
+    return tt_http_inserv_get_body(sm->owner->s, sm->owner->ctx, req, resp,
                                    buf);
 }
 
@@ -538,9 +481,7 @@ tt_result_t tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
     for (i = 0; i < sm->outserv_num; ++i) {
         tt_result_t result =
             tt_http_outserv_on_header(sm->outserv[i], req, resp);
-        if (!TT_OK(result)) {
-            return result;
-        }
+        if (!TT_OK(result)) { return result; }
     }
 
     return TT_SUCCESS;
@@ -557,9 +498,7 @@ tt_result_t tt_http_svcmgr_pre_body(IN tt_http_svcmgr_t *sm,
     tt_result_t result;
 
     result = __mk_txenc(sm, resp, es, &num);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // if there is no service, just copy input to output
     input = NULL;
@@ -568,9 +507,7 @@ tt_result_t tt_http_svcmgr_pre_body(IN tt_http_svcmgr_t *sm,
         // last output becomes this input
         input = *output;
         result = tt_http_encserv_pre_body(es[i], req, resp, input, output);
-        if (!TT_OK(result)) {
-            return result;
-        }
+        if (!TT_OK(result)) { return result; }
     }
 
     return TT_SUCCESS;
@@ -587,9 +524,7 @@ tt_result_t tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
     tt_result_t result;
 
     result = __mk_txenc(sm, resp, es, &num);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // if there is no service, just copy input to output
     *output = input;
@@ -597,9 +532,7 @@ tt_result_t tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
         // last output becomes this input
         input = *output;
         result = tt_http_encserv_on_body(es[i], req, resp, input, output);
-        if (!TT_OK(result)) {
-            return result;
-        }
+        if (!TT_OK(result)) { return result; }
     }
 
     return TT_SUCCESS;
@@ -616,9 +549,7 @@ tt_result_t tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
     tt_result_t result;
 
     result = __mk_txenc(sm, resp, es, &num);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // if there is no service, just copy input to output
     *output = input;
@@ -626,9 +557,7 @@ tt_result_t tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
         // last output becomes this input
         input = *output;
         result = tt_http_encserv_post_body(es[i], req, resp, input, output);
-        if (!TT_OK(result)) {
-            return result;
-        }
+        if (!TT_OK(result)) { return result; }
     }
 
     return TT_SUCCESS;
@@ -643,24 +572,21 @@ tt_result_t __load_dynamic_inserv(IN tt_http_svcmgr_t *sm)
         // note the order of adding inserv
 
         if ((hc->auth != NULL) &&
-            !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm,
-                                                     hc->auth,
+            !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm, hc->auth,
                                                      &sm->auth_ctx,
                                                      &sm->created_auth_ctx))) {
             return TT_FAIL;
         }
 
         if ((host->enable_inserv_cache) &&
-            !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm,
-                                                     tt_g_http_inserv_cond,
+            !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm, tt_g_http_inserv_cond,
                                                      &sm->cond_ctx,
                                                      &sm->created_cond_ctx))) {
             return TT_FAIL;
         }
 
         if ((host->enable_inserv_file) &&
-            !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm,
-                                                     tt_g_http_inserv_file,
+            !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm, tt_g_http_inserv_file,
                                                      &sm->file_ctx,
                                                      &sm->created_file_ctx))) {
             return TT_FAIL;
@@ -672,10 +598,8 @@ tt_result_t __load_dynamic_inserv(IN tt_http_svcmgr_t *sm)
     return TT_SUCCESS;
 }
 
-tt_result_t __mk_txenc(IN tt_http_svcmgr_t *sm,
-                       IN tt_http_resp_render_t *resp,
-                       OUT tt_http_encserv_t *es[],
-                       OUT tt_u32_t *es_num)
+tt_result_t __mk_txenc(IN tt_http_svcmgr_t *sm, IN tt_http_resp_render_t *resp,
+                       OUT tt_http_encserv_t *es[], OUT tt_u32_t *es_num)
 {
     tt_u32_t i, num = 0;
     for (i = 0; i < resp->render.txenc_num; ++i) {

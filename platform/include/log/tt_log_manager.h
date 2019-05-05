@@ -106,19 +106,15 @@ tt_export tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
                                           IN tt_log_level_t level,
                                           IN TO struct tt_logio_s *lio);
 
-tt_export tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
-                                       IN tt_log_level_t level,
-                                       IN const tt_char_t *func,
-                                       IN tt_u32_t line,
-                                       IN const tt_char_t *format,
-                                       IN va_list ap);
+tt_export tt_result_t tt_logmgr_inputv(
+    IN tt_logmgr_t *lmgr, IN tt_log_level_t level, IN const tt_char_t *func,
+    IN tt_u32_t line, IN const tt_char_t *format, IN va_list ap);
 
 tt_inline tt_result_t tt_logmgr_inputf(IN tt_logmgr_t *lmgr,
                                        IN tt_log_level_t level,
                                        IN const tt_char_t *func,
                                        IN tt_u32_t line,
-                                       IN const tt_char_t *format,
-                                       ...)
+                                       IN const tt_char_t *format, ...)
 {
     va_list ap;
     tt_result_t result;

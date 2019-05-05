@@ -62,14 +62,12 @@ void tt_rng_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __rng_component_init, __rng_component_exit,
+        __rng_component_init,
+        __rng_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_RAND,
-                      "Random Number Generator",
-                      NULL,
+    tt_component_init(&comp, TT_COMPONENT_RAND, "Random Number Generator", NULL,
                       &itf);
 
     // register component
@@ -98,9 +96,7 @@ void tt_rng_destroy(IN tt_rng_t *rng)
 {
     TT_ASSERT(rng != NULL);
 
-    if (rng->itf->destroy != NULL) {
-        rng->itf->destroy(rng);
-    }
+    if (rng->itf->destroy != NULL) { rng->itf->destroy(rng); }
 
     tt_free(rng);
 }
@@ -109,9 +105,7 @@ tt_result_t __rng_component_init(IN tt_component_t *comp,
                                  IN tt_profile_t *profile)
 {
     // init platform specific
-    if (!TT_OK(tt_rng_component_init_ntv())) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_rng_component_init_ntv())) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }

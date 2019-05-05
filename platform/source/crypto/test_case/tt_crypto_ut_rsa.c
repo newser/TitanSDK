@@ -74,33 +74,15 @@ TT_TEST_ROUTINE_DECLARE(case_rsa_gen)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_rsa_case)
 
-TT_TEST_CASE("case_rsa_encrypt",
-             "rsa encrypt and decrypt",
-             case_rsa_encrypt,
-             NULL,
-             __rsa_prepare,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_rsa_encrypt", "rsa encrypt and decrypt", case_rsa_encrypt,
+             NULL, __rsa_prepare, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_rsa_sign",
-                 "rsa sign and verify",
-                 case_rsa_sign,
-                 NULL,
-                 __rsa_prepare,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_rsa_sign", "rsa sign and verify", case_rsa_sign, NULL,
+                 __rsa_prepare, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_rsa_gen",
-                 "rsa generated",
-                 case_rsa_gen,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_rsa_gen", "rsa generated", case_rsa_gen, NULL, NULL,
+                 NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_rsa_case)
     // =========================================
@@ -184,43 +166,23 @@ TT_TEST_CASE("case_rsa_encrypt",
 
     // oaep
     tt_memset(ibuf, 0, 256);
-    ret = tt_rsa_encrypt_oaep(&rpub,
-                              ibuf,
-                              100,
-                              (tt_u8_t *)"1234",
-                              4,
-                              TT_SHA256,
+    ret = tt_rsa_encrypt_oaep(&rpub, ibuf, 100, (tt_u8_t *)"1234", 4, TT_SHA256,
                               ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_oaep(&rpriv,
-                              ebuf,
-                              (tt_u8_t *)"1234",
-                              4,
-                              TT_SHA256,
-                              dbuf,
-                              &len);
+    ret = tt_rsa_decrypt_oaep(&rpriv, ebuf, (tt_u8_t *)"1234", 4, TT_SHA256,
+                              dbuf, &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(len, 100, "");
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
 
     tt_memset(ibuf, 0xf, 256);
-    ret = tt_rsa_encrypt_oaep(&rpub,
-                              ibuf,
-                              128,
-                              (tt_u8_t *)"",
-                              0,
-                              TT_RIPEMD160,
+    ret = tt_rsa_encrypt_oaep(&rpub, ibuf, 128, (tt_u8_t *)"", 0, TT_RIPEMD160,
                               ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_oaep(&rpriv,
-                              ebuf,
-                              (tt_u8_t *)"",
-                              0,
-                              TT_RIPEMD160,
-                              dbuf,
-                              &len);
+    ret = tt_rsa_decrypt_oaep(&rpriv, ebuf, (tt_u8_t *)"", 0, TT_RIPEMD160,
+                              dbuf, &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(len, 128, "");
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
@@ -323,7 +285,7 @@ TT_TEST_ROUTINE_DEFINE(case_rsa_gen)
     tt_u32_t len;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #ifdef __UT_LITE__
     return TT_SUCCESS;
@@ -355,22 +317,12 @@ TT_TEST_ROUTINE_DEFINE(case_rsa_gen)
 
     // oaep
     tt_memset(ibuf, 0xf, 256);
-    ret = tt_rsa_encrypt_oaep(&rpub,
-                              ibuf,
-                              21,
-                              (tt_u8_t *)"",
-                              0,
-                              TT_RIPEMD160,
+    ret = tt_rsa_encrypt_oaep(&rpub, ibuf, 21, (tt_u8_t *)"", 0, TT_RIPEMD160,
                               ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_oaep(&rpriv,
-                              ebuf,
-                              (tt_u8_t *)"",
-                              0,
-                              TT_RIPEMD160,
-                              dbuf,
-                              &len);
+    ret = tt_rsa_decrypt_oaep(&rpriv, ebuf, (tt_u8_t *)"", 0, TT_RIPEMD160,
+                              dbuf, &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(len, 21, "");
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
@@ -403,22 +355,12 @@ TT_TEST_ROUTINE_DEFINE(case_rsa_gen)
 
     // oaep
     tt_memset(ibuf, 0xf, 256);
-    ret = tt_rsa_encrypt_oaep(&rpub,
-                              ibuf,
-                              21,
-                              (tt_u8_t *)"",
-                              0,
-                              TT_RIPEMD160,
+    ret = tt_rsa_encrypt_oaep(&rpub, ibuf, 21, (tt_u8_t *)"", 0, TT_RIPEMD160,
                               ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_oaep(&rpriv,
-                              ebuf,
-                              (tt_u8_t *)"",
-                              0,
-                              TT_RIPEMD160,
-                              dbuf,
-                              &len);
+    ret = tt_rsa_decrypt_oaep(&rpriv, ebuf, (tt_u8_t *)"", 0, TT_RIPEMD160,
+                              dbuf, &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(len, 21, "");
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
@@ -489,9 +431,7 @@ void __rsa_prepare(void *p)
 {
     tt_file_t f;
 
-    if (has_keyfile) {
-        return;
-    }
+    if (has_keyfile) { return; }
 
 #if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
     {
@@ -512,34 +452,26 @@ void __rsa_prepare(void *p)
 #endif
 
     // gen rsa pub
-    if (!TT_OK(tt_fopen(&f,
-                        __PUB_PK8_FILE,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
-                        NULL))) {
+    if (!TT_OK(tt_fopen(&f, __PUB_PK8_FILE,
+                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC, NULL))) {
         TT_ERROR("fail to open %s", __PUB_PK8_FILE);
         return;
     }
-    if (!TT_OK(tt_fwrite(&f,
-                         (tt_u8_t *)__rsa_pub_pk8,
-                         sizeof(__rsa_pub_pk8) - 1,
-                         NULL))) {
+    if (!TT_OK(tt_fwrite(&f, (tt_u8_t *)__rsa_pub_pk8,
+                         sizeof(__rsa_pub_pk8) - 1, NULL))) {
         TT_ERROR("fail to write %s", __PUB_PK8_FILE);
         return;
     }
     tt_fclose(&f);
 
     // gen rsa priv
-    if (!TT_OK(tt_fopen(&f,
-                        __PRIV_PK8_FILE,
-                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
-                        NULL))) {
+    if (!TT_OK(tt_fopen(&f, __PRIV_PK8_FILE,
+                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC, NULL))) {
         TT_ERROR("fail to open %s", __PRIV_PK8_FILE);
         return;
     }
-    if (!TT_OK(tt_fwrite(&f,
-                         (tt_u8_t *)__rsa_priv_pk8,
-                         sizeof(__rsa_priv_pk8) - 1,
-                         NULL))) {
+    if (!TT_OK(tt_fwrite(&f, (tt_u8_t *)__rsa_priv_pk8,
+                         sizeof(__rsa_priv_pk8) - 1, NULL))) {
         TT_ERROR("fail to write %s", __PRIV_PK8_FILE);
         return;
     }

@@ -88,33 +88,16 @@ tt_blob_t tt_g_tmzone_name_iso8601[TT_TMZONE_NUM] = {
 };
 
 tt_blob_t tt_g_month_name[TT_MONTH_NUM] = {
-    __BLOB("January"),
-    __BLOB("February"),
-    __BLOB("March"),
-    __BLOB("April"),
-    __BLOB("May"),
-    __BLOB("June"),
-    __BLOB("July"),
-    __BLOB("August"),
-    __BLOB("September"),
-    __BLOB("October"),
-    __BLOB("November"),
-    __BLOB("December"),
+    __BLOB("January"), __BLOB("February"), __BLOB("March"),
+    __BLOB("April"),   __BLOB("May"),      __BLOB("June"),
+    __BLOB("July"),    __BLOB("August"),   __BLOB("September"),
+    __BLOB("October"), __BLOB("November"), __BLOB("December"),
 };
 
 tt_blob_t tt_g_month_name_abbr[TT_MONTH_NUM] = {
-    __BLOB("Jan"),
-    __BLOB("Feb"),
-    __BLOB("Mar"),
-    __BLOB("Apr"),
-    __BLOB("May"),
-    __BLOB("June"),
-    __BLOB("July"),
-    __BLOB("Aug"),
-    __BLOB("Sept"),
-    __BLOB("Oct"),
-    __BLOB("Nov"),
-    __BLOB("Dec"),
+    __BLOB("Jan"),  __BLOB("Feb"),  __BLOB("Mar"),  __BLOB("Apr"),
+    __BLOB("May"),  __BLOB("June"), __BLOB("July"), __BLOB("Aug"),
+    __BLOB("Sept"), __BLOB("Oct"),  __BLOB("Nov"),  __BLOB("Dec"),
 };
 
 tt_blob_t tt_g_weekday_name[TT_WEEKDAY_NUM] = {__BLOB("Sunday"),
@@ -125,13 +108,9 @@ tt_blob_t tt_g_weekday_name[TT_WEEKDAY_NUM] = {__BLOB("Sunday"),
                                                __BLOB("Friday"),
                                                __BLOB("Saturday")};
 
-tt_blob_t tt_g_weekday_name_abbr[TT_WEEKDAY_NUM] = {__BLOB("Sun"),
-                                                    __BLOB("Mon"),
-                                                    __BLOB("Tue"),
-                                                    __BLOB("Wed"),
-                                                    __BLOB("Thu"),
-                                                    __BLOB("Fri"),
-                                                    __BLOB("Sat")};
+tt_blob_t tt_g_weekday_name_abbr[TT_WEEKDAY_NUM] =
+    {__BLOB("Sun"), __BLOB("Mon"), __BLOB("Tue"), __BLOB("Wed"),
+     __BLOB("Thu"), __BLOB("Fri"), __BLOB("Sat")};
 
 #define SEC(h, m) (((h)*3600) + ((m)*60))
 static tt_s32_t __tmzone_offset[TT_TMZONE_NUM] =
@@ -161,8 +140,6 @@ tt_s32_t tt_tmzone2offsec(IN tt_tmzone_t tmzone)
 tt_tmzone_t tt_offsec2tmzone(IN tt_s32_t offset)
 {
     tt_tmzone_t z = TT_UTC_MINUS_12_00;
-    while ((z < TT_UTC_14_00) && (offset > __tmzone_offset[z])) {
-        ++z;
-    }
+    while ((z < TT_UTC_14_00) && (offset > __tmzone_offset[z])) { ++z; }
     return z;
 }

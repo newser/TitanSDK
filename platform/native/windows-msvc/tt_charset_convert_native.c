@@ -61,10 +61,8 @@ static UINT __charset_code_page[TT_CHARSET_NUM] = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __charset_conv(IN tt_chsetconv_t *csconv,
-                                  IN tt_u8_t *input,
-                                  IN tt_u32_t input_len,
-                                  IN tt_buf_t *output);
+static tt_result_t __charset_conv(IN tt_chsetconv_t *csconv, IN tt_u8_t *input,
+                                  IN tt_u32_t input_len, IN tt_buf_t *output);
 
 static tt_result_t __utf32le_to_utf16le(IN tt_u8_t *input,
                                         IN tt_u32_t input_len,
@@ -101,8 +99,7 @@ void tt_chsetconv_destroy_ntv(IN struct tt_chsetconv_s *csconv)
 }
 
 tt_result_t tt_chsetconv_input_ntv(IN struct tt_chsetconv_s *csconv,
-                                   IN tt_u8_t *input,
-                                   IN tt_u32_t input_len)
+                                   IN tt_u8_t *input, IN tt_u32_t input_len)
 {
     tt_buf_t *converted = &csconv->converted;
 
@@ -112,9 +109,7 @@ tt_result_t tt_chsetconv_input_ntv(IN struct tt_chsetconv_s *csconv,
 
         TT_DO(tt_buf_reserve(converted,
                              TT_CHARSET_MAX_MBCHAR_LEN + (input_len << 1)));
-        if (!TT_OK(__charset_conv(csconv,
-                                  csconv->head,
-                                  csconv->head_len,
+        if (!TT_OK(__charset_conv(csconv, csconv->head, csconv->head_len,
                                   converted))) {
             return TT_FAIL;
         }
@@ -144,10 +139,8 @@ void tt_chsetconv_reset_ntv(IN struct tt_chsetconv_s *csconv)
     tt_buf_reset_rwp(&sys_csconv->intermediate);
 }
 
-tt_result_t __charset_conv(IN tt_chsetconv_t *csconv,
-                           IN tt_u8_t *input,
-                           IN tt_u32_t input_len,
-                           IN tt_buf_t *output)
+tt_result_t __charset_conv(IN tt_chsetconv_t *csconv, IN tt_u8_t *input,
+                           IN tt_u32_t input_len, IN tt_buf_t *output)
 {
     tt_chsetconv_ntv_t *sys_csconv = &csconv->sys_csconv;
     tt_buf_t *intermediate = &sys_csconv->intermediate;
@@ -201,12 +194,8 @@ tt_result_t __charset_conv(IN tt_chsetconv_t *csconv,
         wc_p = (LPCWSTR)TT_BUF_RPOS(intermediate);
         wc_n = (int)(TT_BUF_RLEN(intermediate) / sizeof(wchar_t));
     } else {
-        ret = MultiByteToWideChar(__charset_code_page[csconv->from],
-                                  0,
-                                  (LPCSTR)input,
-                                  (int)input_len,
-                                  NULL,
-                                  0);
+        ret = MultiByteToWideChar(__charset_code_page[csconv->from], 0,
+                                  (LPCSTR)input, (int)input_len, NULL, 0);
         if (ret <= 0) {
             TT_ERROR_NTV("fail to calc intermediate length");
             return TT_FAIL;
@@ -214,10 +203,8 @@ tt_result_t __charset_conv(IN tt_chsetconv_t *csconv,
 
         tt_buf_reset_rwp(intermediate);
         TT_DO(tt_buf_reserve(intermediate, ret * sizeof(wchar_t)));
-        ret = MultiByteToWideChar(__charset_code_page[csconv->from],
-                                  0,
-                                  (LPCSTR)input,
-                                  (int)input_len,
+        ret = MultiByteToWideChar(__charset_code_page[csconv->from], 0,
+                                  (LPCSTR)input, (int)input_len,
                                   (LPWSTR)TT_BUF_WPOS(intermediate),
                                   (int)(TT_BUF_WLEN(intermediate) /
                                         sizeof(wchar_t)));
@@ -233,8 +220,7 @@ tt_result_t __charset_conv(IN tt_chsetconv_t *csconv,
 
     // intermediate => to
     if (csconv->to == TT_CHARSET_UTF16LE) {
-        TT_DO(tt_buf_put(converted,
-                         (tt_u8_t *)wc_p,
+        TT_DO(tt_buf_put(converted, (tt_u8_t *)wc_p,
                          (tt_u32_t)(wc_n * sizeof(wchar_t))));
     } else if (csconv->to == TT_CHARSET_UTF16BE) {
         tt_u8_t *pos, *end;
@@ -243,8 +229,7 @@ tt_result_t __charset_conv(IN tt_chsetconv_t *csconv,
         // convert utf16be to utf16le
 
         n = TT_BUF_RLEN(converted);
-        TT_DO(tt_buf_put(converted,
-                         (tt_u8_t *)wc_p,
+        TT_DO(tt_buf_put(converted, (tt_u8_t *)wc_p,
                          (tt_u32_t)(wc_n * sizeof(wchar_t))));
         TT_ASSERT_CS(TT_BUF_RLEN(converted) >= n);
 
@@ -270,28 +255,17 @@ tt_result_t __charset_conv(IN tt_chsetconv_t *csconv,
             return TT_FAIL;
         }
     } else {
-        ret = WideCharToMultiByte(__charset_code_page[csconv->to],
-                                  0,
-                                  wc_p,
-                                  wc_n,
-                                  NULL,
-                                  0,
-                                  NULL,
-                                  NULL);
+        ret = WideCharToMultiByte(__charset_code_page[csconv->to], 0, wc_p,
+                                  wc_n, NULL, 0, NULL, NULL);
         if (ret <= 0) {
             TT_ERROR_NTV("fail to calc converted length");
             return TT_FAIL;
         }
 
         TT_DO(tt_buf_reserve(converted, ret));
-        ret = WideCharToMultiByte(__charset_code_page[csconv->to],
-                                  0,
-                                  wc_p,
-                                  wc_n,
-                                  (LPSTR)TT_BUF_WPOS(converted),
-                                  (int)TT_BUF_WLEN(converted),
-                                  NULL,
-                                  NULL);
+        ret = WideCharToMultiByte(__charset_code_page[csconv->to], 0, wc_p,
+                                  wc_n, (LPSTR)TT_BUF_WPOS(converted),
+                                  (int)TT_BUF_WLEN(converted), NULL, NULL);
         if (ret <= 0) {
             TT_ERROR_NTV("fail to calc converted length");
             return TT_FAIL;
@@ -302,8 +276,7 @@ tt_result_t __charset_conv(IN tt_chsetconv_t *csconv,
     return TT_SUCCESS;
 }
 
-tt_result_t __utf32le_to_utf16le(IN tt_u8_t *input,
-                                 IN tt_u32_t input_len,
+tt_result_t __utf32le_to_utf16le(IN tt_u8_t *input, IN tt_u32_t input_len,
                                  IN tt_buf_t *output)
 {
     tt_u8_t *pos, *end, *opos, *oend;
@@ -354,8 +327,7 @@ tt_result_t __utf32le_to_utf16le(IN tt_u8_t *input,
     return TT_SUCCESS;
 }
 
-tt_result_t __utf32be_to_utf16le(IN tt_u8_t *input,
-                                 IN tt_u32_t input_len,
+tt_result_t __utf32be_to_utf16le(IN tt_u8_t *input, IN tt_u32_t input_len,
                                  IN tt_buf_t *output)
 {
     tt_u8_t *pos, *end, *opos, *oend;
@@ -406,8 +378,7 @@ tt_result_t __utf32be_to_utf16le(IN tt_u8_t *input,
     return TT_SUCCESS;
 }
 
-tt_result_t __utf16le_to_utf32le(IN tt_u8_t *input,
-                                 IN tt_u32_t input_len,
+tt_result_t __utf16le_to_utf32le(IN tt_u8_t *input, IN tt_u32_t input_len,
                                  IN tt_buf_t *output)
 {
     tt_u8_t *pos, *end, *opos, *oend;
@@ -466,9 +437,7 @@ tt_result_t __utf16le_to_utf32le(IN tt_u8_t *input,
     return TT_SUCCESS;
 }
 
-
-tt_result_t __utf16le_to_utf32be(IN tt_u8_t *input,
-                                 IN tt_u32_t input_len,
+tt_result_t __utf16le_to_utf32be(IN tt_u8_t *input, IN tt_u32_t input_len,
                                  IN tt_buf_t *output)
 {
     tt_u8_t *pos, *end, *opos, *oend;

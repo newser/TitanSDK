@@ -49,42 +49,18 @@ TT_TEST_ROUTINE_DECLARE(case_sshpubk)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshctx_case)
 
-TT_TEST_CASE("case_sshkex_basic",
-             "ssh context kex basic",
-             case_sshkex_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_sshkex_basic", "ssh context kex basic", case_sshkex_basic,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_sshkex_set",
-                 "ssh context kex set values",
-                 case_sshkex_set,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshkex_set", "ssh context kex set values",
+                 case_sshkex_set, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshkex_dh",
-                 "ssh context kex DH",
-                 case_sshkex_dh,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshkex_dh", "ssh context kex DH", case_sshkex_dh, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshpubk",
-                 "ssh context public key",
-                 case_sshpubk,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshpubk", "ssh context public key", case_sshpubk, NULL,
+                 NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(sshctx_case)
     // =========================================
@@ -204,9 +180,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshkex_set)
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     kex = ctx.kex;
 
-    for (i = 0; i < sizeof(tmp); ++i) {
-        tmp[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(tmp); ++i) { tmp[i] = (tt_u8_t)tt_rand_u32(); }
 
     // ks
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
@@ -314,9 +288,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshkex_dh)
     ret = tt_sshctx_create(&ctx, &attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    for (i = 0; i < sizeof(tmp); ++i) {
-        tmp[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(tmp); ++i) { tmp[i] = (tt_u8_t)tt_rand_u32(); }
 
     tt_sshctx_kex_destroy(&ctx);
 
@@ -524,9 +496,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshpubk)
     TT_TEST_CASE_ENTER()
     // test start
 
-    for (i = 0; i < sizeof(tmp); ++i) {
-        tmp[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(tmp); ++i) { tmp[i] = (tt_u8_t)tt_rand_u32(); }
 
     attr.is_server = TT_TRUE;
 
@@ -550,11 +520,8 @@ TT_TEST_ROUTINE_DEFINE(case_sshpubk)
     rsa_attr.pem_armor = TT_TRUE;
     rsa_attr.padding.mode = TT_RSA_PADDING_PKCS1;
 
-    ret = tt_rsa_create(&rsa,
-                        TT_RSA_FORMAT_PKCS8,
-                        TT_RSA_TYPE_PRIVATE,
-                        &key_data,
-                        &rsa_attr);
+    ret = tt_rsa_create(&rsa, TT_RSA_FORMAT_PKCS8, TT_RSA_TYPE_PRIVATE,
+                        &key_data, &rsa_attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // rsa pub
@@ -565,11 +532,8 @@ TT_TEST_ROUTINE_DEFINE(case_sshpubk)
     rsa_attr.pem_armor = TT_TRUE;
     rsa_attr.padding.mode = TT_RSA_PADDING_PKCS1;
 
-    ret = tt_rsa_create(&rsa_pub,
-                        TT_RSA_FORMAT_PKCS1,
-                        TT_RSA_TYPE_PUBLIC,
-                        &key_data,
-                        &rsa_attr);
+    ret = tt_rsa_create(&rsa_pub, TT_RSA_FORMAT_PKCS1, TT_RSA_TYPE_PUBLIC,
+                        &key_data, &rsa_attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_sshctx_pubk_create(&ctx);
@@ -585,9 +549,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshpubk)
     ret = tt_sshctx_pubk_sign(&ctx, tmp, sizeof(tmp));
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    ret = tt_rsa_verify(&rsa_pub,
-                        tmp,
-                        sizeof(tmp),
+    ret = tt_rsa_verify(&rsa_pub, tmp, sizeof(tmp),
                         TT_BUF_RPOS(&ctx.pubk->signature),
                         TT_BUF_RLEN(&ctx.pubk->signature));
     TT_UT_EQUAL(ret, TT_SUCCESS, "");

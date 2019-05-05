@@ -68,7 +68,8 @@ void tt_xpath_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __xpath_component_init, __xpath_component_exit,
+        __xpath_component_init,
+        __xpath_component_exit,
     };
 
     // init component
@@ -82,8 +83,7 @@ void tt_xpath_component_register()
 // xml path
 // ========================================
 
-tt_result_t tt_xpath_create(IN tt_xpath_t *xp,
-                            IN const tt_char_t *expr,
+tt_result_t tt_xpath_create(IN tt_xpath_t *xp, IN const tt_char_t *expr,
                             IN OPT tt_xpvars_t *xpvs)
 {
     pugi::xpath_query *xq = new (xp->p) pugi::xpath_query(expr, P_XPVS(xpvs));
@@ -114,8 +114,7 @@ void tt_xpvars_destroy(IN tt_xpvars_t *xpvs)
     P_XPVS(xpvs)->~xpath_variable_set();
 }
 
-tt_result_t tt_xpvars_set_bool(IN tt_xpvars_t *xpvs,
-                               IN const tt_char_t *name,
+tt_result_t tt_xpvars_set_bool(IN tt_xpvars_t *xpvs, IN const tt_char_t *name,
                                IN tt_bool_t val)
 {
     if (P_XPVS(xpvs)->set(name, val == TT_TRUE)) {
@@ -126,8 +125,7 @@ tt_result_t tt_xpvars_set_bool(IN tt_xpvars_t *xpvs,
     }
 }
 
-tt_result_t tt_xpvars_set_number(IN tt_xpvars_t *xpvs,
-                                 IN const tt_char_t *name,
+tt_result_t tt_xpvars_set_number(IN tt_xpvars_t *xpvs, IN const tt_char_t *name,
                                  IN tt_double_t val)
 {
     if (P_XPVS(xpvs)->set(name, (double)val)) {
@@ -138,8 +136,7 @@ tt_result_t tt_xpvars_set_number(IN tt_xpvars_t *xpvs,
     }
 }
 
-tt_result_t tt_xpvars_set_cstr(IN tt_xpvars_t *xpvs,
-                               IN const tt_char_t *name,
+tt_result_t tt_xpvars_set_cstr(IN tt_xpvars_t *xpvs, IN const tt_char_t *name,
                                IN const tt_char_t *val)
 {
     if (P_XPVS(xpvs)->set(name, (const char *)val)) {
@@ -183,8 +180,7 @@ void tt_xpnodes_iter(IN tt_xpnodes_t *xpns, OUT tt_xpnodes_iter_t *iter)
 }
 
 tt_result_t tt_xpnodes_iter_next(IN OUT tt_xpnodes_iter_t *iter,
-                                 OUT tt_xnode_t *xn,
-                                 OUT tt_xattr_t *xa)
+                                 OUT tt_xnode_t *xn, OUT tt_xattr_t *xa)
 {
     pugi::xpath_node_set::const_iterator i = P_ITER(iter->p);
     if (i != P_XPNS(iter->xpns)->end()) {
@@ -208,23 +204,20 @@ tt_result_t __xpath_component_init(IN tt_component_t *comp,
 {
     if (sizeof(tt_xpath_t) < sizeof(class pugi::xpath_query)) {
         TT_ERROR("sizeof(tt_xpath_t)[%d] < sizeof(class xpath_query)[%d]",
-                 sizeof(tt_xpath_t),
-                 sizeof(class pugi::xpath_query));
+                 sizeof(tt_xpath_t), sizeof(class pugi::xpath_query));
         return TT_FAIL;
     }
 
     if (sizeof(tt_xpvars_t) < sizeof(class pugi::xpath_variable_set)) {
         TT_ERROR(
             "sizeof(tt_xpvars_t)[%d] < sizeof(class xpath_variable_set)[%d]",
-            sizeof(tt_xpvars_t),
-            sizeof(class pugi::xpath_variable_set));
+            sizeof(tt_xpvars_t), sizeof(class pugi::xpath_variable_set));
         return TT_FAIL;
     }
 
     if (sizeof(tt_xpnodes_t) < sizeof(class pugi::xpath_node_set)) {
         TT_ERROR("sizeof(tt_xpnodes_t)[%d] < sizeof(class xpath_node_set)[%d]",
-                 sizeof(tt_xpnodes_t),
-                 sizeof(class pugi::xpath_node_set));
+                 sizeof(tt_xpnodes_t), sizeof(class pugi::xpath_node_set));
         return TT_FAIL;
     }
 

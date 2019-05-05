@@ -48,18 +48,12 @@ TT_TEST_ROUTINE_DECLARE(case_ptr_stack)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(stack_case)
 
-TT_TEST_CASE(
-    "case_stack", "testing stack", case_stack, NULL, NULL, NULL, NULL, NULL)
+TT_TEST_CASE("case_stack", "testing stack", case_stack, NULL, NULL, NULL, NULL,
+             NULL)
 ,
 
-    TT_TEST_CASE("case_ptr_stack",
-                 "testing ptr stack",
-                 case_ptr_stack,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_ptr_stack", "testing ptr stack", case_ptr_stack, NULL,
+                 NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(stack_case)
     // =========================================
@@ -102,9 +96,7 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_TEST_CASE_ENTER()
     // test start
 
-    for (i = 0; i < __q_size; ++i) {
-        v[i] = i;
-    }
+    for (i = 0; i < __q_size; ++i) { v[i] = i; }
 
     tt_stack_attr_default(&attr);
     attr.obj_per_frame = __qf_size;
@@ -196,9 +188,7 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_stack)
     TT_TEST_CASE_ENTER()
     // test start
 
-    for (i = 0; i < __q_size; ++i) {
-        v[i] = i;
-    }
+    for (i = 0; i < __q_size; ++i) { v[i] = i; }
 
     tt_ptrstk_init(&q, NULL);
     tt_ptrstk_clear(&q);
@@ -212,9 +202,7 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_stack)
         tt_ptrstk_iter_t pos;
         tt_ptrstk_iter(&q, &pos);
         i = 0;
-        while (tt_ptrstk_iter_next(&pos) != NULL) {
-            ++i;
-        }
+        while (tt_ptrstk_iter_next(&pos) != NULL) { ++i; }
         TT_UT_EQUAL(i, 0, "");
     }
 

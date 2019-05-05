@@ -59,8 +59,7 @@ tt_inline tt_s32_t tt_string_cmp(IN tt_string_t *a, IN const tt_char_t *b)
 // return false if [from, from+len) exceed either a or b
 tt_export tt_bool_t tt_string_equal_range(IN tt_string_t *a,
                                           IN const tt_char_t *b,
-                                          IN tt_u32_t from,
-                                          IN tt_u32_t len);
+                                          IN tt_u32_t from, IN tt_u32_t len);
 
 tt_export tt_s32_t tt_string_ncasecmp(IN tt_string_t *a, IN const tt_char_t *b);
 
@@ -72,24 +71,20 @@ tt_export void tt_string_swap(IN tt_string_t *a, IN tt_string_t *b);
 tt_export tt_u32_t tt_string_find(IN tt_string_t *s,
                                   IN const tt_char_t *substr);
 
-tt_export tt_u32_t tt_string_findfrom(IN tt_string_t *s,
-                                      IN tt_u32_t from,
+tt_export tt_u32_t tt_string_findfrom(IN tt_string_t *s, IN tt_u32_t from,
                                       IN const tt_char_t *substr);
 
 tt_export tt_u32_t tt_string_find_c(IN tt_string_t *s, IN tt_char_t c);
 
-tt_export tt_u32_t tt_string_findfrom_c(IN tt_string_t *s,
-                                        IN tt_u32_t from,
+tt_export tt_u32_t tt_string_findfrom_c(IN tt_string_t *s, IN tt_u32_t from,
                                         IN tt_char_t c);
 
 tt_export tt_u32_t tt_string_rfind_c(IN tt_string_t *s, IN tt_char_t c);
 
-tt_export tt_u32_t tt_string_rfindfrom_c(IN tt_string_t *s,
-                                         IN tt_u32_t from,
+tt_export tt_u32_t tt_string_rfindfrom_c(IN tt_string_t *s, IN tt_u32_t from,
                                          IN tt_char_t c);
 
-tt_export void tt_string_remove_range(IN tt_string_t *s,
-                                      IN tt_u32_t from,
+tt_export void tt_string_remove_range(IN tt_string_t *s, IN tt_u32_t from,
                                       IN tt_u32_t len);
 
 tt_export void tt_string_remove_headto(IN tt_string_t *s, IN tt_u32_t to);
@@ -117,17 +112,14 @@ tt_export tt_result_t tt_string_append_n(IN OUT tt_string_t *s,
 tt_export tt_result_t tt_string_append_c(IN OUT tt_string_t *s, IN tt_char_t c);
 
 tt_export tt_result_t tt_string_append_rep(IN OUT tt_string_t *s,
-                                           IN tt_char_t c,
-                                           IN tt_u32_t c_num);
+                                           IN tt_char_t c, IN tt_u32_t c_num);
 
 tt_export tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
                                            IN const tt_char_t *substr,
-                                           IN tt_u32_t from,
-                                           IN tt_u32_t len);
+                                           IN tt_u32_t from, IN tt_u32_t len);
 
 tt_export tt_result_t tt_string_append_f(IN OUT tt_string_t *s,
-                                         IN const tt_char_t *format,
-                                         ...);
+                                         IN const tt_char_t *format, ...);
 
 tt_export tt_bool_t tt_string_startwith(IN tt_string_t *s,
                                         IN const tt_char_t *substr);
@@ -139,8 +131,7 @@ tt_export tt_bool_t tt_string_endwith(IN tt_string_t *s,
 
 tt_export tt_bool_t tt_string_endwith_c(IN tt_string_t *s, IN tt_char_t c);
 
-tt_export tt_result_t tt_string_substr(IN tt_string_t *s,
-                                       IN tt_u32_t from,
+tt_export tt_result_t tt_string_substr(IN tt_string_t *s, IN tt_u32_t from,
                                        IN tt_u32_t len,
                                        OUT tt_string_t *substr);
 
@@ -158,12 +149,10 @@ tt_export void tt_string_toupper(IN OUT tt_string_t *s);
 
 tt_export void tt_string_trim(IN OUT tt_string_t *s);
 
-tt_export tt_result_t tt_string_insert(IN OUT tt_string_t *s,
-                                       IN tt_u32_t from,
+tt_export tt_result_t tt_string_insert(IN OUT tt_string_t *s, IN tt_u32_t from,
                                        IN const tt_char_t *substr);
 
 tt_export tt_result_t tt_string_insert_c(IN OUT tt_string_t *s,
-                                         IN tt_u32_t from,
-                                         IN tt_char_t c);
+                                         IN tt_u32_t from, IN tt_char_t c);
 
 #endif /* __TT_STRING_COMMON__ */

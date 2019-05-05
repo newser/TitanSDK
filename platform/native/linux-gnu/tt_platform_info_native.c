@@ -81,9 +81,7 @@ tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num)
     do {
         tt_u32_t i, n;
 
-        if (tt_g_numa_node_id == TT_NUMA_NODE_ID_UNSPECIFIED) {
-            break;
-        }
+        if (tt_g_numa_node_id == TT_NUMA_NODE_ID_UNSPECIFIED) { break; }
 
         if (numa_all_cpus_ptr == NULL) {
             TT_ERROR("null numa_all_cpus_ptr\n");
@@ -92,9 +90,7 @@ tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num)
 
         n = numa_num_possible_cpus();
         for (i = 0; i < n; ++i) {
-            if (numa_bitmask_isbitset(numa_all_cpus_ptr, i)) {
-                ++__cpu_num;
-            }
+            if (numa_bitmask_isbitset(numa_all_cpus_ptr, i)) { ++__cpu_num; }
         }
         if (__cpu_num <= 0) {
             TT_ERROR("unknown cpu number\n");
@@ -139,9 +135,7 @@ tt_result_t tt_platform_numa_node_id_load(IN tt_profile_t *profile,
 
         // todo: read node_id from profile
 
-        if (node_id == TT_NUMA_NODE_ID_UNSPECIFIED) {
-            break;
-        }
+        if (node_id == TT_NUMA_NODE_ID_UNSPECIFIED) { break; }
 
         // if any error occurred during checking numa, we set numa node
         // id to unspecified rather than returning error
@@ -188,10 +182,8 @@ int __cpu_cache_line_size(int cpu_id, const char *cache_type)
 // x86 has 2 cache types: 1 for data, 1 for instruction
 #define __CACHE_TYPE_NUM 2
     while (cache_index < __CACHE_TYPE_NUM) {
-        sprintf(path,
-                "/sys/devices/system/cpu/cpu%d/cache/index%d/type",
-                cpu_id,
-                cache_index);
+        sprintf(path, "/sys/devices/system/cpu/cpu%d/cache/index%d/type",
+                cpu_id, cache_index);
         fp = fopen(path, "r");
         if (fp == NULL) {
             TT_ERROR("fail to open file[%s]\n", path);
@@ -206,9 +198,7 @@ int __cpu_cache_line_size(int cpu_id, const char *cache_type)
             return -1;
         }
 
-        if (strstr(path, cache_type) != NULL) {
-            break;
-        }
+        if (strstr(path, cache_type) != NULL) { break; }
 
         ++cache_index;
     }
@@ -219,8 +209,7 @@ int __cpu_cache_line_size(int cpu_id, const char *cache_type)
 
     sprintf(path,
             "/sys/devices/system/cpu/cpu%d/cache/index%d/coherency_line_size",
-            cpu_id,
-            cache_index);
+            cpu_id, cache_index);
     fp = fopen(path, "r");
     if (fp == NULL) {
         TT_ERROR("fail to open file[%s]\n", path);

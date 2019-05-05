@@ -47,7 +47,8 @@ struct tt_xpnodes_s;
 
 typedef tt_ptr_t tt_xnode_t;
 
-typedef enum {
+typedef enum
+{
     TT_XNODE_NULL,
     TT_XNODE_DOCUMENT,
     TT_XNODE_ELEMENT,
@@ -190,24 +191,18 @@ tt_export tt_result_t tt_xnode_set_double(IN tt_xnode_t xn,
 // xml path
 // ========================================
 
-tt_export void tt_xnode_select(IN tt_xnode_t xn,
-                               IN const tt_char_t *xp,
+tt_export void tt_xnode_select(IN tt_xnode_t xn, IN const tt_char_t *xp,
                                IN OPT struct tt_xpvars_s *xpvs,
-                               OUT tt_xnode_t *o_xn,
-                               OUT tt_xattr_t *o_xa);
+                               OUT tt_xnode_t *o_xn, OUT tt_xattr_t *o_xa);
 
-tt_export void tt_xnode_select_all(IN tt_xnode_t xn,
-                                   IN const tt_char_t *xp,
+tt_export void tt_xnode_select_all(IN tt_xnode_t xn, IN const tt_char_t *xp,
                                    IN OPT struct tt_xpvars_s *xpvs,
                                    OUT struct tt_xpnodes_s *xpns);
 
-tt_export void tt_xnode_selectxp(IN tt_xnode_t xn,
-                                 IN struct tt_xpath_s *xp,
-                                 OUT tt_xnode_t *o_xn,
-                                 OUT tt_xattr_t *o_xa);
+tt_export void tt_xnode_selectxp(IN tt_xnode_t xn, IN struct tt_xpath_s *xp,
+                                 OUT tt_xnode_t *o_xn, OUT tt_xattr_t *o_xa);
 
-tt_export void tt_xnode_selectxp_all(IN tt_xnode_t xn,
-                                     IN struct tt_xpath_s *xp,
+tt_export void tt_xnode_selectxp_all(IN tt_xnode_t xn, IN struct tt_xpath_s *xp,
                                      OUT struct tt_xpnodes_s *xpns);
 
 tt_export tt_bool_t tt_xnode_eval_bool(IN tt_xnode_t xn,
@@ -218,7 +213,6 @@ tt_export tt_double_t tt_xnode_eval_number(IN tt_xnode_t xn,
 
 tt_export tt_u32_t tt_xnode_eval_cstr(IN tt_xnode_t xn,
                                       IN struct tt_xpath_s *xp,
-                                      OUT tt_char_t *buf,
-                                      IN tt_u32_t len);
+                                      OUT tt_char_t *buf, IN tt_u32_t len);
 
 #endif /* __TT_XML_NODE__ */

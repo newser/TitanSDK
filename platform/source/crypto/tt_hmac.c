@@ -42,15 +42,9 @@
 ////////////////////////////////////////////////////////////
 
 static mbedtls_md_type_t __hmac_type_map[TT_HMAC_TYPE_NUM] = {
-    MBEDTLS_MD_MD2,
-    MBEDTLS_MD_MD4,
-    MBEDTLS_MD_MD5,
-    MBEDTLS_MD_SHA1,
-    MBEDTLS_MD_SHA224,
-    MBEDTLS_MD_SHA256,
-    MBEDTLS_MD_SHA384,
-    MBEDTLS_MD_SHA512,
-    MBEDTLS_MD_RIPEMD160,
+    MBEDTLS_MD_MD2,    MBEDTLS_MD_MD4,    MBEDTLS_MD_MD5,
+    MBEDTLS_MD_SHA1,   MBEDTLS_MD_SHA224, MBEDTLS_MD_SHA256,
+    MBEDTLS_MD_SHA384, MBEDTLS_MD_SHA512, MBEDTLS_MD_RIPEMD160,
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,10 +55,8 @@ static mbedtls_md_type_t __hmac_type_map[TT_HMAC_TYPE_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_hmac_create(IN tt_hmac_t *hm,
-                           IN tt_hmac_type_t type,
-                           IN tt_u8_t *key,
-                           IN tt_u32_t key_len)
+tt_result_t tt_hmac_create(IN tt_hmac_t *hm, IN tt_hmac_type_t type,
+                           IN tt_u8_t *key, IN tt_u32_t key_len)
 {
     TT_ASSERT(hm != NULL);
     TT_ASSERT(TT_HMAC_TYPE_VALID(type));
@@ -97,9 +89,7 @@ tt_result_t tt_hmac_final_buf(IN tt_hmac_t *hm, OUT tt_buf_t *output)
 {
     tt_u32_t size = tt_hmac_size(hm);
 
-    if (!TT_OK(tt_buf_reserve(output, size))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_buf_reserve(output, size))) { return TT_FAIL; }
 
     if (mbedtls_md_hmac_finish(&hm->ctx, TT_BUF_RPOS(output)) != 0) {
         TT_ERROR("hm final buf failed");
@@ -110,19 +100,14 @@ tt_result_t tt_hmac_final_buf(IN tt_hmac_t *hm, OUT tt_buf_t *output)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_hmac_gather(IN tt_hmac_type_t type,
-                           IN tt_u8_t *key,
-                           IN tt_u32_t key_len,
-                           IN tt_blob_t *input,
-                           IN tt_u32_t input_num,
-                           OUT tt_u8_t *output)
+tt_result_t tt_hmac_gather(IN tt_hmac_type_t type, IN tt_u8_t *key,
+                           IN tt_u32_t key_len, IN tt_blob_t *input,
+                           IN tt_u32_t input_num, OUT tt_u8_t *output)
 {
     tt_hmac_t hm;
     tt_u32_t i;
 
-    if (!TT_OK(tt_hmac_create(&hm, type, key, key_len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_hmac_create(&hm, type, key, key_len))) { return TT_FAIL; }
 
     for (i = 0; i < input_num; ++i) {
         if (!TT_OK(tt_hmac_update(&hm, input[i].addr, input[i].len))) {

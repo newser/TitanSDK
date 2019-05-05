@@ -50,7 +50,8 @@ this file specifies interfaces of timer
 struct tt_fiber_s;
 struct tt_tmr_mgr_s;
 
-typedef enum {
+typedef enum
+{
     TT_TMR_INACTIVE,
     TT_TMR_ACTIVE,
     TT_TMR_ORPHAN,
@@ -103,8 +104,7 @@ create a timer
 - accessing the timer outside the thread where the timer manager is running
   is not consistent as the manager may be changing it
 */
-tt_export tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
-                                  IN tt_u32_t ev,
+tt_export tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms, IN tt_u32_t ev,
                                   IN OPT void *param);
 
 /**

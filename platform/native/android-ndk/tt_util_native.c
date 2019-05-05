@@ -48,8 +48,8 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_epoll(
-    IN int epfd, IN int op, IN int fd, IN uint32_t events, IN void *ptr)
+tt_result_t tt_epoll(IN int epfd, IN int op, IN int fd, IN uint32_t events,
+                     IN void *ptr)
 {
     struct epoll_event event;
 

@@ -49,7 +49,9 @@
 static void __worker_io(IN tt_io_ev_t *ev);
 
 static tt_worker_io_t __io_handler[TT_IO_NUM] = {
-    __worker_io, NULL, tt_fs_worker_io,
+    __worker_io,
+    NULL,
+    tt_fs_worker_io,
 };
 
 ////////////////////////////////////////////////////////////
@@ -62,8 +64,7 @@ static tt_result_t __io_worker_routine(IN void *param);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_io_worker_create(IN tt_io_worker_t *w,
-                                IN tt_iowg_t *wg,
+tt_result_t tt_io_worker_create(IN tt_io_worker_t *w, IN tt_iowg_t *wg,
                                 IN OPT tt_io_worker_attr_t *attr)
 {
     tt_io_worker_attr_t __attr;
@@ -90,9 +91,7 @@ void tt_io_worker_destroy(IN tt_io_worker_t *w)
 {
     TT_ASSERT(w != NULL);
 
-    if (w->thread != NULL) {
-        tt_thread_wait(w->thread);
-    }
+    if (w->thread != NULL) { tt_thread_wait(w->thread); }
 }
 
 void tt_io_worker_attr_default(IN tt_io_worker_attr_t *attr)

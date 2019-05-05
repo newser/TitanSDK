@@ -57,8 +57,7 @@ typedef struct tt_x509crl_s
 
 tt_export void tt_x509crl_init(IN tt_x509crl_t *x);
 
-tt_export tt_result_t tt_x509crl_add(IN tt_x509crl_t *x,
-                                     IN tt_u8_t *buf,
+tt_export tt_result_t tt_x509crl_add(IN tt_x509crl_t *x, IN tt_u8_t *buf,
                                      IN tt_u32_t len);
 
 tt_export tt_result_t tt_x509crl_add_file(IN tt_x509crl_t *x,
@@ -66,8 +65,7 @@ tt_export tt_result_t tt_x509crl_add_file(IN tt_x509crl_t *x,
 
 tt_export void tt_x509crl_destroy(IN tt_x509crl_t *x);
 
-tt_export tt_u32_t tt_x509crl_dump(IN tt_x509crl_t *x,
-                                   IN tt_char_t *buf,
+tt_export tt_u32_t tt_x509crl_dump(IN tt_x509crl_t *x, IN tt_char_t *buf,
                                    IN tt_u32_t len);
 
 #endif /* __TT_X509_CRL__ */

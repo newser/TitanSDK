@@ -129,74 +129,31 @@ TT_TEST_ROUTINE_DECLARE(case_ssl_multhread)
 TT_TEST_CASE_LIST_DEFINE_BEGIN(ssl_io_case)
 
 #if 1
-TT_TEST_CASE("case_ssl_basic",
-             "ssl: basic io",
-             case_ssl_basic,
-             NULL,
-             __x509_prepare,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_ssl_basic", "ssl: basic io", case_ssl_basic, NULL,
+             __x509_prepare, NULL, NULL, NULL)
 ,
 #endif
 
 #if 1
-    TT_TEST_CASE("case_ssl_ver",
-                 "ssl: version",
-                 case_ssl_ver,
-                 NULL,
-                 __x509_prepare,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_ssl_ver", "ssl: version", case_ssl_ver, NULL,
+                 __x509_prepare, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_ssl_auth",
-                 "ssl: authentication",
-                 case_ssl_auth,
-                 NULL,
-                 __x509_prepare,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_ssl_auth", "ssl: authentication", case_ssl_auth, NULL,
+                 __x509_prepare, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_ssl_alpn",
-                 "ssl: alpn",
-                 case_ssl_alpn,
-                 NULL,
-                 __x509_prepare,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_ssl_alpn", "ssl: alpn", case_ssl_alpn, NULL,
+                 __x509_prepare, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_ssl_resume",
-                 "ssl: session resume",
-                 case_ssl_resume,
-                 NULL,
-                 __x509_prepare,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_ssl_resume", "ssl: session resume", case_ssl_resume,
+                 NULL, __x509_prepare, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_ssl_ticket",
-                 "ssl: session ticket",
-                 case_ssl_ticket,
-                 NULL,
-                 __x509_prepare,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_ssl_ticket", "ssl: session ticket", case_ssl_ticket,
+                 NULL, __x509_prepare, NULL, NULL, NULL),
 
 #endif
 
-    TT_TEST_CASE("case_ssl_multhread",
-                 "ssl: multi thread",
-                 case_ssl_multhread,
-                 NULL,
-                 __x509_prepare,
-                 NULL,
-                 NULL,
-                 NULL),
-
+    TT_TEST_CASE("case_ssl_multhread", "ssl: multi thread", case_ssl_multhread,
+                 NULL, __x509_prepare, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(ssl_io_case)
     // =========================================
@@ -374,9 +331,7 @@ static tt_result_t __f_svr(IN void *param)
            TT_E_END) {
         tt_u32_t total = n;
 #ifdef __TCP_DETAIL
-        if (n < sizeof(buf)) {
-            TT_INFO("server recv %d", n);
-        }
+        if (n < sizeof(buf)) { TT_INFO("server recv %d", n); }
 #endif
         __svr_recvd += n;
         if (fev != NULL) {
@@ -395,9 +350,7 @@ static tt_result_t __f_svr(IN void *param)
             now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
             now = labs((long)now);
             now = tt_time_ref2ms(now);
-            if (now > __ut_ssl_max_diff) {
-                __ut_ssl_max_diff = now;
-            }
+            if (now > __ut_ssl_max_diff) { __ut_ssl_max_diff = now; }
 
             now = tt_rand_u32() % 3;
             if (now == 0) {
@@ -412,8 +365,7 @@ static tt_result_t __f_svr(IN void *param)
         }
 
         if (tt_rand_u32() % 100 == 0) {
-            tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
-                                0,
+            tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0,
                                 (void *)(tt_uintptr_t)tt_time_ref());
             if (tmr == NULL) {
                 __ssl_err_line = __LINE__;
@@ -433,9 +385,7 @@ static tt_result_t __f_svr(IN void *param)
                 return TT_FAIL;
             }
 #ifdef __TCP_DETAIL
-            if (n < sizeof(buf)) {
-                TT_INFO("server recv %d", n);
-            }
+            if (n < sizeof(buf)) { TT_INFO("server recv %d", n); }
 #endif
             __svr_recvd += n;
 
@@ -455,9 +405,7 @@ static tt_result_t __f_svr(IN void *param)
                 now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
                 now = labs((long)now);
                 now = tt_time_ref2ms(now);
-                if (now > __ut_ssl_max_diff) {
-                    __ut_ssl_max_diff = now;
-                }
+                if (now > __ut_ssl_max_diff) { __ut_ssl_max_diff = now; }
 
                 now = tt_rand_u32() % 3;
                 if (now == 0) {
@@ -473,8 +421,7 @@ static tt_result_t __f_svr(IN void *param)
             }
 
             if (tt_rand_u32() % 100 == 0) {
-                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
-                                    0,
+                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0,
                                     (void *)(tt_uintptr_t)tt_time_ref());
                 if (tmr == NULL) {
                     __ssl_err_line = __LINE__;
@@ -493,9 +440,7 @@ static tt_result_t __f_svr(IN void *param)
             return TT_FAIL;
         }
 #ifdef __TCP_DETAIL
-        if (n < sizeof(buf)) {
-            TT_INFO("server send %d", n);
-        }
+        if (n < sizeof(buf)) { TT_INFO("server send %d", n); }
 #endif
         __svr_sent += n;
         if (n != sizeof(buf)) {
@@ -513,11 +458,8 @@ static tt_result_t __f_svr(IN void *param)
 #endif
 
     // may be some fev and tmr left, receive them
-    while (TT_OK(ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr))) {
-    }
-    if (ret != TT_E_END) {
-        __ssl_err_line = __LINE__;
-    }
+    while (TT_OK(ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr))) {}
+    if (ret != TT_E_END) { __ssl_err_line = __LINE__; }
 
 #ifdef __TCP_DETAIL
     TT_INFO("server recv end");
@@ -576,9 +518,7 @@ static tt_result_t __f_cli(IN void *param)
             return TT_FAIL;
         }
 #ifdef __TCP_DETAIL
-        if (n < sizeof(buf)) {
-            TT_INFO("client sent %d", n);
-        }
+        if (n < sizeof(buf)) { TT_INFO("client sent %d", n); }
 #endif
         __cli_sent += n;
         if (n != sizeof(buf)) {
@@ -610,9 +550,7 @@ static tt_result_t __f_cli(IN void *param)
                 return TT_FAIL;
             }
 #ifdef __TCP_DETAIL
-            if (n < sizeof(buf)) {
-                TT_INFO("client recv %d", n);
-            }
+            if (n < sizeof(buf)) { TT_INFO("client recv %d", n); }
 #endif
             __cli_recvd += n;
 
@@ -621,9 +559,7 @@ static tt_result_t __f_cli(IN void *param)
                 now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
                 now = labs((long)now);
                 now = tt_time_ref2ms(now);
-                if (now > __ut_ssl_max_diff) {
-                    __ut_ssl_max_diff = now;
-                }
+                if (now > __ut_ssl_max_diff) { __ut_ssl_max_diff = now; }
 
                 now = tt_rand_u32() % 3;
                 if (now == 0) {
@@ -639,8 +575,7 @@ static tt_result_t __f_cli(IN void *param)
             }
 
             if (tt_rand_u32() % 100 == 0) {
-                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
-                                    0,
+                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0,
                                     (void *)(tt_uintptr_t)tt_time_ref());
                 if (tmr == NULL) {
                     __ssl_err_line = __LINE__;
@@ -662,8 +597,7 @@ static tt_result_t __f_cli(IN void *param)
     TT_INFO("client shutdown");
 #endif
 
-    while (tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr) != TT_E_END) {
-    }
+    while (tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr) != TT_E_END) {}
 #ifdef __TCP_DETAIL
     TT_INFO("client recv end");
 #endif
@@ -696,17 +630,13 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_basic)
     __ssl_err_line = 0;
     tt_atomic_s64_set(&__io_num, 0);
 
-    ret = tt_ssl_config_create(&sc_cli_1,
-                               TT_SSL_CLIENT,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_cli_1, TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_auth(&sc_cli_1, TT_SSL_AUTH_REQUIRED);
 
-    ret = tt_ssl_config_create(&sc_svr_1,
-                               TT_SSL_SERVER,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_svr_1, TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_extended_master_secret(&sc_svr_1, TT_FALSE);
 
@@ -739,10 +669,7 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_basic)
         "ssl: %f MB/s, cli sent/recv: %d/%d, svr sent/recv: %d/%d, time diff: "
         "%d",
         ((float)tt_atomic_s64_get(&__io_num) / (1 << 20)) * 1000 / dur,
-        __cli_sent,
-        __cli_recvd,
-        __svr_sent,
-        __svr_recvd,
+        __cli_sent, __cli_recvd, __svr_sent, __svr_recvd,
         (tt_s32_t)__ut_ssl_max_diff);
 
     tt_x509cert_destroy(&ca);
@@ -869,17 +796,13 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_ver)
     __ssl_err_line = 0;
     tt_atomic_s64_set(&__io_num, 0);
 
-    ret = tt_ssl_config_create(&sc_cli_1,
-                               TT_SSL_CLIENT,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_cli_1, TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_version(&sc_cli_1, TT_TLS_V1_1, TT_TLS_V1_1);
 
-    ret = tt_ssl_config_create(&sc_svr_1,
-                               TT_SSL_SERVER,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_svr_1, TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_version(&sc_svr_1, TT_TLS_V1_2, TT_TLS_V1_2);
 
@@ -929,10 +852,8 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_ver)
     TT_TEST_CASE_LEAVE()
 }
 
-tt_result_t __ut_on_sni(IN struct tt_ssl_s *ssl,
-                        IN const tt_u8_t *sni,
-                        IN tt_u32_t len,
-                        IN void *param)
+tt_result_t __ut_on_sni(IN struct tt_ssl_s *ssl, IN const tt_u8_t *sni,
+                        IN tt_u32_t len, IN void *param)
 {
     if (len != sizeof("child-1") - 1 || tt_memcmp(sni, "child-1", len) != 0) {
         return TT_FAIL;
@@ -960,17 +881,13 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_auth)
     tt_atomic_s64_set(&__io_num, 0);
     __ut_server_name = "child-1";
 
-    ret = tt_ssl_config_create(&sc_cli_1,
-                               TT_SSL_CLIENT,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_cli_1, TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_auth(&sc_cli_1, TT_SSL_AUTH_NONE);
 
-    ret = tt_ssl_config_create(&sc_svr_1,
-                               TT_SSL_SERVER,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_svr_1, TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_auth(&sc_svr_1, TT_SSL_AUTH_REQUIRED);
 
@@ -1068,17 +985,13 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_alpn)
     tt_atomic_s64_set(&__io_num, 0);
     __ut_alpn = "h2";
 
-    ret = tt_ssl_config_create(&sc_cli_1,
-                               TT_SSL_CLIENT,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_cli_1, TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_alpn(&sc_cli_1, cli_alpn);
 
-    ret = tt_ssl_config_create(&sc_svr_1,
-                               TT_SSL_SERVER,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_svr_1, TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_alpn(&sc_svr_1, svr_alpn2);
 
@@ -1154,9 +1067,7 @@ static tt_result_t __f_svr_acc(IN void *param)
            TT_E_END) {
         tt_u32_t total = n;
 #ifdef __TCP_DETAIL
-        if (n < sizeof(buf)) {
-            TT_INFO("server recv %d", n);
-        }
+        if (n < sizeof(buf)) { TT_INFO("server recv %d", n); }
 #endif
 
         /*
@@ -1170,9 +1081,7 @@ static tt_result_t __f_svr_acc(IN void *param)
                 return TT_FAIL;
             }
 #ifdef __TCP_DETAIL
-            if (n < sizeof(buf)) {
-                TT_INFO("server recv %d", n);
-            }
+            if (n < sizeof(buf)) { TT_INFO("server recv %d", n); }
 #endif
 
             total += n;
@@ -1185,9 +1094,7 @@ static tt_result_t __f_svr_acc(IN void *param)
             return TT_FAIL;
         }
 #ifdef __TCP_DETAIL
-        if (n < sizeof(buf)) {
-            TT_INFO("server send %d", n);
-        }
+        if (n < sizeof(buf)) { TT_INFO("server send %d", n); }
 #endif
         __svr_sent += n;
         if (n != sizeof(buf)) {
@@ -1205,11 +1112,8 @@ static tt_result_t __f_svr_acc(IN void *param)
 #endif
 
     // may be some fev and tmr left, receive them
-    while (TT_OK(ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr))) {
-    }
-    if (ret != TT_E_END) {
-        __ssl_err_line = __LINE__;
-    }
+    while (TT_OK(ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr))) {}
+    if (ret != TT_E_END) { __ssl_err_line = __LINE__; }
 
 #ifdef __TCP_DETAIL
     TT_INFO("server recv end");
@@ -1306,9 +1210,7 @@ static tt_result_t __f_cli_mul(IN void *param)
                 return TT_FAIL;
             }
 #ifdef __TCP_DETAIL
-            if (n < sizeof(buf)) {
-                TT_INFO("client sent %d", n);
-            }
+            if (n < sizeof(buf)) { TT_INFO("client sent %d", n); }
 #endif
             __cli_sent += n;
             if (n != sizeof(buf)) {
@@ -1324,9 +1226,7 @@ static tt_result_t __f_cli_mul(IN void *param)
                     return TT_FAIL;
                 }
 #ifdef __TCP_DETAIL
-                if (n < sizeof(buf)) {
-                    TT_INFO("client recv %d", n);
-                }
+                if (n < sizeof(buf)) { TT_INFO("client recv %d", n); }
 #endif
                 __cli_recvd += n;
 
@@ -1374,17 +1274,13 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_resume)
 
     __ssl_err_line = 0;
 
-    ret = tt_ssl_config_create(&sc_cli_1,
-                               TT_SSL_CLIENT,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_cli_1, TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_cache(&sc_cli_1, TT_FALSE, NULL);
 
-    ret = tt_ssl_config_create(&sc_svr_1,
-                               TT_SSL_SERVER,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_svr_1, TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_encrypt_then_mac(&sc_svr_1, TT_FALSE);
 
@@ -1456,17 +1352,13 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_ticket)
     __ssl_err_line = 0;
     tt_atomic_s64_set(&__io_num, 0);
 
-    ret = tt_ssl_config_create(&sc_cli_1,
-                               TT_SSL_CLIENT,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_cli_1, TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_cache(&sc_cli_1, TT_TRUE, NULL);
 
-    ret = tt_ssl_config_create(&sc_svr_1,
-                               TT_SSL_SERVER,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_svr_1, TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
 
     tt_x509cert_init(&cert);
@@ -1533,17 +1425,13 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_multhread)
 
     __ssl_err_line = 0;
 
-    ret = tt_ssl_config_create(&sc_cli_1,
-                               TT_SSL_CLIENT,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_cli_1, TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_cache(&sc_cli_1, TT_TRUE, NULL);
 
-    ret = tt_ssl_config_create(&sc_svr_1,
-                               TT_SSL_SERVER,
-                               TT_SSL_TRANSPORT_STREAM,
-                               TT_SSL_PRESET_DEFAULT);
+    ret = tt_ssl_config_create(&sc_svr_1, TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM, TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_cache(&sc_svr_1, TT_TRUE, NULL);
 

@@ -71,72 +71,30 @@ TT_TEST_ROUTINE_DECLARE(case_param_mgr)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(param_case)
 
-TT_TEST_CASE(
-    "case_clinode", "config node", case_param, NULL, NULL, NULL, NULL, NULL)
+TT_TEST_CASE("case_clinode", "config node", case_param, NULL, NULL, NULL, NULL,
+             NULL)
 ,
 
-    TT_TEST_CASE("case_param_u32",
-                 "config node, u32",
-                 case_param_u32,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_u32", "config node, u32", case_param_u32, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_param_s32",
-                 "config node, s32",
-                 case_param_s32,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_s32", "config node, s32", case_param_s32, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_param_str",
-                 "config node, string",
-                 case_param_str,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_str", "config node, string", case_param_str, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_param_dir",
-                 "config node, group",
-                 case_param_dir,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_dir", "config node, group", case_param_dir, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_param_grp_ar",
-                 "config node, group add/rm",
-                 case_param_grp_ar,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_grp_ar", "config node, group add/rm",
+                 case_param_grp_ar, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_param_bool",
-                 "config node, bool",
-                 case_param_bool,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_param_bool", "config node, bool", case_param_bool, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_param_mgr",
-                 "param manger",
-                 case_param_mgr,
-                 NULL,
-                 __ut_html_spa_enter,
-                 NULL,
-                 __ut_html_spa_exit,
-                 NULL),
+    TT_TEST_CASE("case_param_mgr", "param manger", case_param_mgr, NULL,
+                 __ut_html_spa_enter, NULL, __ut_html_spa_exit, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(param_case)
     // =========================================
@@ -238,8 +196,7 @@ TT_TEST_CASE(
 
     tt_buf_clear(&out);
     TT_UT_SUCCESS(__param_cli_line(cnode, NULL, 0, &out), "");
-    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--    dir       -name-/    info"),
-                0,
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--    dir       -name-/    info"), 0,
                 "");
 
     tt_buf_clear(&out);
@@ -248,11 +205,7 @@ TT_TEST_CASE(
 
     tt_param_destroy(cnode);
 
-    cnode = tt_param_create(1,
-                            TT_PARAM_STRING,
-                            "name?name",
-                            &itf,
-                            (void *)1,
+    cnode = tt_param_create(1, TT_PARAM_STRING, "name?name", &itf, (void *)1,
                             &attr);
     TT_UT_NULL(cnode, "");
 
@@ -318,8 +271,7 @@ static void __s32_post_set(IN struct tt_param_s *cnode, IN tt_s32_t new_val)
 }
 
 static tt_bool_t __str_pre_set(IN struct tt_param_s *cnode,
-                               IN tt_char_t *new_val,
-                               tt_u32_t len)
+                               IN tt_char_t *new_val, tt_u32_t len)
 {
     //    tt_string_t *s = (tt_string_t *)cnode->opaque;
     //
@@ -331,8 +283,7 @@ static tt_bool_t __str_pre_set(IN struct tt_param_s *cnode,
     return __ut_cb_allow;
 }
 
-static void __str_post_set(IN struct tt_param_s *cnode,
-                           IN tt_char_t *new_val,
+static void __str_post_set(IN struct tt_param_s *cnode, IN tt_char_t *new_val,
                            tt_u32_t len)
 {
     __ut_cb_post_called = TT_TRUE;
@@ -639,7 +590,6 @@ TT_TEST_ROUTINE_DEFINE(case_param_s32)
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-
     {
         tt_buf_clear(&out);
         ret = __param_cli_line(cnode, " ", 0, &out);
@@ -753,7 +703,9 @@ TT_TEST_ROUTINE_DEFINE(case_param_str)
     const tt_char_t *max_s32 = "2147483647";
     const tt_char_t *min_s32 = "-2147483648";
     tt_char_t invalid_str[] = {
-        'a', 'b', 0x1,
+        'a',
+        'b',
+        0x1,
     };
     const tt_char_t *invalid_s32_2 = "-2147483649";
     const tt_char_t *test_str = "test string";
@@ -1049,8 +1001,7 @@ static tt_s32_t __ut_s32;
 static tt_string_t __ut_str;
 
 static tt_param_t *__ut_create_child(IN struct tt_param_dir_s *cgrp,
-                                     IN tt_blob_t *name,
-                                     IN tt_blob_t *val)
+                                     IN tt_blob_t *name, IN tt_blob_t *val)
 {
     tt_param_t *cnode = NULL;
 

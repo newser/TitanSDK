@@ -51,10 +51,8 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_zipfile_t *tt_zipfile_open(IN tt_zip_t *z,
-                              IN const tt_char_t *name,
-                              IN tt_u32_t flag,
-                              IN OPT tt_zipfile_attr_t *attr)
+tt_zipfile_t *tt_zipfile_open(IN tt_zip_t *z, IN const tt_char_t *name,
+                              IN tt_u32_t flag, IN OPT tt_zipfile_attr_t *attr)
 {
     tt_zipfile_attr_t __attr;
     zip_file_t *zf;
@@ -80,8 +78,7 @@ tt_zipfile_t *tt_zipfile_open(IN tt_zip_t *z,
     return zf;
 }
 
-tt_zipfile_t *tt_zipfile_open_index(IN tt_zip_t *z,
-                                    IN tt_u32_t index,
+tt_zipfile_t *tt_zipfile_open_index(IN tt_zip_t *z, IN tt_u32_t index,
                                     IN tt_u32_t flag,
                                     IN OPT tt_zipfile_attr_t *attr)
 {
@@ -123,10 +120,8 @@ void tt_zipfile_attr_default(IN tt_zipfile_attr_t *attr)
     attr->password = NULL;
 }
 
-tt_result_t tt_zipfile_read(IN tt_zipfile_t *zf,
-                            OUT tt_u8_t *buf,
-                            IN tt_u32_t len,
-                            OUT tt_u32_t *read_len)
+tt_result_t tt_zipfile_read(IN tt_zipfile_t *zf, OUT tt_u8_t *buf,
+                            IN tt_u32_t len, OUT tt_u32_t *read_len)
 {
     zip_int64_t n = zip_fread(zf, buf, len);
     if (n > 0) {

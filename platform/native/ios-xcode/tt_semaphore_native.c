@@ -52,14 +52,11 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem,
-                              IN tt_u32_t count,
+tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t count,
                               IN tt_sem_attr_t *attr)
 {
-    kern_return_t r = semaphore_create(mach_task_self(),
-                                       &sys_sem->sem,
-                                       SYNC_POLICY_FIFO,
-                                       count);
+    kern_return_t r = semaphore_create(mach_task_self(), &sys_sem->sem,
+                                       SYNC_POLICY_FIFO, count);
     if (r == KERN_SUCCESS) {
         return TT_SUCCESS;
     } else {
@@ -84,7 +81,8 @@ tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_s64_t wait_ms)
             return TT_TRUE;
         } /*else if (r == KERN_ABORTED) {
             goto again1;
-        }*/ else {
+        }*/
+        else {
             TT_FATAL("semaphore_wait fail: %d[%s]", r, mach_error_string(r));
             tt_throw_exception_ntv(NULL);
             return TT_FALSE;
@@ -102,7 +100,8 @@ tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_s64_t wait_ms)
             return TT_TRUE;
         } /*else if (r == KERN_ABORTED) {
            goto again2;
-        }*/ else if (r == KERN_OPERATION_TIMED_OUT) {
+        }*/
+        else if (r == KERN_OPERATION_TIMED_OUT) {
             return TT_FALSE;
         } else {
             TT_FATAL("semaphore_wait fail: %d[%s]", r, mach_error_string(r));
@@ -123,7 +122,8 @@ tt_bool_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem)
         return TT_TRUE;
     } /*else if (r == KERN_ABORTED) {
        goto again;
-       }*/ else if (r == KERN_OPERATION_TIMED_OUT) {
+       }*/
+    else if (r == KERN_OPERATION_TIMED_OUT) {
         return TT_FALSE;
     } else {
         TT_FATAL("semaphore_wait fail: %d[%s]", r, mach_error_string(r));

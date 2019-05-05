@@ -54,10 +54,8 @@ static void __cte_destroy(IN tt_http_contype_entry_t *e);
 static void __cte_clear(IN tt_http_contype_entry_t *e);
 
 static tt_result_t __cte_set(IN tt_http_contype_entry_t *e,
-                             IN const tt_char_t *name,
-                             IN tt_u32_t name_len,
-                             IN const tt_char_t *ext,
-                             IN tt_u32_t ext_len);
+                             IN const tt_char_t *name, IN tt_u32_t name_len,
+                             IN const tt_char_t *ext, IN tt_u32_t ext_len);
 
 static tt_result_t __cte_add_dynamic(IN tt_http_contype_entry_t *e,
                                      IN tt_ptrhmap_t *name_map,
@@ -68,8 +66,7 @@ static tt_result_t __cte_add_static(IN tt_http_contype_entry_t *e,
                                     IN tt_ptrhmap_t *ext_map);
 
 static void __cte_remove(IN tt_http_contype_entry_t *e,
-                         IN tt_ptrhmap_t *name_map,
-                         IN tt_ptrhmap_t *ext_map);
+                         IN tt_ptrhmap_t *name_map, IN tt_ptrhmap_t *ext_map);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -124,15 +121,13 @@ tt_result_t tt_http_contype_map_create(IN tt_http_contype_map_t *cm,
 
     cm->static_entry = NULL;
 
-    if (!TT_OK(tt_ptrhmap_create(&cm->name_map,
-                                 attr->name_slot_num,
+    if (!TT_OK(tt_ptrhmap_create(&cm->name_map, attr->name_slot_num,
                                  &attr->name_map_attr))) {
         goto fail;
     }
     __done |= __CMC_NAME;
 
-    if (!TT_OK(tt_ptrhmap_create(&cm->ext_map,
-                                 attr->ext_slot_num,
+    if (!TT_OK(tt_ptrhmap_create(&cm->ext_map, attr->ext_slot_num,
                                  &attr->ext_map_attr))) {
         goto fail;
     }
@@ -148,13 +143,9 @@ tt_result_t tt_http_contype_map_create(IN tt_http_contype_map_t *cm,
 
 fail:
 
-    if (__done & __CMC_NAME) {
-        tt_ptrhmap_destroy(&cm->name_map);
-    }
+    if (__done & __CMC_NAME) { tt_ptrhmap_destroy(&cm->name_map); }
 
-    if (__done & __CMC_SUFFIX) {
-        tt_ptrhmap_destroy(&cm->ext_map);
-    }
+    if (__done & __CMC_SUFFIX) { tt_ptrhmap_destroy(&cm->ext_map); }
 
     return TT_FAIL;
 }
@@ -276,9 +267,7 @@ tt_result_t tt_http_contype_map_add_n(IN tt_http_contype_map_t *cm,
     e = &cm->dynamic_entry[type];
 
     __cte_remove(e, &cm->name_map, &cm->ext_map);
-    if (!TT_OK(__cte_set(e, name, name_len, ext, ext_len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__cte_set(e, name, name_len, ext, ext_len))) { return TT_FAIL; }
     if (!TT_OK(__cte_add_dynamic(e, &cm->name_map, &cm->ext_map))) {
         __cte_clear(e);
         return TT_FAIL;
@@ -306,15 +295,11 @@ tt_http_contype_entry_t *tt_http_contype_map_find_type(
     TT_ASSERT(TT_HTTP_CONTYPE_VALID(type));
 
     e = &cm->dynamic_entry[type];
-    if (e->name != NULL) {
-        return e;
-    }
+    if (e->name != NULL) { return e; }
 
     if (cm->static_entry != NULL) {
         e = &cm->static_entry[type];
-        if (e->name != NULL) {
-            return e;
-        }
+        if (e->name != NULL) { return e; }
     }
 
     // try default if set
@@ -326,22 +311,17 @@ tt_http_contype_entry_t *tt_http_contype_map_find_type(
 }
 
 tt_http_contype_entry_t *tt_http_contype_map_find_name_n(
-    IN tt_http_contype_map_t *cm,
-    IN const tt_char_t *name,
+    IN tt_http_contype_map_t *cm, IN const tt_char_t *name,
     IN tt_u32_t name_len)
 {
     tt_http_contype_entry_t *e;
 
     TT_ASSERT(cm != NULL);
 
-    if ((name == NULL) || (name[0] == 0) || (name_len == 0)) {
-        return NULL;
-    }
+    if ((name == NULL) || (name[0] == 0) || (name_len == 0)) { return NULL; }
 
     e = tt_ptrhmap_find(&cm->name_map, (tt_u8_t *)name, name_len);
-    if (e != NULL) {
-        return e;
-    }
+    if (e != NULL) { return e; }
 
     if (TT_HTTP_CONTYPE_VALID(cm->default_type)) {
         return tt_http_contype_map_find_type(cm, cm->default_type);
@@ -357,14 +337,10 @@ tt_http_contype_entry_t *tt_http_contype_map_find_ext_n(
 
     TT_ASSERT(cm != NULL);
 
-    if ((ext == NULL) || (ext[0] == 0) || (ext_len == 0)) {
-        return NULL;
-    }
+    if ((ext == NULL) || (ext[0] == 0) || (ext_len == 0)) { return NULL; }
 
     e = tt_ptrhmap_find(&cm->ext_map, (tt_u8_t *)ext, ext_len);
-    if (e != NULL) {
-        return e;
-    }
+    if (e != NULL) { return e; }
 
     if (TT_HTTP_CONTYPE_VALID(cm->default_type)) {
         return tt_http_contype_map_find_type(cm, cm->default_type);
@@ -402,10 +378,8 @@ void __cte_clear(IN tt_http_contype_entry_t *e)
     }
 }
 
-tt_result_t __cte_set(IN tt_http_contype_entry_t *e,
-                      IN const tt_char_t *name,
-                      IN tt_u32_t name_len,
-                      IN const tt_char_t *ext,
+tt_result_t __cte_set(IN tt_http_contype_entry_t *e, IN const tt_char_t *name,
+                      IN tt_u32_t name_len, IN const tt_char_t *ext,
                       IN tt_u32_t ext_len)
 {
     tt_char_t *new_name, *new_ext;
@@ -530,8 +504,7 @@ tt_result_t __cte_add_static(IN tt_http_contype_entry_t *e,
     return TT_SUCCESS;
 }
 
-void __cte_remove(IN tt_http_contype_entry_t *e,
-                  IN tt_ptrhmap_t *name_map,
+void __cte_remove(IN tt_http_contype_entry_t *e, IN tt_ptrhmap_t *name_map,
                   IN tt_ptrhmap_t *ext_map)
 {
     // must use remove_pair
@@ -547,19 +520,15 @@ void __cte_remove(IN tt_http_contype_entry_t *e,
         end = ext + e->ext_len;
         while ((pos = tt_strchr(ext, ';')) != NULL) {
             if (ext < pos) {
-                tt_ptrhmap_remove_pair(ext_map,
-                                       (tt_u8_t *)ext,
-                                       (tt_u32_t)(pos - ext),
-                                       e);
+                tt_ptrhmap_remove_pair(ext_map, (tt_u8_t *)ext,
+                                       (tt_u32_t)(pos - ext), e);
             }
 
             ext = pos + 1;
         }
         if (ext < end) {
-            tt_ptrhmap_remove_pair(ext_map,
-                                   (tt_u8_t *)ext,
-                                   (tt_u32_t)(end - ext),
-                                   e);
+            tt_ptrhmap_remove_pair(ext_map, (tt_u8_t *)ext,
+                                   (tt_u32_t)(end - ext), e);
         }
     }
 }

@@ -55,8 +55,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_buf_create(IN tt_buf_t *buf,
-                          IN tt_u32_t size,
+tt_result_t tt_buf_create(IN tt_buf_t *buf, IN tt_u32_t size,
                           IN OPT tt_buf_attr_t *attr)
 {
     tt_buf_attr_t __attr;
@@ -67,9 +66,7 @@ tt_result_t tt_buf_create(IN tt_buf_t *buf,
         tt_buf_attr_default(&__attr);
         attr = &__attr;
     }
-    tt_memspg_init(&buf->mspg,
-                   attr->min_extend,
-                   attr->max_extend,
+    tt_memspg_init(&buf->mspg, attr->min_extend, attr->max_extend,
                    attr->max_limit);
 
     if (size < TT_BUF_INIT_SIZE) {
@@ -89,30 +86,21 @@ tt_result_t tt_buf_create(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_buf_create_copy(IN tt_buf_t *buf,
-                               IN tt_u8_t *data,
-                               IN tt_u32_t data_len,
-                               IN OPT tt_buf_attr_t *attr)
+tt_result_t tt_buf_create_copy(IN tt_buf_t *buf, IN tt_u8_t *data,
+                               IN tt_u32_t data_len, IN OPT tt_buf_attr_t *attr)
 {
-    if (!TT_OK(tt_buf_create(buf, data_len, attr))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_buf_create(buf, data_len, attr))) { return TT_FAIL; }
 
-    if (!TT_OK(tt_buf_put(buf, data, data_len))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_buf_put(buf, data, data_len))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_buf_create_nocopy(IN tt_buf_t *buf,
-                                 IN const tt_u8_t *data,
+tt_result_t tt_buf_create_nocopy(IN tt_buf_t *buf, IN const tt_u8_t *data,
                                  IN tt_u32_t data_len,
                                  IN OPT tt_buf_attr_t *attr)
 {
-    if (!TT_OK(tt_buf_create(buf, 0, attr))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_buf_create(buf, 0, attr))) { return TT_FAIL; }
 
     buf->p = (tt_u8_t *)data;
     buf->size = data_len;
@@ -165,9 +153,7 @@ void tt_buf_print_hexstr(IN tt_buf_t *buf, IN tt_u32_t flag)
     }
 
     hs = tt_malloc(len + 1);
-    if (hs == NULL) {
-        return;
-    }
+    if (hs == NULL) { return; }
 
     len = tt_buf_get_hexstr(buf, hs, len);
     hs[len] = 0;
@@ -183,9 +169,7 @@ void tt_buf_print_cstr(IN tt_buf_t *buf, IN tt_u32_t flag)
     }
 }
 
-tt_result_t tt_buf_set(IN tt_buf_t *buf,
-                       IN tt_u32_t pos,
-                       IN tt_u8_t *data,
+tt_result_t tt_buf_set(IN tt_buf_t *buf, IN tt_u32_t pos, IN tt_u8_t *data,
                        IN tt_u32_t data_len)
 {
     if ((buf->rpos + pos) < pos) {
@@ -209,11 +193,8 @@ tt_result_t tt_buf_set(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_buf_set_range(IN tt_buf_t *buf,
-                             IN tt_u32_t pos,
-                             IN tt_u32_t len,
-                             IN tt_u8_t *data,
-                             IN tt_u32_t data_len)
+tt_result_t tt_buf_set_range(IN tt_buf_t *buf, IN tt_u32_t pos, IN tt_u32_t len,
+                             IN tt_u8_t *data, IN tt_u32_t data_len)
 {
     if (TT_ADD_WOULD_OVFL(tt_u32_t, buf->rpos, pos, tt_u64_t) ||
         TT_ADD_WOULD_OVFL(tt_u32_t, buf->rpos, pos + len, tt_u64_t)) {
@@ -266,9 +247,7 @@ tt_result_t __buf_extend(IN tt_buf_t *buf, IN tt_u32_t size)
         return TT_FAIL;
     }
 
-    if (buf->p == buf->initbuf) {
-        flag |= TT_MSPGEXT_NOFREE;
-    }
+    if (buf->p == buf->initbuf) { flag |= TT_MSPGEXT_NOFREE; }
 
     return tt_memspg_extend_ex(&buf->mspg, &buf->p, &buf->size, size, flag);
 }
@@ -297,11 +276,8 @@ tt_result_t tt_buf_compress(IN tt_buf_t *buf)
 
         return TT_SUCCESS;
     } else {
-        return tt_memspg_compress_range(&buf->mspg,
-                                        &buf->p,
-                                        &buf->size,
-                                        buf->rpos,
-                                        buf->wpos);
+        return tt_memspg_compress_range(&buf->mspg, &buf->p, &buf->size,
+                                        buf->rpos, buf->wpos);
     }
 }
 
@@ -324,9 +300,7 @@ tt_u32_t tt_buf_refine(IN tt_buf_t *buf)
     // - frequently calling refind() on a large buf may impact performance,
     //   so a proper way of using it on a large buf is checking wpos and
     //   do refine() when wpos reaching some threshold
-    if (buf->rpos == 0) {
-        return 0;
-    }
+    if (buf->rpos == 0) { return 0; }
 
     refined = buf->rpos;
     if (buf->rpos == buf->wpos) {
@@ -345,8 +319,7 @@ tt_u32_t tt_buf_refine(IN tt_buf_t *buf)
 // io operation
 // ========================================
 
-tt_result_t tt_buf_put(IN tt_buf_t *buf,
-                       IN const void *data,
+tt_result_t tt_buf_put(IN tt_buf_t *buf, IN const void *data,
                        IN tt_u32_t data_len)
 {
     if (buf->readonly) {
@@ -364,8 +337,7 @@ tt_result_t tt_buf_put(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_buf_put_head(IN tt_buf_t *buf,
-                            IN const void *data,
+tt_result_t tt_buf_put_head(IN tt_buf_t *buf, IN const void *data,
                             IN tt_u32_t data_len)
 {
     if (buf->readonly) {
@@ -380,9 +352,7 @@ tt_result_t tt_buf_put_head(IN tt_buf_t *buf,
         // n = data_len - buf->rpos;
         n = data_len;
 
-        if (!TT_OK(tt_buf_reserve(buf, n))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(tt_buf_reserve(buf, n))) { return TT_FAIL; }
 
         tt_memmove(TT_BUF_RPOS(buf) + n, TT_BUF_RPOS(buf), TT_BUF_RLEN(buf));
         buf->rpos += n;
@@ -396,8 +366,7 @@ tt_result_t tt_buf_put_head(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_buf_put_rep(IN tt_buf_t *buf,
-                           IN tt_u8_t byte,
+tt_result_t tt_buf_put_rep(IN tt_buf_t *buf, IN tt_u8_t byte,
                            IN tt_u32_t rep_num)
 {
     if (buf->readonly) {
@@ -448,43 +417,33 @@ tt_result_t tt_buf_get(IN tt_buf_t *buf, IN tt_u8_t *p, IN tt_u32_t len)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_buf_get_nocopy(IN tt_buf_t *buf,
-                              OUT tt_u8_t **p,
+tt_result_t tt_buf_get_nocopy(IN tt_buf_t *buf, OUT tt_u8_t **p,
                               IN tt_u32_t len)
 {
-    if (TT_BUF_RLEN(buf) < len) {
-        return TT_E_BUF_NOBUFS;
-    }
+    if (TT_BUF_RLEN(buf) < len) { return TT_E_BUF_NOBUFS; }
 
     *p = TT_BUF_RPOS(buf);
     buf->rpos += len;
     return TT_SUCCESS;
 }
 
-tt_u32_t tt_buf_get_hexstr(IN tt_buf_t *buf,
-                           OUT OPT tt_char_t *p,
+tt_u32_t tt_buf_get_hexstr(IN tt_buf_t *buf, OUT OPT tt_char_t *p,
                            IN tt_u32_t addr_len)
 {
     tt_u32_t buf_idx, addr_idx;
 
-    if ((p == NULL) || (addr_len == 0)) {
-        return 2 * TT_BUF_RLEN(buf);
-    }
+    if ((p == NULL) || (addr_len == 0)) { return 2 * TT_BUF_RLEN(buf); }
 
     buf_idx = buf->rpos;
     addr_idx = 0;
     while (buf_idx < buf->wpos) {
         tt_u8_t v;
 
-        if (addr_idx >= addr_len) {
-            break;
-        }
+        if (addr_idx >= addr_len) { break; }
         v = buf->p[buf_idx] >> 4;
         p[addr_idx++] = tt_h2c(v, '?');
 
-        if (addr_idx >= addr_len) {
-            break;
-        }
+        if (addr_idx >= addr_len) { break; }
         v = buf->p[buf_idx] & 0xF;
         p[addr_idx++] = tt_h2c(v, '?');
 
@@ -495,9 +454,7 @@ tt_u32_t tt_buf_get_hexstr(IN tt_buf_t *buf,
 
 tt_result_t tt_buf_peek(IN tt_buf_t *buf, IN tt_u8_t *p, IN tt_u32_t len)
 {
-    if (TT_BUF_RLEN(buf) < len) {
-        return TT_E_BUF_NOBUFS;
-    }
+    if (TT_BUF_RLEN(buf) < len) { return TT_E_BUF_NOBUFS; }
 
     tt_memcpy(p, TT_BUF_RPOS(buf), len);
     return TT_SUCCESS;

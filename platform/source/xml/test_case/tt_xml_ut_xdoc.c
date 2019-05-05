@@ -59,9 +59,7 @@ static void __xml_enter(void *enter_param)
     static tt_bool_t done = TT_FALSE;
     tt_char_t *s;
 
-    if (done) {
-        return;
-    }
+    if (done) { return; }
 
     tt_string_init(&xf_path, NULL);
 
@@ -84,33 +82,15 @@ TT_TEST_ROUTINE_DECLARE(case_xdoc_render)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(xml_xdoc_case)
 
-TT_TEST_CASE("case_xdoc_encoding",
-             "xml: document encoding",
-             case_xdoc_encoding,
-             NULL,
-             __xml_enter,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_xdoc_encoding", "xml: document encoding", case_xdoc_encoding,
+             NULL, __xml_enter, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_xdoc_parse",
-                 "xml: document parsing",
-                 case_xdoc_parse,
-                 NULL,
-                 __xml_enter,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_xdoc_parse", "xml: document parsing", case_xdoc_parse,
+                 NULL, __xml_enter, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_xdoc_render",
-                 "xml: document renderring",
-                 case_xdoc_render,
-                 NULL,
-                 __xml_enter,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_xdoc_render", "xml: document renderring",
+                 case_xdoc_render, NULL, __xml_enter, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(xml_xdoc_case)
     // =========================================
@@ -182,20 +162,15 @@ struct __ut_xf_t
     tt_u8_t *p;
     tt_u32_t len;
     tt_xdoc_encoding_t e;
-} __ut_xf[] = {{(tt_u8_t *)__ut_xdoc,
-                (tt_u32_t)sizeof(__ut_xdoc),
+} __ut_xf[] = {{(tt_u8_t *)__ut_xdoc, (tt_u32_t)sizeof(__ut_xdoc),
                 TT_XDOC_UTF8},
-               {(tt_u8_t *)__ut_xf_utf16le,
-                (tt_u32_t)sizeof(__ut_xf_utf16le),
+               {(tt_u8_t *)__ut_xf_utf16le, (tt_u32_t)sizeof(__ut_xf_utf16le),
                 TT_XDOC_UTF16_LE},
-               {(tt_u8_t *)__ut_xf_utf16be,
-                (tt_u32_t)sizeof(__ut_xf_utf16be),
+               {(tt_u8_t *)__ut_xf_utf16be, (tt_u32_t)sizeof(__ut_xf_utf16be),
                 TT_XDOC_UTF16_BE},
-               {(tt_u8_t *)__ut_xf_utf32le,
-                (tt_u32_t)sizeof(__ut_xf_utf32le),
+               {(tt_u8_t *)__ut_xf_utf32le, (tt_u32_t)sizeof(__ut_xf_utf32le),
                 TT_XDOC_UTF32_LE},
-               {(tt_u8_t *)__ut_xf_utf32be,
-                (tt_u32_t)sizeof(__ut_xf_utf32be),
+               {(tt_u8_t *)__ut_xf_utf32be, (tt_u32_t)sizeof(__ut_xf_utf32be),
                 TT_XDOC_UTF32_BE},
                {0}};
 
@@ -308,15 +283,11 @@ static tt_bool_t __ut_find_type(tt_xnode_t xn, tt_xnode_type_t t)
 {
     tt_xnode_t x;
 
-    if (tt_xnode_type(xn) == t) {
-        return TT_TRUE;
-    }
+    if (tt_xnode_type(xn) == t) { return TT_TRUE; }
 
     x = tt_xnode_first_child(xn);
     while (x) {
-        if (__ut_find_type(x, t)) {
-            return TT_TRUE;
-        }
+        if (__ut_find_type(x, t)) { return TT_TRUE; }
         x = tt_xnode_next_sibling(x);
     }
     return TT_FALSE;
@@ -333,9 +304,7 @@ static const tt_char_t *__ut_find_name(tt_xnode_t xn, const tt_char_t *name)
     x = tt_xnode_first_child(xn);
     while (x) {
         const tt_char_t *v = __ut_find_name(x, name);
-        if (v) {
-            return v;
-        }
+        if (v) { return v; }
 
         x = tt_xnode_next_sibling(x);
     }
@@ -347,9 +316,7 @@ static tt_u32_t __ut_find_num(tt_xnode_t xn)
     tt_xnode_t x;
     tt_u32_t n = 0;
 
-    if (!xn) {
-        return 0;
-    }
+    if (!xn) { return 0; }
 
     x = tt_xnode_first_child(xn);
     while (x) {
@@ -482,8 +449,7 @@ TT_TEST_ROUTINE_DEFINE(case_xdoc_parse)
     xn = tt_xdoc_root(&xd);
     v = __ut_find_name(xn, "esc");
     TT_UT_NOT_NULL(v, "");
-    TT_UT_EQUAL(tt_strcmp(v, "  &lt;&gt;&quot;&amp;&apos;\r\n\r\naaa  "),
-                0,
+    TT_UT_EQUAL(tt_strcmp(v, "  &lt;&gt;&quot;&amp;&apos;\r\n\r\naaa  "), 0,
                 "");
 
     a.escapes = TT_TRUE;
@@ -588,8 +554,7 @@ TT_TEST_ROUTINE_DEFINE(case_xdoc_render)
                           "<heading>Reminder\n<p1></p1>\n        <p2>  </p2>\n "
                           "       <esc>  <>\"&'\n\naaa  </esc>\n    "
                           "</heading>\n</note>\nfrag2"),
-                0,
-                "");
+                0, "");
 
     ra.do_indent = TT_FALSE;
     ra.no_declaration = TT_FALSE;
@@ -614,8 +579,7 @@ TT_TEST_ROUTINE_DEFINE(case_xdoc_render)
                           "to><!--\nc1\n\n\nc2\n--><heading>Reminder\n<p1/"
                           "><p2>  </p2><esc>  &lt;&gt;\"&amp;'\n\naaa  "
                           "</esc></heading></note>\nfrag2"),
-                0,
-                "");
+                0, "");
 
     ret = tt_xdoc_render_file(&xd, __UT_XF_PATH, &ra);
     TT_UT_SUCCESS(ret, "");
@@ -635,8 +599,7 @@ TT_TEST_ROUTINE_DEFINE(case_xdoc_render)
                    "><p2>  </p2><esc>  &lt;&gt;\"&amp;'\n\naaa  "
                    "</esc></heading></note>\nfrag2",
                    (tt_u32_t)size),
-        0,
-        "");
+        0, "");
     tt_free(p);
 
     tt_xdoc_destroy(&xd);

@@ -65,10 +65,9 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export struct tt_logio_s *tt_logio_tcp_create(IN tt_net_family_t family,
-                                                 IN tt_sktaddr_t *addr,
-                                                 IN OPT
-                                                     tt_logio_tcp_attr_t *attr);
+tt_export struct tt_logio_s *tt_logio_tcp_create(
+    IN tt_net_family_t family, IN tt_sktaddr_t *addr,
+    IN OPT tt_logio_tcp_attr_t *attr);
 
 tt_export struct tt_logio_s *tt_logio_tcp_create_skt(IN TO tt_skt_t *skt,
                                                      IN tt_sktaddr_t *addr);

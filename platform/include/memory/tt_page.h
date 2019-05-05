@@ -117,8 +117,7 @@ free pages, start address of pages is specified by param
 - page_num_order must be same as passed to tt_page_alloc_align
 - if freeing fails, just an error trace would be printed
 */
-tt_export void tt_page_free_align(IN void *addr,
-                                  IN tt_u32_t size_order,
+tt_export void tt_page_free_align(IN void *addr, IN tt_u32_t size_order,
                                   IN tt_uintptr_t handle);
 
 #endif // __TT_PAGE_OS__

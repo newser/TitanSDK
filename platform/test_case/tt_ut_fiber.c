@@ -68,78 +68,31 @@ TT_TEST_ROUTINE_DECLARE(case_task)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fiber_case)
 
-TT_TEST_CASE("case_fiber_basic",
-             "testing basic fiber API",
-             case_fiber_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_fiber_basic", "testing basic fiber API", case_fiber_basic,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_fiber_3fibers",
-                 "testing basic fiber API, 3 fibers",
-                 case_fiber_3fibers,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fiber_3fibers", "testing basic fiber API, 3 fibers",
+                 case_fiber_3fibers, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_fiber_sanity",
-                 "testing fiber sanity",
-                 case_fiber_sanity,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fiber_sanity", "testing fiber sanity", case_fiber_sanity,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_fiber_sanity2",
-                 "testing fiber sanity more",
-                 case_fiber_sanity2,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fiber_sanity2", "testing fiber sanity more",
+                 case_fiber_sanity2, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_worker_group",
-                 "testing worker group",
-                 case_worker_group,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_worker_group", "testing worker group", case_worker_group,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_task",
-                 "testing task basic",
-                 case_task,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_task", "testing task basic", case_task, NULL, NULL, NULL,
+                 NULL, NULL),
 
-    TT_TEST_CASE("case_fiber_event",
-                 "testing fiber event send/recv",
-                 case_fiber_event,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fiber_event", "testing fiber event send/recv",
+                 case_fiber_event, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE("case_fiber_event_cross",
                  "testing fiber event send/recv cross-task",
-                 case_fiber_event_cross,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+                 case_fiber_event_cross, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(fiber_case)
     // =========================================
@@ -174,18 +127,14 @@ static tt_u32_t __ut_num;
 static tt_result_t __test_fiber_main_yield(IN void *param)
 {
     tt_u32_t i = 0;
-    while (i++ < 100) {
-        tt_fiber_suspend();
-    }
+    while (i++ < 100) { tt_fiber_suspend(); }
 
     return TT_SUCCESS;
 }
 
 static tt_result_t __fiber_1(IN void *param)
 {
-    if (param != (void *)1) {
-        return TT_FAIL;
-    }
+    if (param != (void *)1) { return TT_FAIL; }
 
     while (__ut_num < 100) {
         ++__ut_num;
@@ -240,9 +189,7 @@ static tt_result_t __fiber_1_resume(IN void *param)
 {
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
 
-    if (param != (void *)1) {
-        return TT_FAIL;
-    }
+    if (param != (void *)1) { return TT_FAIL; }
 
     while (__ut_num < 100) {
         ++__ut_num;
@@ -395,9 +342,7 @@ static tt_result_t __test_fiber_2(IN void *param)
             __waiting[idx] = 0;
             tt_fiber_resume(__fb_ar[idx], TT_FALSE);
 
-            if (__err_line != 0) {
-                return TT_FAIL;
-            }
+            if (__err_line != 0) { return TT_FAIL; }
         }
     }
     __ut_ret = TT_SUCCESS;
@@ -507,10 +452,9 @@ static tt_result_t __fiber_san2(IN void *param)
         tt_fiber_attr_default(&fattr);
         fattr.stack_size = tt_rand_u32() % (1 << 6) + 1;
 
-        __fb_ar[idx + 1] = tt_fiber_create(NULL,
-                                           __fiber_san2,
-                                           (void *)(tt_uintptr_t)(idx + 1),
-                                           &fattr);
+        __fb_ar[idx + 1] =
+            tt_fiber_create(NULL, __fiber_san2, (void *)(tt_uintptr_t)(idx + 1),
+                            &fattr);
         tt_fiber_resume(__fb_ar[idx + 1], TT_TRUE);
     }
 
@@ -560,10 +504,8 @@ static tt_result_t __test_fiber_san2(IN void *param)
         tt_fiber_attr_default(&fattr);
         fattr.stack_size = tt_rand_u32() % (1 << 6) + 1;
 
-        __fb_ar[0] = tt_fiber_create(NULL,
-                                     __fiber_san2,
-                                     (void *)(tt_uintptr_t)0,
-                                     &fattr);
+        __fb_ar[0] = tt_fiber_create(NULL, __fiber_san2,
+                                     (void *)(tt_uintptr_t)0, &fattr);
         if (__fb_ar[0] == NULL) {
             __err_line = __LINE__;
             return TT_FAIL;
@@ -640,9 +582,7 @@ static tt_result_t __task_fiber_1(IN void *param)
 
     ++__tb_cnt;
 
-    if (idx % 2) {
-        tt_fiber_suspend();
-    }
+    if (idx % 2) { tt_fiber_suspend(); }
 
     return TT_SUCCESS;
 }
@@ -676,10 +616,7 @@ TT_TEST_ROUTINE_DEFINE(case_task)
     TT_UT_SUCCESS(ret, "");
     n = 10; // tt_rand_u32() % 10 + 1;
     for (i = 0; i < n; ++i) {
-        tt_task_add_fiber(&t1,
-                          NULL,
-                          __task_fiber_1,
-                          (void *)(tt_uintptr_t)i,
+        tt_task_add_fiber(&t1, NULL, __task_fiber_1, (void *)(tt_uintptr_t)i,
                           NULL);
     }
     tt_task_run(&t1);
@@ -708,9 +645,7 @@ static tt_result_t __fiber_ev_send(IN void *param)
         uev.resp = i;
 
         tt_fiber_send_ev(recv, &uev.fev, TT_TRUE);
-        if (uev.resp != i + 100) {
-            __err_line = __LINE__;
-        }
+        if (uev.resp != i + 100) { __err_line = __LINE__; }
 
         ++i;
     }
@@ -745,11 +680,9 @@ static tt_result_t __fiber_ev_send_nw(IN void *param)
 
     while (i < 1000) {
         if (i % 2 == 0) {
-            struct __ut_fev *uev =
-                (struct __ut_fev *)tt_fiber_ev_create(i,
-                                                      sizeof(struct __ut_fev) -
-                                                          sizeof(
-                                                              tt_fiber_ev_t));
+            struct __ut_fev *uev = (struct __ut_fev *)
+                tt_fiber_ev_create(i, sizeof(struct __ut_fev) -
+                                          sizeof(tt_fiber_ev_t));
             if (uev == NULL) {
                 __err_line = __LINE__;
                 return TT_FAIL;
@@ -764,9 +697,7 @@ static tt_result_t __fiber_ev_send_nw(IN void *param)
             uev.resp = i;
 
             tt_fiber_send_ev(recv, &uev.fev, TT_TRUE);
-            if (uev.resp != i + 200) {
-                __err_line = __LINE__;
-            }
+            if (uev.resp != i + 200) { __err_line = __LINE__; }
         }
 
         ++i;
@@ -858,9 +789,7 @@ static tt_result_t __fiber_ev_send_out(IN void *param)
         uev.resp = i;
 
         tt_fiber_send_ev(recv, &uev.fev, TT_TRUE);
-        if (uev.resp != i + 100) {
-            __err_line = __LINE__;
-        }
+        if (uev.resp != i + 100) { __err_line = __LINE__; }
 
         ++i;
     }
@@ -884,11 +813,9 @@ static tt_result_t __fiber_ev_send_nw_out(IN void *param)
 
     while (i < 1000) {
         if (i % 2 == 0) {
-            struct __ut_fev *uev =
-                (struct __ut_fev *)tt_fiber_ev_create(i,
-                                                      sizeof(struct __ut_fev) -
-                                                          sizeof(
-                                                              tt_fiber_ev_t));
+            struct __ut_fev *uev = (struct __ut_fev *)
+                tt_fiber_ev_create(i, sizeof(struct __ut_fev) -
+                                          sizeof(tt_fiber_ev_t));
             if (uev == NULL) {
                 __err_line = __LINE__;
                 return TT_FAIL;
@@ -903,9 +830,7 @@ static tt_result_t __fiber_ev_send_nw_out(IN void *param)
             uev.resp = i;
 
             tt_fiber_send_ev(recv, &uev.fev, TT_TRUE);
-            if (uev.resp != i + 200) {
-                __err_line = __LINE__;
-            }
+            if (uev.resp != i + 200) { __err_line = __LINE__; }
         }
 
         ++i;

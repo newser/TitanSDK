@@ -67,8 +67,7 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_queue_init(IN tt_queue_t *q,
-                             IN tt_u32_t obj_size,
+tt_export void tt_queue_init(IN tt_queue_t *q, IN tt_u32_t obj_size,
                              IN OPT tt_queue_attr_t *attr);
 
 tt_export void tt_queue_destroy(IN tt_queue_t *q);
@@ -103,12 +102,10 @@ tt_export void tt_queue_iter(IN tt_queue_t *q, OUT tt_queue_iter_t *iter);
 
 tt_export void *tt_queue_iter_next(IN OUT tt_queue_iter_t *iter);
 
-tt_export tt_result_t tt_queue_get(IN tt_queue_t *q,
-                                   IN tt_u32_t idx,
+tt_export tt_result_t tt_queue_get(IN tt_queue_t *q, IN tt_u32_t idx,
                                    OUT void *obj);
 
-tt_export tt_result_t tt_queue_set(IN tt_queue_t *q,
-                                   IN tt_u32_t idx,
+tt_export tt_result_t tt_queue_set(IN tt_queue_t *q, IN tt_u32_t idx,
                                    IN void *obj);
 
 #endif /* __TT_QUEUE__ */

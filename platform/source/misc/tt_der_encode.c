@@ -53,10 +53,8 @@ static tt_u32_t __octnum_of_s32(IN tt_s32_t val_s32);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_der_encode_head(IN tt_buf_t *buf,
-                               IN tt_u32_t tag,
-                               IN tt_u32_t length,
-                               IN tt_u32_t flag)
+tt_result_t tt_der_encode_head(IN tt_buf_t *buf, IN tt_u32_t tag,
+                               IN tt_u32_t length, IN tt_u32_t flag)
 {
     TT_ASSERT(buf != NULL);
 
@@ -97,8 +95,7 @@ tt_u32_t tt_der_head_len(IN tt_u32_t tag, IN tt_u32_t length)
     return 1 + __octnum_of_length(length);
 }
 
-tt_result_t tt_der_encode_sequence(IN tt_buf_t *buf,
-                                   IN tt_u32_t length,
+tt_result_t tt_der_encode_sequence(IN tt_buf_t *buf, IN tt_u32_t length,
                                    IN tt_u32_t flag)
 {
     return tt_der_encode_head(buf, TT_ASN1_SEQUENCE, length, flag);
@@ -109,10 +106,8 @@ tt_u32_t tt_der_sequence_len(IN tt_u32_t content_len)
     return tt_der_head_len(TT_ASN1_SEQUENCE, content_len) + content_len;
 }
 
-tt_result_t tt_der_encode_oid(IN tt_buf_t *buf,
-                              IN tt_u8_t *oid,
-                              IN tt_u32_t oid_len,
-                              IN tt_u32_t flag)
+tt_result_t tt_der_encode_oid(IN tt_buf_t *buf, IN tt_u8_t *oid,
+                              IN tt_u32_t oid_len, IN tt_u32_t flag)
 {
     TT_DO(tt_der_encode_head(buf, TT_ASN1_OBJECT_IDENTIFIER, oid_len, 0));
     TT_DO(tt_buf_put(buf, oid, oid_len));
@@ -125,10 +120,8 @@ tt_u32_t tt_der_oid_len(IN tt_u8_t *oid, IN tt_u32_t oid_len)
     return tt_der_head_len(TT_ASN1_OBJECT_IDENTIFIER, oid_len) + oid_len;
 }
 
-tt_result_t tt_der_encode_octstr(IN tt_buf_t *buf,
-                                 IN tt_u8_t *octstr,
-                                 IN tt_u32_t octstr_len,
-                                 IN tt_u32_t flag)
+tt_result_t tt_der_encode_octstr(IN tt_buf_t *buf, IN tt_u8_t *octstr,
+                                 IN tt_u32_t octstr_len, IN tt_u32_t flag)
 {
     TT_DO(tt_der_encode_head(buf, TT_ASN1_OCTET_STRING, octstr_len, 0));
     TT_DO(tt_buf_put(buf, octstr, octstr_len));
@@ -141,34 +134,28 @@ tt_u32_t tt_der_octstr_len(IN tt_u8_t *octstr, IN tt_u32_t octstr_len)
     return tt_der_head_len(TT_ASN1_OBJECT_IDENTIFIER, octstr_len) + octstr_len;
 }
 
-tt_result_t tt_der_encode_bitstr(IN tt_buf_t *buf,
-                                 IN OPT tt_u8_t *bitstr,
+tt_result_t tt_der_encode_bitstr(IN tt_buf_t *buf, IN OPT tt_u8_t *bitstr,
                                  IN tt_u32_t bitstr_len,
-                                 IN tt_u32_t pad_bit_num,
-                                 IN tt_u32_t flag)
+                                 IN tt_u32_t pad_bit_num, IN tt_u32_t flag)
 {
     TT_DO(tt_der_encode_head(buf, TT_ASN1_BIT_STRING, 1 + bitstr_len, 0));
 
     TT_ASSERT(pad_bit_num < 8);
     TT_DO(tt_buf_put_u8(buf, (tt_u8_t)pad_bit_num));
 
-    if (bitstr != NULL) {
-        TT_DO(tt_buf_put(buf, bitstr, bitstr_len));
-    }
+    if (bitstr != NULL) { TT_DO(tt_buf_put(buf, bitstr, bitstr_len)); }
 
     return TT_SUCCESS;
 }
 
-tt_u32_t tt_der_bitstr_len(IN tt_u8_t *bitstr,
-                           IN tt_u32_t bitstr_len,
+tt_u32_t tt_der_bitstr_len(IN tt_u8_t *bitstr, IN tt_u32_t bitstr_len,
                            IN tt_u32_t pad_bit_num)
 {
     TT_ASSERT(pad_bit_num < 8);
     return tt_der_head_len(TT_ASN1_BIT_STRING, bitstr_len) + 1 + bitstr_len;
 }
 
-tt_result_t tt_der_encode_s32(IN tt_buf_t *buf,
-                              IN tt_s32_t val_s32,
+tt_result_t tt_der_encode_s32(IN tt_buf_t *buf, IN tt_s32_t val_s32,
                               IN tt_u32_t flag)
 {
     tt_u32_t val_u32 = (tt_u32_t)val_s32;
@@ -213,10 +200,8 @@ tt_u32_t tt_der_null_len()
     return 2;
 }
 
-tt_result_t tt_der_encode_integer(IN tt_buf_t *buf,
-                                  IN tt_u8_t *integer,
-                                  IN tt_u32_t integer_len,
-                                  IN tt_u32_t flag)
+tt_result_t tt_der_encode_integer(IN tt_buf_t *buf, IN tt_u8_t *integer,
+                                  IN tt_u32_t integer_len, IN tt_u32_t flag)
 {
     TT_DO(tt_der_encode_head(buf, TT_ASN1_INTEGER, integer_len, 0));
     TT_DO(tt_buf_put(buf, integer, integer_len));

@@ -33,7 +33,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     CRYPTO_UT_BEGIN = 0,
 
     CRYPTO_UT_RSA = CRYPTO_UT_BEGIN,
@@ -87,9 +88,7 @@ tt_result_t tt_crypto_ut_init(IN tt_ptr_t reserved)
 
         if (tt_g_crypto_ut_list[unit_id] != NULL) {
             result = tt_test_unit_to_class(tt_g_crypto_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
+            if (!TT_OK(result)) { return TT_FAIL; }
         }
 
         // next

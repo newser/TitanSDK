@@ -197,9 +197,7 @@ tt_logfld_t *tt_logfld_create(IN const tt_char_t *start,
     tt_u32_t flen;
     tt_u32_t i;
 
-    if (start >= (end - 1)) {
-        return NULL;
-    }
+    if (start >= (end - 1)) { return NULL; }
     flen = (tt_u32_t)(tt_ptrdiff_t)(end - start);
 
     // discard {}
@@ -232,9 +230,7 @@ tt_result_t tt_logfld_check(IN const tt_char_t *start, IN const tt_char_t *end)
     tt_u32_t flen;
     tt_u32_t i;
 
-    if (start >= (end - 1)) {
-        return TT_FAIL;
-    }
+    if (start >= (end - 1)) { return TT_FAIL; }
     flen = (tt_u32_t)(tt_ptrdiff_t)(end - start);
 
     // discard {}
@@ -253,14 +249,12 @@ tt_result_t tt_logfld_check(IN const tt_char_t *start, IN const tt_char_t *end)
     return TT_FAIL;
 }
 
-tt_result_t tt_logfld_output(IN tt_logfld_t *lf,
-                             IN tt_log_entry_t *entry,
+tt_result_t tt_logfld_output(IN tt_logfld_t *lf, IN tt_log_entry_t *entry,
                              OUT struct tt_buf_s *outbuf)
 {
     __lf_entry_t *lfe = &__lf_table[lf->type];
 
-    return TT_COND(lfe->output != NULL,
-                   lfe->output(lf, entry, outbuf),
+    return TT_COND(lfe->output != NULL, lfe->output(lf, entry, outbuf),
                    TT_FAIL);
 }
 
@@ -314,15 +308,13 @@ tt_result_t __lf_check(IN const tt_char_t *start, IN const tt_char_t *end)
     return TT_SUCCESS;
 }
 
-tt_result_t __lf_output_seq_num(IN tt_logfld_t *lf,
-                                IN tt_log_entry_t *entry,
+tt_result_t __lf_output_seq_num(IN tt_logfld_t *lf, IN tt_log_entry_t *entry,
                                 OUT tt_buf_t *outbuf)
 {
     return tt_buf_putf(outbuf, lf->format, entry->seq_num);
 }
 
-tt_result_t __lf_output_time(IN tt_logfld_t *lf,
-                             IN tt_log_entry_t *entry,
+tt_result_t __lf_output_time(IN tt_logfld_t *lf, IN tt_log_entry_t *entry,
                              OUT tt_buf_t *outbuf)
 {
     tt_u8_t *p;
@@ -339,8 +331,7 @@ tt_result_t __lf_output_time(IN tt_logfld_t *lf,
     return TT_SUCCESS;
 }
 
-tt_result_t __lf_output_logger(IN tt_logfld_t *lf,
-                               IN tt_log_entry_t *entry,
+tt_result_t __lf_output_logger(IN tt_logfld_t *lf, IN tt_log_entry_t *entry,
                                OUT tt_buf_t *outbuf)
 {
     if (entry->logger != NULL) {
@@ -350,15 +341,13 @@ tt_result_t __lf_output_logger(IN tt_logfld_t *lf,
     }
 }
 
-tt_result_t __lf_output_level(IN tt_logfld_t *lf,
-                              IN tt_log_entry_t *entry,
+tt_result_t __lf_output_level(IN tt_logfld_t *lf, IN tt_log_entry_t *entry,
                               OUT tt_buf_t *outbuf)
 {
     return tt_buf_putf(outbuf, lf->format, tt_g_log_level_name[entry->level]);
 }
 
-tt_result_t __lf_output_content(IN tt_logfld_t *lf,
-                                IN tt_log_entry_t *entry,
+tt_result_t __lf_output_content(IN tt_logfld_t *lf, IN tt_log_entry_t *entry,
                                 OUT tt_buf_t *outbuf)
 {
     if (entry->content != NULL) {
@@ -368,8 +357,7 @@ tt_result_t __lf_output_content(IN tt_logfld_t *lf,
     }
 }
 
-tt_result_t __lf_output_func(IN tt_logfld_t *lf,
-                             IN tt_log_entry_t *entry,
+tt_result_t __lf_output_func(IN tt_logfld_t *lf, IN tt_log_entry_t *entry,
                              OUT tt_buf_t *outbuf)
 {
     if (entry->function != NULL) {
@@ -379,8 +367,7 @@ tt_result_t __lf_output_func(IN tt_logfld_t *lf,
     }
 }
 
-tt_result_t __lf_output_line(IN tt_logfld_t *lf,
-                             IN tt_log_entry_t *entry,
+tt_result_t __lf_output_line(IN tt_logfld_t *lf, IN tt_log_entry_t *entry,
                              OUT tt_buf_t *outbuf)
 {
     return tt_buf_putf(outbuf, lf->format, entry->line);

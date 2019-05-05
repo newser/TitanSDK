@@ -57,114 +57,42 @@ TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_chfail)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshconnmsg_case)
 
-TT_TEST_CASE("case_sshmsg_conn_glbreq",
-             "ssh msg: global request",
-             case_sshmsg_conn_glbreq,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_sshmsg_conn_glbreq", "ssh msg: global request",
+             case_sshmsg_conn_glbreq, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_sshmsg_conn_reqsucc",
-                 "ssh msg: request success",
-                 case_sshmsg_conn_reqsucc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_reqsucc", "ssh msg: request success",
+                 case_sshmsg_conn_reqsucc, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_reqfail",
-                 "ssh msg: request failure",
-                 case_sshmsg_conn_reqfail,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_reqfail", "ssh msg: request failure",
+                 case_sshmsg_conn_reqfail, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_chopen",
-                 "ssh msg: channel open",
-                 case_sshmsg_conn_chopen,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_chopen", "ssh msg: channel open",
+                 case_sshmsg_conn_chopen, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_chopc",
-                 "ssh msg: channel open cfm",
-                 case_sshmsg_conn_chopc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_chopc", "ssh msg: channel open cfm",
+                 case_sshmsg_conn_chopc, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_chopf",
-                 "ssh msg: channel open fail",
-                 case_sshmsg_conn_chopf,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_chopf", "ssh msg: channel open fail",
+                 case_sshmsg_conn_chopf, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_winadj",
-                 "ssh msg: channel window adjust",
-                 case_sshmsg_conn_winadj,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_winadj", "ssh msg: channel window adjust",
+                 case_sshmsg_conn_winadj, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_chdata",
-                 "ssh msg: channel data",
-                 case_sshmsg_conn_chdata,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_chdata", "ssh msg: channel data",
+                 case_sshmsg_conn_chdata, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_chclose",
-                 "ssh msg: channel close",
-                 case_sshmsg_conn_chclose,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_chclose", "ssh msg: channel close",
+                 case_sshmsg_conn_chclose, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_chreq",
-                 "ssh msg: channel request",
-                 case_sshmsg_conn_chreq,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_chreq", "ssh msg: channel request",
+                 case_sshmsg_conn_chreq, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_chsucc",
-                 "ssh msg: channel success",
-                 case_sshmsg_conn_chsucc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_chsucc", "ssh msg: channel success",
+                 case_sshmsg_conn_chsucc, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_conn_chfail",
-                 "ssh msg: channel failure",
-                 case_sshmsg_conn_chfail,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_conn_chfail", "ssh msg: channel failure",
+                 case_sshmsg_conn_chfail, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(sshconnmsg_case)
     // =========================================
@@ -251,9 +179,7 @@ TT_TEST_CASE("case_sshmsg_conn_glbreq",
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -307,9 +233,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_reqsucc)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -357,9 +281,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_reqfail)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -434,9 +356,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chopen)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -507,9 +427,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chopc)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -577,9 +495,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chopf)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -640,9 +556,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_winadj)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -676,39 +590,31 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chdata)
     TT_UT_EQUAL(chdata->rcv_chnum, 1, "");
 
     // data
-    for (i = 0; i < sizeof(data1); ++i) {
-        data1[i] = (tt_u8_t)tt_rand_u32();
-    }
-    for (i = 0; i < sizeof(data2); ++i) {
-        data2[i] = (tt_u8_t)tt_rand_u32();
-    }
+    for (i = 0; i < sizeof(data1); ++i) { data1[i] = (tt_u8_t)tt_rand_u32(); }
+    for (i = 0; i < sizeof(data2); ++i) { data2[i] = (tt_u8_t)tt_rand_u32(); }
 
     ret = tt_sshmsg_chdata_set_data(msg, data1, sizeof(data1), TT_TRUE);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&chdata->data), sizeof(data1), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data1, sizeof(data1)),
-                0,
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data1, sizeof(data1)), 0,
                 "");
 
     ret = tt_sshmsg_chdata_set_data(msg, data2, sizeof(data2), TT_FALSE);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&chdata->data), sizeof(data2), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data2, sizeof(data2)),
-                0,
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data2, sizeof(data2)), 0,
                 "");
 
     ret = tt_sshmsg_chdata_set_data(msg, data1, sizeof(data1), TT_TRUE);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&chdata->data), sizeof(data1), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data1, sizeof(data1)),
-                0,
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data1, sizeof(data1)), 0,
                 "");
 
     ret = tt_sshmsg_chdata_set_data(msg, data2, sizeof(data2), TT_FALSE);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&chdata->data), sizeof(data2), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data2, sizeof(data2)),
-                0,
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data2, sizeof(data2)), 0,
                 "");
 
     // render
@@ -725,8 +631,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chdata)
 
     TT_UT_EQUAL(chdata->rcv_chnum, 1, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&chdata->data), sizeof(data2), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data2, sizeof(data2)),
-                0,
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&chdata->data), data2, sizeof(data2)), 0,
                 "");
 
     tt_sshmsg_release(out_msg);
@@ -739,9 +644,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chdata)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -797,9 +700,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chclose)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -877,9 +778,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chreq)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -935,9 +834,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chsucc)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -993,9 +890,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chfail)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;

@@ -83,10 +83,8 @@ tt_inline void tt_zipsrc_close(IN tt_zipsrc_t *zs)
     zip_source_close(zs);
 }
 
-tt_inline tt_result_t tt_zipsrc_read(IN tt_zipsrc_t *zs,
-                                     OUT tt_u8_t *buf,
-                                     IN tt_u32_t len,
-                                     OUT tt_u32_t *read_len)
+tt_inline tt_result_t tt_zipsrc_read(IN tt_zipsrc_t *zs, OUT tt_u8_t *buf,
+                                     IN tt_u32_t len, OUT tt_u32_t *read_len)
 {
     zip_int64_t n = zip_source_read(zs, buf, len);
     if (n > 0) {
@@ -114,8 +112,7 @@ tt_inline tt_result_t tt_zipsrc_stat(IN tt_zipsrc_t *zs,
     }
 }
 
-tt_export tt_result_t tt_zipsrc_seek(IN tt_zipsrc_t *zs,
-                                     IN tt_u32_t whence,
+tt_export tt_result_t tt_zipsrc_seek(IN tt_zipsrc_t *zs, IN tt_u32_t whence,
                                      IN tt_s64_t offset);
 #define TT_ZSSEEK_BEGIN 0
 #define TT_ZSSEEK_CUR 1
@@ -161,10 +158,8 @@ tt_inline void tt_zipsrc_rollback_write(IN tt_zipsrc_t *zs)
     zip_source_rollback_write(zs);
 }
 
-tt_inline tt_result_t tt_zipsrc_write(IN tt_zipsrc_t *zs,
-                                      OUT tt_u8_t *buf,
-                                      IN tt_u32_t len,
-                                      OUT tt_u32_t *write_len)
+tt_inline tt_result_t tt_zipsrc_write(IN tt_zipsrc_t *zs, OUT tt_u8_t *buf,
+                                      IN tt_u32_t len, OUT tt_u32_t *write_len)
 {
     zip_int64_t n = zip_source_write(zs, buf, len);
     if (n > 0) {

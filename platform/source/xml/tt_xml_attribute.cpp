@@ -65,14 +65,12 @@ void tt_xattr_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __xattr_component_init, __xattr_component_exit,
+        __xattr_component_init,
+        __xattr_component_exit,
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_XML_ATTR,
-                      "XML Attribute",
-                      NULL,
+    tt_component_init(&comp, TT_COMPONENT_XML_ATTR, "XML Attribute", NULL,
                       &itf);
 
     // register component
@@ -226,8 +224,7 @@ tt_result_t __xattr_component_init(IN tt_component_t *comp,
 {
     if (sizeof(tt_xattr_t) < sizeof(class pugi::xml_attribute)) {
         TT_ERROR("sizeof(tt_xattr_t)[%d] < sizeof(class xml_attribute)[%d]",
-                 sizeof(tt_xattr_t),
-                 sizeof(class pugi::xml_attribute));
+                 sizeof(tt_xattr_t), sizeof(class pugi::xml_attribute));
         return TT_FAIL;
     }
 

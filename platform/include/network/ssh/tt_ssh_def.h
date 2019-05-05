@@ -98,7 +98,8 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_SSH_VER_1_0,
     TT_SSH_VER_1_99,
     TT_SSH_VER_2_0,
@@ -111,7 +112,8 @@ typedef enum {
 // Key Exchange Method
 // ========================================
 
-typedef enum {
+typedef enum
+{
     TT_SSH_KEX_ALG_DH_G1_SHA1,
     TT_SSH_KEX_ALG_DH_G14_SHA1,
 
@@ -129,7 +131,8 @@ typedef enum {
 tt_export const tt_char_t *tt_g_ssh_kex_alg_name[TT_SSH_KEX_ALG_NUM];
 
 // HASH
-typedef enum {
+typedef enum
+{
     TT_SSH_HASH_ALG_SHA1,
     TT_SSH_HASH_ALG_SHA256,
 
@@ -141,7 +144,8 @@ typedef enum {
 // Public Key Algorithms
 // ========================================
 
-typedef enum {
+typedef enum
+{
     TT_SSH_PUBKEY_ALG_DSS,
     TT_SSH_PUBKEY_ALG_RSA,
 
@@ -158,7 +162,8 @@ tt_export tt_ssh_pubkey_alg_t tt_ssh_pubkey_alg_match(IN tt_u8_t *name,
 // Encryption
 // ========================================
 
-typedef enum {
+typedef enum
+{
     TT_SSH_ENC_ALG_AES128_CBC,
     TT_SSH_ENC_ALG_AES256_CBC,
 
@@ -175,7 +180,8 @@ tt_export tt_ssh_enc_alg_t tt_ssh_enc_alg_match(IN tt_u8_t *name,
 // Data Integrity
 // ========================================
 
-typedef enum {
+typedef enum
+{
     TT_SSH_MAC_ALG_HMAC_SHA1,
 
     TT_SSH_MAC_ALG_NUM
@@ -191,7 +197,8 @@ tt_export tt_ssh_mac_alg_t tt_ssh_mac_alg_match(IN tt_u8_t *name,
 // Compression
 // ========================================
 
-typedef enum {
+typedef enum
+{
     TT_SSH_CMPRS_ALG_NONE,
     TT_SSH_CMPRS_ALG_ZLIB,
 
@@ -208,7 +215,8 @@ tt_export tt_ssh_cmprs_alg_t tt_ssh_cmprs_alg_match(IN tt_u8_t *name,
 // Service
 // ========================================
 
-typedef enum {
+typedef enum
+{
     TT_SSH_SERVICE_USERAUTH,
     TT_SSH_SERVICE_CONNECTION,
 
@@ -225,7 +233,8 @@ tt_export tt_ssh_service_t tt_ssh_serv_match(IN tt_u8_t *name,
 // Auth Method
 // ========================================
 
-typedef enum {
+typedef enum
+{
     TT_SSH_AUTH_PUBLICKEY,
     TT_SSH_AUTH_PASSWORD,
     TT_SSH_AUTH_HOSTBASED,
@@ -244,7 +253,8 @@ tt_export tt_ssh_auth_t tt_ssh_auth_match(IN tt_u8_t *name,
 // Channel
 // ========================================
 
-typedef enum {
+typedef enum
+{
     TT_SSH_CHTYPE_SESSION,
     TT_SSH_CHTYPE_X11,
     TT_SSH_CHTYPE_FORWARD_TCPIP,
@@ -259,7 +269,8 @@ tt_export const tt_char_t *tt_g_ssh_chtype_name[TT_SSH_CHTYPE_NUM];
 tt_export tt_ssh_chtype_t tt_ssh_chtype_match(IN tt_u8_t *name,
                                               IN tt_u32_t name_len);
 
-typedef enum {
+typedef enum
+{
     TT_SSH_CHREQTYPE_PTYREQ,
     TT_SSH_CHREQTYPE_X11REQ,
     TT_SSH_CHREQTYPE_ENV,

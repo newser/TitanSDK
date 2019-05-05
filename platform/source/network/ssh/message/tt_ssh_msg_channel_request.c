@@ -56,12 +56,9 @@ static tt_result_t __chreq_render(IN struct tt_sshmsg_s *msg,
 static tt_result_t __chreq_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __chreq_op = {
-    __chreq_create,
-    __chreq_destroy,
-    NULL,
+    __chreq_create,         __chreq_destroy, NULL,
 
-    __chreq_render_prepare,
-    __chreq_render,
+    __chreq_render_prepare, __chreq_render,
 
     __chreq_parse,
 };
@@ -77,8 +74,7 @@ static tt_sshmsg_itf_t __chreq_op = {
 tt_sshmsg_t *tt_sshmsg_chreq_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_REQUEST,
-                            sizeof(tt_sshmsg_chreq_t),
-                            &__chreq_op);
+                            sizeof(tt_sshmsg_chreq_t), &__chreq_op);
 }
 
 void tt_sshmsg_chreq_set_rcvchnum(IN tt_sshmsg_t *msg, IN tt_u32_t rcv_chnum)
@@ -170,9 +166,8 @@ tt_result_t __chreq_render_prepare(IN struct tt_sshmsg_s *msg,
 
     // string request type
     msg_len +=
-        tt_ssh_string_render_prepare(NULL,
-                                     (tt_u32_t)tt_strlen(
-                                         tt_g_ssh_chreqtype_name[rtype]));
+        tt_ssh_string_render_prepare(NULL, (tt_u32_t)tt_strlen(
+                                               tt_g_ssh_chreqtype_name[rtype]));
 
     // boolean want reply
     msg_len += tt_ssh_boolean_render_prepare();
@@ -209,8 +204,7 @@ tt_result_t __chreq_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
     TT_DO(tt_ssh_uint32_render(buf, chreq->rcv_chnum));
 
     // string request type
-    TT_DO(tt_ssh_string_render(buf,
-                               (tt_u8_t *)tt_g_ssh_chreqtype_name[rtype],
+    TT_DO(tt_ssh_string_render(buf, (tt_u8_t *)tt_g_ssh_chreqtype_name[rtype],
                                (tt_u32_t)tt_strlen(
                                    tt_g_ssh_chreqtype_name[rtype])));
 

@@ -73,8 +73,7 @@ static tt_sshmsg_itf_t __chfail_op = {
 tt_sshmsg_t *tt_sshmsg_chfail_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_CHANNEL_FAILURE,
-                            sizeof(tt_sshmsg_chfail_t),
-                            &__chfail_op);
+                            sizeof(tt_sshmsg_chfail_t), &__chfail_op);
 }
 
 void tt_sshmsg_chfail_set_rcvchnum(IN tt_sshmsg_t *msg, IN tt_u32_t rcv_chnum)

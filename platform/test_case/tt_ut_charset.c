@@ -20,55 +20,24 @@ TT_TEST_ROUTINE_DECLARE(case_charset_utf8)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(charset_case)
 
-TT_TEST_CASE("case_charset_gb2312_utf8",
-             "testing charset: gb2312 <==> utf8",
-             case_charset_gb2312_utf8,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-, TT_TEST_CASE("case_charset_utf16le_utf8",
-               "testing charset: utf16le <==> utf8",
-               case_charset_utf16le_utf8,
-               NULL,
-               NULL,
-               NULL,
-               NULL,
-               NULL),
+TT_TEST_CASE("case_charset_gb2312_utf8", "testing charset: gb2312 <==> utf8",
+             case_charset_gb2312_utf8, NULL, NULL, NULL, NULL, NULL)
+,
+    TT_TEST_CASE("case_charset_utf16le_utf8",
+                 "testing charset: utf16le <==> utf8",
+                 case_charset_utf16le_utf8, NULL, NULL, NULL, NULL, NULL),
     TT_TEST_CASE("case_charset_utf16be_utf8",
                  "testing charset: utf16be <==> utf8",
-                 case_charset_utf16be_utf8,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+                 case_charset_utf16be_utf8, NULL, NULL, NULL, NULL, NULL),
     TT_TEST_CASE("case_charset_utf32le_utf8",
                  "testing charset: utf32le <==> utf8",
-                 case_charset_utf32le_utf8,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+                 case_charset_utf32le_utf8, NULL, NULL, NULL, NULL, NULL),
     TT_TEST_CASE("case_charset_utf32be_utf8",
                  "testing charset: utf32be <==> utf8",
-                 case_charset_utf32be_utf8,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+                 case_charset_utf32be_utf8, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_charset_utf8",
-                 "testing charset: utf8",
-                 case_charset_utf8,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_charset_utf8", "testing charset: utf8",
+                 case_charset_utf8, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(charset_case)
     // =========================================
@@ -78,7 +47,6 @@ TT_TEST_CASE("case_charset_gb2312_utf8",
     /*
      * interface implementation
      */
-
 
     /*
     TT_TEST_ROUTINE_DEFINE(case_charset_utf8)
@@ -190,7 +158,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_gb2312_utf8)
     tt_u32_t buf_len;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #if TT_ENV_OS_IS_ANDROID
     return TT_SUCCESS;
@@ -218,9 +186,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_gb2312_utf8)
         tt_u8_t ret_utf8[sizeof(__utf8_1)];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8);
 
-        ret = tt_chsetconv_create(&csconv,
-                                  TT_CHARSET_GB2312,
-                                  TT_CHARSET_UTF8,
+        ret = tt_chsetconv_create(&csconv, TT_CHARSET_GB2312, TT_CHARSET_UTF8,
                                   NULL);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
@@ -246,9 +212,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_gb2312_utf8)
         tt_u8_t *ret_gb2312;
         tt_u32_t ret_gb2312_len;
 
-        ret = tt_chsetconv_create(&csconv,
-                                  TT_CHARSET_UTF8,
-                                  TT_CHARSET_GB2312,
+        ret = tt_chsetconv_create(&csconv, TT_CHARSET_UTF8, TT_CHARSET_GB2312,
                                   NULL);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
@@ -321,7 +285,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
     tt_chsetconv_t csconv;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #if TT_ENV_OS_IS_ANDROID
     return TT_SUCCESS;
@@ -352,39 +316,11 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
 
     // utf16le to utf8: incomplete
     {
-        tt_u8_t test_1[] = {0x51,
-                            0x7f,
-                            0x13,
-                            0x66,
-                            0xd1,
-                            0x79,
-                            0x80,
-                            0x62,
-                            0x01,
-                            0xD8,
-                            0x37,
-                            0xDC,
-                            0xaf,
-                            0x8b};
-        tt_u8_t test_ret[] = {0xe7,
-                              0xbd,
-                              0x91,
-                              0xe6,
-                              0x98,
-                              0x93,
-                              0xe7,
-                              0xa7,
-                              0x91,
-                              0xe6,
-                              0x8a,
-                              0x80,
-                              0xf0,
-                              0x90,
-                              0x90,
-                              0xb7,
-                              0xe8,
-                              0xae,
-                              0xaf};
+        tt_u8_t test_1[] = {0x51, 0x7f, 0x13, 0x66, 0xd1, 0x79, 0x80,
+                            0x62, 0x01, 0xD8, 0x37, 0xDC, 0xaf, 0x8b};
+        tt_u8_t test_ret[] = {0xe7, 0xbd, 0x91, 0xe6, 0x98, 0x93, 0xe7,
+                              0xa7, 0x91, 0xe6, 0x8a, 0x80, 0xf0, 0x90,
+                              0x90, 0xb7, 0xe8, 0xae, 0xaf};
         tt_u8_t ret_utf8[10];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8), i, j;
 
@@ -467,9 +403,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
         j = 0;
         while (i < sizeof(test_1)) {
             tt_u32_t n = tt_rand_u32() % 3 + 1;
-            if (i + n > sizeof(test_1)) {
-                n = sizeof(test_1) - i;
-            }
+            if (i + n > sizeof(test_1)) { n = sizeof(test_1) - i; }
 
             ret = tt_chsetconv_input(&csconv, test_1 + i, n);
             TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -477,8 +411,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
-                            0,
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len), 0,
                             "");
                 j += ret_utf8_len;
             }
@@ -512,11 +445,9 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
             ret_utf16le_len = sizeof(ret_utf16le);
             tt_chsetconv_output(&csconv, ret_utf16le, &ret_utf16le_len);
             TT_UT_EXP(ret_utf16le_len <= sizeof(ret_utf16le), "");
-            TT_UT_EQUAL(tt_memcmp(ret_utf16le,
-                                  __utf16le_1 + n,
+            TT_UT_EQUAL(tt_memcmp(ret_utf16le, __utf16le_1 + n,
                                   ret_utf16le_len),
-                        0,
-                        "");
+                        0, "");
 
             n += ret_utf16le_len;
         }
@@ -537,22 +468,10 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
 
     // utf8 to utf16le: incomplete utf16le
     {
-        tt_u8_t utf8_test1[] = {0xe7,
-                                0xbd,
-                                0x91,
-                                0xe6,
-                                0x98,
-                                0x93,
-                                0xE7,
-                                0xA7,
-                                0x91,
-                                0xf0,
-                                0x90,
-                                0x90,
-                                0xb7,
-                                0XE6};
-        tt_u8_t test_ret[] =
-            {0x51, 0x7f, 0x13, 0x66, 0xd1, 0x79, 0x01, 0xd8, 0x37, 0xdc};
+        tt_u8_t utf8_test1[] = {0xe7, 0xbd, 0x91, 0xe6, 0x98, 0x93, 0xE7,
+                                0xA7, 0x91, 0xf0, 0x90, 0x90, 0xb7, 0XE6};
+        tt_u8_t test_ret[] = {0x51, 0x7f, 0x13, 0x66, 0xd1,
+                              0x79, 0x01, 0xd8, 0x37, 0xdc};
         tt_u8_t ret_utf8[10];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8), i, j;
 
@@ -631,9 +550,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
         j = 0;
         while (i < sizeof(utf8_test1)) {
             tt_u32_t n = tt_rand_u32() % 3 + 1;
-            if (i + n > sizeof(utf8_test1)) {
-                n = sizeof(utf8_test1) - i;
-            }
+            if (i + n > sizeof(utf8_test1)) { n = sizeof(utf8_test1) - i; }
 
             ret = tt_chsetconv_input(&csconv, utf8_test1 + i, n);
             TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -641,8 +558,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
-                            0,
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len), 0,
                             "");
                 j += ret_utf8_len;
             }
@@ -702,7 +618,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16be_utf8)
     tt_chsetconv_t csconv;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #if TT_ENV_OS_IS_ANDROID
     return TT_SUCCESS;
@@ -732,39 +648,11 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16be_utf8)
 
     // utf16be to utf8: incomplete
     {
-        tt_u8_t test_1[] = {0x7f,
-                            0x51,
-                            0x66,
-                            0x13,
-                            0x79,
-                            0xd1,
-                            0x62,
-                            0x80,
-                            0xD8,
-                            0x01,
-                            0xDC,
-                            0x37,
-                            0x8b,
-                            0xaf};
-        tt_u8_t test_ret[] = {0xe7,
-                              0xbd,
-                              0x91,
-                              0xe6,
-                              0x98,
-                              0x93,
-                              0xe7,
-                              0xa7,
-                              0x91,
-                              0xe6,
-                              0x8a,
-                              0x80,
-                              0xf0,
-                              0x90,
-                              0x90,
-                              0xb7,
-                              0xe8,
-                              0xae,
-                              0xaf};
+        tt_u8_t test_1[] = {0x7f, 0x51, 0x66, 0x13, 0x79, 0xd1, 0x62,
+                            0x80, 0xD8, 0x01, 0xDC, 0x37, 0x8b, 0xaf};
+        tt_u8_t test_ret[] = {0xe7, 0xbd, 0x91, 0xe6, 0x98, 0x93, 0xe7,
+                              0xa7, 0x91, 0xe6, 0x8a, 0x80, 0xf0, 0x90,
+                              0x90, 0xb7, 0xe8, 0xae, 0xaf};
         tt_u8_t ret_utf8[10];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8), i, j;
 
@@ -847,9 +735,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16be_utf8)
         j = 0;
         while (i < sizeof(test_1)) {
             tt_u32_t n = tt_rand_u32() % 3 + 1;
-            if (i + n > sizeof(test_1)) {
-                n = sizeof(test_1) - i;
-            }
+            if (i + n > sizeof(test_1)) { n = sizeof(test_1) - i; }
 
             ret = tt_chsetconv_input(&csconv, test_1 + i, n);
             TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -857,8 +743,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16be_utf8)
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
-                            0,
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len), 0,
                             "");
                 j += ret_utf8_len;
             }
@@ -883,8 +768,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16be_utf8)
 
         tt_chsetconv_output(&csconv, ret_utf16be, &ret_utf16be_len);
         TT_UT_EQUAL(ret_utf16be_len, sizeof(__utf16be_1), "");
-        TT_UT_EQUAL(tt_memcmp(ret_utf16be, __utf16be_1, ret_utf16be_len),
-                    0,
+        TT_UT_EQUAL(tt_memcmp(ret_utf16be, __utf16be_1, ret_utf16be_len), 0,
                     "");
 
         // no more
@@ -977,7 +861,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32le_utf8)
     tt_chsetconv_t csconv;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #if TT_ENV_OS_IS_ANDROID
     return TT_SUCCESS;
@@ -1007,20 +891,10 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32le_utf8)
 
     // utf32le to utf8
     {
-        tt_u8_t test_1[] = {0x51,
-                            0x7f,
-                            0x00,
-                            0x00,
-                            0x37,
-                            0x04,
-                            0x01,
-                            0x00,
-                            0xd1,
-                            0x79,
-                            0x00,
-                            0x00};
-        tt_u8_t test_ret[] =
-            {0xe7, 0xbd, 0x91, 0xf0, 0x90, 0x90, 0xb7, 0xe7, 0xa7, 0x91};
+        tt_u8_t test_1[] = {0x51, 0x7f, 0x00, 0x00, 0x37, 0x04,
+                            0x01, 0x00, 0xd1, 0x79, 0x00, 0x00};
+        tt_u8_t test_ret[] = {0xe7, 0xbd, 0x91, 0xf0, 0x90,
+                              0x90, 0xb7, 0xe7, 0xa7, 0x91};
         tt_u8_t ret_utf8[sizeof(__utf8_1)];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8), i, j;
 
@@ -1080,9 +954,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32le_utf8)
         j = 0;
         while (i < sizeof(test_1)) {
             tt_u32_t n = tt_rand_u32() % 3 + 1;
-            if (i + n > sizeof(test_1)) {
-                n = sizeof(test_1) - i;
-            }
+            if (i + n > sizeof(test_1)) { n = sizeof(test_1) - i; }
 
             ret = tt_chsetconv_input(&csconv, test_1 + i, n);
             TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -1090,8 +962,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32le_utf8)
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
-                            0,
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len), 0,
                             "");
                 j += ret_utf8_len;
             }
@@ -1116,8 +987,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32le_utf8)
 
         tt_chsetconv_output(&csconv, ret_utf32le, &ret_utf32le_len);
         TT_UT_EQUAL(ret_utf32le_len, sizeof(__utf32le_1), "");
-        TT_UT_EQUAL(tt_memcmp(ret_utf32le, __utf32le_1, ret_utf32le_len),
-                    0,
+        TT_UT_EQUAL(tt_memcmp(ret_utf32le, __utf32le_1, ret_utf32le_len), 0,
                     "");
 
         // no more
@@ -1211,7 +1081,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32be_utf8)
     tt_chsetconv_t csconv;
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
 #if TT_ENV_OS_IS_ANDROID
     return TT_SUCCESS;
@@ -1241,20 +1111,10 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32be_utf8)
 
     // utf32be to utf8
     {
-        tt_u8_t test_1[] = {0x00,
-                            0x00,
-                            0x7f,
-                            0x51,
-                            0x00,
-                            0x01,
-                            0x04,
-                            0x37,
-                            0x00,
-                            0x00,
-                            0x79,
-                            0xd1};
-        tt_u8_t test_ret[] =
-            {0xe7, 0xbd, 0x91, 0xf0, 0x90, 0x90, 0xb7, 0xe7, 0xa7, 0x91};
+        tt_u8_t test_1[] = {0x00, 0x00, 0x7f, 0x51, 0x00, 0x01,
+                            0x04, 0x37, 0x00, 0x00, 0x79, 0xd1};
+        tt_u8_t test_ret[] = {0xe7, 0xbd, 0x91, 0xf0, 0x90,
+                              0x90, 0xb7, 0xe7, 0xa7, 0x91};
         tt_u8_t ret_utf8[sizeof(__utf8_1)];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8), i, j;
 
@@ -1310,9 +1170,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32be_utf8)
         tt_chsetconv_destroy(&csconv);
 
         // random test
-        ret = tt_chsetconv_create(&csconv,
-                                  TT_CHARSET_UTF32BE,
-                                  TT_CHARSET_UTF8,
+        ret = tt_chsetconv_create(&csconv, TT_CHARSET_UTF32BE, TT_CHARSET_UTF8,
                                   NULL);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
@@ -1320,9 +1178,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32be_utf8)
         j = 0;
         while (i < sizeof(test_1)) {
             tt_u32_t n = tt_rand_u32() % 3 + 1;
-            if (i + n > sizeof(test_1)) {
-                n = sizeof(test_1) - i;
-            }
+            if (i + n > sizeof(test_1)) { n = sizeof(test_1) - i; }
 
             ret = tt_chsetconv_input(&csconv, test_1 + i, n);
             TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -1330,8 +1186,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32be_utf8)
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
-                            0,
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len), 0,
                             "");
                 j += ret_utf8_len;
             }
@@ -1356,8 +1211,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32be_utf8)
 
         tt_chsetconv_output(&csconv, ret_utf32be, &ret_utf32be_len);
         TT_UT_EQUAL(ret_utf32be_len, sizeof(__utf32be_1), "");
-        TT_UT_EQUAL(tt_memcmp(ret_utf32be, __utf32be_1, ret_utf32be_len),
-                    0,
+        TT_UT_EQUAL(tt_memcmp(ret_utf32be, __utf32be_1, ret_utf32be_len), 0,
                     "");
 
         // no more
@@ -1391,9 +1245,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf8)
         tt_u32_t n = tt_rand_u32() % 5 + 1;
         tt_u32_t j, k;
 
-        if ((i + n) > sizeof(__utf8_1)) {
-            n = sizeof(__utf8_1) - i;
-        }
+        if ((i + n) > sizeof(__utf8_1)) { n = sizeof(__utf8_1) - i; }
 
         ret = tt_chsetconv_input(&csconv, __utf8_1 + i, n);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");

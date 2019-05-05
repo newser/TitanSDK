@@ -105,9 +105,7 @@ tt_result_t tt_netif_group_add(IN tt_netif_group_t *group,
     }
 
     netif = tt_netif_create(netif_name, idx);
-    if (netif == NULL) {
-        return TT_FAIL;
-    }
+    if (netif == NULL) { return TT_FAIL; }
 
     tt_list_push_tail(&group->netif_list, &netif->node);
 

@@ -62,8 +62,7 @@ void __sshsvr_destroy(IN tt_sshsvr_t *sshsvr);
 
 tt_sshsvr_t *tt_sshsvr_create(IN tt_sktaddr_t *address,
                               IN OPT tt_sshsvr_attr_t *attr,
-                              IN OPT tt_sshsvr_cb_t *cb,
-                              IN OPT void *opaque,
+                              IN OPT tt_sshsvr_cb_t *cb, IN OPT void *opaque,
                               IN tt_sshch_cb_t *sshch_cb)
 {
     tt_sshsvr_t *sshsvr = NULL;
@@ -92,9 +91,7 @@ tt_sshsvr_t *tt_sshsvr_create(IN tt_sktaddr_t *address,
 
     // attributes
     if (attr != NULL) {
-        if (!TT_OK(__check_sshsvr_attr(attr))) {
-            goto sfail;
-        }
+        if (!TT_OK(__check_sshsvr_attr(attr))) { goto sfail; }
 
         tt_memcpy(&sshsvr->attr, attr, sizeof(tt_sshsvr_attr_t));
     } else {
@@ -103,9 +100,7 @@ tt_sshsvr_t *tt_sshsvr_create(IN tt_sktaddr_t *address,
 
     // server callbacks
     if (cb != NULL) {
-        if (!TT_OK(__check_sshsvr_cb(cb))) {
-            goto sfail;
-        }
+        if (!TT_OK(__check_sshsvr_cb(cb))) { goto sfail; }
 
         tt_memcpy(&sshsvr->cb, cb, sizeof(tt_sshsvr_cb_t));
     } else {
@@ -116,9 +111,7 @@ tt_sshsvr_t *tt_sshsvr_create(IN tt_sktaddr_t *address,
     sshsvr->opaque = opaque;
 
     // channel callbacks
-    if (!TT_OK(__check_sshch_cb(sshch_cb))) {
-        goto sfail;
-    }
+    if (!TT_OK(__check_sshch_cb(sshch_cb))) { goto sfail; }
     tt_memcpy(&sshsvr->sshch_cb, sshch_cb, sizeof(tt_sshch_cb_t));
 
     // connection list
@@ -140,10 +133,8 @@ tt_sshsvr_t *tt_sshsvr_create(IN tt_sktaddr_t *address,
 
     result = tt_tcp_server_async(&sshsvr->skt,
                                  tt_sktaddr_get_family(&sshsvr->address),
-                                 &skt_attr,
-                                 &sshsvr->address,
-                                 TT_SKT_BACKLOG_DEFAULT,
-                                 &skt_exit);
+                                 &skt_attr, &sshsvr->address,
+                                 TT_SKT_BACKLOG_DEFAULT, &skt_exit);
     if (!TT_OK(result)) {
         TT_ERROR("fail to create ssh server socket");
         goto sfail;
@@ -152,9 +143,7 @@ tt_sshsvr_t *tt_sshsvr_create(IN tt_sktaddr_t *address,
 
     // start running
     result = __sshsvr_start(sshsvr);
-    if (!TT_OK(result)) {
-        goto sfail;
-    }
+    if (!TT_OK(result)) { goto sfail; }
 
     return sshsvr;
 
@@ -165,9 +154,7 @@ sfail:
         tt_async_skt_destroy(&sshsvr->skt, TT_TRUE);
     }
 
-    if (__done & __SSVR_MEM) {
-        tt_free(sshsvr);
-    }
+    if (__done & __SSVR_MEM) { tt_free(sshsvr); }
 
     return NULL;
 }
@@ -261,9 +248,7 @@ tt_result_t tt_sshsvr_create_rsa(IN tt_sshsvr_t *sshsvr)
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_rsa_create(rsa,
-                             ssh_attr->rsapub_format,
-                             TT_RSA_TYPE_PUBLIC,
+    if (!TT_OK(tt_rsa_create(rsa, ssh_attr->rsapub_format, TT_RSA_TYPE_PUBLIC,
                              &ssh_attr->rsapub_key_data,
                              &ssh_attr->rsapub_attr))) {
         tt_free(rsa);
@@ -282,9 +267,7 @@ tt_result_t tt_sshsvr_create_rsa(IN tt_sshsvr_t *sshsvr)
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_rsa_create(rsa,
-                             ssh_attr->rsapriv_format,
-                             TT_RSA_TYPE_PRIVATE,
+    if (!TT_OK(tt_rsa_create(rsa, ssh_attr->rsapriv_format, TT_RSA_TYPE_PRIVATE,
                              &ssh_attr->rsapriv_key_data,
                              &ssh_attr->rsapriv_attr))) {
         tt_free(rsa);
@@ -328,8 +311,7 @@ tt_result_t __check_sshsvr_attr(IN tt_sshsvr_attr_t *attr)
     if ((attr->max_conn_num != 0) &&
         (attr->concurrent_conn_num > attr->max_conn_num)) {
         TT_ERROR("conncurrent conn num[%d] should be less than limit[%d]",
-                 attr->concurrent_conn_num,
-                 attr->max_conn_num);
+                 attr->concurrent_conn_num, attr->max_conn_num);
         return TT_FAIL;
     }
 
@@ -394,9 +376,7 @@ void __sshsvr_destroy(IN tt_sshsvr_t *sshsvr)
     TT_ASSERT(tt_list_empty(&sshsvr->conn_list));
     TT_ASSERT(sshsvr->skt_destroyed);
 
-    if (sshsvr->cb.on_destroy != NULL) {
-        sshsvr->cb.on_destroy(sshsvr);
-    }
+    if (sshsvr->cb.on_destroy != NULL) { sshsvr->cb.on_destroy(sshsvr); }
 
     // rsa key
     tt_sshsvr_destroy_rsa(sshsvr);

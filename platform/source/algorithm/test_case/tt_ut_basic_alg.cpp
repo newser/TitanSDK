@@ -973,13 +973,13 @@ TT_TEST_ROUTINE_DEFINE(case_alg_rng_cpp)
     // test start
 
     // xorshift
-    tt::rng<> r;
+    tt::rng::xorshift r;
     for (i = 0; i < __RAND_SIZE; ++i) { num[i] = 0; }
     min_n = ~0;
     max_n = 0;
 
     start = tt_time_ref();
-    for (i = 0; i < __RAND_SIZE; ++i) { num[r.next() % __RAND_SIZE] += 1; }
+    for (i = 0; i < __RAND_SIZE; ++i) { num[r() % __RAND_SIZE] += 1; }
     end = tt_time_ref();
     t = tt_time_ref2ms(end - start);
 
@@ -988,6 +988,47 @@ TT_TEST_ROUTINE_DEFINE(case_alg_rng_cpp)
         if (num[i] >= max_n) max_n = num[i];
     }
     TT_RECORD_INFO("xorshift, time: %dms, min: %d, max: %d", t, min_n, max_n);
+    TT_INFO("xorshift, time: %dms, min: %d, max: %d", t, min_n, max_n);
+
+    ///////////////
+
+    for (i = 0; i < __RAND_SIZE; ++i) { num[i] = 0; }
+    min_n = ~0;
+    max_n = 0;
+
+    start = tt_time_ref();
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        num[tt::rng::next() % __RAND_SIZE] += 1;
+    }
+    end = tt_time_ref();
+    t = tt_time_ref2ms(end - start);
+
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        if (num[i] < min_n) min_n = num[i];
+        if (num[i] >= max_n) max_n = num[i];
+    }
+    TT_RECORD_INFO("rng2, time: %dms, min: %d, max: %d", t, min_n, max_n);
+    TT_INFO("rng2, time: %dms, min: %d, max: %d", t, min_n, max_n);
+
+    ///////////////
+
+    for (i = 0; i < __RAND_SIZE; ++i) { num[i] = 0; }
+    min_n = ~0;
+    max_n = 0;
+
+    start = tt_time_ref();
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        num[tt::rng::next<std::mt19937>() % __RAND_SIZE] += 1;
+    }
+    end = tt_time_ref();
+    t = tt_time_ref2ms(end - start);
+
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        if (num[i] < min_n) min_n = num[i];
+        if (num[i] >= max_n) max_n = num[i];
+    }
+    TT_RECORD_INFO("rng2, time: %dms, min: %d, max: %d", t, min_n, max_n);
+    TT_INFO("rng2, time: %dms, min: %d, max: %d", t, min_n, max_n);
 
     // test end
     TT_TEST_CASE_LEAVE()

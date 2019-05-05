@@ -92,9 +92,7 @@ __ENTRY_IMPL(PLATFORM_ENV_TOOLCHAIN_VER_DETAIL)
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2) {
-        return -1;
-    }
+    if (argc != 2) { return -1; }
 
 #define __ENTRY_START(option)                                                  \
     if (strncmp(argv[1], #option, sizeof(#option) - 1) == 0) {                 \

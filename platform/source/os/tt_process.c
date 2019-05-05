@@ -65,7 +65,8 @@ void tt_process_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __process_component_init, __process_component_exit,
+        __process_component_init,
+        __process_component_exit,
     };
 
     // init component
@@ -75,8 +76,7 @@ void tt_process_component_register()
     tt_component_register(&comp);
 }
 
-tt_result_t tt_process_create(IN tt_process_t *proc,
-                              IN const tt_char_t *path,
+tt_result_t tt_process_create(IN tt_process_t *proc, IN const tt_char_t *path,
                               IN OPT tt_char_t *const arg[],
                               IN OPT tt_process_attr_t *attr)
 {
@@ -93,8 +93,7 @@ tt_result_t tt_process_create(IN tt_process_t *proc,
     return tt_process_create_ntv(&proc->sys_proc, path, arg, attr);
 }
 
-tt_result_t tt_process_wait(IN tt_process_t *proc,
-                            IN tt_bool_t block,
+tt_result_t tt_process_wait(IN tt_process_t *proc, IN tt_bool_t block,
                             IN OPT tt_u8_t *exit_code)
 {
     TT_ASSERT(proc != NULL);

@@ -57,7 +57,8 @@ typedef struct
     tt_queue_iter_t iter;
 } tt_http_uri_param_iter_t;
 
-typedef enum {
+typedef enum
+{
     TT_HTTP_SCHEME_UNDEFINED,
     TT_HTTP_SCHEME_HTTP,
     TT_HTTP_SCHEME_HTTPS,
@@ -87,8 +88,7 @@ typedef struct tt_http_uri_s
 tt_export void tt_http_uri_init(IN tt_http_uri_t *hu);
 
 tt_export tt_result_t tt_http_uri_create(IN tt_http_uri_t *hu,
-                                         IN tt_char_t *str,
-                                         IN tt_u32_t len);
+                                         IN tt_char_t *str, IN tt_u32_t len);
 
 tt_inline tt_result_t tt_http_uri_create_cstr(IN tt_http_uri_t *hu,
                                               IN tt_char_t *str)
@@ -110,8 +110,7 @@ tt_inline tt_string_t *tt_http_uri_str(IN tt_http_uri_t *hu)
 // ========================================
 
 tt_export tt_result_t tt_http_uri_parse_n(IN tt_http_uri_t *hu,
-                                          IN tt_char_t *str,
-                                          IN tt_u32_t len);
+                                          IN tt_char_t *str, IN tt_u32_t len);
 
 tt_inline tt_result_t tt_http_uri_parse(IN tt_http_uri_t *hu, IN tt_char_t *str)
 {
@@ -155,8 +154,7 @@ tt_inline tt_result_t tt_http_uri_set_userinfo_n(IN tt_http_uri_t *hu,
 tt_inline tt_result_t tt_http_uri_set_userinfo(IN tt_http_uri_t *hu,
                                                IN const tt_char_t *userinfo)
 {
-    return tt_http_uri_set_userinfo_n(hu,
-                                      userinfo,
+    return tt_http_uri_set_userinfo_n(hu, userinfo,
                                       (tt_u32_t)tt_strlen(userinfo));
 }
 
@@ -178,8 +176,7 @@ tt_inline tt_result_t tt_http_uri_parse_authority_n(
 tt_inline tt_result_t tt_http_uri_parse_authority(IN tt_http_uri_t *hu,
                                                   IN const tt_char_t *authority)
 {
-    return tt_http_uri_parse_authority_n(hu,
-                                         authority,
+    return tt_http_uri_parse_authority_n(hu, authority,
                                          (tt_u32_t)tt_strlen(authority));
 }
 
@@ -300,8 +297,7 @@ tt_inline tt_result_t tt_http_uri_set_fragment_n(IN tt_http_uri_t *hu,
 tt_inline tt_result_t tt_http_uri_set_fragment(IN tt_http_uri_t *hu,
                                                IN const tt_char_t *fragment)
 {
-    return tt_http_uri_set_fragment_n(hu,
-                                      fragment,
+    return tt_http_uri_set_fragment_n(hu, fragment,
                                       (tt_u32_t)tt_strlen(fragment));
 }
 

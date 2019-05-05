@@ -61,24 +61,12 @@ TT_TEST_ROUTINE_DECLARE(case_rwlock_mt)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(rwlock_case)
 
-TT_TEST_CASE("case_rwlock_basic",
-             "testing basic rwlock API",
-             case_rwlock_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_rwlock_basic", "testing basic rwlock API", case_rwlock_basic,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_rwlock_mt",
-                 "testing rwlock API in multithread",
-                 case_rwlock_mt,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_rwlock_mt", "testing rwlock API in multithread",
+                 case_rwlock_mt, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(rwlock_case)
     // =========================================

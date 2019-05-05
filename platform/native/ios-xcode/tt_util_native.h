@@ -53,9 +53,7 @@ this file provided some basic utilities for platform usage
         while ((__failed = (fail_expression)) && (errno == EINTR))             \
             ;                                                                  \
         if (__failed) {                                                        \
-            TT_ERROR_NTV("failed: %s, %d[%s]",                                 \
-                         #fail_expression,                                     \
-                         errno,                                                \
+            TT_ERROR_NTV("failed: %s, %d[%s]", #fail_expression, errno,        \
                          strerror(errno));                                     \
         }                                                                      \
     } while (0)
@@ -80,11 +78,8 @@ this file provided some basic utilities for platform usage
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_kevent(IN int kq,
-                             IN uint64_t ident,
-                             IN int16_t filter,
-                             IN uint16_t flags,
-                             IN uint64_t udata);
+extern tt_result_t tt_kevent(IN int kq, IN uint64_t ident, IN int16_t filter,
+                             IN uint16_t flags, IN uint64_t udata);
 
 // remember use tt_free to free the return value
 extern char *tt_cfstring_ptr(IN CFStringRef cfstr, OUT OPT tt_u32_t *len);

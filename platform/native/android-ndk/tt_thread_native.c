@@ -98,10 +98,8 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
         return TT_FAIL;
     }
 
-    ret = pthread_create(&sys_thread->handle,
-                         &pthread_attr,
-                         __thread_routine_wrapper,
-                         thread);
+    ret = pthread_create(&sys_thread->handle, &pthread_attr,
+                         __thread_routine_wrapper, thread);
     pthread_attr_destroy(&pthread_attr);
     if (ret != 0) {
         TT_FATAL("fail to create thread: %d[%s]", ret, strerror(ret));

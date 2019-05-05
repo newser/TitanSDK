@@ -54,9 +54,7 @@ tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf)
     tt_logio_t *lio;
 
     lio = (tt_logio_t *)tt_malloc(sizeof(tt_logio_t) + size);
-    if (lio == NULL) {
-        return NULL;
-    }
+    if (lio == NULL) { return NULL; }
 
     lio->itf = itf;
     tt_atomic_s32_set(&lio->ref, 1);
@@ -71,15 +69,12 @@ tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf)
 
 void __logio_destroy(IN tt_logio_t *lio)
 {
-    if (lio->itf->destroy != NULL) {
-        lio->itf->destroy(lio);
-    }
+    if (lio->itf->destroy != NULL) { lio->itf->destroy(lio); }
 
     tt_free(lio);
 }
 
-void tt_logio_output(IN tt_logio_t *lio,
-                     IN const tt_char_t *data,
+void tt_logio_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                      IN tt_u32_t len)
 {
     tt_thread_t *t;

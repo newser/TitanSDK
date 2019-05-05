@@ -69,12 +69,10 @@ tt_export void tt_deflate_destroy(IN tt_deflate_t *dfl);
 
 tt_export void tt_deflate_attr_default(IN tt_deflate_attr_t *attr);
 
-tt_export tt_result_t tt_deflate_run(IN tt_deflate_t *dfl,
-                                     IN tt_u8_t *ibuf,
+tt_export tt_result_t tt_deflate_run(IN tt_deflate_t *dfl, IN tt_u8_t *ibuf,
                                      IN tt_u32_t ilen,
                                      OUT tt_u32_t *consumed_len,
-                                     IN tt_u8_t *obuf,
-                                     IN tt_u32_t olen,
+                                     IN tt_u8_t *obuf, IN tt_u32_t olen,
                                      OUT tt_u32_t *produced_len,
                                      IN tt_bool_t finish);
 

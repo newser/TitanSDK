@@ -44,7 +44,6 @@
 
 __BEGIN_DECLS
 
-
 #define PROC_ALL_PIDS 1
 #define PROC_PGRP_ONLY 2
 #define PROC_TTY_ONLY 3
@@ -77,7 +76,6 @@ struct proc_bsdinfo
     uint64_t pbi_start_tvusec;
 };
 
-
 /* pbi_flags values */
 #define PROC_FLAG_SYSTEM 1
 #define PROC_FLAG_TRACED 2
@@ -96,7 +94,6 @@ struct proc_bsdinfo
 /* process action bits for resource starvation */
 #define PROC_FLAG_PA_THROTTLE 0x800
 #define PROC_FLAG_PA_SUSP 0x1000
-
 
 struct proc_taskinfo
 {
@@ -179,7 +176,6 @@ struct proc_regioninfo
 #define SM_PRIVATE_ALIASED 6
 #define SM_SHARED_ALIASED 7
 
-
 /*
  *    Thread run states (state field).
  */
@@ -199,7 +195,6 @@ clean point */
  */
 #define TH_FLAGS_SWAPPED 0x1 /* thread is swapped out */
 #define TH_FLAGS_IDLE 0x2 /* thread is an idle thread */
-
 
 struct proc_workqueueinfo
 {
@@ -298,7 +293,6 @@ struct proc_threadwithpathinfo
  *  Socket
  */
 
-
 /*
  * IPv4 and IPv6 Sockets
  */
@@ -384,7 +378,6 @@ struct tcp_sockinfo
 /*
  * Unix Domain Sockets
  */
-
 
 struct un_sockinfo
 {
@@ -518,7 +511,6 @@ struct socket_fdinfo
     struct socket_info psi;
 };
 
-
 struct psem_info
 {
     struct vinfo_stat psem_stat;
@@ -530,7 +522,6 @@ struct psem_fdinfo
     struct proc_fileinfo pfi;
     struct psem_info pseminfo;
 };
-
 
 struct pshm_info
 {
@@ -544,7 +535,6 @@ struct pshm_fdinfo
     struct proc_fileinfo pfi;
     struct pshm_info pshminfo;
 };
-
 
 struct pipe_info
 {
@@ -560,7 +550,6 @@ struct pipe_fdinfo
     struct proc_fileinfo pfi;
     struct pipe_info pipeinfo;
 };
-
 
 struct kqueue_info
 {
@@ -587,7 +576,6 @@ struct appletalk_fdinfo
     struct proc_fileinfo pfi;
     struct appletalk_info appletalkinfo;
 };
-
 
 /* defns of process file desc type */
 #define PROX_FDTYPE_ATALK 0
@@ -623,7 +611,6 @@ struct proc_fdinfo
 
 #define PROC_PIDLISTTHREADS 6
 #define PROC_PIDLISTTHREADS_SIZE (2 * sizeof(uint32_t))
-
 
 #define PROC_PIDREGIONINFO 7
 #define PROC_PIDREGIONINFO_SIZE (sizeof(struct proc_regioninfo))
@@ -672,7 +659,6 @@ struct proc_fdinfo
 
 /* used for proc_setcontrol */
 #define PROC_SELFSET_PCONTROL 1
-
 
 __END_DECLS
 

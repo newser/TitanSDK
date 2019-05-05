@@ -60,8 +60,7 @@ void tt_x509cert_init(IN tt_x509cert_t *x)
     mbedtls_x509_crt_init(&x->crt);
 }
 
-tt_result_t tt_x509cert_add(IN tt_x509cert_t *x,
-                            IN tt_u8_t *buf,
+tt_result_t tt_x509cert_add(IN tt_x509cert_t *x, IN tt_u8_t *buf,
                             IN tt_u32_t len)
 {
     TT_ASSERT(x != NULL);
@@ -106,8 +105,7 @@ void tt_x509cert_destroy(IN tt_x509cert_t *x)
     mbedtls_x509_crt_free(&x->crt);
 }
 
-tt_result_t tt_x509cert_verify(IN tt_x509cert_t *x,
-                               IN tt_x509cert_t *ca,
+tt_result_t tt_x509cert_verify(IN tt_x509cert_t *x, IN tt_x509cert_t *ca,
                                IN OPT tt_x509crl_t *crl,
                                IN OPT const tt_char_t *name,
                                OUT tt_u32_t *status)
@@ -118,13 +116,8 @@ tt_result_t tt_x509cert_verify(IN tt_x509cert_t *x,
     TT_ASSERT(ca != NULL);
 
     *status = 0;
-    e = mbedtls_x509_crt_verify(&x->crt,
-                                &ca->crt,
-                                &crl->crl,
-                                name,
-                                status,
-                                NULL,
-                                NULL);
+    e = mbedtls_x509_crt_verify(&x->crt, &ca->crt, &crl->crl, name, status,
+                                NULL, NULL);
     if (e != 0) {
         tt_ssl_error("x509 cert verify failed");
         return TT_FAIL;
@@ -133,8 +126,7 @@ tt_result_t tt_x509cert_verify(IN tt_x509cert_t *x,
     return TT_SUCCESS;
 }
 
-tt_u32_t tt_x509cert_dump_verify_status(IN tt_u32_t status,
-                                        IN tt_char_t *buf,
+tt_u32_t tt_x509cert_dump_verify_status(IN tt_u32_t status, IN tt_char_t *buf,
                                         IN tt_u32_t len)
 {
     TT_ASSERT(buf != NULL);
@@ -142,8 +134,7 @@ tt_u32_t tt_x509cert_dump_verify_status(IN tt_u32_t status,
     return mbedtls_x509_crt_verify_info(buf, len, "", status);
 }
 
-tt_u32_t tt_x509cert_dump(IN tt_x509cert_t *x,
-                          IN tt_char_t *buf,
+tt_u32_t tt_x509cert_dump(IN tt_x509cert_t *x, IN tt_char_t *buf,
                           IN tt_u32_t len)
 {
     TT_ASSERT(buf != NULL);

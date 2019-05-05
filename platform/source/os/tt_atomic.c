@@ -59,7 +59,8 @@ void tt_atomic_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __atomic_component_init, __atomic_component_exit,
+        __atomic_component_init,
+        __atomic_component_exit,
     };
 
     // init component
@@ -72,9 +73,7 @@ void tt_atomic_component_register()
 tt_result_t __atomic_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_atomic_component_init_ntv(profile))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_atomic_component_init_ntv(profile))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }

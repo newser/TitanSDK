@@ -40,7 +40,8 @@ this file specifies network io definitions
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_NET_AF_INET,
     TT_NET_AF_INET6,
 
@@ -49,7 +50,8 @@ typedef enum {
 } tt_net_family_t;
 #define TT_NET_AF_VALID(af) ((af) < TT_NET_AF_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_NET_PROTO_UDP,
     TT_NET_PROTO_TCP,
 
@@ -58,7 +60,8 @@ typedef enum {
 } tt_net_protocol_t;
 #define TT_NET_PROTO_VALID(p) ((p) < TT_NET_PROTO_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_SKT_SHUT_RD,
     TT_SKT_SHUT_WR,
     TT_SKT_SHUT_RDWR,

@@ -97,7 +97,8 @@ void tt_log_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __log_component_init, __log_component_exit,
+        __log_component_init,
+        __log_component_exit,
     };
 
     // init component
@@ -114,10 +115,7 @@ void tt_logmgr_component_register()
     tt_component_itf_t itf = {__logmgr_component_init, __logmgr_component_exit};
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_LOG_MANAGER,
-                      "Log Manager",
-                      NULL,
+    tt_component_init(&comp, TT_COMPONENT_LOG_MANAGER, "Log Manager", NULL,
                       &itf);
 
     // register component
@@ -132,11 +130,8 @@ void tt_logmgr_config_component_register()
                               __logmgr_config_component_exit};
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_LOGMGR_CONFIG,
-                      "Log Configuration",
-                      NULL,
-                      &itf);
+    tt_component_init(&comp, TT_COMPONENT_LOGMGR_CONFIG, "Log Configuration",
+                      NULL, &itf);
 
     // register component
     tt_component_register(&comp);
@@ -153,8 +148,7 @@ void tt_logmgr_layout_default(IN tt_logmgr_t *lmgr)
 
 tt_result_t tt_logmgr_io_default(IN tt_logmgr_t *lmgr)
 {
-    if (!TT_OK(tt_logmgr_append_io(lmgr,
-                                   TT_LOG_DEBUG,
+    if (!TT_OK(tt_logmgr_append_io(lmgr, TT_LOG_DEBUG,
                                    tt_s_logio[TT_LOG_DEBUG]))) {
         TT_ERROR("fail to append debug io");
         return TT_FAIL;
@@ -172,15 +166,13 @@ tt_result_t tt_logmgr_io_default(IN tt_logmgr_t *lmgr)
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_logmgr_append_io(lmgr,
-                                   TT_LOG_ERROR,
+    if (!TT_OK(tt_logmgr_append_io(lmgr, TT_LOG_ERROR,
                                    tt_s_logio[TT_LOG_ERROR]))) {
         TT_ERROR("fail to append error io");
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_logmgr_append_io(lmgr,
-                                   TT_LOG_FATAL,
+    if (!TT_OK(tt_logmgr_append_io(lmgr, TT_LOG_FATAL,
                                    tt_s_logio[TT_LOG_FATAL]))) {
         TT_ERROR("fail to append fatal io");
         return TT_FAIL;

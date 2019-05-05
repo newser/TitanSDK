@@ -191,7 +191,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_context_cpp)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt::log::layout::pattern *pp = new tt::log::layout::pattern();
+    tt::log::pattern *pp = new tt::log::pattern();
     TT_UT_TRUE(pp->parse("${seqno} ${level} ${logger} ${content} "
                          "<${function}:${line}>\n"),
                "");
@@ -205,7 +205,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_context_cpp)
     e.content = "aabbcc";
     cc.write(e);
 
-    std::shared_ptr<tt::log::i_io> p1(new tt::log::io::standard());
+    std::shared_ptr<tt::log::i_io> p1(new tt::log::standard());
     cc.append_io(p1);
 
     e.function = __FUNCTION__;
@@ -1224,15 +1224,15 @@ TT_TEST_ROUTINE_DEFINE(case_log_manager_cpp)
     TT_TEST_CASE_ENTER()
     // test start
 
-    auto p_debug = new tt::log::layout::pattern();
+    auto p_debug = new tt::log::pattern();
     TT_UT_TRUE(p_debug->parse("${content} <${function} - ${line}>\n"), "");
-    auto p_info = new tt::log::layout::pattern();
+    auto p_info = new tt::log::pattern();
     TT_UT_TRUE(p_info->parse("${content}\n"), "");
-    auto p_warn = new tt::log::layout::pattern();
+    auto p_warn = new tt::log::pattern();
     TT_UT_TRUE(p_warn->parse("${level:%-6.6s} ${content}\n"), "");
-    auto p_error = new tt::log::layout::pattern();
+    auto p_error = new tt::log::pattern();
     TT_UT_TRUE(p_error->parse("${level:%-6.6s} ${content}\n"), "");
-    auto p_fatal = new tt::log::layout::pattern();
+    auto p_fatal = new tt::log::pattern();
     TT_UT_TRUE(p_fatal->parse("${level:%-6.6s} ${content}\n"), "");
 
     // test
@@ -1246,7 +1246,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_manager_cpp)
     // no io
     __test_log_cpp(lm);
 
-    auto p_stdout = new tt::log::io::standard();
+    auto p_stdout = new tt::log::standard();
     lm.append_io(std::shared_ptr<tt::log::i_io>(p_stdout));
     __test_log_cpp(lm);
 

@@ -50,9 +50,9 @@ template<size_t t_init = 6, size_t t_high = 12, size_t t_max = 0>
 class memspg
 {
 public:
-    static const size_t k_init_size = (1 << t_init);
-    static const size_t k_high_size = (1 << t_high);
-    static const size_t k_max_size = t_max == 0 ? 0 : (1 << t_max);
+    static constexpr size_t k_init_size = (1 << t_init);
+    static constexpr size_t k_high_size = (1 << t_high);
+    static constexpr size_t k_max_size = t_max == 0 ? 0 : (1 << t_max);
 
     static size_t align_size(size_t size)
     {

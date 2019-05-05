@@ -83,16 +83,13 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
 }
 
 tt_result_t tt_process_wait_ntv(IN tt_process_ntv_t *sys_proc,
-                                IN tt_bool_t block,
-                                IN OPT tt_u8_t *exit_code)
+                                IN tt_bool_t block, IN OPT tt_u8_t *exit_code)
 {
     int ret;
     int status = 0;
     int options = 0;
 
-    if (!block) {
-        options |= WNOHANG;
-    }
+    if (!block) { options |= WNOHANG; }
 
 __wait_ag:
     ret = waitpid(sys_proc->pid, &status, options);
@@ -108,9 +105,7 @@ __wait_ag:
     }
 
     // failed
-    if (errno == EINTR) {
-        goto __wait_ag;
-    }
+    if (errno == EINTR) { goto __wait_ag; }
     TT_ERROR_NTV("wait process failed");
     return TT_FAIL;
 }
@@ -174,9 +169,7 @@ tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
 
     tt_memcpy(d, cwd, len);
     free(cwd);
-    if (append_slash == 1) {
-        d[len] = '/';
-    }
+    if (append_slash == 1) { d[len] = '/'; }
     d[len + append_slash] = 0;
 
     return d;
@@ -203,9 +196,7 @@ tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
 #endif
     if (p != NULL) {
         tt_u32_t n = (tt_u32_t)tt_strlen(p);
-        if (n >= len) {
-            n = len - 1;
-        }
+        if (n >= len) { n = len - 1; }
         tt_memcpy(name, p, n);
         name[n] = 0;
         return TT_SUCCESS;

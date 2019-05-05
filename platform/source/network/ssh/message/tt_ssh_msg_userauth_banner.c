@@ -55,12 +55,9 @@ static tt_result_t __uab_render(IN struct tt_sshmsg_s *msg,
 static tt_result_t __uab_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data);
 
 static tt_sshmsg_itf_t __uab_op = {
-    __uab_create,
-    NULL,
-    NULL,
+    __uab_create,         NULL,         NULL,
 
-    __uab_render_prepare,
-    __uab_render,
+    __uab_render_prepare, __uab_render,
 
     __uab_parse,
 };
@@ -76,8 +73,7 @@ static tt_sshmsg_itf_t __uab_op = {
 tt_sshmsg_t *tt_sshmsg_uab_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_USERAUTH_BANNER,
-                            sizeof(tt_sshmsg_uab_t),
-                            &__uab_op);
+                            sizeof(tt_sshmsg_uab_t), &__uab_op);
 }
 
 tt_result_t tt_sshmsg_uab_set_banner(IN tt_sshmsg_t *msg,
@@ -92,8 +88,7 @@ tt_result_t tt_sshmsg_uab_set_banner(IN tt_sshmsg_t *msg,
     uab = TT_SSHMSG_CAST(msg, tt_sshmsg_uab_t);
 
     tt_buf_reset_rwp(&uab->banner);
-    TT_DO(tt_buf_put(&uab->banner,
-                     (tt_u8_t *)banner,
+    TT_DO(tt_buf_put(&uab->banner, (tt_u8_t *)banner,
                      (tt_u32_t)tt_strlen(banner)));
 
     return TT_SUCCESS;
@@ -110,8 +105,7 @@ tt_result_t __uab_create(IN struct tt_sshmsg_s *msg)
     return TT_SUCCESS;
 }
 
-tt_result_t __uab_render_prepare(IN struct tt_sshmsg_s *msg,
-                                 OUT tt_u32_t *len,
+tt_result_t __uab_render_prepare(IN struct tt_sshmsg_s *msg, OUT tt_u32_t *len,
                                  OUT tt_ssh_render_mode_t *mode)
 {
     tt_sshmsg_uab_t *uab;
@@ -155,8 +149,7 @@ tt_result_t __uab_render(IN struct tt_sshmsg_s *msg, IN OUT tt_buf_t *buf)
     TT_DO(tt_ssh_byte_render(buf, TT_SSH_MSGID_USERAUTH_BANNER));
 
     // string message
-    TT_DO(tt_ssh_string_render(buf,
-                               TT_BUF_RPOS(&uab->banner),
+    TT_DO(tt_ssh_string_render(buf, TT_BUF_RPOS(&uab->banner),
                                TT_BUF_RLEN(&uab->banner)));
 
     // string language tag

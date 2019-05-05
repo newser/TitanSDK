@@ -37,10 +37,8 @@
 
 typedef struct
 {
-    tt_result_t (*get_pwd)(IN tt_char_t *username,
-                           IN tt_u32_t username_len,
-                           IN void *param,
-                           OUT tt_char_t **pwd,
+    tt_result_t (*get_pwd)(IN tt_char_t *username, IN tt_u32_t username_len,
+                           IN void *param, OUT tt_char_t **pwd,
                            OUT tt_u32_t *pwd_len);
     union
     {
@@ -71,11 +69,8 @@ static tt_result_t __create_ctx(IN tt_http_inserv_t *s, IN OPT void *ctx);
 static void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
 // __clear_ctx() is not nessary, the service can handle it
-static tt_http_inserv_itf_t s_auth_itf = {__destroy_s_auth,
-                                          NULL,
-                                          __create_ctx,
-                                          __destroy_ctx,
-                                          NULL};
+static tt_http_inserv_itf_t s_auth_itf = {__destroy_s_auth, NULL, __create_ctx,
+                                          __destroy_ctx, NULL};
 
 static tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s,
                                                IN void *ctx,
@@ -116,12 +111,9 @@ tt_http_inserv_t *tt_http_inserv_auth_create(
     }
 
     s = tt_http_inserv_create(TT_HTTP_INSERV_AUTH,
-                              sizeof(tt_http_inserv_auth_t),
-                              &s_auth_itf,
+                              sizeof(tt_http_inserv_auth_t), &s_auth_itf,
                               &s_auth_cb);
-    if (s == NULL) {
-        return NULL;
-    }
+    if (s == NULL) { return NULL; }
 
     sa = TT_HTTP_INSERV_CAST(s, tt_http_inserv_auth_t);
 
@@ -134,17 +126,13 @@ tt_http_inserv_t *tt_http_inserv_auth_create(
     tt_http_auth_init(ha);
     // if realm is cstr, no need to own it
     if ((attr->realm_len > 0) &&
-        !TT_OK(tt_blobex_set(&ha->realm,
-                             (tt_u8_t *)attr->realm,
-                             attr->realm_len,
-                             !attr->realm_cstr))) {
+        !TT_OK(tt_blobex_set(&ha->realm, (tt_u8_t *)attr->realm,
+                             attr->realm_len, !attr->realm_cstr))) {
         goto fail;
     }
     if ((attr->domain_len > 0) &&
-        !TT_OK(tt_blobex_set(&ha->domain,
-                             (tt_u8_t *)attr->domain,
-                             attr->domain_len,
-                             !attr->domain_cstr))) {
+        !TT_OK(tt_blobex_set(&ha->domain, (tt_u8_t *)attr->domain,
+                             attr->domain_len, !attr->domain_cstr))) {
         goto fail;
     }
     ha->qop_mask = attr->qop_mask;
@@ -203,8 +191,7 @@ void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx)
     tt_http_auth_ctx_destroy(&c->auth_ctx);
 }
 
-tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s,
-                                        IN void *ctx,
+tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s, IN void *ctx,
                                         IN tt_http_parser_t *req,
                                         OUT tt_http_resp_render_t *resp)
 {
@@ -221,9 +208,7 @@ tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s,
 
     // check if request has an Authorization header
     h = tt_http_parser_get_auth(req);
-    if (h == NULL) {
-        goto auth_fail;
-    }
+    if (h == NULL) { goto auth_fail; }
 
     // do verification
     local_auth = &sa->auth;
@@ -248,9 +233,7 @@ tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s,
         pwd_len = (tt_u32_t)tt_strlen(sa->pwd);
     } else if (!TT_OK(sa->get_pwd(tt_blobex_addr(&remote_auth->username),
                                   tt_blobex_len(&remote_auth->username),
-                                  sa->get_pwd_param,
-                                  &pwd,
-                                  &pwd_len))) {
+                                  sa->get_pwd_param, &pwd, &pwd_len))) {
         // no such user
         goto auth_fail;
     }
@@ -273,30 +256,21 @@ tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s,
      */
     mtd = tt_http_parser_get_method(req);
 
-    if (!TT_OK(tt_http_auth_ctx_calc(ac,
-                                     remote_auth,
-                                     pwd,
-                                     pwd_len,
-                                     qop,
+    if (!TT_OK(tt_http_auth_ctx_calc(ac, remote_auth, pwd, pwd_len, qop,
                                      (tt_char_t *)tt_g_http_method[mtd],
-                                     tt_g_http_method_len[mtd],
-                                     NULL,
-                                     0,
+                                     tt_g_http_method_len[mtd], NULL, 0,
                                      response))) {
         tt_http_resp_render_set_status(resp,
                                        TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
-    if (tt_blobex_memcmp(&remote_auth->response,
-                         response,
+    if (tt_blobex_memcmp(&remote_auth->response, response,
                          tt_http_auth_ctx_digest_len(ac) << 1) != 0) {
 #if 1
         tt_hex_dump(tt_blobex_addr(&remote_auth->response),
-                    tt_blobex_len(&remote_auth->response),
-                    16);
-        tt_hex_dump((tt_u8_t *)response,
-                    tt_http_auth_ctx_digest_len(ac) << 1,
+                    tt_blobex_len(&remote_auth->response), 16);
+        tt_hex_dump((tt_u8_t *)response, tt_http_auth_ctx_digest_len(ac) << 1,
                     16);
 #endif
         goto auth_fail;
@@ -316,9 +290,7 @@ auth_fail:
         ha = tt_http_render_get_www_auth(&resp->render);
         TT_ASSERT(ha != NULL);
         __new_nonce(sa, ac);
-        tt_blobex_set(&ha->nonce,
-                      (tt_u8_t *)ac->nonce,
-                      ac->nonce_len,
+        tt_blobex_set(&ha->nonce, (tt_u8_t *)ac->nonce, ac->nonce_len,
                       TT_FALSE);
 
         tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_UNAUTHORIZED);

@@ -97,8 +97,7 @@ static tt_result_t __svr_uncomp_install(IN tt_sshsvrconn_t *svrconn,
 ////////////////////////////////////////////////////////////
 
 void tt_sshsvr_state_keyxchg(IN struct tt_sshsvrconn_s *svrconn,
-                             IN tt_sshsvr_event_t event,
-                             IN void *param,
+                             IN tt_sshsvr_event_t event, IN void *param,
                              OUT tt_sshsvr_action_t *svract)
 {
     tt_result_t result;
@@ -106,41 +105,39 @@ void tt_sshsvr_state_keyxchg(IN struct tt_sshsvrconn_s *svrconn,
     TT_ASSERT(event < TT_SSHSVREV_NUM);
 
     switch (event) {
-        case TT_SSHSVREV_PACKET: {
-            tt_sshmsg_t *msg = (tt_sshmsg_t *)param;
+    case TT_SSHSVREV_PACKET: {
+        tt_sshmsg_t *msg = (tt_sshmsg_t *)param;
 
-            result = __svr_keyxchg_packet(svrconn, msg);
-            if (TT_OK(result)) {
-                svrconn->ms_keyinit_in = TT_TRUE;
-                if (svrconn->ms_keyinit_out) {
-                    svract->new_state = TT_SSHSVRST_KEXDH;
-                }
-            } else if (result == TT_E_PROCEED) {
-                TT_SSH_MSGID_IGNORED(TT_SSHSVRST_KEYXCHG, msg->msg_id);
-            } else {
-                svract->new_event = TT_SSHSVREV_DISCONNECT;
-            }
-            return;
-        } break;
-
-        case TT_SSHSVREV_KEYINIT: {
-            result = __svr_keyxchg_keyinit(svrconn, param);
-            if (!TT_OK(result)) {
-                svract->new_event = TT_SSHSVREV_DISCONNECT;
-                return;
-            }
-
-            svrconn->ms_keyinit_out = TT_TRUE;
-            if (svrconn->ms_keyinit_in) {
+        result = __svr_keyxchg_packet(svrconn, msg);
+        if (TT_OK(result)) {
+            svrconn->ms_keyinit_in = TT_TRUE;
+            if (svrconn->ms_keyinit_out) {
                 svract->new_state = TT_SSHSVRST_KEXDH;
             }
-            return;
-        } break;
+        } else if (result == TT_E_PROCEED) {
+            TT_SSH_MSGID_IGNORED(TT_SSHSVRST_KEYXCHG, msg->msg_id);
+        } else {
+            svract->new_event = TT_SSHSVREV_DISCONNECT;
+        }
+        return;
+    } break;
 
-        default: {
-            TT_SSH_EV_IGNORED(TT_SSHSVRST_KEYXCHG, event);
+    case TT_SSHSVREV_KEYINIT: {
+        result = __svr_keyxchg_keyinit(svrconn, param);
+        if (!TT_OK(result)) {
+            svract->new_event = TT_SSHSVREV_DISCONNECT;
             return;
-        } break;
+        }
+
+        svrconn->ms_keyinit_out = TT_TRUE;
+        if (svrconn->ms_keyinit_in) { svract->new_state = TT_SSHSVRST_KEXDH; }
+        return;
+    } break;
+
+    default: {
+        TT_SSH_EV_IGNORED(TT_SSHSVRST_KEYXCHG, event);
+        return;
+    } break;
     }
 }
 
@@ -148,67 +145,50 @@ tt_result_t __svr_keyxchg_packet(IN tt_sshsvrconn_t *svrconn,
                                  IN tt_sshmsg_t *msg)
 {
     switch (msg->msg_id) {
-        case TT_SSH_MSGID_KEXINIT: {
-            tt_sshms_keyinit_t *ms_keyinit =
-                TT_SSHMSG_CAST(msg, tt_sshms_keyinit_t);
-            tt_result_t result;
-            tt_u8_t *ic;
-            tt_u32_t ic_len;
+    case TT_SSH_MSGID_KEXINIT: {
+        tt_sshms_keyinit_t *ms_keyinit =
+            TT_SSHMSG_CAST(msg, tt_sshms_keyinit_t);
+        tt_result_t result;
+        tt_u8_t *ic;
+        tt_u32_t ic_len;
 
-            // record i_c
-            result = tt_sshmsg_peek_payload(&msg->buf, &ic, &ic_len);
-            TT_ASSERT_SSH(TT_OK(result));
-            if (!TT_OK(
-                    tt_sshctx_kex_setic(&svrconn->ctx, ic, ic_len, TT_TRUE))) {
-                return TT_FAIL;
-            }
-
-            // algorithms negotiation
-
-            result = __svr_kex_negotiate(svrconn, ms_keyinit);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-
-            result = __svr_pubkey_negotiate(svrconn, ms_keyinit);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-
-            result = __svr_enc_negotiate(svrconn, ms_keyinit);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-            result = __svr_dec_negotiate(svrconn, ms_keyinit);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-
-            result = __svr_sign_negotiate(svrconn, ms_keyinit);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-            result = __svr_verify_negotiate(svrconn, ms_keyinit);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-
-            result = __svr_comp_negotiate(svrconn, ms_keyinit);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-            result = __svr_uncomp_negotiate(svrconn, ms_keyinit);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-
-            return TT_SUCCESS;
-        } break;
-
-        default: {
-            TT_SSH_MSG_FAILURE(TT_SSHSVRST_KEYXCHG, msg->msg_id);
+        // record i_c
+        result = tt_sshmsg_peek_payload(&msg->buf, &ic, &ic_len);
+        TT_ASSERT_SSH(TT_OK(result));
+        if (!TT_OK(tt_sshctx_kex_setic(&svrconn->ctx, ic, ic_len, TT_TRUE))) {
             return TT_FAIL;
-        } break;
+        }
+
+        // algorithms negotiation
+
+        result = __svr_kex_negotiate(svrconn, ms_keyinit);
+        if (!TT_OK(result)) { return TT_FAIL; }
+
+        result = __svr_pubkey_negotiate(svrconn, ms_keyinit);
+        if (!TT_OK(result)) { return TT_FAIL; }
+
+        result = __svr_enc_negotiate(svrconn, ms_keyinit);
+        if (!TT_OK(result)) { return TT_FAIL; }
+        result = __svr_dec_negotiate(svrconn, ms_keyinit);
+        if (!TT_OK(result)) { return TT_FAIL; }
+
+        result = __svr_sign_negotiate(svrconn, ms_keyinit);
+        if (!TT_OK(result)) { return TT_FAIL; }
+        result = __svr_verify_negotiate(svrconn, ms_keyinit);
+        if (!TT_OK(result)) { return TT_FAIL; }
+
+        result = __svr_comp_negotiate(svrconn, ms_keyinit);
+        if (!TT_OK(result)) { return TT_FAIL; }
+        result = __svr_uncomp_negotiate(svrconn, ms_keyinit);
+        if (!TT_OK(result)) { return TT_FAIL; }
+
+        return TT_SUCCESS;
+    } break;
+
+    default: {
+        TT_SSH_MSG_FAILURE(TT_SSHSVRST_KEYXCHG, msg->msg_id);
+        return TT_FAIL;
+    } break;
     }
 }
 
@@ -220,9 +200,7 @@ tt_result_t __svr_keyxchg_keyinit(IN tt_sshsvrconn_t *svrconn, IN void *param)
     tt_u32_t is_len;
 
     msg = tt_sshms_keyinit_create();
-    if (msg == NULL) {
-        return TT_FAIL;
-    }
+    if (msg == NULL) { return TT_FAIL; }
 
     // may ask callback to set cipher algorithms, but now use default
 
@@ -301,19 +279,17 @@ tt_result_t __svr_kex_install(IN tt_sshsvrconn_t *svrconn,
     tt_sshctx_t *ctx = &svrconn->ctx;
 
     switch (kex_alg) {
-        case TT_SSH_KEX_ALG_DH_G14_SHA1:
-        case TT_SSH_KEX_ALG_DH_G1_SHA1: {
-            if (!TT_OK(tt_sshctx_kex_setalg(ctx, kex_alg))) {
-                return TT_FAIL;
-            }
+    case TT_SSH_KEX_ALG_DH_G14_SHA1:
+    case TT_SSH_KEX_ALG_DH_G1_SHA1: {
+        if (!TT_OK(tt_sshctx_kex_setalg(ctx, kex_alg))) { return TT_FAIL; }
 
-            return TT_SUCCESS;
-        } break;
+        return TT_SUCCESS;
+    } break;
 
-        default: {
-            // never reach here
-            return TT_FAIL;
-        } break;
+    default: {
+        // never reach here
+        return TT_FAIL;
+    } break;
     }
 }
 
@@ -340,44 +316,33 @@ tt_result_t __svr_pubkey_install(IN tt_sshsvrconn_t *svrconn,
     tt_sshctx_t *ctx = &svrconn->ctx;
 
     switch (pubkey_alg) {
-        case TT_SSH_PUBKEY_ALG_RSA: {
-            tt_rsa_t *rsapub, *rsapriv;
-            tt_rsa_number_t rsa_number;
-            tt_result_t result;
+    case TT_SSH_PUBKEY_ALG_RSA: {
+        tt_rsa_t *rsapub, *rsapriv;
+        tt_rsa_number_t rsa_number;
+        tt_result_t result;
 
-            rsapub = tt_sshsvr_get_rsapub(svrconn->server);
-            if (rsapub == NULL) {
-                return TT_FAIL;
-            }
-            rsapriv = tt_sshsvr_get_rsapriv(svrconn->server);
-            if (rsapriv == NULL) {
-                return TT_FAIL;
-            }
+        rsapub = tt_sshsvr_get_rsapub(svrconn->server);
+        if (rsapub == NULL) { return TT_FAIL; }
+        rsapriv = tt_sshsvr_get_rsapriv(svrconn->server);
+        if (rsapriv == NULL) { return TT_FAIL; }
 
-            // use public key to fill k_s
-            result = tt_rsa_get_number(rsapub, &rsa_number);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-            result = tt_sshctx_kex_setks_rsa(ctx,
-                                             &rsa_number.pubnum.pub_exp,
-                                             &rsa_number.pubnum.modulus);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
+        // use public key to fill k_s
+        result = tt_rsa_get_number(rsapub, &rsa_number);
+        if (!TT_OK(result)) { return TT_FAIL; }
+        result = tt_sshctx_kex_setks_rsa(ctx, &rsa_number.pubnum.pub_exp,
+                                         &rsa_number.pubnum.modulus);
+        if (!TT_OK(result)) { return TT_FAIL; }
 
-            // use private key to sign
-            tt_sshctx_pubk_setalg(&svrconn->ctx,
-                                  TT_SSH_PUBKEY_ALG_RSA,
-                                  rsapriv);
+        // use private key to sign
+        tt_sshctx_pubk_setalg(&svrconn->ctx, TT_SSH_PUBKEY_ALG_RSA, rsapriv);
 
-            return TT_SUCCESS;
-        } break;
+        return TT_SUCCESS;
+    } break;
 
-        default: {
-            // never reach here
-            return TT_FAIL;
-        } break;
+    default: {
+        // never reach here
+        return TT_FAIL;
+    } break;
     }
 }
 

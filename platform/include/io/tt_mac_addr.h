@@ -61,9 +61,7 @@ tt_export void tt_macaddr_init(IN tt_macaddr_t *ma, IN OPT tt_u8_t *addr);
 tt_export tt_result_t tt_macaddr_p2n(IN tt_macaddr_t *ma,
                                      IN const tt_char_t *cstr);
 
-tt_export tt_result_t tt_macaddr_n2p(IN tt_macaddr_t *ma,
-                                     OUT tt_char_t *cstr,
-                                     IN tt_u32_t len,
-                                     IN tt_u32_t flag);
+tt_export tt_result_t tt_macaddr_n2p(IN tt_macaddr_t *ma, OUT tt_char_t *cstr,
+                                     IN tt_u32_t len, IN tt_u32_t flag);
 
 #endif // __TT_MAC_ADDR__

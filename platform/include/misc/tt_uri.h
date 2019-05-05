@@ -86,8 +86,7 @@ tt_export tt_char_t tt_g_uri_encode_table[256];
 
 tt_export void tt_uri_init(IN tt_uri_t *uri);
 
-tt_export tt_result_t tt_uri_create(IN tt_uri_t *uri,
-                                    IN tt_char_t *str,
+tt_export tt_result_t tt_uri_create(IN tt_uri_t *uri, IN tt_char_t *str,
                                     IN tt_u32_t len);
 
 tt_export void tt_uri_destroy(IN tt_uri_t *uri);
@@ -98,8 +97,7 @@ tt_export void tt_uri_clear(IN tt_uri_t *uri);
 // parse
 // ========================================
 
-tt_export tt_result_t tt_uri_parse_n(IN tt_uri_t *uri,
-                                     IN tt_char_t *str,
+tt_export tt_result_t tt_uri_parse_n(IN tt_uri_t *uri, IN tt_char_t *str,
                                      IN tt_u32_t len);
 
 tt_inline tt_result_t tt_uri_parse(IN tt_uri_t *uri, IN tt_char_t *str)
@@ -183,8 +181,7 @@ tt_export tt_result_t tt_uri_parse_authority_n(IN tt_uri_t *uri,
 tt_inline tt_result_t tt_uri_parse_authority(IN tt_uri_t *uri,
                                              IN const tt_char_t *authority)
 {
-    return tt_uri_parse_authority_n(uri,
-                                    authority,
+    return tt_uri_parse_authority_n(uri, authority,
                                     (tt_u32_t)tt_strlen(authority));
 }
 

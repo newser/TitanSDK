@@ -79,45 +79,40 @@ const tt_char_t *tt_g_ssh_cmprs_alg_name[TT_SSH_CMPRS_ALG_NUM] = {
 // ========================================
 
 const tt_char_t *tt_g_ssh_serv_name[TT_SSH_SERVICE_NUM] = {
-    "ssh-userauth", "ssh-connection",
+    "ssh-userauth",
+    "ssh-connection",
 };
 
 // ========================================
 // Auth Method
 // ========================================
 
-const tt_char_t *tt_g_ssh_auth_name[TT_SSH_AUTH_NUM] = {"publickey",
-                                                        "password",
-                                                        "hostbased",
-                                                        "none"};
+const tt_char_t *tt_g_ssh_auth_name[TT_SSH_AUTH_NUM] = {"publickey", "password",
+                                                        "hostbased", "none"};
 
 // ========================================
 // Channel
 // ========================================
 
 const tt_char_t *tt_g_ssh_chtype_name[TT_SSH_CHTYPE_NUM] = {
-    "session", "x11", "forwarded-tcpip", "direct-tcpip",
+    "session",
+    "x11",
+    "forwarded-tcpip",
+    "direct-tcpip",
 };
 
 const tt_char_t *tt_g_ssh_chreqtype_name[TT_SSH_CHREQTYPE_NUM] =
-    {"pty-req",
-     "x11-req",
-     "env",
-     "shell",
-     "exec",
-     "subsystem",
-     "window-change",
-     "xon-xoff",
-     "signal",
-     "exit-status",
-     "exit-signal"};
+    {"pty-req", "x11-req",     "env",           "shell",
+     "exec",    "subsystem",   "window-change", "xon-xoff",
+     "signal",  "exit-status", "exit-signal"};
 
 // ========================================
 // algorithm preference
 // ========================================
 
 tt_ssh_kex_alg_t tt_g_ssh_kex_pref[] = {
-    TT_SSH_KEX_ALG_DH_G14_SHA1, TT_SSH_KEX_ALG_DH_G1_SHA1,
+    TT_SSH_KEX_ALG_DH_G14_SHA1,
+    TT_SSH_KEX_ALG_DH_G1_SHA1,
 };
 tt_u32_t tt_g_ssh_kex_pref_num =
     sizeof(tt_g_ssh_kex_pref) / sizeof(tt_g_ssh_kex_pref[0]);
@@ -175,8 +170,7 @@ tt_ssh_pubkey_alg_t tt_ssh_pubkey_alg_match(IN tt_u8_t *name,
 {
     tt_ssh_pubkey_alg_t i;
     for (i = 0; i < TT_SSH_PUBKEY_ALG_NUM; ++i) {
-        if (tt_strncmp(tt_g_ssh_pubkey_alg_name[i],
-                       (tt_char_t *)name,
+        if (tt_strncmp(tt_g_ssh_pubkey_alg_name[i], (tt_char_t *)name,
                        name_len) == 0) {
             break;
         }
@@ -213,8 +207,7 @@ tt_ssh_cmprs_alg_t tt_ssh_cmprs_alg_match(IN tt_u8_t *name,
 {
     tt_ssh_cmprs_alg_t i;
     for (i = 0; i < TT_SSH_CMPRS_ALG_NUM; ++i) {
-        if (tt_strncmp(tt_g_ssh_cmprs_alg_name[i],
-                       (tt_char_t *)name,
+        if (tt_strncmp(tt_g_ssh_cmprs_alg_name[i], (tt_char_t *)name,
                        name_len) == 0) {
             break;
         }
@@ -263,8 +256,7 @@ tt_ssh_chreqtype_t tt_ssh_chreqtype_match(IN tt_u8_t *name,
 {
     tt_ssh_chreqtype_t i;
     for (i = 0; i < TT_SSH_CHREQTYPE_NUM; ++i) {
-        if (tt_strncmp(tt_g_ssh_chreqtype_name[i],
-                       (tt_char_t *)name,
+        if (tt_strncmp(tt_g_ssh_chreqtype_name[i], (tt_char_t *)name,
                        name_len) == 0) {
             break;
         }
@@ -275,33 +267,25 @@ tt_ssh_chreqtype_t tt_ssh_chreqtype_match(IN tt_u8_t *name,
 tt_u32_t tt_ssh_enc_iv_len(IN tt_ssh_enc_alg_t enc_alg)
 {
     switch (enc_alg) {
-        case TT_SSH_ENC_ALG_AES128_CBC:
-            return TT_AES_IV_SIZE;
-        case TT_SSH_ENC_ALG_AES256_CBC:
-            return TT_AES_IV_SIZE;
-        default:
-            return 0;
+    case TT_SSH_ENC_ALG_AES128_CBC: return TT_AES_IV_SIZE;
+    case TT_SSH_ENC_ALG_AES256_CBC: return TT_AES_IV_SIZE;
+    default: return 0;
     }
 }
 
 tt_u32_t tt_ssh_enc_key_len(IN tt_ssh_enc_alg_t enc_alg)
 {
     switch (enc_alg) {
-        case TT_SSH_ENC_ALG_AES128_CBC:
-            return TT_AES128_KEY_SIZE;
-        case TT_SSH_ENC_ALG_AES256_CBC:
-            return TT_AES256_KEY_SIZE;
-        default:
-            return 0;
+    case TT_SSH_ENC_ALG_AES128_CBC: return TT_AES128_KEY_SIZE;
+    case TT_SSH_ENC_ALG_AES256_CBC: return TT_AES256_KEY_SIZE;
+    default: return 0;
     }
 }
 
 tt_u32_t tt_ssh_mac_key_len(IN tt_ssh_mac_alg_t mac_alg)
 {
     switch (mac_alg) {
-        case TT_SSH_MAC_ALG_HMAC_SHA1:
-            return TT_HMAC_SHA1_DIGEST_LENGTH;
-        default:
-            return 0;
+    case TT_SSH_MAC_ALG_HMAC_SHA1: return TT_HMAC_SHA1_DIGEST_LENGTH;
+    default: return 0;
     }
 }

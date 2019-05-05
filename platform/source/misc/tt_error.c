@@ -128,9 +128,7 @@ __ERR_RANGE_STR_END(TT_ERR_RANGE_NATIVE)
 void tt_err_set_last(IN tt_result_t result)
 {
     tt_thread_t *current = tt_current_thread();
-    if (current != NULL) {
-        current->last_error = result;
-    }
+    if (current != NULL) { current->last_error = result; }
 }
 
 const tt_char_t *tt_err_string(tt_result_t result)
@@ -149,9 +147,9 @@ const tt_char_t *tt_err_string(tt_result_t result)
         __ES_ENTRY(result, TT_ERR_RANGE_NOERR);
         __ES_ENTRY(result, TT_ERR_RANGE_COMMON);
         __ES_ENTRY(result, TT_ERR_RANGE_NATIVE);
-        default: {
-            return "Unknown";
-        } break;
+    default: {
+        return "Unknown";
+    } break;
     }
 #undef __ES_ENTRY
 }

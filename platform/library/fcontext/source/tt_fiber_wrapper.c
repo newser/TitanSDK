@@ -68,9 +68,7 @@ tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
     wrap_fb->fctx = NULL;
     wrap_fb->from = NULL;
 
-    if (!TT_OK(__create_stack(wrap_fb, stack_size))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__create_stack(wrap_fb, stack_size))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -80,8 +78,7 @@ void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb)
     __destroy_stack(wrap_fb);
 }
 
-void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
-                          IN tt_fiber_t *from,
+void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs, IN tt_fiber_t *from,
                           IN tt_fiber_t *to)
 {
     tt_fiber_wrap_t *wrap_to = &to->wrap_fb;
@@ -99,8 +96,7 @@ void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
     //  prev: f3, as f1 returns from f3
 
     if (wrap_to->fctx == NULL) {
-        wrap_to->fctx = tt_make_fcontext(wrap_to->stack,
-                                         wrap_to->stack_size,
+        wrap_to->fctx = tt_make_fcontext(wrap_to->stack, wrap_to->stack_size,
                                          __fiber_routine_wrapper);
     }
 
@@ -171,8 +167,7 @@ tt_result_t __create_stack(IN tt_fiber_wrap_t *wrap_fb, IN tt_u32_t stack_size)
         return TT_FAIL;
     }
 
-    if (mprotect(TT_PTR_INC(void, stack, tt_g_page_size),
-                 stack_size,
+    if (mprotect(TT_PTR_INC(void, stack, tt_g_page_size), stack_size,
                  PROT_READ | PROT_WRITE) != 0) {
         TT_ERROR_NTV("fail to change pages to read/write");
         munmap(stack, size);
@@ -190,8 +185,7 @@ void __destroy_stack(IN tt_fiber_wrap_t *wrap_fb)
 #ifdef TT_PAGE_BY_MALLOC
     tt_free(TT_PTR_DEC(void, wrap_fb->stack, wrap_fb->stack_size));
 #else
-    munmap(TT_PTR_DEC(void,
-                      wrap_fb->stack,
+    munmap(TT_PTR_DEC(void, wrap_fb->stack,
                       wrap_fb->stack_size + tt_g_page_size),
            wrap_fb->stack_size + (tt_g_page_size << 1));
 #endif

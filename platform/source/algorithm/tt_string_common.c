@@ -67,10 +67,8 @@ tt_char_t tt_string_getchar(IN tt_string_t *s, IN tt_u32_t pos)
     }
 }
 
-tt_bool_t tt_string_equal_range(IN tt_string_t *a,
-                                IN const tt_char_t *b,
-                                IN tt_u32_t from,
-                                IN tt_u32_t len)
+tt_bool_t tt_string_equal_range(IN tt_string_t *a, IN const tt_char_t *b,
+                                IN tt_u32_t from, IN tt_u32_t len)
 {
     tt_u32_t a_len, b_len;
 
@@ -96,9 +94,7 @@ tt_s32_t tt_string_ncasecmp(IN tt_string_t *a, IN const tt_char_t *b)
 
     a_len = TT_BUF_RLEN(a_buf);
     b_len = (tt_u32_t)tt_strlen(b) + 1;
-    if ((a_len != b_len) || (a_len == 0)) {
-        return (tt_s32_t)(a_len - b_len);
-    }
+    if ((a_len != b_len) || (a_len == 0)) { return (tt_s32_t)(a_len - b_len); }
 
     return tt_memicmp(TT_BUF_RPOS(a_buf), (tt_u8_t *)b, a_len);
 }
@@ -126,16 +122,13 @@ tt_u32_t tt_string_find(IN tt_string_t *s, IN const tt_char_t *substr)
     // as we know, s and substr are always has content and null terminated
     // so it's safe to use strstr()
     pos = (tt_u8_t *)tt_strstr(tt_string_cstr(s), substr);
-    if (pos == NULL) {
-        return TT_POS_NULL;
-    }
+    if (pos == NULL) { return TT_POS_NULL; }
 
     TT_ASSERT_STR((pos >= TT_BUF_RPOS(buf)) && (pos <= TT_BUF_WPOS(buf)));
     return (tt_u32_t)(pos - TT_BUF_RPOS(buf));
 }
 
-tt_u32_t tt_string_findfrom(IN tt_string_t *s,
-                            IN tt_u32_t from,
+tt_u32_t tt_string_findfrom(IN tt_string_t *s, IN tt_u32_t from,
                             IN const tt_char_t *substr)
 {
     tt_buf_t *buf = &s->buf;
@@ -143,9 +136,7 @@ tt_u32_t tt_string_findfrom(IN tt_string_t *s,
     tt_u8_t *pos;
 
     s_from = tt_string_subcstr(s, from, NULL);
-    if (s_from == NULL) {
-        return TT_POS_NULL;
-    }
+    if (s_from == NULL) { return TT_POS_NULL; }
 
     if (*substr == 0) {
         // empty string is a substring of any other string
@@ -153,9 +144,7 @@ tt_u32_t tt_string_findfrom(IN tt_string_t *s,
     } else {
         pos = (tt_u8_t *)tt_strstr(s_from, substr);
     }
-    if (pos == NULL) {
-        return TT_POS_NULL;
-    }
+    if (pos == NULL) { return TT_POS_NULL; }
 
     TT_ASSERT_STR((pos >= TT_BUF_RPOS(buf)) && (pos <= TT_BUF_WPOS(buf)));
     return (tt_u32_t)(pos - TT_BUF_RPOS(buf));
@@ -167,16 +156,13 @@ tt_u32_t tt_string_find_c(IN tt_string_t *s, IN tt_char_t c)
     tt_u8_t *pos;
 
     pos = (tt_u8_t *)tt_strchr(tt_string_cstr(s), c);
-    if (pos == NULL) {
-        return TT_POS_NULL;
-    }
+    if (pos == NULL) { return TT_POS_NULL; }
 
     TT_ASSERT_STR((pos >= TT_BUF_RPOS(buf)) && (pos <= TT_BUF_WPOS(buf)));
     return (tt_u32_t)(pos - TT_BUF_RPOS(buf));
 }
 
-tt_u32_t tt_string_findfrom_c(IN tt_string_t *s,
-                              IN tt_u32_t from,
+tt_u32_t tt_string_findfrom_c(IN tt_string_t *s, IN tt_u32_t from,
                               IN tt_char_t c)
 {
     tt_buf_t *buf = &s->buf;
@@ -184,14 +170,10 @@ tt_u32_t tt_string_findfrom_c(IN tt_string_t *s,
     tt_u8_t *pos;
 
     s_from = tt_string_subcstr(s, from, NULL);
-    if (s_from == NULL) {
-        return TT_POS_NULL;
-    }
+    if (s_from == NULL) { return TT_POS_NULL; }
 
     pos = (tt_u8_t *)tt_strchr(s_from, c);
-    if (pos == NULL) {
-        return TT_POS_NULL;
-    }
+    if (pos == NULL) { return TT_POS_NULL; }
 
     TT_ASSERT_STR((pos >= TT_BUF_RPOS(buf)) && (pos <= TT_BUF_WPOS(buf)));
     return (tt_u32_t)(pos - TT_BUF_RPOS(buf));
@@ -203,49 +185,37 @@ tt_u32_t tt_string_rfind_c(IN tt_string_t *s, IN tt_char_t c)
     tt_u8_t *pos;
 
     pos = (tt_u8_t *)tt_strrchr(tt_string_cstr(s), c);
-    if (pos == NULL) {
-        return TT_POS_NULL;
-    }
+    if (pos == NULL) { return TT_POS_NULL; }
 
     TT_ASSERT_STR((pos >= TT_BUF_RPOS(buf)) && (pos <= TT_BUF_WPOS(buf)));
     return (tt_u32_t)(pos - TT_BUF_RPOS(buf));
 }
 
-tt_u32_t tt_string_rfindfrom_c(IN tt_string_t *s,
-                               IN tt_u32_t from,
+tt_u32_t tt_string_rfindfrom_c(IN tt_string_t *s, IN tt_u32_t from,
                                IN tt_char_t c)
 {
     tt_u32_t n;
     const tt_char_t *cs;
 
     n = tt_string_len(s);
-    if (from > n) {
-        from = n;
-    }
+    if (from > n) { from = n; }
 
     cs = tt_string_cstr(s);
     while (--from != ~0) {
-        if (cs[from] == c) {
-            return from;
-        }
+        if (cs[from] == c) { return from; }
     }
     return TT_POS_NULL;
 }
 
-void tt_string_remove_range(IN tt_string_t *s,
-                            IN tt_u32_t from,
+void tt_string_remove_range(IN tt_string_t *s, IN tt_u32_t from,
                             IN tt_u32_t len)
 {
     tt_u32_t n;
 
     // must not remove the terminating null
     n = tt_string_len(s);
-    if (from >= n) {
-        return;
-    }
-    if ((from + len) >= n) {
-        len = (n - from);
-    }
+    if (from >= n) { return; }
+    if ((from + len) >= n) { len = (n - from); }
 
     tt_buf_remove_range(&s->buf, from, from + len);
 }
@@ -255,9 +225,7 @@ void tt_string_remove_headto(IN tt_string_t *s, IN tt_u32_t to)
     tt_u32_t n;
 
     n = tt_string_len(s);
-    if (to >= n) {
-        to = n;
-    }
+    if (to >= n) { to = n; }
 
     tt_buf_remove_headto(&s->buf, to);
 }
@@ -267,9 +235,7 @@ void tt_string_remove_tailfrom(IN tt_string_t *s, IN tt_u32_t from)
     tt_u32_t n;
 
     n = tt_string_len(s);
-    if (from >= n) {
-        return;
-    }
+    if (from >= n) { return; }
 
     tt_buf_remove_tailfrom(&s->buf, from);
     tt_buf_put_u8(&s->buf, 0);
@@ -281,8 +247,7 @@ tt_result_t tt_string_append(IN OUT tt_string_t *s, IN const tt_char_t *substr)
 }
 
 tt_result_t tt_string_append_n(IN OUT tt_string_t *s,
-                               IN const tt_char_t *substr,
-                               IN tt_u32_t len)
+                               IN const tt_char_t *substr, IN tt_u32_t len)
 {
     tt_buf_t *buf = &s->buf;
 
@@ -315,8 +280,7 @@ tt_result_t tt_string_append_c(IN OUT tt_string_t *s, IN tt_char_t c)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_string_append_rep(IN OUT tt_string_t *s,
-                                 IN tt_char_t c,
+tt_result_t tt_string_append_rep(IN OUT tt_string_t *s, IN tt_char_t c,
                                  IN tt_u32_t c_num)
 {
     tt_buf_t *buf = &s->buf;
@@ -334,8 +298,7 @@ tt_result_t tt_string_append_rep(IN OUT tt_string_t *s,
 }
 
 tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
-                                 IN const tt_char_t *substr,
-                                 IN tt_u32_t from,
+                                 IN const tt_char_t *substr, IN tt_u32_t from,
                                  IN tt_u32_t len)
 {
     tt_buf_t *buf = &s->buf;
@@ -345,9 +308,7 @@ tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
         TT_ERROR("invalid from[%u], len[%u]", from, n);
         return TT_FAIL;
     }
-    if ((from + len) > n) {
-        len = (n - from);
-    }
+    if ((from + len) > n) { len = (n - from); }
 
     TT_ASSERT(buf->wpos > 0);
     --buf->wpos;
@@ -357,8 +318,7 @@ tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
 }
 
 tt_result_t tt_string_append_f(IN OUT tt_string_t *s,
-                               IN const tt_char_t *format,
-                               ...)
+                               IN const tt_char_t *format, ...)
 {
     tt_buf_t *buf = &s->buf;
     va_list args;
@@ -380,21 +340,15 @@ tt_bool_t tt_string_startwith(IN tt_string_t *s, IN const tt_char_t *substr)
 {
     tt_u32_t n = (tt_u32_t)tt_strlen(substr);
 
-    if (n == 0) {
-        return TT_TRUE;
-    }
-    if (tt_string_len(s) < n) {
-        return TT_FALSE;
-    }
+    if (n == 0) { return TT_TRUE; }
+    if (tt_string_len(s) < n) { return TT_FALSE; }
 
     return TT_BOOL(tt_strncmp(tt_string_cstr(s), substr, n) == 0);
 }
 
 tt_bool_t tt_string_startwith_c(IN tt_string_t *s, IN tt_char_t c)
 {
-    if (tt_string_empty(s)) {
-        return TT_FALSE;
-    }
+    if (tt_string_empty(s)) { return TT_FALSE; }
 
     return TT_BOOL(tt_string_cstr(s)[0] == c);
 }
@@ -404,41 +358,29 @@ tt_bool_t tt_string_endwith(IN tt_string_t *s, IN const tt_char_t *substr)
     tt_u32_t s_len = tt_string_len(s);
     tt_u32_t n = (tt_u32_t)tt_strlen(substr);
 
-    if (n == 0) {
-        return TT_TRUE;
-    }
-    if (s_len < n) {
-        return TT_FALSE;
-    }
+    if (n == 0) { return TT_TRUE; }
+    if (s_len < n) { return TT_FALSE; }
 
     return TT_BOOL(tt_strncmp(tt_string_cstr(s) + s_len - n, substr, n) == 0);
 }
 
 tt_bool_t tt_string_endwith_c(IN tt_string_t *s, IN tt_char_t c)
 {
-    if (tt_string_empty(s)) {
-        return TT_FALSE;
-    }
+    if (tt_string_empty(s)) { return TT_FALSE; }
 
     return TT_BOOL(tt_string_cstr(s)[tt_string_len(s) - 1] == c);
 }
 
-tt_result_t tt_string_substr(IN tt_string_t *s,
-                             IN tt_u32_t from,
-                             IN tt_u32_t len,
-                             OUT tt_string_t *substr)
+tt_result_t tt_string_substr(IN tt_string_t *s, IN tt_u32_t from,
+                             IN tt_u32_t len, OUT tt_string_t *substr)
 {
     tt_u8_t *p;
     tt_u32_t n;
     tt_buf_t *buf;
 
     p = (tt_u8_t *)tt_string_subcstr(s, from, &n);
-    if (p == NULL) {
-        return TT_FAIL;
-    }
-    if (len > n) {
-        len = n;
-    }
+    if (p == NULL) { return TT_FAIL; }
+    if (len > n) { len = n; }
 
     buf = &substr->buf;
     tt_buf_clear(buf);
@@ -447,8 +389,7 @@ tt_result_t tt_string_substr(IN tt_string_t *s,
     return TT_SUCCESS;
 }
 
-tt_s32_t tt_string_replace_c(IN OUT tt_string_t *s,
-                             IN tt_char_t oldchar,
+tt_s32_t tt_string_replace_c(IN OUT tt_string_t *s, IN tt_char_t oldchar,
                              IN tt_char_t newchar)
 {
     tt_char_t *p;
@@ -511,49 +452,37 @@ void tt_string_trim(IN OUT tt_string_t *s)
     }
 
     len = tt_string_len(s);
-    if (len == 0) {
-        return;
-    }
+    if (len == 0) { return; }
 
     p = (tt_char_t *)tt_string_cstr(s);
     begin = p;
     end = p + len - 1;
     TT_ASSERT(begin <= end);
 
-    while ((*begin != 0) && (*begin == ' '))
-        ++begin;
-    while ((end > begin) && (*end == ' '))
-        --end;
+    while ((*begin != 0) && (*begin == ' ')) ++begin;
+    while ((end > begin) && (*end == ' ')) --end;
     len = (tt_u32_t)(end - begin + 1);
 
-    if (begin != p) {
-        tt_memmove(p, begin, len);
-    }
+    if (begin != p) { tt_memmove(p, begin, len); }
     TT_BUF_RPOS(buf)[len] = 0;
     ++len;
     buf->wpos = buf->rpos + len;
 }
 
-tt_result_t tt_string_insert(IN OUT tt_string_t *s,
-                             IN tt_u32_t from,
+tt_result_t tt_string_insert(IN OUT tt_string_t *s, IN tt_u32_t from,
                              IN const tt_char_t *substr)
 {
     tt_u32_t n = tt_string_len(s);
 
-    if (from >= n) {
-        from = n;
-    }
+    if (from >= n) { from = n; }
 
-    TT_DO(tt_buf_insert(&s->buf,
-                        from,
-                        (tt_u8_t *)substr,
+    TT_DO(tt_buf_insert(&s->buf, from, (tt_u8_t *)substr,
                         (tt_u32_t)tt_strlen(substr)));
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_string_insert_c(IN OUT tt_string_t *s,
-                               IN tt_u32_t from,
+tt_result_t tt_string_insert_c(IN OUT tt_string_t *s, IN tt_u32_t from,
                                IN tt_char_t c)
 {
     tt_u32_t n;
@@ -564,9 +493,7 @@ tt_result_t tt_string_insert_c(IN OUT tt_string_t *s,
     }
 
     n = tt_string_len(s);
-    if (from >= n) {
-        from = n;
-    }
+    if (from >= n) { from = n; }
 
     TT_DO(tt_buf_insert(&s->buf, from, (tt_u8_t *)&c, 1));
 

@@ -60,8 +60,7 @@ static void __rbt_remove_fixup(IN tt_rbtree_t *tree, IN tt_rbnode_t *node);
 
 static tt_s32_t __rbn_cmpkey(IN void *p, IN tt_u8_t *key, IN tt_u32_t key_len);
 
-tt_result_t __rbt_expensive_check(IN tt_rbtree_t *tree,
-                                  IN tt_rbnode_t *node,
+tt_result_t __rbt_expensive_check(IN tt_rbtree_t *tree, IN tt_rbnode_t *node,
                                   OUT tt_u32_t *bh);
 
 ////////////////////////////////////////////////////////////
@@ -71,23 +70,18 @@ tt_result_t __rbt_expensive_check(IN tt_rbtree_t *tree,
 tt_inline tt_rbnode_t *__rbt_min(IN tt_rbtree_t *tree, IN tt_rbnode_t *from)
 {
     TT_ASSERT(from != &tree->tnil);
-    while (from->left != &tree->tnil) {
-        from = from->left;
-    }
+    while (from->left != &tree->tnil) { from = from->left; }
     return from;
 }
 
 tt_inline tt_rbnode_t *__rbt_max(IN tt_rbtree_t *tree, IN tt_rbnode_t *from)
 {
     TT_ASSERT(from != &tree->tnil);
-    while (from->right != &tree->tnil) {
-        from = from->right;
-    }
+    while (from->right != &tree->tnil) { from = from->right; }
     return from;
 }
 
-tt_inline void __rbn_transplant(IN tt_rbtree_t *tree,
-                                IN tt_rbnode_t *u,
+tt_inline void __rbn_transplant(IN tt_rbtree_t *tree, IN tt_rbnode_t *u,
                                 IN tt_rbnode_t *v)
 {
     if (u->parent == &tree->tnil) {
@@ -141,9 +135,7 @@ tt_rbnode_t *tt_rbtree_next(IN tt_rbtree_t *tree, IN tt_rbnode_t *node)
 {
     tt_rbnode_t *parent;
 
-    if (node->right != &tree->tnil) {
-        return __rbt_min(tree, node->right);
-    }
+    if (node->right != &tree->tnil) { return __rbt_min(tree, node->right); }
 
     parent = node->parent;
     while ((parent != &tree->tnil) && (node == parent->right)) {
@@ -157,9 +149,7 @@ tt_rbnode_t *tt_rbtree_prev(IN tt_rbtree_t *tree, IN tt_rbnode_t *node)
 {
     tt_rbnode_t *parent;
 
-    if (node->left != &tree->tnil) {
-        return __rbt_max(tree, node->left);
-    }
+    if (node->left != &tree->tnil) { return __rbt_max(tree, node->left); }
 
     parent = node->parent;
     while ((parent != &tree->tnil) && (node == parent->left)) {
@@ -169,8 +159,7 @@ tt_rbnode_t *tt_rbtree_prev(IN tt_rbtree_t *tree, IN tt_rbnode_t *node)
     return TT_COND(parent != &tree->tnil, parent, NULL);
 }
 
-tt_rbnode_t *tt_rbtree_find(IN tt_rbtree_t *tree,
-                            IN tt_u8_t *key,
+tt_rbnode_t *tt_rbtree_find(IN tt_rbtree_t *tree, IN tt_u8_t *key,
                             IN tt_u32_t key_len)
 {
     tt_rbnode_t *node = tree->root;
@@ -187,8 +176,7 @@ tt_rbnode_t *tt_rbtree_find(IN tt_rbtree_t *tree,
     return NULL;
 }
 
-tt_rbnode_t *tt_rbtree_find_gteq(IN tt_rbtree_t *tree,
-                                 IN tt_u8_t *key,
+tt_rbnode_t *tt_rbtree_find_gteq(IN tt_rbtree_t *tree, IN tt_u8_t *key,
                                  IN tt_u32_t key_len)
 {
     tt_rbnode_t *node = tree->root;
@@ -207,8 +195,7 @@ tt_rbnode_t *tt_rbtree_find_gteq(IN tt_rbtree_t *tree,
     return gt;
 }
 
-tt_rbnode_t *tt_rbtree_find_lteq(IN tt_rbtree_t *tree,
-                                 IN tt_u8_t *key,
+tt_rbnode_t *tt_rbtree_find_lteq(IN tt_rbtree_t *tree, IN tt_u8_t *key,
                                  IN tt_u32_t key_len)
 {
     tt_rbnode_t *node = tree->root;
@@ -229,21 +216,17 @@ tt_rbnode_t *tt_rbtree_find_lteq(IN tt_rbtree_t *tree,
 
 tt_rbnode_t *tt_rbtree_min(IN tt_rbtree_t *tree)
 {
-    return TT_COND(tree->root != &tree->tnil,
-                   __rbt_min(tree, tree->root),
+    return TT_COND(tree->root != &tree->tnil, __rbt_min(tree, tree->root),
                    NULL);
 }
 
 tt_rbnode_t *tt_rbtree_max(IN tt_rbtree_t *tree)
 {
-    return TT_COND(tree->root != &tree->tnil,
-                   __rbt_max(tree, tree->root),
+    return TT_COND(tree->root != &tree->tnil, __rbt_max(tree, tree->root),
                    NULL);
 }
 
-void tt_rbtree_add(IN tt_rbtree_t *tree,
-                   IN tt_u8_t *key,
-                   IN tt_u32_t key_len,
+void tt_rbtree_add(IN tt_rbtree_t *tree, IN tt_u8_t *key, IN tt_u32_t key_len,
                    IN tt_rbnode_t *z)
 {
     tt_rbnode_t *x = tree->root;
@@ -294,9 +277,7 @@ void tt_rbtree_remove(IN tt_rbtree_t *tree, IN tt_rbnode_t *z)
     tt_bool_t black;
     tt_rbnode_t *x;
 
-    if (z->parent == NULL) {
-        return;
-    }
+    if (z->parent == NULL) { return; }
 
     if (z->left == &tree->tnil) {
         black = z->black;
@@ -325,9 +306,7 @@ void tt_rbtree_remove(IN tt_rbtree_t *tree, IN tt_rbnode_t *z)
         y->black = z->black;
     }
 
-    if (black) {
-        __rbt_remove_fixup(tree, x);
-    }
+    if (black) { __rbt_remove_fixup(tree, x); }
 
     tt_rbnode_init(z);
 
@@ -342,9 +321,7 @@ void __rbt_left_rotate(IN tt_rbtree_t *tree, IN tt_rbnode_t *x)
 #if 1
     TT_ASSERT(y != &tree->tnil);
 #else
-    if (y == &tree->tnil) {
-        return;
-    }
+    if (y == &tree->tnil) { return; }
 #endif
 
     //     \                    |
@@ -356,9 +333,7 @@ void __rbt_left_rotate(IN tt_rbtree_t *tree, IN tt_rbnode_t *x)
 
     // [x] <==> [b]
     x->right = y->left;
-    if (y->left != &tree->tnil) {
-        y->left->parent = x;
-    }
+    if (y->left != &tree->tnil) { y->left->parent = x; }
 
     // [y] <==> [x]'parent
     y->parent = x->parent;
@@ -391,9 +366,7 @@ void __rbt_right_rotate(IN tt_rbtree_t *tree, IN tt_rbnode_t *x)
 #if 1
     TT_ASSERT(y != &tree->tnil);
 #else
-    if (y == &tree->tnil) {
-        return;
-    }
+    if (y == &tree->tnil) { return; }
 #endif
 
     //     \              |
@@ -405,9 +378,7 @@ void __rbt_right_rotate(IN tt_rbtree_t *tree, IN tt_rbnode_t *x)
 
     // [x] <==> [b]
     x->left = y->right;
-    if (y->right != &tree->tnil) {
-        y->right->parent = x;
-    }
+    if (y->right != &tree->tnil) { y->right->parent = x; }
 
     // [y] <==> [x]'parent
     y->parent = x->parent;
@@ -557,8 +528,7 @@ tt_s32_t __rbn_cmpkey(IN void *p, IN tt_u8_t *key, IN tt_u32_t key_len)
     }
 }
 
-tt_result_t __rbt_expensive_check(IN tt_rbtree_t *tree,
-                                  IN tt_rbnode_t *node,
+tt_result_t __rbt_expensive_check(IN tt_rbtree_t *tree, IN tt_rbnode_t *node,
                                   OUT tt_u32_t *bh)
 {
     tt_u32_t left_bh = 0;
@@ -599,8 +569,7 @@ tt_result_t __rbt_expensive_check(IN tt_rbtree_t *tree,
         return TT_FAIL;
     }
     if (left_bh != right_bh) {
-        TT_ERROR("left black node[%d] != right black node[%d]",
-                 left_bh,
+        TT_ERROR("left black node[%d] != right black node[%d]", left_bh,
                  right_bh);
         return TT_FAIL;
     }
@@ -618,9 +587,7 @@ tt_result_t __rbt_expensive_check(IN tt_rbtree_t *tree,
 // this function is for debugging purpose
 tt_u32_t __rbt_count(IN tt_rbtree_t *rbt, IN tt_rbnode_t *node)
 {
-    if (node == &rbt->tnil) {
-        return 0;
-    }
+    if (node == &rbt->tnil) { return 0; }
 
     return __rbt_count(rbt, node->left) + __rbt_count(rbt, node->right) + 1;
 }

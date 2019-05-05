@@ -136,9 +136,7 @@ void tt_param_bs4input_set_step(IN tt_param_bs4input_t *i, IN tt_u8_t step)
 
         i->step[0] = '0';
         i->step[1] = '.';
-        for (n = 2; n <= step; ++n) {
-            i->step[n] = '0';
-        }
+        for (n = 2; n <= step; ++n) { i->step[n] = '0'; }
         TT_ASSERT(n <= 7);
         i->step[n++] = '1';
         i->step[n] = 0;
@@ -179,8 +177,7 @@ void tt_param_bs4select_set_selected(IN tt_param_bs4select_t *s,
 
 void tt_param_bs4select_set_option(IN tt_param_bs4select_t *s,
                                    IN const tt_char_t **value,
-                                   IN const tt_char_t **display,
-                                   IN tt_u8_t num)
+                                   IN const tt_char_t **display, IN tt_u8_t num)
 {
     s->value = value;
     s->display = display;

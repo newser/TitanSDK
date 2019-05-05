@@ -135,10 +135,8 @@ int __cache_size_from_sysfs(int cpu_id, const char *cache_type)
 // x86 has 2 cache types: 1 for data, 1 for instruction
 #define __CACHE_TYPE_NUM 2
     while (cache_index < __CACHE_TYPE_NUM) {
-        sprintf(path,
-                "/sys/devices/system/cpu/cpu%d/cache/index%d/type",
-                cpu_id,
-                cache_index);
+        sprintf(path, "/sys/devices/system/cpu/cpu%d/cache/index%d/type",
+                cpu_id, cache_index);
         fp = fopen(path, "r");
         if (fp == NULL) {
             TT_ERROR("fail to open file[%s]", path);
@@ -153,9 +151,7 @@ int __cache_size_from_sysfs(int cpu_id, const char *cache_type)
             return -1;
         }
 
-        if (strstr(path, cache_type) != NULL) {
-            break;
-        }
+        if (strstr(path, cache_type) != NULL) { break; }
 
         ++cache_index;
     }
@@ -166,8 +162,7 @@ int __cache_size_from_sysfs(int cpu_id, const char *cache_type)
 
     sprintf(path,
             "/sys/devices/system/cpu/cpu%d/cache/index%d/coherency_line_size",
-            cpu_id,
-            cache_index);
+            cpu_id, cache_index);
     fp = fopen(path, "r");
     if (fp == NULL) {
         TT_ERROR("fail to open file[%s]", path);
@@ -208,28 +203,20 @@ long __cache_size_from_cpuinfo(int cpu_id)
         char *pos;
         long size;
 
-        if ((pos = strstr(p, "cache_alignment")) == NULL) {
-            goto next;
-        }
+        if ((pos = strstr(p, "cache_alignment")) == NULL) { goto next; }
         pos += sizeof("cache_alignment") - 1;
 
-        if ((pos = strchr(p, ':')) == NULL) {
-            goto next;
-        }
+        if ((pos = strchr(p, ':')) == NULL) { goto next; }
         pos += 1;
 
         size = strtol(pos, NULL, 10);
         if ((size != 0) && (size != LONG_MIN) && (size != LONG_MAX)) {
-            if (p != buf) {
-                free(p);
-            }
+            if (p != buf) { free(p); }
             return size;
         }
 
     next:
-        if (p != buf) {
-            free(p);
-        }
+        if (p != buf) { free(p); }
         p = buf;
         cap = sizeof(buf);
     }

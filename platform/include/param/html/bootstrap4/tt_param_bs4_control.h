@@ -40,7 +40,8 @@ this file includes parameter bootstrap4 control
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_PARAM_BS4_INPUT,
     TT_PARAM_BS4_SELECT,
     TT_PARAM_BS4_TEXTAREA,

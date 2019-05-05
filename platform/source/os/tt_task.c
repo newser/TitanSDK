@@ -104,9 +104,7 @@ tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr)
 
     if (attr->enable_dns) {
         t->dns_cache = tt_dns_cache_create(&attr->dns_cache_attr);
-        if (t->dns_cache == NULL) {
-            return TT_FAIL;
-        }
+        if (t->dns_cache == NULL) { return TT_FAIL; }
     } else {
         t->dns_cache = NULL;
     }
@@ -116,9 +114,7 @@ tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr)
     if (!TT_OK(tt_io_poller_create(&t->iop, &attr->io_poller_attr))) {
         TT_ERROR("fail to create task io poller");
 
-        if (t->dns_cache != NULL) {
-            tt_dns_cache_destroy(t->dns_cache);
-        }
+        if (t->dns_cache != NULL) { tt_dns_cache_destroy(t->dns_cache); }
         return TT_FAIL;
     }
 
@@ -140,10 +136,8 @@ void tt_task_attr_default(IN tt_task_attr_t *attr)
     tt_io_poller_attr_default(&attr->io_poller_attr);
 }
 
-tt_result_t tt_task_add_fiber(IN tt_task_t *t,
-                              IN OPT const tt_char_t *name,
-                              IN tt_fiber_routine_t routine,
-                              IN void *param,
+tt_result_t tt_task_add_fiber(IN tt_task_t *t, IN OPT const tt_char_t *name,
+                              IN tt_fiber_routine_t routine, IN void *param,
                               IN OPT tt_fiber_attr_t *attr)
 {
     __task_fiber_t *tf;
@@ -201,22 +195,16 @@ tt_result_t tt_task_run(IN tt_task_t *t)
     }
 
     t->thread = tt_thread_create(__task_routine, t, &t->thread_attr);
-    if (t->thread == NULL) {
-        return TT_FAIL;
-    }
+    if (t->thread == NULL) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
 
 void tt_task_exit(IN OPT tt_task_t *t)
 {
-    if (t == NULL) {
-        t = tt_current_thread()->task;
-    }
+    if (t == NULL) { t = tt_current_thread()->task; }
 
-    if (t->thread != NULL) {
-        tt_io_poller_exit(&t->iop);
-    }
+    if (t->thread != NULL) { tt_io_poller_exit(&t->iop); }
 }
 
 void tt_task_wait(IN tt_task_t *t)
@@ -226,25 +214,19 @@ void tt_task_wait(IN tt_task_t *t)
 
     TT_ASSERT(t != NULL);
 
-    if (t->thread != NULL) {
-        tt_thread_wait(t->thread);
-    }
+    if (t->thread != NULL) { tt_thread_wait(t->thread); }
 
     while ((node = tt_slist_pop_head(&t->tfl)) != NULL) {
         tt_free(TT_CONTAINER(node, __task_fiber_t, node));
     }
 
-    if (t->dns_cache != NULL) {
-        tt_dns_cache_destroy(t->dns_cache);
-    }
+    if (t->dns_cache != NULL) { tt_dns_cache_destroy(t->dns_cache); }
 
     // - when fiber terminates, it will destroy all its own timers, but
     //   any timer that is still in the heap will only be marked as orphan,
     //   so it's possible that here the the timer is still in the tmr mgr
     // - thread is over, timers won't be accessed
-    while ((tmr = tt_tmr_mgr_pop(&t->tmr_mgr)) != NULL) {
-        tt_tmr_destroy(tmr);
-    }
+    while ((tmr = tt_tmr_mgr_pop(&t->tmr_mgr)) != NULL) { tt_tmr_destroy(tmr); }
     tt_tmr_mgr_destroy(&t->tmr_mgr);
 
     tt_io_poller_destroy(&t->iop);
@@ -266,9 +248,7 @@ tt_result_t tt_task_run_local(IN tt_task_t *t)
     t->thread = NULL;
     tt_task_wait(t);
 
-    if (!TT_OK(tt_thread_wait_local())) {
-        TT_FATAL("fail to wait local task");
-    }
+    if (!TT_OK(tt_thread_wait_local())) { TT_FATAL("fail to wait local task"); }
 
     return TT_SUCCESS;
 }
@@ -348,9 +328,7 @@ tt_result_t __task_routine(IN void *param)
         }
 
         // it's possible that all fibers terminate
-        if (tt_fiber_sched_empty(cfs)) {
-            break;
-        }
+        if (tt_fiber_sched_empty(cfs)) { break; }
 
         // now we are sure:
         //  - no active fiber, but must be some pending fibers
@@ -370,9 +348,7 @@ tt_fiber_t *__task_find_fiber(IN tt_task_t *t, IN const tt_char_t *name)
     tt_snode_t *node = tt_slist_head(&t->tfl);
     while (node != NULL) {
         __task_fiber_t *tf = TT_CONTAINER(node, __task_fiber_t, node);
-        if (tt_strcmp(tf->name, name) == 0) {
-            return tf->fb;
-        }
+        if (tt_strcmp(tf->name, name) == 0) { return tf->fb; }
 
         node = node->next;
     }

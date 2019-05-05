@@ -53,11 +53,8 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_kevent(IN int kq,
-                      IN uint64_t ident,
-                      IN int16_t filter,
-                      IN uint16_t flags,
-                      IN uint64_t udata)
+tt_result_t tt_kevent(IN int kq, IN uint64_t ident, IN int16_t filter,
+                      IN uint16_t flags, IN uint64_t udata)
 {
     struct kevent kev = {0};
     const struct timespec timeout = {0};
@@ -77,18 +74,14 @@ char *tt_cfstring_ptr(IN CFStringRef cfstr, OUT OPT tt_u32_t *len)
     CFIndex max_len;
     char *ptr;
 
-    if (cfstr == NULL) {
-        return NULL;
-    }
+    if (cfstr == NULL) { return NULL; }
 
     __len = CFStringGetLength(cfstr);
     max_len = CFStringGetMaximumSizeForEncoding(__len, kCFStringEncodingUTF8);
     // kCFStringEncodingUTF8 or kCFStringEncodingASCII?
 
     ptr = tt_malloc(max_len);
-    if (ptr == NULL) {
-        return NULL;
-    }
+    if (ptr == NULL) { return NULL; }
 
     tt_memset(ptr, 0, max_len);
     if (!CFStringGetCString(cfstr, ptr, max_len, kCFStringEncodingUTF8)) {
@@ -96,8 +89,6 @@ char *tt_cfstring_ptr(IN CFStringRef cfstr, OUT OPT tt_u32_t *len)
         return NULL;
     }
 
-    if (len != NULL) {
-        *len = (tt_u32_t)max_len;
-    }
+    if (len != NULL) { *len = (tt_u32_t)max_len; }
     return ptr;
 }

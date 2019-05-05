@@ -56,10 +56,7 @@ static tt_result_t __create_ctx(IN tt_http_inserv_t *s, IN OPT void *ctx);
 
 static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
-static tt_http_inserv_itf_t s_cond_itf = {NULL,
-                                          NULL,
-                                          __create_ctx,
-                                          NULL,
+static tt_http_inserv_itf_t s_cond_itf = {NULL, NULL, __create_ctx, NULL,
                                           __clear_ctx};
 
 static tt_http_inserv_action_t __s_cond_on_hdr(IN tt_http_inserv_t *s,
@@ -68,9 +65,7 @@ static tt_http_inserv_action_t __s_cond_on_hdr(IN tt_http_inserv_t *s,
                                                OUT tt_http_resp_render_t *resp);
 
 static tt_http_inserv_action_t __s_cond_on_complete(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
+    IN tt_http_inserv_t *s, IN void *ctx, IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
 static tt_http_inserv_cb_t s_cond_cb = {
@@ -81,13 +76,11 @@ static tt_http_inserv_cb_t s_cond_cb = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __if_match(IN const tt_char_t *path,
-                              IN tt_http_hdr_t *h,
+static tt_result_t __if_match(IN const tt_char_t *path, IN tt_http_hdr_t *h,
                               OUT tt_bool_t *cond);
 
 static tt_result_t __if_none_match(IN const tt_char_t *path,
-                                   IN tt_http_hdr_t *h,
-                                   OUT tt_bool_t *cond);
+                                   IN tt_http_hdr_t *h, OUT tt_bool_t *cond);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -101,9 +94,7 @@ tt_result_t tt_http_inserv_cond_component_init(IN struct tt_component_s *comp,
     tt_http_inserv_cond_attr_default(&attr);
 
     tt_g_http_inserv_cond = tt_http_inserv_cond_create(&attr);
-    if (tt_g_http_inserv_cond == NULL) {
-        return TT_FAIL;
-    }
+    if (tt_g_http_inserv_cond == NULL) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -126,12 +117,9 @@ tt_http_inserv_t *tt_http_inserv_cond_create(
     }
 
     s = tt_http_inserv_create(TT_HTTP_INSERV_CONDITIONAL,
-                              sizeof(tt_http_inserv_cond_t),
-                              &s_cond_itf,
+                              sizeof(tt_http_inserv_cond_t), &s_cond_itf,
                               &s_cond_cb);
-    if (s == NULL) {
-        return NULL;
-    }
+    if (s == NULL) { return NULL; }
 
     sc = TT_HTTP_INSERV_CAST(s, tt_http_inserv_cond_t);
     (void)sc;
@@ -160,8 +148,7 @@ void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
     c->status = TT_HTTP_STATUS_INVALID;
 }
 
-tt_http_inserv_action_t __s_cond_on_hdr(IN tt_http_inserv_t *s,
-                                        IN void *ctx,
+tt_http_inserv_action_t __s_cond_on_hdr(IN tt_http_inserv_t *s, IN void *ctx,
                                         IN tt_http_parser_t *req,
                                         OUT tt_http_resp_render_t *resp)
 {
@@ -245,8 +232,7 @@ tt_http_inserv_action_t __s_cond_on_complete(IN tt_http_inserv_t *s,
     return TT_HTTP_INSERV_ACT_PASS;
 }
 
-tt_result_t __if_match(IN const tt_char_t *path,
-                       IN tt_http_hdr_t *h,
+tt_result_t __if_match(IN const tt_char_t *path, IN tt_http_hdr_t *h,
                        OUT tt_bool_t *cond)
 {
     tt_file_t f;
@@ -307,8 +293,7 @@ tt_result_t __if_match(IN const tt_char_t *path,
     }
 }
 
-tt_result_t __if_none_match(IN const tt_char_t *path,
-                            IN tt_http_hdr_t *h,
+tt_result_t __if_none_match(IN const tt_char_t *path, IN tt_http_hdr_t *h,
                             OUT tt_bool_t *cond)
 {
     tt_file_t f;

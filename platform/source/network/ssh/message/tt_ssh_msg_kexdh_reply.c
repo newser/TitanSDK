@@ -77,8 +77,7 @@ static tt_sshmsg_itf_t __kexdh_reply_op = {
 tt_sshmsg_t *tt_sshmsg_kexdh_reply_create()
 {
     return tt_sshmsg_create(TT_SSH_MSGID_KEXDH_REPLY,
-                            sizeof(tt_sshmsg_kexdh_reply_t),
-                            &__kexdh_reply_op);
+                            sizeof(tt_sshmsg_kexdh_reply_t), &__kexdh_reply_op);
 }
 
 void tt_sshmsg_kexdh_reply_setctx(IN tt_sshmsg_t *msg,
@@ -137,25 +136,25 @@ tt_result_t __kexdh_reply_render_prepare(IN struct tt_sshmsg_s *msg,
 
     // f, already formatted as mpint
     switch (kex->alg) {
-        case TT_SSH_KEX_ALG_DH_G1_SHA1:
-        case TT_SSH_KEX_ALG_DH_G14_SHA1: {
-            msg_len += TT_BUF_RLEN(&kex->alg_u.kexdh.f);
-        } break;
+    case TT_SSH_KEX_ALG_DH_G1_SHA1:
+    case TT_SSH_KEX_ALG_DH_G14_SHA1: {
+        msg_len += TT_BUF_RLEN(&kex->alg_u.kexdh.f);
+    } break;
 
-        default: {
-            return TT_FAIL;
-        } break;
+    default: {
+        return TT_FAIL;
+    } break;
     }
 
     // signature of H
     switch (pubk->alg) {
-        case TT_SSH_PUBKEY_ALG_RSA: {
-            msg_len += 19 + pubk->alg_u.rsa->block_size;
-        } break;
+    case TT_SSH_PUBKEY_ALG_RSA: {
+        msg_len += 19 + pubk->alg_u.rsa->block_size;
+    } break;
 
-        default: {
-            return TT_FAIL;
-        } break;
+    default: {
+        return TT_FAIL;
+    } break;
     }
 
     *len = msg_len;
@@ -206,40 +205,39 @@ tt_result_t __kexdh_reply_render(IN struct tt_sshmsg_s *msg,
 
     // f, already formatted as mpint
     switch (kex->alg) {
-        case TT_SSH_KEX_ALG_DH_G1_SHA1:
-        case TT_SSH_KEX_ALG_DH_G14_SHA1: {
-            data = &kex->alg_u.kexdh.f;
-            TT_DO(tt_buf_put(buf, TT_BUF_RPOS(data), TT_BUF_RLEN(data)));
-        } break;
+    case TT_SSH_KEX_ALG_DH_G1_SHA1:
+    case TT_SSH_KEX_ALG_DH_G14_SHA1: {
+        data = &kex->alg_u.kexdh.f;
+        TT_DO(tt_buf_put(buf, TT_BUF_RPOS(data), TT_BUF_RLEN(data)));
+    } break;
 
-        default: {
-            return TT_FAIL;
-        } break;
+    default: {
+        return TT_FAIL;
+    } break;
     }
 
     // signature of H
     switch (pubk->alg) {
-        case TT_SSH_PUBKEY_ALG_RSA: {
-            const tt_char_t *ssh_rsa;
-            tt_u32_t ssh_rsa_len;
+    case TT_SSH_PUBKEY_ALG_RSA: {
+        const tt_char_t *ssh_rsa;
+        tt_u32_t ssh_rsa_len;
 
-            TT_DO(tt_buf_put_u32_n(buf, 15 + pubk->alg_u.rsa->block_size));
+        TT_DO(tt_buf_put_u32_n(buf, 15 + pubk->alg_u.rsa->block_size));
 
-            // string "ssh-rsa"
-            ssh_rsa = tt_g_ssh_pubkey_alg_name[TT_SSH_PUBKEY_ALG_RSA];
-            // ssh_rsa_len = (tt_u32_t)tt_strlen(ssh_rsa);
-            ssh_rsa_len = 7;
-            TT_DO(tt_ssh_string_render(buf, (tt_u8_t *)ssh_rsa, ssh_rsa_len));
+        // string "ssh-rsa"
+        ssh_rsa = tt_g_ssh_pubkey_alg_name[TT_SSH_PUBKEY_ALG_RSA];
+        // ssh_rsa_len = (tt_u32_t)tt_strlen(ssh_rsa);
+        ssh_rsa_len = 7;
+        TT_DO(tt_ssh_string_render(buf, (tt_u8_t *)ssh_rsa, ssh_rsa_len));
 
-            // string rsa_signature_blob
-            TT_DO(tt_ssh_string_render(buf,
-                                       TT_BUF_RPOS(&pubk->signature),
-                                       TT_BUF_RLEN(&pubk->signature)));
-        } break;
+        // string rsa_signature_blob
+        TT_DO(tt_ssh_string_render(buf, TT_BUF_RPOS(&pubk->signature),
+                                   TT_BUF_RLEN(&pubk->signature)));
+    } break;
 
-        default: {
-            return TT_FAIL;
-        } break;
+    default: {
+        return TT_FAIL;
+    } break;
     }
 
     return TT_SUCCESS;

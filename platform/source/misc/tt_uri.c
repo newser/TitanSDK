@@ -62,26 +62,20 @@ tt_char_t tt_g_uri_encode_table[256] = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __parse_uri(IN tt_uri_t *uri,
-                               IN tt_char_t *str,
+static tt_result_t __parse_uri(IN tt_uri_t *uri, IN tt_char_t *str,
                                IN tt_u32_t len);
 
-static tt_result_t __parse_absolute(IN tt_uri_t *uri,
-                                    IN tt_char_t *str,
+static tt_result_t __parse_absolute(IN tt_uri_t *uri, IN tt_char_t *str,
                                     IN tt_u32_t len);
 
-static tt_result_t __parse_relative(IN tt_uri_t *uri,
-                                    IN tt_char_t *str,
+static tt_result_t __parse_relative(IN tt_uri_t *uri, IN tt_char_t *str,
                                     IN tt_u32_t len);
 
-static tt_result_t __parse_authority(IN tt_uri_t *uri,
-                                     IN tt_char_t *str,
+static tt_result_t __parse_authority(IN tt_uri_t *uri, IN tt_char_t *str,
                                      IN tt_u32_t len);
 
-tt_result_t __percent_decode(IN tt_blobex_t *bex,
-                             IN tt_char_t *str,
-                             IN tt_u32_t len,
-                             IN tt_bool_t plus2sp);
+tt_result_t __percent_decode(IN tt_blobex_t *bex, IN tt_char_t *str,
+                             IN tt_u32_t len, IN tt_bool_t plus2sp);
 
 static tt_s32_t __uri_blobex_cmp(IN tt_blobex_t *a, IN tt_blobex_t *b);
 
@@ -109,9 +103,7 @@ tt_result_t tt_uri_create(IN tt_uri_t *uri, IN tt_char_t *str, IN tt_u32_t len)
 {
     tt_uri_init(uri);
 
-    if (len == 0) {
-        return TT_SUCCESS;
-    }
+    if (len == 0) { return TT_SUCCESS; }
 
     if (!TT_OK(__parse_uri(uri, str, len))) {
         // must destroy as this is a create function
@@ -181,20 +173,17 @@ const tt_char_t *tt_uri_render(IN tt_uri_t *uri, IN tt_uri_encode_table_t *uet)
     return tt_string_cstr(&uri->uri);
 }
 
-tt_result_t tt_uri_render2buf(IN tt_uri_t *uri,
-                              IN tt_buf_t *buf,
+tt_result_t tt_uri_render2buf(IN tt_uri_t *uri, IN tt_buf_t *buf,
                               IN OPT tt_uri_encode_table_t *uet)
 {
 #define __ENCODE_LEN(name, t)                                                  \
     tt_percent_encode_len(tt_blobex_addr(&uri->name),                          \
-                          tt_blobex_len(&uri->name) - 1,                       \
-                          t)
+                          tt_blobex_len(&uri->name) - 1, t)
 
 #define __ENCODE(name, t)                                                      \
     do {                                                                       \
         tt_u32_t en = tt_percent_encode(tt_blobex_addr(&uri->name),            \
-                                        tt_blobex_len(&uri->name) - 1,         \
-                                        t,                                     \
+                                        tt_blobex_len(&uri->name) - 1, t,      \
                                         (tt_char_t *)TT_BUF_WPOS(buf));        \
         tt_buf_inc_wp(buf, en);                                                \
     } while (0)
@@ -238,9 +227,7 @@ tt_result_t tt_uri_render2buf(IN tt_uri_t *uri,
 
             // host
             p = tt_uri_get_host(uri);
-            if (p[0] != 0) {
-                n += __ENCODE_LEN(host, uet->generic);
-            }
+            if (p[0] != 0) { n += __ENCODE_LEN(host, uet->generic); }
 
             // port
             if (uri->port != 0) {
@@ -253,9 +240,7 @@ tt_result_t tt_uri_render2buf(IN tt_uri_t *uri,
         }
 
         p = tt_uri_get_path(uri);
-        if (p[0] != 0) {
-            n += __ENCODE_LEN(path, uet->path);
-        }
+        if (p[0] != 0) { n += __ENCODE_LEN(path, uet->path); }
 
         p = tt_uri_get_query(uri);
         if (p[0] != 0) {
@@ -305,9 +290,7 @@ tt_result_t tt_uri_render2buf(IN tt_uri_t *uri,
 
             // host
             p = tt_uri_get_host(uri);
-            if (p[0] != 0) {
-                __ENCODE(host, uet->generic);
-            }
+            if (p[0] != 0) { __ENCODE(host, uet->generic); }
 
             // port
             if (uri->port != 0) {
@@ -317,9 +300,7 @@ tt_result_t tt_uri_render2buf(IN tt_uri_t *uri,
         }
 
         p = tt_uri_get_path(uri);
-        if (p[0] != 0) {
-            __ENCODE(path, uet->path);
-        }
+        if (p[0] != 0) { __ENCODE(path, uet->path); }
 
         p = tt_uri_get_query(uri);
         if (p[0] != 0) {
@@ -364,8 +345,7 @@ const tt_char_t *tt_uri_get_scheme(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_scheme_n(IN tt_uri_t *uri,
-                                IN const tt_char_t *scheme,
+tt_result_t tt_uri_set_scheme_n(IN tt_uri_t *uri, IN const tt_char_t *scheme,
                                 IN tt_u32_t len)
 {
     tt_char_t *p;
@@ -390,8 +370,7 @@ const tt_char_t *tt_uri_get_opaque(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_opaque_n(IN tt_uri_t *uri,
-                                IN const tt_char_t *opaque,
+tt_result_t tt_uri_set_opaque_n(IN tt_uri_t *uri, IN const tt_char_t *opaque,
                                 IN tt_u32_t len)
 {
     tt_char_t *p;
@@ -421,8 +400,7 @@ const tt_char_t *tt_uri_get_userinfo(IN tt_uri_t *uri)
 }
 
 tt_result_t tt_uri_set_userinfo_n(IN tt_uri_t *uri,
-                                  IN const tt_char_t *userinfo,
-                                  IN tt_u32_t len)
+                                  IN const tt_char_t *userinfo, IN tt_u32_t len)
 {
     tt_char_t *p;
 
@@ -523,8 +501,7 @@ const tt_char_t *tt_uri_get_host(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_host_n(IN tt_uri_t *uri,
-                              IN const tt_char_t *host,
+tt_result_t tt_uri_set_host_n(IN tt_uri_t *uri, IN const tt_char_t *host,
                               IN tt_u32_t len)
 {
     tt_char_t *p;
@@ -553,8 +530,7 @@ const tt_char_t *tt_uri_get_path(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_path_n(IN tt_uri_t *uri,
-                              IN const tt_char_t *path,
+tt_result_t tt_uri_set_path_n(IN tt_uri_t *uri, IN const tt_char_t *path,
                               IN tt_u32_t len)
 {
     tt_char_t *p;
@@ -582,8 +558,7 @@ const tt_char_t *tt_uri_get_query(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_query_n(IN tt_uri_t *uri,
-                               IN const tt_char_t *query,
+tt_result_t tt_uri_set_query_n(IN tt_uri_t *uri, IN const tt_char_t *query,
                                IN tt_u32_t len)
 {
     tt_char_t *p;
@@ -612,8 +587,7 @@ const tt_char_t *tt_uri_get_fragment(IN tt_uri_t *uri)
 }
 
 tt_result_t tt_uri_set_fragment_n(IN tt_uri_t *uri,
-                                  IN const tt_char_t *fragment,
-                                  IN tt_u32_t len)
+                                  IN const tt_char_t *fragment, IN tt_u32_t len)
 {
     tt_char_t *p;
 
@@ -639,9 +613,7 @@ tt_s32_t tt_uri_cmp(IN tt_uri_t *a, IN tt_uri_t *b)
 #define __CMP(name)                                                            \
     do {                                                                       \
         n = __uri_blobex_cmp(&a->name, &b->name);                              \
-        if (n != 0) {                                                          \
-            return n;                                                          \
-        }                                                                      \
+        if (n != 0) { return n; }                                              \
     } while (0)
 
     __CMP(scheme);
@@ -658,9 +630,7 @@ tt_s32_t tt_uri_cmp(IN tt_uri_t *a, IN tt_uri_t *b)
     } else {
         __CMP(user_info);
         __CMP(host);
-        if (a->port != b->port) {
-            return a->port - b->port;
-        }
+        if (a->port != b->port) { return a->port - b->port; }
         __CMP(path);
         __CMP(query);
     }
@@ -684,15 +654,11 @@ tt_result_t __parse_uri(IN tt_uri_t *uri, IN tt_char_t *str, IN tt_u32_t len)
     // scheme
     if ((scheme = tt_memchr(cur, ':', len)) != NULL) {
         n = (tt_u32_t)(scheme - cur);
-        if (n > 0) {
-            TT_DO(__percent_decode(&uri->scheme, cur, n, TT_FALSE));
-        }
+        if (n > 0) { TT_DO(__percent_decode(&uri->scheme, cur, n, TT_FALSE)); }
         cur = scheme + 1;
         len -= (n + 1);
     }
-    if (cur >= end) {
-        return TT_SUCCESS;
-    }
+    if (cur >= end) { return TT_SUCCESS; }
 
     // fragment
     if ((fragment = tt_memchr(cur, '#', len)) != NULL) {
@@ -713,8 +679,7 @@ tt_result_t __parse_uri(IN tt_uri_t *uri, IN tt_char_t *str, IN tt_u32_t len)
     }
 }
 
-tt_result_t __parse_absolute(IN tt_uri_t *uri,
-                             IN tt_char_t *str,
+tt_result_t __parse_absolute(IN tt_uri_t *uri, IN tt_char_t *str,
                              IN tt_u32_t len)
 {
     tt_char_t *cur = str, *end = str + len, *authority, *path, *query;
@@ -793,8 +758,7 @@ tt_result_t __parse_absolute(IN tt_uri_t *uri,
     return TT_SUCCESS;
 }
 
-tt_result_t __parse_relative(IN tt_uri_t *uri,
-                             IN tt_char_t *str,
+tt_result_t __parse_relative(IN tt_uri_t *uri, IN tt_char_t *str,
                              IN tt_u32_t len)
 {
     tt_char_t *cur = str, *end = str + len, *path, *query;
@@ -824,8 +788,7 @@ tt_result_t __parse_relative(IN tt_uri_t *uri,
     return TT_SUCCESS;
 }
 
-tt_result_t __parse_authority(IN tt_uri_t *uri,
-                              IN tt_char_t *str,
+tt_result_t __parse_authority(IN tt_uri_t *uri, IN tt_char_t *str,
                               IN tt_u32_t len)
 {
     tt_char_t *cur = str, *end = str + len, *at, *port;
@@ -842,9 +805,7 @@ tt_result_t __parse_authority(IN tt_uri_t *uri,
         cur = at + 1;
         len -= (n + 1);
     }
-    if (cur >= end) {
-        return TT_SUCCESS;
-    }
+    if (cur >= end) { return TT_SUCCESS; }
 
     // port
     if ((port = tt_memchr(cur, ':', len)) != NULL) {
@@ -874,17 +835,13 @@ tt_result_t __parse_authority(IN tt_uri_t *uri,
     }
 
     // left are considered as host part
-    if (len > 0) {
-        TT_DO(__percent_decode(&uri->host, cur, len, TT_FALSE));
-    }
+    if (len > 0) { TT_DO(__percent_decode(&uri->host, cur, len, TT_FALSE)); }
 
     return TT_SUCCESS;
 }
 
-tt_result_t __percent_decode(IN tt_blobex_t *bex,
-                             IN tt_char_t *str,
-                             IN tt_u32_t len,
-                             IN tt_bool_t plus2sp)
+tt_result_t __percent_decode(IN tt_blobex_t *bex, IN tt_char_t *str,
+                             IN tt_u32_t len, IN tt_bool_t plus2sp)
 {
     tt_u32_t n;
     tt_char_t *dst;

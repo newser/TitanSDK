@@ -70,15 +70,12 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 tt_export tt_result_t
-tt_http_server_create_skt(IN tt_http_server_t *svr,
-                          IN TO tt_skt_t *skt,
+tt_http_server_create_skt(IN tt_http_server_t *svr, IN TO tt_skt_t *skt,
                           IN OPT tt_http_server_attr_t *attr);
 
-tt_export tt_result_t
-tt_http_server_create_ssl(IN tt_http_server_t *svr,
-                          IN TO tt_ssl_t *ssl,
-                          IN tt_ssl_config_t *ssl_server_cfg,
-                          IN OPT tt_http_server_attr_t *attr);
+tt_export tt_result_t tt_http_server_create_ssl(
+    IN tt_http_server_t *svr, IN TO tt_ssl_t *ssl,
+    IN tt_ssl_config_t *ssl_server_cfg, IN OPT tt_http_server_attr_t *attr);
 
 tt_export void tt_http_server_destroy(IN tt_http_server_t *svr);
 

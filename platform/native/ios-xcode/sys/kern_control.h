@@ -34,7 +34,6 @@
 #ifndef KPI_KERN_CONTROL_H
 #define KPI_KERN_CONTROL_H
 
-
 #include <sys/appleapiopts.h>
 
 /*
@@ -94,7 +93,6 @@ struct ctl_event_data
  */
 #define CTLIOCGINFO _IOWR('N', 3, struct ctl_info) /* get id from name */
 
-
 /*!
  @defined MAX_KCTL_NAME
  @discussion Kernel control names must be no longer than
@@ -118,7 +116,6 @@ struct ctl_info
     u_int32_t ctl_id; /* Kernel Controller ID  */
     char ctl_name[MAX_KCTL_NAME]; /* Kernel Controller Name (a C string) */
 };
-
 
 /*!
  @struct sockaddr_ctl
@@ -146,6 +143,5 @@ struct sockaddr_ctl
     u_int32_t sc_unit; /* Developer private unit number */
     u_int32_t sc_reserved[5];
 };
-
 
 #endif /* KPI_KERN_CONTROL_H */

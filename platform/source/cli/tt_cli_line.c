@@ -67,10 +67,8 @@ static tt_result_t __def_on_delete(IN tt_cline_t *cline);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_cline_create(IN tt_cline_t *cline,
-                            IN tt_cli_mode_t mode,
-                            IN tt_buf_t *outbuf,
-                            IN OPT tt_cline_attr_t *attr)
+tt_result_t tt_cline_create(IN tt_cline_t *cline, IN tt_cli_mode_t mode,
+                            IN tt_buf_t *outbuf, IN OPT tt_cline_attr_t *attr)
 {
     tt_cline_attr_t __attr;
 
@@ -106,8 +104,7 @@ void tt_cline_attr_default(IN tt_cline_attr_t *attr)
     tt_string_attr_default(&attr->line_attr);
 }
 
-tt_result_t tt_cline_input(IN tt_cline_t *cline,
-                           IN tt_u8_t *ev,
+tt_result_t tt_cline_input(IN tt_cline_t *cline, IN tt_u8_t *ev,
                            IN tt_u32_t ev_num)
 {
     tt_u32_t i;
@@ -115,9 +112,7 @@ tt_result_t tt_cline_input(IN tt_cline_t *cline,
     TT_ASSERT(cline != NULL);
     TT_ASSERT(ev != NULL);
 
-    if (ev_num == 0) {
-        return TT_SUCCESS;
-    }
+    if (ev_num == 0) { return TT_SUCCESS; }
 
     for (i = 0; i < ev_num; ++i) {
         tt_u8_t e = ev[i];
@@ -148,9 +143,7 @@ tt_bool_t tt_cline_cursor_data(IN tt_cline_t *cline, OUT tt_blob_t *data)
     TT_ASSERT(cursor <= tt_string_len(&cline->line));
 
     i = 0;
-    while ((i < cursor) && (p[i] == ' ')) {
-        ++i;
-    }
+    while ((i < cursor) && (p[i] == ' ')) { ++i; }
     while ((i < cursor) && (p[i] != ' ')) {
         see_char = TT_TRUE;
         ++i;
@@ -161,9 +154,7 @@ tt_bool_t tt_cline_cursor_data(IN tt_cline_t *cline, OUT tt_blob_t *data)
     }
 
     i = cursor - 1;
-    while ((i != ~0) && (p[i] != ' ')) {
-        --i;
-    }
+    while ((i != ~0) && (p[i] != ' ')) { --i; }
     ++i;
     TT_ASSERT(i <= cursor);
     if (i < cursor) {
@@ -183,19 +174,19 @@ void __load_cline_cb(IN tt_cline_t *cline, IN tt_cli_mode_t mode)
     TT_ASSERT(TT_CLI_MODE_VALID(mode));
 
     switch (mode) {
-        case TT_CLI_MODE_DEFAUTL:
-        default: {
-            cline->on_char = __def_on_char;
-            cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_UP)] = NULL;
-            cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_DOWN)] = NULL;
-            cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_RIGHT)] = __def_on_right;
-            cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_LEFT)] = __def_on_left;
-            cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_INTR)] = __def_on_intr;
-            cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_QUIT)] = __def_on_quit;
-            cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_DELETE)] = __def_on_delete;
-            cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_ENTER)] = NULL;
-            cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_TAB)] = NULL;
-        } break;
+    case TT_CLI_MODE_DEFAUTL:
+    default: {
+        cline->on_char = __def_on_char;
+        cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_UP)] = NULL;
+        cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_DOWN)] = NULL;
+        cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_RIGHT)] = __def_on_right;
+        cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_LEFT)] = __def_on_left;
+        cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_INTR)] = __def_on_intr;
+        cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_QUIT)] = __def_on_quit;
+        cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_DELETE)] = __def_on_delete;
+        cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_ENTER)] = NULL;
+        cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_TAB)] = NULL;
+    } break;
     }
 }
 
@@ -234,9 +225,7 @@ tt_result_t __def_on_char(IN tt_cline_t *cline, IN tt_char_t c)
 
 tt_result_t __def_on_left(IN tt_cline_t *cline)
 {
-    if (cline->cursor == 0) {
-        return TT_SUCCESS;
-    }
+    if (cline->cursor == 0) { return TT_SUCCESS; }
 
     TT_DO(tt_buf_put_u8(cline->outbuf, TT_CLI_EV_LEFT));
     --cline->cursor;
@@ -246,9 +235,7 @@ tt_result_t __def_on_left(IN tt_cline_t *cline)
 
 tt_result_t __def_on_right(IN tt_cline_t *cline)
 {
-    if (cline->cursor == tt_string_len(&cline->line)) {
-        return TT_SUCCESS;
-    }
+    if (cline->cursor == tt_string_len(&cline->line)) { return TT_SUCCESS; }
     TT_ASSERT(cline->cursor < tt_string_len(&cline->line));
 
     TT_DO(tt_buf_put_u8(cline->outbuf, TT_CLI_EV_RIGHT));
@@ -282,9 +269,7 @@ tt_result_t __def_on_delete(IN tt_cline_t *cline)
     tt_u8_t *p;
     tt_u32_t n;
 
-    if (cline->cursor == 0) {
-        return TT_SUCCESS;
-    }
+    if (cline->cursor == 0) { return TT_SUCCESS; }
 
     // update line
     --cline->cursor;

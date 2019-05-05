@@ -33,7 +33,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     ALG_UT_BEGIN = 0,
 
     ALG_UT_BASIC_ALG,
@@ -101,9 +102,7 @@ tt_result_t tt_alg_ut_init(IN tt_ptr_t reserved)
 
         if (tt_g_alg_ut_list[unit_id] != NULL) {
             result = tt_test_unit_to_class(tt_g_alg_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
+            if (!TT_OK(result)) { return TT_FAIL; }
         }
 
         // next

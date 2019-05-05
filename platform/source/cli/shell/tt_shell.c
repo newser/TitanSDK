@@ -52,15 +52,11 @@ const tt_char_t tt_g_sh_colume_sep[5] = {' ', ' ', ' ', ' ', 0};
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
-                            IN void *param,
-                            IN const tt_char_t *cmd,
-                            IN tt_buf_t *output);
+static tt_u32_t __sh_on_cmd(IN tt_cli_t *cli, IN void *param,
+                            IN const tt_char_t *cmd, IN tt_buf_t *output);
 
-static tt_u32_t __sh_on_complete(IN tt_cli_t *cli,
-                                 IN void *param,
-                                 IN tt_u8_t *cur,
-                                 IN tt_u32_t cur_len,
+static tt_u32_t __sh_on_complete(IN tt_cli_t *cli, IN void *param,
+                                 IN tt_u8_t *cur, IN tt_u32_t cur_len,
                                  IN tt_bool_t wait4cmd,
                                  IN struct tt_buf_s *output);
 
@@ -76,10 +72,8 @@ static tt_result_t __expand_arg(IN tt_shell_t *sh);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_sh_create(IN tt_shell_t *sh,
-                         IN tt_param_t *root,
-                         IN tt_cli_mode_t mode,
-                         IN tt_cli_itf_t *itf,
+tt_result_t tt_sh_create(IN tt_shell_t *sh, IN tt_param_t *root,
+                         IN tt_cli_mode_t mode, IN tt_cli_itf_t *itf,
                          IN OPT tt_sh_attr_t *attr)
 {
     tt_sh_attr_t __attr;
@@ -121,9 +115,7 @@ void tt_sh_destroy(IN tt_shell_t *sh)
 
     tt_cli_destroy(&sh->cli);
 
-    if (sh->arg != sh->i_arg) {
-        tt_free(sh->arg);
-    }
+    if (sh->arg != sh->i_arg) { tt_free(sh->arg); }
 }
 
 void tt_sh_attr_default(IN tt_sh_attr_t *attr)
@@ -135,9 +127,7 @@ void tt_sh_attr_default(IN tt_sh_attr_t *attr)
     tt_cli_attr_default(&attr->cli_attr);
 }
 
-tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
-                     IN void *param,
-                     IN const tt_char_t *line,
+tt_u32_t __sh_on_cmd(IN tt_cli_t *cli, IN void *param, IN const tt_char_t *line,
                      IN tt_buf_t *output)
 {
     tt_shell_t *sh = TT_CONTAINER(cli, tt_shell_t, cli);
@@ -145,9 +135,7 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
     tt_shcmd_t *cmd;
     tt_param_t *p;
 
-    if (line[0] == 0) {
-        return TT_CLIOC_NOOUT;
-    }
+    if (line[0] == 0) { return TT_CLIOC_NOOUT; }
 
     sh->arg_num = 0;
     if (!TT_OK(__parse_arg(sh, (tt_char_t *)line)) || (sh->arg_num == 0)) {
@@ -166,9 +154,7 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
     }
 
     // run as a executable object
-    p = tt_param_path_p2n(sh->root,
-                          sh->current,
-                          name,
+    p = tt_param_path_p2n(sh->root, sh->current, name,
                           (tt_u32_t)tt_strlen(name));
     if (p == NULL) {
         tt_buf_putf(output, "not found: %s", name);
@@ -182,11 +168,9 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
         tt_u32_t status = TT_CLIOC_NOOUT;
 
         tt_buf_backup_rwp(output, &rp, &wp);
-        result = tt_param_exe_run(TT_PARAM_CAST(p, tt_param_exe_t),
-                                  sh->arg_num - 1,
-                                  &sh->arg[1],
-                                  output,
-                                  &status);
+        result =
+            tt_param_exe_run(TT_PARAM_CAST(p, tt_param_exe_t), sh->arg_num - 1,
+                             &sh->arg[1], output, &status);
         if (TT_OK(result)) {
             return status;
         } else {
@@ -197,47 +181,29 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
     }
 }
 
-tt_u32_t __sh_on_complete(IN tt_cli_t *cli,
-                          IN void *param,
-                          IN tt_u8_t *cur,
-                          IN tt_u32_t cur_len,
-                          IN tt_bool_t wait4cmd,
+tt_u32_t __sh_on_complete(IN tt_cli_t *cli, IN void *param, IN tt_u8_t *cur,
+                          IN tt_u32_t cur_len, IN tt_bool_t wait4cmd,
                           IN struct tt_buf_s *output)
 {
     tt_shell_t *sh = TT_CONTAINER(cli, tt_shell_t, cli);
     tt_u32_t status;
 
     if (wait4cmd) {
-        if (!TT_OK(tt_cli_complete(cur,
-                                   cur_len,
-                                   tt_g_shcmd_name,
-                                   TT_SHCMD_NUM,
-                                   &status,
-                                   output))) {
+        if (!TT_OK(tt_cli_complete(cur, cur_len, tt_g_shcmd_name, TT_SHCMD_NUM,
+                                   &status, output))) {
             status = TT_CLICP_NONE;
         }
     } else {
-        if (TT_OK(tt_param_path_complete(sh->root,
-                                         sh->current,
-                                         (tt_char_t *)cur,
-                                         cur_len,
-                                         &status,
+        if (TT_OK(tt_param_path_complete(sh->root, sh->current,
+                                         (tt_char_t *)cur, cur_len, &status,
                                          output))) {
             switch (status) {
-                case TT_PPCP_PARTIAL:
-                    status = TT_CLICP_PARTIAL;
-                    break;
-                case TT_PPCP_FULL:
-                    status = TT_CLICP_FULL;
-                    break;
-                case TT_PPCP_FULL_MORE:
-                    status = TT_CLICP_FULL_MORE;
-                    break;
+            case TT_PPCP_PARTIAL: status = TT_CLICP_PARTIAL; break;
+            case TT_PPCP_FULL: status = TT_CLICP_FULL; break;
+            case TT_PPCP_FULL_MORE: status = TT_CLICP_FULL_MORE; break;
 
-                case TT_PPCP_NONE:
-                default:
-                    status = TT_CLICP_NONE;
-                    break;
+            case TT_PPCP_NONE:
+            default: status = TT_CLICP_NONE; break;
             }
         } else {
             status = TT_CLICP_NONE;
@@ -266,12 +232,8 @@ tt_result_t __parse_arg(IN tt_shell_t *sh, IN tt_char_t *line)
 
 again:
     // arg start
-    while ((*p != 0) && (*p == ' ')) {
-        ++p;
-    }
-    if (*p == 0) {
-        goto done;
-    }
+    while ((*p != 0) && (*p == ' ')) { ++p; }
+    if (*p == 0) { goto done; }
     if (*p == '"') {
         d_quots = TT_TRUE;
         arg = ++p;
@@ -292,12 +254,8 @@ again:
     } else {
         end_c = ' ';
     }
-    while ((*p != 0) && (*p != end_c)) {
-        ++p;
-    }
-    if (arg < p) {
-        TT_DO(__put_arg(sh, arg));
-    }
+    while ((*p != 0) && (*p != end_c)) { ++p; }
+    if (arg < p) { TT_DO(__put_arg(sh, arg)); }
     if (*p != 0) {
         *p++ = 0;
         goto again;
@@ -327,14 +285,10 @@ tt_result_t __expand_arg(IN tt_shell_t *sh)
     num = sh->arg_size + TT_SH_ARG_NUM;
     size = num * sizeof(tt_char_t *);
     new_arg = (tt_char_t **)tt_zalloc(size);
-    if (new_arg == NULL) {
-        return TT_FAIL;
-    }
+    if (new_arg == NULL) { return TT_FAIL; }
     tt_memcpy(new_arg, sh->arg, sh->arg_size * sizeof(tt_char_t *));
 
-    if (sh->arg != sh->i_arg) {
-        tt_free(sh->arg);
-    }
+    if (sh->arg != sh->i_arg) { tt_free(sh->arg); }
     sh->arg = new_arg;
     sh->arg_size = num;
 

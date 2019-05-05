@@ -68,9 +68,7 @@ tt_inline void tt_http_hostset_add(IN tt_http_hostset_t *hs,
 tt_inline void tt_http_hostset_set_default(IN tt_http_hostset_t *hs,
                                            IN tt_http_host_t *host)
 {
-    if (hs->default_host != NULL) {
-        tt_http_host_destroy(hs->default_host);
-    }
+    if (hs->default_host != NULL) { tt_http_host_destroy(hs->default_host); }
     hs->default_host = host;
 }
 
@@ -81,8 +79,7 @@ tt_export tt_http_host_t *tt_http_hostset_match_n(IN tt_http_hostset_t *hs,
 tt_inline tt_http_host_t *tt_http_hostset_match(IN tt_http_hostset_t *hs,
                                                 IN const tt_char_t *name)
 {
-    return tt_http_hostset_match_n(hs,
-                                   (tt_char_t *)name,
+    return tt_http_hostset_match_n(hs, (tt_char_t *)name,
                                    (tt_u32_t)tt_strlen(name));
 }
 

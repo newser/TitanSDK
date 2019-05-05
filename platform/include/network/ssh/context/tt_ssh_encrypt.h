@@ -50,10 +50,8 @@ typedef struct tt_sshenc_s
 } tt_sshenc_t;
 
 typedef tt_result_t (*tt_sshenc_create_t)(IN tt_sshenc_t *enc,
-                                          IN tt_bool_t encrypt,
-                                          IN tt_u8_t *iv,
-                                          IN tt_u32_t iv_len,
-                                          IN tt_u8_t *key,
+                                          IN tt_bool_t encrypt, IN tt_u8_t *iv,
+                                          IN tt_u32_t iv_len, IN tt_u8_t *key,
                                           IN tt_u32_t key_len);
 typedef void (*tt_sshenc_destroy_t)(IN tt_sshenc_t *enc);
 
@@ -87,10 +85,8 @@ tt_export void tt_sshenc_destroy(IN tt_sshenc_t *enc);
 
 tt_export tt_result_t tt_sshenc_setalg(IN tt_sshenc_t *enc,
                                        IN tt_ssh_enc_alg_t alg,
-                                       IN tt_bool_t encrypt,
-                                       IN tt_u8_t *iv,
-                                       IN tt_u32_t iv_len,
-                                       IN tt_u8_t *key,
+                                       IN tt_bool_t encrypt, IN tt_u8_t *iv,
+                                       IN tt_u32_t iv_len, IN tt_u8_t *key,
                                        IN tt_u32_t key_len);
 
 // it seems all encryption algs can be done in-place, that means

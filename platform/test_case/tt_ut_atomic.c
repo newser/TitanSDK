@@ -57,51 +57,21 @@ TT_TEST_ROUTINE_DECLARE(case_atomic_fence)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(atomic_case)
 
-TT_TEST_CASE("case_atomic_basic",
-             "testing basic atomic API",
-             case_atomic_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_atomic_basic", "testing basic atomic API", case_atomic_basic,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_atomic_mt",
-                 "testing atomic API in multithread",
-                 case_atomic_mt,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_atomic_mt", "testing atomic API in multithread",
+                 case_atomic_mt, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_atomic_cas",
-                 "testing cas API in multithread",
-                 case_atomic_cas,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_atomic_cas", "testing cas API in multithread",
+                 case_atomic_cas, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_atomic_ptr",
-                 "testing atomic ptr API",
-                 case_atomic_ptr,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_atomic_ptr", "testing atomic ptr API", case_atomic_ptr,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_atomic_fence",
-                 "testing atomic fence",
-                 case_atomic_fence,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_atomic_fence", "testing atomic fence", case_atomic_fence,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(atomic_case)
     // =========================================
@@ -273,19 +243,11 @@ static tt_result_t test_routine_1(IN void *param)
 
     // TT_ASSERT(thread == test_threads[idx]);
 
-    for (i = 0; i < INC_NUM; ++i) {
-        tt_atomic_s32_inc(&test_counter);
-    }
-    for (i = 0; i < DEC_NUM; ++i) {
-        tt_atomic_s32_dec(&test_counter);
-    }
+    for (i = 0; i < INC_NUM; ++i) { tt_atomic_s32_inc(&test_counter); }
+    for (i = 0; i < DEC_NUM; ++i) { tt_atomic_s32_dec(&test_counter); }
 
-    for (i = 0; i < INC_NUM; ++i) {
-        tt_atomic_s64_inc(&test_counter_2);
-    }
-    for (i = 0; i < DEC_NUM; ++i) {
-        tt_atomic_s64_dec(&test_counter_2);
-    }
+    for (i = 0; i < INC_NUM; ++i) { tt_atomic_s64_inc(&test_counter_2); }
+    for (i = 0; i < DEC_NUM; ++i) { tt_atomic_s64_dec(&test_counter_2); }
 
     return TT_SUCCESS;
 }
@@ -346,8 +308,7 @@ static tt_result_t test_routine_2(IN void *param)
     }
 
     for (i = 0; i < loop_num; ++i) {
-        while (!TT_OK(tt_atomic_s64_cas(&test_counter_2,
-                                        0x12345678ababababLL,
+        while (!TT_OK(tt_atomic_s64_cas(&test_counter_2, 0x12345678ababababLL,
                                         0xabababab12345678LL)))
             ;
         ++test_v1_64;
@@ -387,11 +348,9 @@ TT_TEST_ROUTINE_DEFINE(case_atomic_cas)
     TT_UT_EQUAL(ret64, 0x12345678ababababLL, "");
 
     TT_UT_EQUAL(test_v1,
-                (sizeof(test_threads) / sizeof(tt_thread_t *)) * loop_num,
-                "");
+                (sizeof(test_threads) / sizeof(tt_thread_t *)) * loop_num, "");
     TT_UT_EQUAL(test_v1_64,
-                (sizeof(test_threads) / sizeof(tt_thread_t *)) * loop_num,
-                "");
+                (sizeof(test_threads) / sizeof(tt_thread_t *)) * loop_num, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -552,8 +511,7 @@ static tt_result_t test_routine_3_1(IN void *param)
 
 static tt_result_t test_routine_3_2(IN void *param)
 {
-    while (tt_atomic_s32_get(&__done) != 1) {
-    }
+    while (tt_atomic_s32_get(&__done) != 1) {}
     tt_atomic_s32_set(&__done2, 1);
 
     return TT_SUCCESS;
@@ -561,8 +519,7 @@ static tt_result_t test_routine_3_2(IN void *param)
 
 static tt_result_t test_routine_3_3(IN void *param)
 {
-    while (tt_atomic_s32_get(&__done2) != 1) {
-    }
+    while (tt_atomic_s32_get(&__done2) != 1) {}
 
     if (tt_atomic_s32_get(&__tmp[0]) != 0x123) {
         __ut_ret_fence = TT_FAIL;

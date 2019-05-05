@@ -160,8 +160,7 @@ if atomic equals comparand
 it's normal case that this function return TT_FAIL
 */
 tt_inline tt_bool_t tt_atomic_s32_cas(IN tt_atomic_s32_t *a,
-                                      IN tt_s32_t comparand,
-                                      IN tt_s32_t val)
+                                      IN tt_s32_t comparand, IN tt_s32_t val)
 {
     return tt_atomic_s32_cas_ntv(a, comparand, val);
 }
@@ -262,8 +261,7 @@ val if atomic equals comparand
 it's normal case that this function return TT_FAIL
 */
 tt_inline tt_bool_t tt_atomic_s64_cas(IN tt_atomic_s64_t *a,
-                                      IN tt_s64_t comparand,
-                                      IN tt_s64_t val)
+                                      IN tt_s64_t comparand, IN tt_s64_t val)
 {
     return tt_atomic_s64_cas_ntv(a, comparand, val);
 }
@@ -321,8 +319,7 @@ new_ptr if atomic equals comparand
 - TT_SUCCESS, if exchanging done
 - TT_FAIL, otherwise
 */
-tt_inline tt_bool_t tt_atomic_ptr_cas(IN OUT tt_ptr_t *p,
-                                      IN tt_ptr_t comparand,
+tt_inline tt_bool_t tt_atomic_ptr_cas(IN OUT tt_ptr_t *p, IN tt_ptr_t comparand,
                                       IN tt_ptr_t val)
 {
     return tt_atomic_ptr_cas_ntv(p, comparand, val);

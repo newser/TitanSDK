@@ -47,24 +47,12 @@ TT_TEST_ROUTINE_DECLARE(case_sshvx_parse)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshmsg_vx_case)
 
-TT_TEST_CASE("case_sshvx_render",
-             "ssh msg: version exchange render",
-             case_sshvx_render,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_sshvx_render", "ssh msg: version exchange render",
+             case_sshvx_render, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_sshvx_parse",
-                 "ssh msg: version exchange parse",
-                 case_sshvx_parse,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshvx_parse", "ssh msg: version exchange parse",
+                 case_sshvx_parse, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(sshmsg_vx_case)
     // =========================================
@@ -144,11 +132,9 @@ TT_TEST_CASE("case_sshvx_render",
 
     // should saved
     TT_UT_EQUAL(TT_BUF_RLEN(&out_msg->buf), TT_BUF_RLEN(&msg->buf), "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&out_msg->buf),
-                          TT_BUF_RPOS(&msg->buf),
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&out_msg->buf), TT_BUF_RPOS(&msg->buf),
                           TT_BUF_RLEN(&msg->buf)),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(out_msg->msg_id, TT_SSH_MSGID_VERXCHG, "");
 
     // check msg id
@@ -221,7 +207,9 @@ struct __sshvx_parse_vec_t __sshvx_parse_vec[] = {
         TT_SSH_VER_NUM,
     },
     {
-        "123456SSH-1.0-sw comments\r\n", TT_SUCCESS, TT_SSH_VER_1_0,
+        "123456SSH-1.0-sw comments\r\n",
+        TT_SUCCESS,
+        TT_SSH_VER_1_0,
     },
     {
         "123456SSH-1.99-sw comments\n", // \n should be accepted
@@ -229,7 +217,9 @@ struct __sshvx_parse_vec_t __sshvx_parse_vec[] = {
         TT_SSH_VER_1_99,
     },
     {
-        "SSH-2.0-sw comments\n", TT_SUCCESS, TT_SSH_VER_2_0,
+        "SSH-2.0-sw comments\n",
+        TT_SUCCESS,
+        TT_SSH_VER_2_0,
     },
     {
         "SSH-2.01-sw comments\n", // not supported version

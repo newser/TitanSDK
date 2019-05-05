@@ -49,51 +49,22 @@ TT_TEST_ROUTINE_DECLARE(case_sshmsg_usrauth_banner)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshauthmsg_case)
 
-TT_TEST_CASE("case_sshmsg_usrauthreq_pkey",
-             "ssh msg: user auth req: pubkey",
-             case_sshmsg_usrauthreq_pkey,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_sshmsg_usrauthreq_pkey", "ssh msg: user auth req: pubkey",
+             case_sshmsg_usrauthreq_pkey, NULL, NULL, NULL, NULL, NULL)
 ,
 
     TT_TEST_CASE("case_sshmsg_usrauthreq_pwd",
-                 "ssh msg: user auth req: password",
-                 case_sshmsg_usrauthreq_pwd,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+                 "ssh msg: user auth req: password", case_sshmsg_usrauthreq_pwd,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_usrauth_success",
-                 "ssh msg: user auth success",
-                 case_sshmsg_usrauth_success,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_usrauth_success", "ssh msg: user auth success",
+                 case_sshmsg_usrauth_success, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_usrauth_fail",
-                 "ssh msg: user auth failure",
-                 case_sshmsg_usrauth_fail,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_usrauth_fail", "ssh msg: user auth failure",
+                 case_sshmsg_usrauth_fail, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_sshmsg_usrauth_banner",
-                 "ssh msg: user auth banner",
-                 case_sshmsg_usrauth_banner,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_sshmsg_usrauth_banner", "ssh msg: user auth banner",
+                 case_sshmsg_usrauth_banner, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(sshauthmsg_case)
     // =========================================
@@ -193,16 +164,14 @@ TT_TEST_CASE("case_sshmsg_usrauthreq_pkey",
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(uar->auth_u.pubkey.pubkey.len, sizeof(pkey), "");
     TT_UT_EQUAL(tt_memcmp(uar->auth_u.pubkey.pubkey.addr, pkey, sizeof(pkey)),
-                0,
-                "");
+                0, "");
 
     // sig
     ret = tt_sshmsg_uar_set_signature(msg, sig, sizeof(sig));
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(uar->auth_u.pubkey.signature.len, sizeof(sig), "");
     TT_UT_EQUAL(tt_memcmp(uar->auth_u.pubkey.signature.addr, sig, sizeof(sig)),
-                0,
-                "");
+                0, "");
 
     // render
     ret = tt_sshmsg_render(msg, 0, NULL);
@@ -223,12 +192,10 @@ TT_TEST_CASE("case_sshmsg_usrauthreq_pkey",
     TT_UT_EQUAL(uar->auth_u.pubkey.pubkey_alg, TT_SSH_PUBKEY_ALG_RSA, "");
     TT_UT_EQUAL(uar->auth_u.pubkey.pubkey.len, sizeof(pkey), "");
     TT_UT_EQUAL(tt_memcmp(uar->auth_u.pubkey.pubkey.addr, pkey, sizeof(pkey)),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(uar->auth_u.pubkey.signature.len, sizeof(sig), "");
     TT_UT_EQUAL(tt_memcmp(uar->auth_u.pubkey.signature.addr, sig, sizeof(sig)),
-                0,
-                "");
+                0, "");
 
     tt_sshmsg_release(out_msg);
 
@@ -240,9 +207,7 @@ TT_TEST_CASE("case_sshmsg_usrauthreq_pkey",
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -339,11 +304,9 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauthreq_pwd)
     uar = TT_SSHMSG_CAST(msg, tt_sshmsg_uar_t);
 
     TT_UT_EQUAL(uar->user.len, sizeof("helloworld") - 1, "");
-    TT_UT_EQUAL(tt_memcmp(uar->user.addr,
-                          "helloworld",
+    TT_UT_EQUAL(tt_memcmp(uar->user.addr, "helloworld",
                           sizeof("helloworld") - 1),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(uar->service, TT_SSH_SERVICE_USERAUTH, "");
     TT_UT_EQUAL(uar->auth, TT_SSH_AUTH_PASSWORD, "");
     TT_UT_EQUAL(uar->auth_u.pwd.pwd.len, 3, "");
@@ -361,9 +324,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauthreq_pwd)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -409,9 +370,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauth_success)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -475,9 +434,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauth_fail)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
@@ -521,14 +478,11 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauth_banner)
     tt_buf_restore_rwp(&msg->buf, &rp, &wp);
 
     uab = TT_SSHMSG_CAST(msg, tt_sshmsg_uab_t);
-    TT_UT_EQUAL(TT_BUF_RLEN(&uab->banner),
-                (tt_u32_t)sizeof("banggggg") - 1,
+    TT_UT_EQUAL(TT_BUF_RLEN(&uab->banner), (tt_u32_t)sizeof("banggggg") - 1,
                 "");
-    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&uab->banner),
-                          "banggggg",
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&uab->banner), "banggggg",
                           (tt_u32_t)sizeof("banggggg") - 1),
-                0,
-                "");
+                0, "");
 
     tt_sshmsg_release(out_msg);
 
@@ -540,9 +494,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauth_banner)
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-        if (TT_OK(ret)) {
-            tt_sshmsg_release(out_msg);
-        }
+        if (TT_OK(ret)) { tt_sshmsg_release(out_msg); }
         msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;

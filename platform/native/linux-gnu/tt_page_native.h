@@ -73,12 +73,8 @@ memory page APIs
 #else
 
 #define __PAGE_ALLOC_ONNODE(size, numa_node_id_memory)                         \
-    mmap(NULL,                                                                 \
-         (size),                                                               \
-         PROT_READ | PROT_WRITE,                                               \
-         MAP_PRIVATE | MAP_ANONYMOUS,                                          \
-         -1,                                                                   \
-         0)
+    mmap(NULL, (size), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS,    \
+         -1, 0)
 #define __PAGE_FREE_ONNODE(page_begin, size, numa_node_id_memory)              \
     munmap((page_begin), (size))
 
@@ -129,9 +125,7 @@ tt_inline void *tt_page_alloc_ntv(IN tt_u32_t size)
     } else {
         p = __PAGE_ALLOC(size);
     }
-    if (p == NULL) {
-        TT_ERROR("fail to allocate pages");
-    }
+    if (p == NULL) { TT_ERROR("fail to allocate pages"); }
 
     return p;
 }
@@ -209,8 +203,7 @@ tt_inline void *tt_page_alloc_align_ntv(IN tt_u32_t size_order,
 
     // bind to numa node
     if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        __PAGE_TONODE_MEMORY(commit_addr,
-                             commit_size,
+        __PAGE_TONODE_MEMORY(commit_addr, commit_size,
                              tt_g_numa_node_id_memory);
     }
 

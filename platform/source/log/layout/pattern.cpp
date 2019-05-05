@@ -34,8 +34,6 @@ namespace tt {
 
 namespace log {
 
-namespace layout {
-
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -109,7 +107,8 @@ bool pattern::parse(const char *format, size_t len)
 
                 // step 2: create a placeholder
                 assert(pos > p_start);
-                placeholder *p = placeholder::parse(p_start, pos - p_start + 1);
+                placeholder::base *p =
+                    placeholder::parse(p_start, pos - p_start + 1);
                 if (p == nullptr) { return false; }
                 placeholders_.emplace_back(p);
             }
@@ -163,8 +162,6 @@ void pattern::render(const entry &e, OUT buf &b) const
         }
     }
     b.write(prev_pos, pos - prev_pos);
-}
-
 }
 
 }

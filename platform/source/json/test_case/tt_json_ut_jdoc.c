@@ -62,9 +62,7 @@ static void __json_enter(void *enter_param)
     static tt_bool_t done = TT_FALSE;
     tt_char_t *s;
 
-    if (done) {
-        return;
-    }
+    if (done) { return; }
 
     tt_string_init(&xf_path, NULL);
 
@@ -88,42 +86,18 @@ TT_TEST_ROUTINE_DECLARE(case_jval_object)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(json_jdoc_case)
 
-TT_TEST_CASE("case_jdoc_basic",
-             "json: document basic",
-             case_jdoc_basic,
-             NULL,
-             __json_enter,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_jdoc_basic", "json: document basic", case_jdoc_basic, NULL,
+             __json_enter, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_jval_basic",
-                 "json: value basic",
-                 case_jval_basic,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_jval_basic", "json: value basic", case_jval_basic, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_jval_array",
-                 "json: array basic",
-                 case_jval_array,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_jval_array", "json: array basic", case_jval_array, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_jval_object",
-                 "json: object basic",
-                 case_jval_object,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_jval_object", "json: object basic", case_jval_object,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(json_jdoc_case)
     // =========================================
@@ -185,10 +159,8 @@ TT_TEST_CASE("case_jdoc_basic",
         tt_u32_t n = sizeof(buf);
         tt_chsetconv_t c;
 
-        TT_UT_SUCCESS(tt_chsetconv_create(&c,
-                                          TT_CHARSET_UTF8,
-                                          TT_CHARSET_UTF16LE,
-                                          NULL),
+        TT_UT_SUCCESS(tt_chsetconv_create(&c, TT_CHARSET_UTF8,
+                                          TT_CHARSET_UTF16LE, NULL),
                       "");
         TT_UT_SUCCESS(tt_chsetconv_input(&c, text, sizeof(text)), "");
         tt_chsetconv_output(&c, buf, &n);
@@ -206,10 +178,8 @@ TT_TEST_CASE("case_jdoc_basic",
         tt_u32_t n = sizeof(buf);
         tt_chsetconv_t c;
 
-        TT_UT_SUCCESS(tt_chsetconv_create(&c,
-                                          TT_CHARSET_UTF8,
-                                          TT_CHARSET_UTF16BE,
-                                          NULL),
+        TT_UT_SUCCESS(tt_chsetconv_create(&c, TT_CHARSET_UTF8,
+                                          TT_CHARSET_UTF16BE, NULL),
                       "");
         TT_UT_SUCCESS(tt_chsetconv_input(&c, text, sizeof(text)), "");
         tt_chsetconv_output(&c, buf, &n);
@@ -228,10 +198,8 @@ TT_TEST_CASE("case_jdoc_basic",
         tt_u32_t n = sizeof(buf);
         tt_chsetconv_t c;
 
-        TT_UT_SUCCESS(tt_chsetconv_create(&c,
-                                          TT_CHARSET_UTF8,
-                                          TT_CHARSET_UTF32LE,
-                                          NULL),
+        TT_UT_SUCCESS(tt_chsetconv_create(&c, TT_CHARSET_UTF8,
+                                          TT_CHARSET_UTF32LE, NULL),
                       "");
         TT_UT_SUCCESS(tt_chsetconv_input(&c, text, sizeof(text)), "");
         tt_chsetconv_output(&c, buf, &n);
@@ -249,10 +217,8 @@ TT_TEST_CASE("case_jdoc_basic",
         tt_u32_t n = sizeof(buf);
         tt_chsetconv_t c;
 
-        TT_UT_SUCCESS(tt_chsetconv_create(&c,
-                                          TT_CHARSET_UTF8,
-                                          TT_CHARSET_UTF32BE,
-                                          NULL),
+        TT_UT_SUCCESS(tt_chsetconv_create(&c, TT_CHARSET_UTF8,
+                                          TT_CHARSET_UTF32BE, NULL),
                       "");
         TT_UT_SUCCESS(tt_chsetconv_input(&c, text, sizeof(text)), "");
         tt_chsetconv_output(&c, buf, &n);
@@ -658,45 +624,19 @@ TT_TEST_ROUTINE_DEFINE(case_jval_object)
         TT_UT_NULL(pv, "");
 
         tt_jobj_add_null(&jv, "null", sizeof("null") - 1, TT_TRUE, &jd);
-        tt_jobj_add_bool(&jv,
-                         "bool",
-                         sizeof("bool") - 1,
-                         TT_FALSE,
-                         TT_FALSE,
+        tt_jobj_add_bool(&jv, "bool", sizeof("bool") - 1, TT_FALSE, TT_FALSE,
                          &jd);
-        tt_jobj_add_u32(&jv,
-                        "u32",
-                        sizeof("u32") - 1,
-                        TT_TRUE,
-                        0xfffffffe,
+        tt_jobj_add_u32(&jv, "u32", sizeof("u32") - 1, TT_TRUE, 0xfffffffe,
                         &jd);
         tt_jobj_add_s32(&jv, "s32", sizeof("s32") - 1, TT_FALSE, -1, &jd);
-        tt_jobj_add_u64(&jv,
-                        "u64",
-                        sizeof("u64") - 1,
-                        TT_TRUE,
-                        0xfffffffefffffffe,
-                        &jd);
-        tt_jobj_add_s64(&jv,
-                        "s64",
-                        sizeof("s64") - 1,
-                        TT_FALSE,
-                        0xfffffffeffffffff,
-                        &jd);
-        tt_jobj_add_double(&jv,
-                           "double",
-                           sizeof("double") - 1,
-                           TT_TRUE,
-                           1.23,
+        tt_jobj_add_u64(&jv, "u64", sizeof("u64") - 1, TT_TRUE,
+                        0xfffffffefffffffe, &jd);
+        tt_jobj_add_s64(&jv, "s64", sizeof("s64") - 1, TT_FALSE,
+                        0xfffffffeffffffff, &jd);
+        tt_jobj_add_double(&jv, "double", sizeof("double") - 1, TT_TRUE, 1.23,
                            &jd);
-        tt_jobj_add_strn(&jv,
-                         "str",
-                         sizeof("str") - 1,
-                         TT_FALSE,
-                         "str val",
-                         sizeof("str val") - 1,
-                         TT_TRUE,
-                         &jd);
+        tt_jobj_add_strn(&jv, "str", sizeof("str") - 1, TT_FALSE, "str val",
+                         sizeof("str val") - 1, TT_TRUE, &jd);
         TT_UT_EQUAL(tt_jobj_member_count(&jv), 8, "");
 
         pv = tt_jobj_find(&jv, "null");
@@ -779,10 +719,8 @@ TT_TEST_ROUTINE_DEFINE(case_jval_object)
                 tt_jdoc_create(&pjd);
                 tt_jdoc_parse_attr_default(&dpa);
                 dpa.encoding = TT_JDOC_UTF8;
-                TT_UT_SUCCESS(tt_jdoc_parse(&pjd,
-                                            TT_BUF_RPOS(&b),
-                                            TT_BUF_RLEN(&b),
-                                            &dpa),
+                TT_UT_SUCCESS(tt_jdoc_parse(&pjd, TT_BUF_RPOS(&b),
+                                            TT_BUF_RLEN(&b), &dpa),
                               "");
 
                 pv = tt_jobj_find(tt_jdoc_get_root(&pjd), "str");
@@ -802,10 +740,8 @@ TT_TEST_ROUTINE_DEFINE(case_jval_object)
                 tt_jdoc_create(&pjd);
                 tt_jdoc_parse_attr_default(&dpa);
                 dpa.encoding = TT_JDOC_UTF16_LE;
-                TT_UT_SUCCESS(tt_jdoc_parse(&pjd,
-                                            TT_BUF_RPOS(&b),
-                                            TT_BUF_RLEN(&b),
-                                            &dpa),
+                TT_UT_SUCCESS(tt_jdoc_parse(&pjd, TT_BUF_RPOS(&b),
+                                            TT_BUF_RLEN(&b), &dpa),
                               "");
 
                 pv = tt_jobj_find(tt_jdoc_get_root(&pjd), "str");
@@ -825,10 +761,8 @@ TT_TEST_ROUTINE_DEFINE(case_jval_object)
                 tt_jdoc_create(&pjd);
                 tt_jdoc_parse_attr_default(&dpa);
                 dpa.encoding = TT_JDOC_UTF16_BE;
-                TT_UT_SUCCESS(tt_jdoc_parse(&pjd,
-                                            TT_BUF_RPOS(&b),
-                                            TT_BUF_RLEN(&b),
-                                            &dpa),
+                TT_UT_SUCCESS(tt_jdoc_parse(&pjd, TT_BUF_RPOS(&b),
+                                            TT_BUF_RLEN(&b), &dpa),
                               "");
 
                 pv = tt_jobj_find(tt_jdoc_get_root(&pjd), "str");
@@ -848,10 +782,8 @@ TT_TEST_ROUTINE_DEFINE(case_jval_object)
                 tt_jdoc_create(&pjd);
                 tt_jdoc_parse_attr_default(&dpa);
                 dpa.encoding = TT_JDOC_UTF32_BE;
-                TT_UT_SUCCESS(tt_jdoc_parse(&pjd,
-                                            TT_BUF_RPOS(&b),
-                                            TT_BUF_RLEN(&b),
-                                            &dpa),
+                TT_UT_SUCCESS(tt_jdoc_parse(&pjd, TT_BUF_RPOS(&b),
+                                            TT_BUF_RLEN(&b), &dpa),
                               "");
 
                 pv = tt_jobj_find(tt_jdoc_get_root(&pjd), "str");

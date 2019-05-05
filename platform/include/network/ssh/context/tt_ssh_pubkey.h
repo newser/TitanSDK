@@ -66,11 +66,9 @@ tt_export void tt_sshpubk_init(IN tt_sshpubk_t *pubk);
 tt_export void tt_sshpubk_destroy(IN tt_sshpubk_t *pubk);
 
 tt_export void tt_sshpubk_setalg(IN tt_sshpubk_t *pubk,
-                                 IN tt_ssh_pubkey_alg_t alg,
-                                 IN void *key);
+                                 IN tt_ssh_pubkey_alg_t alg, IN void *key);
 
-tt_export tt_result_t tt_sshpubk_sign(IN tt_sshpubk_t *pubk,
-                                      IN tt_u8_t *data,
+tt_export tt_result_t tt_sshpubk_sign(IN tt_sshpubk_t *pubk, IN tt_u8_t *data,
                                       IN tt_u32_t data_len);
 
 #endif /* __TT_SSH_PUBKEY__ */

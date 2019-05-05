@@ -40,8 +40,7 @@
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t __percent_decode(IN tt_blobex_t *bex,
-                                    IN tt_char_t *str,
+extern tt_result_t __percent_decode(IN tt_blobex_t *bex, IN tt_char_t *str,
                                     IN tt_u32_t len);
 
 ////////////////////////////////////////////////////////////
@@ -72,120 +71,48 @@ TT_TEST_ROUTINE_DECLARE(case_uri_get_set)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(misc_case)
 
-TT_TEST_CASE("case_version",
-             "testing version info APIs",
-             case_version,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_version", "testing version info APIs", case_version, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_high_bit_1",
-                 "testing tt_high_bit_1()",
-                 case_high_bit_1,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
+    TT_TEST_CASE("case_high_bit_1", "testing tt_high_bit_1()", case_high_bit_1,
+                 NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_low_bit_1", "testing tt_low_bit_1()", case_low_bit_1,
+                 NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_base64_dec", "base64 decode", case_base64_dec, NULL,
+                 NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_der_enc", "asn1 der encode", case_der_enc, NULL, NULL,
+                 NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_strtol", "ts strtol", case_strtol, NULL, NULL, NULL,
+                 NULL, NULL),
+
+    TT_TEST_CASE("case_c2h", "ts char/hex to hex/char", case_c2h, NULL, NULL,
+                 NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_align", "testing value alignment", case_align, NULL,
+                 NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_console_color", "testing console", case_console_color,
+                 NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_uri", "testing uri", case_uri, NULL, NULL, NULL, NULL,
                  NULL),
 
-    TT_TEST_CASE("case_low_bit_1",
-                 "testing tt_low_bit_1()",
-                 case_low_bit_1,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_percent_decode", "testing percent decode",
+                 case_percent_decode, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_base64_dec",
-                 "base64 decode",
-                 case_base64_dec,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_percent_encode", "testing percent encode",
+                 case_percent_encode, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_der_enc",
-                 "asn1 der encode",
-                 case_der_enc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_uri_get_set", "testing uri get set", case_uri_get_set,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE(
-        "case_strtol", "ts strtol", case_strtol, NULL, NULL, NULL, NULL, NULL),
-
-    TT_TEST_CASE("case_c2h",
-                 "ts char/hex to hex/char",
-                 case_c2h,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("case_align",
-                 "testing value alignment",
-                 case_align,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("case_console_color",
-                 "testing console",
-                 case_console_color,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE(
-        "case_uri", "testing uri", case_uri, NULL, NULL, NULL, NULL, NULL),
-
-    TT_TEST_CASE("case_percent_decode",
-                 "testing percent decode",
-                 case_percent_decode,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("case_percent_encode",
-                 "testing percent encode",
-                 case_percent_encode,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("case_uri_get_set",
-                 "testing uri get set",
-                 case_uri_get_set,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("case_trim",
-                 "testing case_trim()",
-                 case_trim,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_trim", "testing case_trim()", case_trim, NULL, NULL,
+                 NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(misc_case)
     // =========================================
@@ -232,20 +159,13 @@ TT_TEST_CASE("case_version",
     TT_UT_EQUAL(ver, TT_VERSION_REVISION, "");
 
     tt_ver_format(buf, sizeof(buf), TT_VER_FORMAT_BASIC);
-    tt_snprintf(test_buf,
-                sizeof(test_buf),
-                "%u.%u",
-                TT_VERSION_MAJOR,
+    tt_snprintf(test_buf, sizeof(test_buf), "%u.%u", TT_VERSION_MAJOR,
                 TT_VERSION_MINOR);
     TT_UT_EQUAL(tt_strncmp(buf, test_buf, sizeof(buf)), 0, "");
 
     tt_ver_format(buf, sizeof(buf), TT_VER_FORMAT_STANDARD);
-    tt_snprintf(test_buf,
-                sizeof(test_buf),
-                "%u.%u.%u",
-                TT_VERSION_MAJOR,
-                TT_VERSION_MINOR,
-                TT_VERSION_REVISION);
+    tt_snprintf(test_buf, sizeof(test_buf), "%u.%u.%u", TT_VERSION_MAJOR,
+                TT_VERSION_MINOR, TT_VERSION_REVISION);
     TT_UT_EQUAL(tt_strncmp(buf, test_buf, sizeof(buf)), 0, "");
 
     ret = tt_ver_require_major(TT_VERSION_MAJOR + 1);
@@ -295,8 +215,7 @@ TT_TEST_ROUTINE_DEFINE(case_high_bit_1)
 
         // find the highest 1 one by one
         for (i = (sizeof(test_v) << 3) - 1; i >= 0; --i) {
-            if (test_v & (1 << i))
-                break;
+            if (test_v & (1 << i)) break;
         }
 
         if (TT_OK(tt_high_bit_1(test_v, &pos))) {
@@ -332,8 +251,7 @@ TT_TEST_ROUTINE_DEFINE(case_low_bit_1)
 
         // find the highest 1 one by one
         for (i = 0; i <= (sizeof(test_v) << 3) - 1; ++i) {
-            if (test_v & (1 << i))
-                break;
+            if (test_v & (1 << i)) break;
         }
 
         if (TT_OK(tt_low_bit_1(test_v, &pos))) {
@@ -434,10 +352,7 @@ TT_TEST_ROUTINE_DEFINE(case_base64_dec)
     result = tt_base64_decode((tt_u8_t *)"123", 3, NULL, buf, &decoded_len);
     TT_UT_EQUAL(result, TT_SUCCESS, "");
 
-    result = tt_base64_decode_alloc((tt_u8_t *)"123",
-                                    0,
-                                    NULL,
-                                    &decoded,
+    result = tt_base64_decode_alloc((tt_u8_t *)"123", 0, NULL, &decoded,
                                     &decoded_len);
     TT_UT_EQUAL(result, TT_SUCCESS, "");
 
@@ -449,18 +364,14 @@ TT_TEST_ROUTINE_DEFINE(case_base64_dec)
 
         decoded_len = 0;
         result = tt_base64_decode((tt_u8_t *)tv->encoded,
-                                  (tt_u32_t)tt_strlen(tv->encoded),
-                                  &attr,
-                                  NULL,
+                                  (tt_u32_t)tt_strlen(tv->encoded), &attr, NULL,
                                   &decoded_len);
         TT_UT_EQUAL(result, TT_SUCCESS, "");
         TT_UT_EQUAL(decoded_len, tv->decoded_len, "");
 
         decoded_len = sizeof(buf);
         result = tt_base64_decode((tt_u8_t *)tv->encoded,
-                                  (tt_u32_t)tt_strlen(tv->encoded),
-                                  &attr,
-                                  buf,
+                                  (tt_u32_t)tt_strlen(tv->encoded), &attr, buf,
                                   &decoded_len);
         TT_UT_EQUAL(result, TT_SUCCESS, "");
         TT_UT_EQUAL(decoded_len, tv->decoded_len, "");
@@ -468,10 +379,8 @@ TT_TEST_ROUTINE_DEFINE(case_base64_dec)
 
         // decode alloc
         result = tt_base64_decode_alloc((tt_u8_t *)tv->encoded,
-                                        (tt_u32_t)tt_strlen(tv->encoded),
-                                        &attr,
-                                        &decoded,
-                                        &decoded_len);
+                                        (tt_u32_t)tt_strlen(tv->encoded), &attr,
+                                        &decoded, &decoded_len);
         TT_UT_EQUAL(result, TT_SUCCESS, "");
         TT_UT_EQUAL(decoded_len, tv->decoded_len, "");
         TT_UT_EQUAL(tt_memcmp(decoded, tv->decoded, decoded_len), 0, "");
@@ -575,8 +484,8 @@ TT_TEST_ROUTINE_DEFINE(case_der_enc)
     tt_u8_t human_bname[] = {0xb1, 0xe0};
     tt_u32_t human_bname_pad = 5;
     tt_s32_t human_age = 0;
-    tt_u8_t human_oid[] =
-        {0x2b, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x15, 0x14};
+    tt_u8_t human_oid[] = {0x2b, 0x06, 0x01, 0x04, 0x01,
+                           0x82, 0x37, 0x15, 0x14};
     // 1.3.6.1.4.1.311.21.20
 
     tt_u8_t c_name[] = {0};
@@ -620,11 +529,8 @@ TT_TEST_ROUTINE_DEFINE(case_der_enc)
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_octstr(&buf, human_name, sizeof(human_name), 0);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_der_encode_bitstr(&buf,
-                               human_bname,
-                               sizeof(human_bname),
-                               human_bname_pad,
-                               0);
+    ret = tt_der_encode_bitstr(&buf, human_bname, sizeof(human_bname),
+                               human_bname_pad, 0);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_s32(&buf, human_age, 0);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -670,8 +576,7 @@ TT_TEST_ROUTINE_DEFINE(case_der_enc)
 
     TT_UT_EQUAL(TT_BUF_RLEN(&buf), sizeof(__der_encoded), "");
     TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf), __der_encoded, TT_BUF_RLEN(&buf)),
-                0,
-                "");
+                0, "");
 
     // test length encoding
     do {
@@ -767,14 +672,10 @@ TT_TEST_ROUTINE_DEFINE(case_strtol)
     TT_UT_EQUAL(*endptr, 0, "");
     TT_UT_EQUAL(s32_val, 0, "");
 
-    result = tt_strtos32("-111111111111111111111111111111111111",
-                         &endptr,
-                         0,
+    result = tt_strtos32("-111111111111111111111111111111111111", &endptr, 0,
                          &s32_val);
     TT_UT_EQUAL(result, TT_FAIL, "");
-    result = tt_strtos32("+111111111111111111111111111111111111",
-                         &endptr,
-                         0,
+    result = tt_strtos32("+111111111111111111111111111111111111", &endptr, 0,
                          &s32_val);
     TT_UT_EQUAL(result, TT_FAIL, "");
 
@@ -820,14 +721,10 @@ TT_TEST_ROUTINE_DEFINE(case_strtol)
     TT_UT_EQUAL(*endptr, 0, "");
     TT_UT_EQUAL(u32_val, 0, "");
 
-    result = tt_strtou32("-111111111111111111111111111111111111",
-                         &endptr,
-                         0,
+    result = tt_strtou32("-111111111111111111111111111111111111", &endptr, 0,
                          &u32_val);
     TT_UT_EQUAL(result, TT_FAIL, "");
-    result = tt_strtou32("+111111111111111111111111111111111111",
-                         &endptr,
-                         0,
+    result = tt_strtou32("+111111111111111111111111111111111111", &endptr, 0,
                          &u32_val);
     TT_UT_EQUAL(result, TT_FAIL, "");
 
@@ -1636,28 +1533,21 @@ TT_TEST_ROUTINE_DEFINE(case_percent_encode)
 
     TT_UT_EQUAL(tt_percent_encode_len("", 0, tt_g_uri_encode_table), 0, "");
     tt_buf_clear(&b);
-    TT_UT_EQUAL(tt_percent_encode("",
-                                  0,
-                                  tt_g_uri_encode_table,
+    TT_UT_EQUAL(tt_percent_encode("", 0, tt_g_uri_encode_table,
                                   (tt_char_t *)TT_BUF_RPOS(&b)),
-                0,
-                "");
+                0, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&b), 0, "");
 
     tt_buf_clear(&b);
     TT_UT_EQUAL(0,
-                tt_percent_encode("a",
-                                  0,
-                                  tt_g_uri_encode_table,
+                tt_percent_encode("a", 0, tt_g_uri_encode_table,
                                   (tt_char_t *)TT_BUF_WPOS(&b)),
                 "");
     TT_UT_EQUAL(tt_buf_empty(&b), TT_TRUE, "");
 
     tt_buf_clear(&b);
     TT_UT_EQUAL(3,
-                tt_percent_encode("",
-                                  1,
-                                  tt_g_uri_encode_table,
+                tt_percent_encode("", 1, tt_g_uri_encode_table,
                                   (tt_char_t *)TT_BUF_WPOS(&b)),
                 "");
     tt_buf_inc_wp(&b, 3);
@@ -1665,9 +1555,7 @@ TT_TEST_ROUTINE_DEFINE(case_percent_encode)
 
     tt_buf_clear(&b);
     TT_UT_EQUAL(1,
-                tt_percent_encode("a",
-                                  1,
-                                  tt_g_uri_encode_table,
+                tt_percent_encode("a", 1, tt_g_uri_encode_table,
                                   (tt_char_t *)TT_BUF_WPOS(&b)),
                 "");
     tt_buf_inc_wp(&b, 1);
@@ -1675,9 +1563,7 @@ TT_TEST_ROUTINE_DEFINE(case_percent_encode)
 
     tt_buf_clear(&b);
     TT_UT_EQUAL(sizeof("%25a%25%20") - 1,
-                tt_percent_encode("%a% ",
-                                  4,
-                                  tt_g_uri_encode_table,
+                tt_percent_encode("%a% ", 4, tt_g_uri_encode_table,
                                   (tt_char_t *)TT_BUF_WPOS(&b)),
                 "");
     tt_buf_inc_wp(&b, sizeof("%25a%25%20") - 1);
@@ -1810,8 +1696,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
     TT_UT_STREQ(tt_uri_get_authority(&u), "u:p@g gg.com:8080", "");
     TT_UT_STREQ(tt_uri_get_opaque(&u), "", "");
     TT_UT_STREQ(tt_uri_render(&u, NULL),
-                "f%20tp://u%3ap@g%20gg.com:8080#f%20rag",
-                "");
+                "f%20tp://u%3ap@g%20gg.com:8080#f%20rag", "");
     TT_UT_SUCCESS(tt_uri_parse_authority(&u, "u2 u3@xxx"), "");
     TT_UT_STREQ(tt_uri_get_userinfo(&u), "u2 u3", "");
     TT_UT_STREQ(tt_uri_get_host(&u), "xxx", "");
@@ -1822,8 +1707,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
         tt_buf_t buf;
         tt_buf_init(&buf, NULL);
         TT_UT_SUCCESS(tt_uri_render2buf(&u, &buf, NULL), "");
-        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "f%20tp://u2%20u3@xxx#f%20rag"),
-                    0,
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "f%20tp://u2%20u3@xxx#f%20rag"), 0,
                     "");
         tt_buf_destroy(&buf);
     }
@@ -1852,8 +1736,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
     TT_UT_STREQ(tt_uri_get_host(&u), "", "");
     TT_UT_EQUAL(tt_uri_get_port(&u), 0, "");
     TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
-    TT_UT_STREQ(tt_uri_get_path(&u),
-                "docs/guide/collections/designfaq.html",
+    TT_UT_STREQ(tt_uri_get_path(&u), "docs/guide/collections/designfaq.html",
                 "");
     TT_UT_STREQ(tt_uri_get_query(&u), "", "");
     TT_UT_STREQ(tt_uri_get_fragment(&u), "28", "");

@@ -78,15 +78,11 @@ static void __svrconn_on_accept(IN tt_skt_t *listening_skt,
                                 IN tt_skt_t *new_skt,
                                 IN tt_skt_aioctx_t *aioctx);
 
-static void __svrconn_on_recv(IN tt_skt_t *skt,
-                              IN tt_blob_t *blob_array,
-                              IN tt_u32_t blob_num,
-                              IN tt_skt_aioctx_t *aioctx,
+static void __svrconn_on_recv(IN tt_skt_t *skt, IN tt_blob_t *blob_array,
+                              IN tt_u32_t blob_num, IN tt_skt_aioctx_t *aioctx,
                               IN tt_u32_t recv_len);
-static void __svrconn_on_send(IN tt_skt_t *skt,
-                              IN tt_blob_t *blob_array,
-                              IN tt_u32_t blob_num,
-                              IN tt_skt_aioctx_t *aioctx,
+static void __svrconn_on_send(IN tt_skt_t *skt, IN tt_blob_t *blob_array,
+                              IN tt_u32_t blob_num, IN tt_skt_aioctx_t *aioctx,
                               IN tt_u32_t send_len);
 
 static tt_result_t __svrconn_parse(IN tt_sshsvrconn_t *svrconn,
@@ -138,8 +134,7 @@ tt_sshsvrconn_t *tt_sshsvrconn_create(IN tt_sshsvr_t *server)
     svrconn->chmgr.itf = &tt_s_sshsvr_chmgr_itf;
 
     // receive buf
-    result = tt_buf_create(&svrconn->recv_buf,
-                           attr->conn_buf_init_size,
+    result = tt_buf_create(&svrconn->recv_buf, attr->conn_buf_init_size,
                            &attr->conn_buf_attr);
     if (!TT_OK(result)) {
         TT_ERROR("fail to create sshsvr conn recv buf");
@@ -184,12 +179,8 @@ tt_sshsvrconn_t *tt_sshsvrconn_create(IN tt_sshsvr_t *server)
     exit.on_destroy = __svrconn_on_destroy;
     exit.cb_param = NULL;
 
-    result = tt_skt_accept_async(&server->skt,
-                                 &svrconn->skt,
-                                 &skt_attr,
-                                 &exit,
-                                 __svrconn_on_accept,
-                                 NULL);
+    result = tt_skt_accept_async(&server->skt, &svrconn->skt, &skt_attr, &exit,
+                                 __svrconn_on_accept, NULL);
     if (!TT_OK(result)) {
         TT_ERROR("fail to accept ssh server connection");
 
@@ -205,21 +196,13 @@ tt_sshsvrconn_t *tt_sshsvrconn_create(IN tt_sshsvr_t *server)
 
 scfail:
 
-    if (__done & __SCO_LINKED) {
-        tt_list_remove(&svrconn->node);
-    }
+    if (__done & __SCO_LINKED) { tt_list_remove(&svrconn->node); }
 
-    if (__done & __SCO_CTX) {
-        tt_sshctx_destroy(&svrconn->ctx);
-    }
+    if (__done & __SCO_CTX) { tt_sshctx_destroy(&svrconn->ctx); }
 
-    if (__done & __SCO_RBUF) {
-        tt_buf_destroy(&svrconn->recv_buf);
-    }
+    if (__done & __SCO_RBUF) { tt_buf_destroy(&svrconn->recv_buf); }
 
-    if (__done & __SCO_MEM) {
-        tt_free(svrconn);
-    }
+    if (__done & __SCO_MEM) { tt_free(svrconn); }
 
     return NULL;
 }
@@ -238,9 +221,7 @@ void tt_sshsvrconn_destroy(IN tt_sshsvrconn_t *svrconn, IN tt_bool_t immediate)
         tt_sshctx_destroy(&svrconn->ctx);
 
         for (i = 0; i < svrconn->ch_num; ++i) {
-            if (svrconn->ch[i] != NULL) {
-                tt_sshch_destroy(svrconn->ch[i]);
-            }
+            if (svrconn->ch[i] != NULL) { tt_sshch_destroy(svrconn->ch[i]); }
         }
     } else {
         tt_async_skt_destroy(&svrconn->skt, TT_FALSE);
@@ -254,9 +235,7 @@ void tt_sshsvrconn_shutdown(IN tt_sshsvrconn_t *svrconn)
     TT_ASSERT(svrconn != NULL);
 
     for (i = 0; i < svrconn->ch_num; ++i) {
-        if (svrconn->ch[i] != NULL) {
-            tt_sshch_shutdown(svrconn->ch[i]);
-        }
+        if (svrconn->ch[i] != NULL) { tt_sshch_shutdown(svrconn->ch[i]); }
     }
 
     if (!TT_OK(tt_async_skt_shutdown(&svrconn->skt, TT_SKT_SHUT_RDWR))) {
@@ -278,11 +257,8 @@ tt_result_t tt_sshsvrconn_recv(IN tt_sshsvrconn_t *svrconn)
     }
 
     tt_buf_get_wblob(recv_buf, &recv_blob);
-    if (!TT_OK(tt_skt_recv_async(&svrconn->skt,
-                                 &recv_blob,
-                                 1,
-                                 __svrconn_on_recv,
-                                 NULL))) {
+    if (!TT_OK(tt_skt_recv_async(&svrconn->skt, &recv_blob, 1,
+                                 __svrconn_on_recv, NULL))) {
         TT_ERROR("fail to start ssh recv");
         return TT_FAIL;
     }
@@ -312,11 +288,8 @@ tt_result_t tt_sshsvrconn_send(IN tt_sshsvrconn_t *svrconn,
     }
 
     tt_buf_get_rblob(&sshmsg->buf, &data_blob);
-    if (!TT_OK(tt_skt_send_async(&svrconn->skt,
-                                 &data_blob,
-                                 1,
-                                 __svrconn_on_send,
-                                 NULL))) {
+    if (!TT_OK(tt_skt_send_async(&svrconn->skt, &data_blob, 1,
+                                 __svrconn_on_send, NULL))) {
         TT_FATAL("ssh send failed");
 
         tt_sshmsg_release(sshmsg);
@@ -339,9 +312,7 @@ struct tt_sshch_s *tt_sshsvrconn_ch_create(IN tt_sshsvrconn_t *svrconn,
     tt_sshch_t *ch;
 
     for (i = 0; i < svrconn->ch_num; ++i) {
-        if (svrconn->ch[i] == NULL) {
-            break;
-        }
+        if (svrconn->ch[i] == NULL) { break; }
     }
     if (i == svrconn->ch_num) {
         TT_ERROR("no free ssh channel");
@@ -349,9 +320,7 @@ struct tt_sshch_s *tt_sshsvrconn_ch_create(IN tt_sshsvrconn_t *svrconn,
     }
 
     ch = tt_sshch_create(type, i, &svrconn->server->sshch_cb, &svrconn->chmgr);
-    if (ch == NULL) {
-        return NULL;
-    }
+    if (ch == NULL) { return NULL; }
 
     svrconn->ch[i] = ch;
     return ch;
@@ -365,26 +334,26 @@ void tt_sshsvrconn_ch_pkt_handler(IN tt_sshsvrconn_t *svrconn,
     tt_sshch_t *ch;
 
     switch (msg->msg_id) {
-        case TT_SSH_MSGID_CHANNEL_DATA: {
-            channel = TT_SSHMSG_CAST(msg, tt_sshmsg_chdata_t)->rcv_chnum;
-        } break;
-        case TT_SSH_MSGID_CHANNEL_REQUEST: {
-            channel = TT_SSHMSG_CAST(msg, tt_sshmsg_chreq_t)->rcv_chnum;
-        } break;
-        case TT_SSH_MSGID_CHANNEL_WINDOW_ADJUST: {
-            channel = TT_SSHMSG_CAST(msg, tt_sshmsg_chwinadj_t)->rcv_chnum;
-        } break;
-        case TT_SSH_MSGID_CHANNEL_EOF: {
-            channel = TT_SSHMSG_CAST(msg, tt_sshmsg_cheof_t)->rcv_chnum;
-        } break;
-        case TT_SSH_MSGID_CHANNEL_CLOSE: {
-            channel = TT_SSHMSG_CAST(msg, tt_sshmsg_chclose_t)->rcv_chnum;
-        } break;
+    case TT_SSH_MSGID_CHANNEL_DATA: {
+        channel = TT_SSHMSG_CAST(msg, tt_sshmsg_chdata_t)->rcv_chnum;
+    } break;
+    case TT_SSH_MSGID_CHANNEL_REQUEST: {
+        channel = TT_SSHMSG_CAST(msg, tt_sshmsg_chreq_t)->rcv_chnum;
+    } break;
+    case TT_SSH_MSGID_CHANNEL_WINDOW_ADJUST: {
+        channel = TT_SSHMSG_CAST(msg, tt_sshmsg_chwinadj_t)->rcv_chnum;
+    } break;
+    case TT_SSH_MSGID_CHANNEL_EOF: {
+        channel = TT_SSHMSG_CAST(msg, tt_sshmsg_cheof_t)->rcv_chnum;
+    } break;
+    case TT_SSH_MSGID_CHANNEL_CLOSE: {
+        channel = TT_SSHMSG_CAST(msg, tt_sshmsg_chclose_t)->rcv_chnum;
+    } break;
 
-        default: {
-            TT_ERROR("not a channel packet");
-            return;
-        } break;
+    default: {
+        TT_ERROR("not a channel packet");
+        return;
+    } break;
     }
 
     ch = TT_COND(channel < svrconn->ch_num, svrconn->ch[channel], NULL);
@@ -411,9 +380,7 @@ void __svrconn_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
     tt_sshctx_destroy(&svrconn->ctx);
 
     for (i = 0; i < svrconn->ch_num; ++i) {
-        if (svrconn->ch[i] != NULL) {
-            tt_sshch_destroy(svrconn->ch[i]);
-        }
+        if (svrconn->ch[i] != NULL) { tt_sshch_destroy(svrconn->ch[i]); }
     }
 
     // check if server need be destroyed
@@ -427,16 +394,13 @@ void __svrconn_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
     }
 }
 
-void __svrconn_on_accept(IN tt_skt_t *listening_skt,
-                         IN tt_skt_t *new_skt,
+void __svrconn_on_accept(IN tt_skt_t *listening_skt, IN tt_skt_t *new_skt,
                          IN tt_skt_aioctx_t *aioctx)
 {
     tt_sshsvrconn_t *svrconn;
     tt_sshsvr_t *server;
 
-    if (!TT_OK(aioctx->result)) {
-        return;
-    }
+    if (!TT_OK(aioctx->result)) { return; }
 
     svrconn = TT_CONTAINER(new_skt, tt_sshsvrconn_t, skt);
 
@@ -462,10 +426,8 @@ void __svrconn_on_accept(IN tt_skt_t *listening_skt,
     tt_sshsvr_fsm(svrconn, TT_SSHSVREV_VERXCHG, NULL);
 }
 
-void __svrconn_on_recv(IN tt_skt_t *skt,
-                       IN tt_blob_t *blob_array,
-                       IN tt_u32_t blob_num,
-                       IN tt_skt_aioctx_t *aioctx,
+void __svrconn_on_recv(IN tt_skt_t *skt, IN tt_blob_t *blob_array,
+                       IN tt_u32_t blob_num, IN tt_skt_aioctx_t *aioctx,
                        IN tt_u32_t recv_len)
 {
     tt_sshsvrconn_t *svrconn = TT_CONTAINER(skt, tt_sshsvrconn_t, skt);
@@ -473,24 +435,18 @@ void __svrconn_on_recv(IN tt_skt_t *skt,
     tt_sshmsg_t *msg = NULL;
     tt_result_t result;
 
-    if (!TT_OK(aioctx->result) || (recv_len == 0)) {
-        return;
-    }
+    if (!TT_OK(aioctx->result) || (recv_len == 0)) { return; }
     tt_buf_inc_wp(recv_buf, recv_len);
 
     while (1) {
         result = __svrconn_parse(svrconn, &msg);
-        if (!TT_OK(result)) {
-            break;
-        }
+        if (!TT_OK(result)) { break; }
         tt_sshctx_verify_inc_seq(&svrconn->ctx);
 
         result = tt_sshsvr_fsm(svrconn, TT_SSHSVREV_PACKET, msg);
         tt_sshmsg_release(msg);
         msg = NULL;
-        if (!TT_OK(result)) {
-            break;
-        }
+        if (!TT_OK(result)) { break; }
 
         if (TT_BUF_RLEN(recv_buf) == 0) {
             result = TT_E_BUF_NOBUFS;
@@ -517,10 +473,8 @@ void __svrconn_on_recv(IN tt_skt_t *skt,
     }
 }
 
-void __svrconn_on_send(IN tt_skt_t *skt,
-                       IN tt_blob_t *blob_array,
-                       IN tt_u32_t blob_num,
-                       IN tt_skt_aioctx_t *aioctx,
+void __svrconn_on_send(IN tt_skt_t *skt, IN tt_blob_t *blob_array,
+                       IN tt_u32_t blob_num, IN tt_skt_aioctx_t *aioctx,
                        IN tt_u32_t send_len)
 {
     // tt_sshsvrconn_t *svrconn = TT_CONTAINER(skt, tt_sshsvrconn_t, skt);
@@ -627,15 +581,11 @@ tt_result_t __svrconn_decrypt(IN tt_sshsvrconn_t *svrconn,
             tt_sshctx_decrypt(sshctx,
                               TT_BUF_RPOS(recv_buf) + svrconn->plaintext_len,
                               dec_len);
-        if (!TT_OK(result)) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(result)) { return TT_FAIL; }
         svrconn->plaintext_len += dec_len;
     }
 
-    if (svrconn->plaintext_len < pkt_len) {
-        return TT_E_BUF_NOBUFS;
-    }
+    if (svrconn->plaintext_len < pkt_len) { return TT_E_BUF_NOBUFS; }
     TT_ASSERT_SSH(svrconn->plaintext_len == pkt_len);
 
     // mac
@@ -643,20 +593,17 @@ tt_result_t __svrconn_decrypt(IN tt_sshsvrconn_t *svrconn,
         return TT_E_BUF_NOBUFS;
     }
 
-    result = tt_sshctx_verify(sshctx,
-                              TT_BUF_RPOS(recv_buf),
-                              svrconn->plaintext_len,
-                              TT_BUF_RPOS(recv_buf) + svrconn->plaintext_len,
-                              mac_len);
+    result =
+        tt_sshctx_verify(sshctx, TT_BUF_RPOS(recv_buf), svrconn->plaintext_len,
+                         TT_BUF_RPOS(recv_buf) + svrconn->plaintext_len,
+                         mac_len);
     if (!TT_OK(result)) {
         TT_ERROR("ssh mac verification failed");
         return TT_FAIL;
     }
 
     // all done
-    tt_buf_create_nocopy(msg_buf,
-                         TT_BUF_RPOS(recv_buf),
-                         svrconn->plaintext_len,
+    tt_buf_create_nocopy(msg_buf, TT_BUF_RPOS(recv_buf), svrconn->plaintext_len,
                          NULL);
 
     tt_buf_inc_rp(recv_buf, svrconn->plaintext_len + mac_len);
@@ -677,17 +624,14 @@ tt_result_t __svrconn_encrypt(IN tt_sshsvrconn_t *svrconn,
 
     // sign unencrypted data
     if (!TT_OK(tt_buf_reserve(msg_buf, mac_len)) ||
-        !TT_OK(tt_sshctx_sign(sshctx,
-                              TT_BUF_RPOS(msg_buf),
-                              TT_BUF_RLEN(msg_buf),
-                              TT_BUF_WPOS(msg_buf),
+        !TT_OK(tt_sshctx_sign(sshctx, TT_BUF_RPOS(msg_buf),
+                              TT_BUF_RLEN(msg_buf), TT_BUF_WPOS(msg_buf),
                               mac_len))) {
         return TT_FAIL;
     }
 
     // encrypt data
-    if (!TT_OK(tt_sshctx_encrypt(sshctx,
-                                 TT_BUF_RPOS(msg_buf),
+    if (!TT_OK(tt_sshctx_encrypt(sshctx, TT_BUF_RPOS(msg_buf),
                                  TT_BUF_RLEN(msg_buf)))) {
         return TT_FAIL;
     }

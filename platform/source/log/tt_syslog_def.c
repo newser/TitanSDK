@@ -84,14 +84,8 @@ tt_s32_t tt_syslog_facility_map[TT_SYSLOG_FACILITY_NUM] = {
 };
 
 tt_s32_t tt_syslog_level_map[TT_SYSLOG_LEVEL_NUM] = {
-    LOG_EMERG,
-    LOG_ALERT,
-    LOG_CRIT,
-    LOG_ERR,
-    LOG_WARNING,
-    LOG_NOTICE,
-    LOG_INFO,
-    LOG_DEBUG,
+    LOG_EMERG,   LOG_ALERT,  LOG_CRIT, LOG_ERR,
+    LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG,
 };
 
 ////////////////////////////////////////////////////////////

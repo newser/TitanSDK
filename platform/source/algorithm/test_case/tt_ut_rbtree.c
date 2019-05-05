@@ -47,8 +47,8 @@ TT_TEST_ROUTINE_DECLARE(case_rbtree)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(rbtree_case)
 
-TT_TEST_CASE(
-    "case_rbtree", "testing rbtree", case_rbtree, NULL, NULL, NULL, NULL, NULL)
+TT_TEST_CASE("case_rbtree", "testing rbtree", case_rbtree, NULL, NULL, NULL,
+             NULL, NULL)
 ,
 
     TT_TEST_CASE_LIST_DEFINE_END(rbtree_case)
@@ -60,9 +60,9 @@ TT_TEST_CASE(
     // interface declaration
     ////////////////////////////////////////////////////////////
 
-    extern tt_result_t __rbt_expensive_check(IN tt_rbtree_t *tree,
-                                             IN tt_rbnode_t *node,
-                                             OUT tt_u32_t *bh);
+    extern tt_result_t
+    __rbt_expensive_check(IN tt_rbtree_t *tree, IN tt_rbnode_t *node,
+                          OUT tt_u32_t *bh);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -129,9 +129,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbtree)
         // array_num = 20;
 
         array = (tt_u32_t *)tt_malloc(sizeof(tt_u32_t) * array_num);
-        for (i = 0; i < array_num; ++i) {
-            array[i] = tt_rand_u32();
-        }
+        for (i = 0; i < array_num; ++i) { array[i] = tt_rand_u32(); }
         array[0] = 18265;
         array[1] = 13217;
         array[2] = 17844;
@@ -170,26 +168,21 @@ TT_TEST_ROUTINE_DEFINE(case_rbtree)
         TT_UT_EQUAL(tt_rbtree_find(&tree,
                                    (tt_u8_t *)&array[tt_rand_u32() % array_num],
                                    sizeof(tt_u32_t)),
-                    NULL,
-                    "");
+                    NULL, "");
         TT_UT_EQUAL(tt_rbtree_find_gteq(&tree,
                                         (tt_u8_t *)&array[tt_rand_u32() %
                                                           array_num],
                                         sizeof(tt_u32_t)),
-                    NULL,
-                    "");
+                    NULL, "");
         TT_UT_EQUAL(tt_rbtree_find_lteq(&tree,
                                         (tt_u8_t *)&array[tt_rand_u32() %
                                                           array_num],
                                         sizeof(tt_u32_t)),
-                    NULL,
-                    "");
+                    NULL, "");
         tt_rbtree_remove(&tree, &rb_array[tt_rand_u32() % array_num].node);
 
         // add 1 node
-        tt_rbtree_add(&tree,
-                      (tt_u8_t *)&rb_array[0].val,
-                      sizeof(tt_u32_t),
+        tt_rbtree_add(&tree, (tt_u8_t *)&rb_array[0].val, sizeof(tt_u32_t),
                       &rb_array[0].node);
         TT_UT_EQUAL(tt_rbtree_root(&tree), &rb_array[0].node, "");
         TT_UT_EQUAL(tt_rbtree_count(&tree), 1, "");
@@ -198,22 +191,16 @@ TT_TEST_ROUTINE_DEFINE(case_rbtree)
         TT_UT_EQUAL(tt_rbtree_max(&tree), &rb_array[0].node, "");
         TT_UT_EQUAL(tt_rbtree_prev(&tree, &rb_array[0].node), NULL, "");
         TT_UT_EQUAL(tt_rbtree_next(&tree, &rb_array[0].node), NULL, "");
-        TT_UT_EQUAL(tt_rbtree_find(&tree,
-                                   (tt_u8_t *)&rb_array[0].val,
+        TT_UT_EQUAL(tt_rbtree_find(&tree, (tt_u8_t *)&rb_array[0].val,
                                    sizeof(tt_u32_t)),
-                    &rb_array[0].node,
-                    "");
-        TT_UT_EQUAL(tt_rbtree_find(&tree,
-                                   (tt_u8_t *)&black_num,
+                    &rb_array[0].node, "");
+        TT_UT_EQUAL(tt_rbtree_find(&tree, (tt_u8_t *)&black_num,
                                    sizeof(tt_u32_t)),
-                    NULL,
-                    "");
+                    NULL, "");
 
         // each time remove min
         for (i = 1; i < array_num; ++i) {
-            tt_rbtree_add(&tree,
-                          (tt_u8_t *)&rb_array[i].val,
-                          sizeof(tt_u32_t),
+            tt_rbtree_add(&tree, (tt_u8_t *)&rb_array[i].val, sizeof(tt_u32_t),
                           &rb_array[i].node);
 
             if (i % 23 == 0) {
@@ -221,16 +208,14 @@ TT_TEST_ROUTINE_DEFINE(case_rbtree)
                 __rb_item_t *it;
 
                 black_num = array[i] + 1;
-                n = tt_rbtree_find_lteq(&tree,
-                                        (tt_u8_t *)&black_num,
+                n = tt_rbtree_find_lteq(&tree, (tt_u8_t *)&black_num,
                                         sizeof(tt_u32_t));
                 TT_UT_NOT_EQUAL(n, NULL, "");
                 it = TT_CONTAINER(n, __rb_item_t, node);
                 TT_UT_EXP(it->val <= black_num, "");
 
                 black_num = array[i] - 1;
-                n = tt_rbtree_find_gteq(&tree,
-                                        (tt_u8_t *)&black_num,
+                n = tt_rbtree_find_gteq(&tree, (tt_u8_t *)&black_num,
                                         sizeof(tt_u32_t));
                 TT_UT_NOT_EQUAL(n, NULL, "");
                 it = TT_CONTAINER(n, __rb_item_t, node);
@@ -268,8 +253,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbtree)
             TT_UT_EQUAL(tt_rbtree_count(&tree), array_num - i - 1, "");
 
             if ((i % 39 == 0) && (i != array_num - 1)) {
-                ret = __rbt_expensive_check(&tree,
-                                            tt_rbtree_root(&tree),
+                ret = __rbt_expensive_check(&tree, tt_rbtree_root(&tree),
                                             &black_num);
                 TT_UT_EQUAL(ret, TT_SUCCESS, "");
             }
@@ -278,9 +262,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbtree)
 
         // each time remove max
         for (i = 0; i < array_num; ++i) {
-            tt_rbtree_add(&tree,
-                          (tt_u8_t *)&rb_array[i].val,
-                          sizeof(tt_u32_t),
+            tt_rbtree_add(&tree, (tt_u8_t *)&rb_array[i].val, sizeof(tt_u32_t),
                           &rb_array[i].node);
         }
         tt_qsort(array, array_num, sizeof(tt_u32_t), tt_cmp_u32);
@@ -315,8 +297,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbtree)
             TT_UT_EQUAL(tt_rbtree_count(&tree), i, "");
 
             if ((i % 41 == 0) && (i != 0)) {
-                ret = __rbt_expensive_check(&tree,
-                                            tt_rbtree_root(&tree),
+                ret = __rbt_expensive_check(&tree, tt_rbtree_root(&tree),
                                             &black_num);
                 TT_UT_EQUAL(ret, TT_SUCCESS, "");
             }
@@ -325,9 +306,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbtree)
 
         // delete from middle node to end
         for (i = 0; i < array_num; ++i) {
-            tt_rbtree_add(&tree,
-                          (tt_u8_t *)&rb_array[i].val,
-                          sizeof(tt_u32_t),
+            tt_rbtree_add(&tree, (tt_u8_t *)&rb_array[i].val, sizeof(tt_u32_t),
                           &rb_array[i].node);
         }
         tt_qsort(array, array_num, sizeof(tt_u32_t), tt_cmp_u32);

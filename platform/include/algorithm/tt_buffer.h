@@ -109,12 +109,10 @@ typedef struct tt_buf_s
 ////////////////////////////////////////////////////////////
 
 // size could 0, then the buf won't alloc mem initially
-tt_export tt_result_t tt_buf_create(IN tt_buf_t *buf,
-                                    IN tt_u32_t size,
+tt_export tt_result_t tt_buf_create(IN tt_buf_t *buf, IN tt_u32_t size,
                                     IN OPT tt_buf_attr_t *attr);
 
-tt_export tt_result_t tt_buf_create_copy(IN tt_buf_t *buf,
-                                         IN tt_u8_t *data,
+tt_export tt_result_t tt_buf_create_copy(IN tt_buf_t *buf, IN tt_u8_t *data,
                                          IN tt_u32_t data_len,
                                          IN OPT tt_buf_attr_t *attr);
 
@@ -123,7 +121,6 @@ tt_export tt_result_t tt_buf_create_nocopy(IN tt_buf_t *buf,
                                            IN const tt_u8_t *data,
                                            IN tt_u32_t data_len,
                                            IN OPT tt_buf_attr_t *attr);
-
 
 // init buf which never fail
 tt_export void tt_buf_init(IN tt_buf_t *buf, IN OPT tt_buf_attr_t *attr);
@@ -138,15 +135,11 @@ tt_export void tt_buf_print_hexstr(IN tt_buf_t *buf, IN tt_u32_t flag);
 
 tt_export void tt_buf_print_cstr(IN tt_buf_t *buf, IN tt_u32_t flag);
 
-tt_export tt_result_t tt_buf_set(IN tt_buf_t *buf,
-                                 IN tt_u32_t pos,
-                                 IN tt_u8_t *data,
-                                 IN tt_u32_t data_len);
+tt_export tt_result_t tt_buf_set(IN tt_buf_t *buf, IN tt_u32_t pos,
+                                 IN tt_u8_t *data, IN tt_u32_t data_len);
 
-tt_export tt_result_t tt_buf_set_range(IN tt_buf_t *buf,
-                                       IN tt_u32_t pos,
-                                       IN tt_u32_t len,
-                                       IN tt_u8_t *data,
+tt_export tt_result_t tt_buf_set_range(IN tt_buf_t *buf, IN tt_u32_t pos,
+                                       IN tt_u32_t len, IN tt_u8_t *data,
                                        IN tt_u32_t data_len);
 
 // ========================================
@@ -157,9 +150,7 @@ tt_export tt_result_t __buf_extend(IN tt_buf_t *buf, IN tt_u32_t size);
 
 tt_inline tt_result_t tt_buf_reserve(IN tt_buf_t *buf, IN OPT tt_u32_t size)
 {
-    if (TT_BUF_WLEN(buf) >= size) {
-        return TT_SUCCESS;
-    }
+    if (TT_BUF_WLEN(buf) >= size) { return TT_SUCCESS; }
     return __buf_extend(buf, buf->size + size);
 }
 
@@ -174,8 +165,7 @@ tt_export tt_result_t tt_buf_compress(IN tt_buf_t *buf);
 // position operation
 // ========================================
 
-tt_inline void tt_buf_get_rptr(IN tt_buf_t *buf,
-                               OUT OPT tt_u8_t **p,
+tt_inline void tt_buf_get_rptr(IN tt_buf_t *buf, OUT OPT tt_u8_t **p,
                                OUT OPT tt_u32_t *len)
 {
     TT_SAFE_ASSIGN(p, TT_BUF_RPOS(buf));
@@ -219,8 +209,7 @@ tt_inline void tt_buf_reset_rp(IN tt_buf_t *buf)
     buf->rpos = 0;
 }
 
-tt_inline void tt_buf_get_wptr(IN tt_buf_t *buf,
-                               OUT OPT tt_u8_t **p,
+tt_inline void tt_buf_get_wptr(IN tt_buf_t *buf, OUT OPT tt_u8_t **p,
                                OUT OPT tt_u32_t *len)
 {
     TT_SAFE_ASSIGN(p, TT_BUF_WPOS(buf));
@@ -264,16 +253,14 @@ tt_inline void tt_buf_reset_rwp(IN tt_buf_t *buf)
     buf->wpos = 0;
 }
 
-tt_inline void tt_buf_backup_rwp(IN tt_buf_t *buf,
-                                 OUT tt_u32_t *rpos,
+tt_inline void tt_buf_backup_rwp(IN tt_buf_t *buf, OUT tt_u32_t *rpos,
                                  OUT tt_u32_t *wpos)
 {
     *wpos = buf->wpos;
     *rpos = buf->rpos;
 }
 
-tt_inline void tt_buf_restore_rwp(IN tt_buf_t *buf,
-                                  IN tt_u32_t *rpos,
+tt_inline void tt_buf_restore_rwp(IN tt_buf_t *buf, IN tt_u32_t *rpos,
                                   IN tt_u32_t *wpos)
 {
     buf->wpos = *wpos;
@@ -305,16 +292,13 @@ tt_inline tt_u32_t tt_buf_try_refine(IN tt_buf_t *buf, IN tt_u32_t threshold)
 // io operation
 // ========================================
 
-tt_export tt_result_t tt_buf_put(IN tt_buf_t *buf,
-                                 IN const void *data,
+tt_export tt_result_t tt_buf_put(IN tt_buf_t *buf, IN const void *data,
                                  IN tt_u32_t data_len);
 
-tt_export tt_result_t tt_buf_put_head(IN tt_buf_t *buf,
-                                      IN const void *data,
+tt_export tt_result_t tt_buf_put_head(IN tt_buf_t *buf, IN const void *data,
                                       IN tt_u32_t data_len);
 
-tt_export tt_result_t tt_buf_put_rep(IN tt_buf_t *buf,
-                                     IN tt_u8_t byte,
+tt_export tt_result_t tt_buf_put_rep(IN tt_buf_t *buf, IN tt_u8_t byte,
                                      IN tt_u32_t rep_num);
 
 tt_inline tt_result_t tt_buf_put_hole(IN tt_buf_t *buf, IN tt_u32_t len)
@@ -333,24 +317,20 @@ tt_export tt_result_t tt_buf_put_rand(IN tt_buf_t *buf, IN tt_u32_t len);
 // note get() return fail when size of data in buf
 // is less than buf_len, rather than putting partial
 // data to the buf
-tt_export tt_result_t tt_buf_get(IN tt_buf_t *buf,
-                                 IN tt_u8_t *p,
+tt_export tt_result_t tt_buf_get(IN tt_buf_t *buf, IN tt_u8_t *p,
                                  IN tt_u32_t len);
 
 // returned p is from buf, the pointer is for temporarily usage
 // once buf is extended, the pointer becomes a wild pointer
-tt_export tt_result_t tt_buf_get_nocopy(IN tt_buf_t *buf,
-                                        OUT tt_u8_t **p,
+tt_export tt_result_t tt_buf_get_nocopy(IN tt_buf_t *buf, OUT tt_u8_t **p,
                                         IN tt_u32_t len);
 
 // return number of bytes written to p, this function won't append the
 // terminating null
-tt_export tt_u32_t tt_buf_get_hexstr(IN tt_buf_t *buf,
-                                     OUT OPT tt_char_t *p,
+tt_export tt_u32_t tt_buf_get_hexstr(IN tt_buf_t *buf, OUT OPT tt_char_t *p,
                                      IN OUT tt_u32_t addr_len);
 
-tt_export tt_result_t tt_buf_peek(IN tt_buf_t *buf,
-                                  IN tt_u8_t *p,
+tt_export tt_result_t tt_buf_peek(IN tt_buf_t *buf, IN tt_u8_t *p,
                                   IN tt_u32_t len);
 
 #endif /* __TT_BUFFER__ */

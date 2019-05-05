@@ -29,7 +29,6 @@
 #include <os/tt_task.h>
 #include <os/tt_thread.h>
 #include <time/tt_date_format.h>
-#include <time/tt_date_format.h>
 #include <time/tt_time_reference.h>
 #include <time/tt_timer.h>
 #include <zip/tt_zip.h>
@@ -67,8 +66,7 @@ enum
 
 static void __lio_fidx_destroy(IN tt_logio_t *lio);
 
-static void __lio_fidx_output(IN tt_logio_t *lio,
-                              IN const tt_char_t *data,
+static void __lio_fidx_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                               IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_fidx_itf = {
@@ -85,8 +83,7 @@ static tt_logio_itf_t tt_s_logio_fidx_itf = {
 
 static void __lio_fdate_destroy(IN tt_logio_t *lio);
 
-static void __lio_fdate_output(IN tt_logio_t *lio,
-                               IN const tt_char_t *data,
+static void __lio_fdate_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                                IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_fdate_itf = {
@@ -186,11 +183,8 @@ tt_logio_t *tt_logio_file_create(IN const tt_char_t *log_path,
     // create worker if specified keep time
     if ((lf->max_log_size != 0) && (lf->keep_log_sec != 0)) {
         if (!TT_OK(tt_task_create(&lf->worker, NULL)) ||
-            !TT_OK(tt_task_add_fiber(&lf->worker,
-                                     __LIOFW_NAME,
-                                     __liof_worker,
-                                     lf,
-                                     NULL)) ||
+            !TT_OK(tt_task_add_fiber(&lf->worker, __LIOFW_NAME, __liof_worker,
+                                     lf, NULL)) ||
             !TT_OK(tt_task_run(&lf->worker))) {
             __logio_destroy(lio);
             return NULL;
@@ -221,17 +215,12 @@ void __lio_fidx_destroy(IN tt_logio_t *lio)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
 
-    if (lf->f_opened) {
-        tt_fclose(&lf->f);
-    }
+    if (lf->f_opened) { tt_fclose(&lf->f); }
 
-    if (lf->worker_running) {
-        __liof_w_exit(&lf->worker);
-    }
+    if (lf->worker_running) { __liof_w_exit(&lf->worker); }
 }
 
-void __lio_fidx_output(IN tt_logio_t *lio,
-                       IN const tt_char_t *data,
+void __lio_fidx_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                        IN tt_u32_t data_len)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
@@ -247,9 +236,7 @@ void __lio_fidx_output(IN tt_logio_t *lio,
     if (lf->f_opened &&
         TT_OK(tt_fwrite_all(&lf->f, (tt_u8_t *)data, data_len))) {
         lf->write_len += data_len;
-        if (lf->write_len >= lf->max_log_size) {
-            __fidx_next(lf);
-        }
+        if (lf->write_len >= lf->max_log_size) { __fidx_next(lf); }
     } else {
         // no way to recover anything, just give a warning
         TT_ERROR("log may be lost: %s", data);
@@ -284,14 +271,10 @@ tt_result_t __fidx_next(IN tt_logio_file_t *lf)
 
         tt_memset(ext, 0, sizeof(ext));
         tt_snprintf(ext, sizeof(ext) - 1, "%d", lf->u_suffix.fidx.index);
-        if (!TT_OK(tt_fpath_set_extension(&path, ext))) {
-            break;
-        }
+        if (!TT_OK(tt_fpath_set_extension(&path, ext))) { break; }
 
-        if (!TT_OK(tt_fopen(&lf->f,
-                            tt_fpath_render(&path),
-                            TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT,
-                            NULL))) {
+        if (!TT_OK(tt_fopen(&lf->f, tt_fpath_render(&path),
+                            TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT, NULL))) {
             break;
         }
 
@@ -321,17 +304,12 @@ void __lio_fdate_destroy(IN tt_logio_t *lio)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
 
-    if (lf->f_opened) {
-        tt_fclose(&lf->f);
-    }
+    if (lf->f_opened) { tt_fclose(&lf->f); }
 
-    if (lf->worker_running) {
-        __liof_w_exit(&lf->worker);
-    }
+    if (lf->worker_running) { __liof_w_exit(&lf->worker); }
 }
 
-void __lio_fdate_output(IN tt_logio_t *lio,
-                        IN const tt_char_t *data,
+void __lio_fdate_output(IN tt_logio_t *lio, IN const tt_char_t *data,
                         IN tt_u32_t data_len)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
@@ -347,9 +325,7 @@ void __lio_fdate_output(IN tt_logio_t *lio,
     if (lf->f_opened &&
         TT_OK(tt_fwrite_all(&lf->f, (tt_u8_t *)data, data_len))) {
         lf->write_len += data_len;
-        if (lf->write_len >= lf->max_log_size) {
-            __fdate_next(lf);
-        }
+        if (lf->write_len >= lf->max_log_size) { __fdate_next(lf); }
     } else {
         // no way to recover anything, just give a warning
         TT_ERROR("log may be lost: %s", data);
@@ -386,19 +362,14 @@ tt_result_t __fdate_next(IN tt_logio_file_t *lf)
         tt_u64_t size;
 
         tt_memset(ext, 0, sizeof(ext));
-        n = tt_date_render_now(lf->u_suffix.fdate.date_format,
-                               ext,
+        n = tt_date_render_now(lf->u_suffix.fdate.date_format, ext,
                                sizeof(ext) - 1);
         TT_ASSERT(n < sizeof(ext));
         tt_snprintf(ext + n, sizeof(ext) - 1 - n, ".%d", idx);
-        if (!TT_OK(tt_fpath_set_extension(&path, ext))) {
-            break;
-        }
+        if (!TT_OK(tt_fpath_set_extension(&path, ext))) { break; }
 
-        if (!TT_OK(tt_fopen(&lf->f,
-                            tt_fpath_render(&path),
-                            TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT,
-                            NULL))) {
+        if (!TT_OK(tt_fopen(&lf->f, tt_fpath_render(&path),
+                            TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT, NULL))) {
             break;
         }
 
@@ -441,8 +412,7 @@ tt_result_t __liof_worker(IN void *param)
 
     if (lf->keep_archive_sec != 0) {
         if (lf->log_purge == TT_LOGFILE_PURGE_REMOVE) {
-            t = tt_tmr_create(lf->keep_archive_sec * 1000,
-                              __T_PURGE_REMOVE,
+            t = tt_tmr_create(lf->keep_archive_sec * 1000, __T_PURGE_REMOVE,
                               NULL);
             if (!TT_OK(tt_tmr_start(t))) {
                 TT_FATAL("fail to start purge remove timer");
@@ -455,14 +425,14 @@ tt_result_t __liof_worker(IN void *param)
     while (tt_fiber_recv(cur, TT_TRUE, &fev, &t)) {
         if (fev != NULL) {
             switch (fev->ev) {
-                case __T_EXIT: {
-                    tt_fiber_finish(fev);
-                    return TT_SUCCESS;
-                } break;
+            case __T_EXIT: {
+                tt_fiber_finish(fev);
+                return TT_SUCCESS;
+            } break;
 
-                default: {
-                    TT_ERROR("unknown log io file event: %d", fev->ev);
-                } break;
+            default: {
+                TT_ERROR("unknown log io file event: %d", fev->ev);
+            } break;
             }
 
             tt_fiber_finish(fev);
@@ -470,16 +440,16 @@ tt_result_t __liof_worker(IN void *param)
 
         if (t != NULL) {
             switch (t->ev) {
-                case __T_ARCHIVE: {
-                    __liof_w_archive(lf);
-                } break;
-                case __T_PURGE_REMOVE: {
-                    __liof_w_purge_remove(lf);
-                } break;
+            case __T_ARCHIVE: {
+                __liof_w_archive(lf);
+            } break;
+            case __T_PURGE_REMOVE: {
+                __liof_w_purge_remove(lf);
+            } break;
 
-                default: {
-                    TT_ERROR("unknown log io file timer: %d", t->ev);
-                } break;
+            default: {
+                TT_ERROR("unknown log io file timer: %d", t->ev);
+            } break;
             }
 
             if (!TT_OK(tt_tmr_start(t))) {
@@ -579,12 +549,8 @@ void __liof_w_archive(IN tt_logio_file_t *lf)
         tt_fstat_t fst;
         tt_zipsrc_t *__zs;
 
-        if (tt_strcmp(entry.name, ".") == 0) {
-            continue;
-        }
-        if (tt_strcmp(entry.name, "..") == 0) {
-            continue;
-        }
+        if (tt_strcmp(entry.name, ".") == 0) { continue; }
+        if (tt_strcmp(entry.name, "..") == 0) { continue; }
 
         // - must be a file
         // - size should already exceed max_log_size
@@ -617,9 +583,7 @@ void __liof_w_archive(IN tt_logio_file_t *lf)
             }
             p = (tt_char_t *)tt_fpath_render(&tmp_p2);
         }
-        if ((__zs = tt_zipsrc_file_create(p, 0, 0)) == NULL) {
-            continue;
-        }
+        if ((__zs = tt_zipsrc_file_create(p, 0, 0)) == NULL) { continue; }
 
         // - tt_zipsrc_file_create() would save the path name, p can be
         //   modified now
@@ -637,9 +601,7 @@ void __liof_w_archive(IN tt_logio_file_t *lf)
             tt_date_copy(&max, &fst.created);
         }
     }
-    if (!archived) {
-        goto done;
-    }
+    if (!archived) { goto done; }
 
     p = zname;
     n = sizeof(zname) - 1;
@@ -658,33 +620,19 @@ void __liof_w_archive(IN tt_logio_file_t *lf)
     done &= ~(__LA_OLD_P | __LA_NEW_P | __LA_TMP_P);
     flush = TT_TRUE;
 done:
-    if (done & __LA_OLD_P) {
-        tt_fpath_destroy(&old_p);
-    }
+    if (done & __LA_OLD_P) { tt_fpath_destroy(&old_p); }
 
-    if (done & __LA_NEW_P) {
-        tt_fpath_destroy(&new_p);
-    }
+    if (done & __LA_NEW_P) { tt_fpath_destroy(&new_p); }
 
-    if (done & __LA_TMP_P) {
-        tt_fpath_destroy(&tmp_p);
-    }
+    if (done & __LA_TMP_P) { tt_fpath_destroy(&tmp_p); }
 
-    if (done & __LA_TMP_P2) {
-        tt_fpath_destroy(&tmp_p2);
-    }
+    if (done & __LA_TMP_P2) { tt_fpath_destroy(&tmp_p2); }
 
-    if (done & __LA_ZS) {
-        tt_zipsrc_release(zs);
-    }
+    if (done & __LA_ZS) { tt_zipsrc_release(zs); }
 
-    if (done & __LA_Z) {
-        tt_zip_destroy(z, flush);
-    }
+    if (done & __LA_Z) { tt_zip_destroy(z, flush); }
 
-    if (done & __LA_DIR) {
-        tt_dclose(&d);
-    }
+    if (done & __LA_DIR) { tt_dclose(&d); }
 
     if (flush) {
         TT_ASSERT(!(done & (__LA_OLD_P | __LA_NEW_P | __LA_TMP_P)));
@@ -737,9 +685,7 @@ void __liof_w_purge_remove(IN tt_logio_file_t *lf)
     while (TT_OK(tt_dread(&d, &entry))) {
         tt_fstat_t fst;
 
-        if (tt_strncmp(entry.name, lf->archive_name, len) != 0) {
-            continue;
-        }
+        if (tt_strncmp(entry.name, lf->archive_name, len) != 0) { continue; }
 
         if (!TT_OK(tt_fpath_set_filename(&ap, entry.name)) ||
             !TT_OK(tt_fstat_path(tt_fpath_render(&ap), &fst)) || !fst.is_file ||
@@ -752,11 +698,7 @@ void __liof_w_purge_remove(IN tt_logio_file_t *lf)
     }
 
 done:
-    if (__done & __LPR_AP) {
-        tt_fpath_destroy(&ap);
-    }
+    if (__done & __LPR_AP) { tt_fpath_destroy(&ap); }
 
-    if (__done & __LPR_DIR) {
-        tt_dclose(&d);
-    }
+    if (__done & __LPR_DIR) { tt_dclose(&d); }
 }

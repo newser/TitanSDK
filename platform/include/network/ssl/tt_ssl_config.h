@@ -53,8 +53,7 @@ struct tt_ssl_cache_s;
 struct tt_ssl_cache_attr_s;
 
 typedef tt_result_t (*tt_ssl_on_sni_t)(IN struct tt_ssl_s *ssl,
-                                       IN const tt_u8_t *sni,
-                                       IN tt_u32_t len,
+                                       IN const tt_u8_t *sni, IN tt_u32_t len,
                                        IN void *param);
 
 // a ssl config is for a single ssl server
@@ -66,7 +65,8 @@ typedef struct tt_ssl_config_s
     mbedtls_ssl_config cfg;
 } tt_ssl_config_t;
 
-typedef enum {
+typedef enum
+{
     TT_SSL_CLIENT,
     TT_SSL_SERVER,
 
@@ -74,7 +74,8 @@ typedef enum {
 } tt_ssl_role_t;
 #define TT_SSL_ROLE_VALID(s) ((s) < TT_SSL_ROLE_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_SSL_TRANSPORT_STREAM,
     TT_SSL_TRANSPORT_DATAGRAM,
 
@@ -82,7 +83,8 @@ typedef enum {
 } tt_ssl_transport_t;
 #define TT_SSL_TRANSPORT_VALID(t) ((t) < TT_SSL_TRANSPORT_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_SSL_PRESET_DEFAULT,
     TT_SSL_PRESET_SUITEB,
 
@@ -90,7 +92,8 @@ typedef enum {
 } tt_ssl_preset_t;
 #define TT_SSL_PRESET_VALID(p) ((p) < TT_SSL_PRESET_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_SSL_AUTH_NONE,
     TT_SSL_AUTH_OPTIONAL,
     TT_SSL_AUTH_REQUIRED,
@@ -99,7 +102,8 @@ typedef enum {
 } tt_ssl_auth_t;
 #define TT_SSL_AUTH_VALID(a) ((a) < TT_SSL_AUTH_NUM)
 
-typedef enum {
+typedef enum
+{
     TT_SSL_V3_0,
     TT_SSL_V3_1,
     TT_TLS_V1_0 = TT_SSL_V3_1,
@@ -135,8 +139,7 @@ tt_export tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
 tt_export void tt_ssl_config_destroy(IN tt_ssl_config_t *sc);
 
 tt_export void tt_ssl_config_version(IN tt_ssl_config_t *sc,
-                                     IN tt_ssl_ver_t min,
-                                     IN tt_ssl_ver_t max);
+                                     IN tt_ssl_ver_t min, IN tt_ssl_ver_t max);
 
 tt_export void tt_ssl_config_auth(IN tt_ssl_config_t *sc,
                                   IN tt_ssl_auth_t auth);
@@ -156,12 +159,10 @@ tt_export void tt_ssl_config_trunc_hmac(IN tt_ssl_config_t *sc,
                                         IN tt_bool_t enable);
 
 tt_export void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
-                                 IN tt_ssl_on_sni_t on_sni,
-                                 IN void *param);
+                                 IN tt_ssl_on_sni_t on_sni, IN void *param);
 
 tt_export tt_result_t
-tt_ssl_config_cache(IN tt_ssl_config_t *sc,
-                    IN tt_bool_t use_ticket,
+tt_ssl_config_cache(IN tt_ssl_config_t *sc, IN tt_bool_t use_ticket,
                     IN OPT struct tt_ssl_cache_attr_s *attr);
 
 tt_export void tt_ssl_config_encrypt_then_mac(IN tt_ssl_config_t *sc,

@@ -63,69 +63,27 @@ TT_TEST_ROUTINE_DECLARE(case_fpath_normalize)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fpath_case)
 
-TT_TEST_CASE("case_fpath_basic",
-             "testing fpath basic",
-             case_fpath_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_fpath_basic", "testing fpath basic", case_fpath_basic, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_fpath_file",
-                 "testing fpath file",
-                 case_fpath_file,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fpath_file", "testing fpath file", case_fpath_file, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_fpath_parent",
-                 "testing fpath goto parent",
-                 case_fpath_parent,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fpath_parent", "testing fpath goto parent",
+                 case_fpath_parent, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_fpath_root",
-                 "testing fpath goto root",
-                 case_fpath_root,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fpath_root", "testing fpath goto root", case_fpath_root,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_fpath_move",
-                 "testing fpath move",
-                 case_fpath_move,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fpath_move", "testing fpath move", case_fpath_move, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_fpath_name",
-                 "testing fpath get/set name",
-                 case_fpath_name,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fpath_name", "testing fpath get/set name",
+                 case_fpath_name, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_fpath_normalize",
-                 "testing fpath normalize",
-                 case_fpath_normalize,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_fpath_normalize", "testing fpath normalize",
+                 case_fpath_normalize, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(fpath_case)
     // =========================================
@@ -351,8 +309,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
     TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp), "b1/c22/base.a.b.c"), 0, "");
     ret = tt_fpath_set_extension(&fp, "ext3");
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp), "b1/c22/base.a.b.c.ext3"),
-                0,
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp), "b1/c22/base.a.b.c.ext3"), 0,
                 "");
 
     // single file
@@ -398,14 +355,12 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
 
         ret = tt_fpath_set_extension(&fp, "h4444");
         TT_UT_SUCCESS(ret, "");
-        TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp), "/a/b/../c/./.h4444"),
-                    0,
+        TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp), "/a/b/../c/./.h4444"), 0,
                     "");
 
         ret = tt_fpath_set_basename(&fp, "efg");
         TT_UT_SUCCESS(ret, "");
-        TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp), "/a/b/../c/./efg.h4444"),
-                    0,
+        TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp), "/a/b/../c/./efg.h4444"), 0,
                     "");
     }
 
@@ -439,14 +394,12 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
         ret = tt_fpath_set_basename(&fp, "base.a.b.c");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp), "b1/c22/ccname/base.a.b.c"),
-                    0,
-                    "");
+                    0, "");
         ret = tt_fpath_set_extension(&fp, "ext3");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp),
                               "b1/c22/ccname/base.a.b.c.ext3"),
-                    0,
-                    "");
+                    0, "");
     }
 
     {
@@ -463,14 +416,12 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp),
                               "/a/b1/c22/../ccname/./base.a.b.c"),
-                    0,
-                    "");
+                    0, "");
         ret = tt_fpath_set_extension(&fp, "ext3");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_strcmp(tt_fpath_render(&fp),
                               "/a/b1/c22/../ccname/./base.a.b.c.ext3"),
-                    0,
-                    "");
+                    0, "");
     }
 
     tt_fpath_destroy(&fp);
@@ -584,8 +535,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         tt_fpath_parse(&fp, "/a/b/c/d/e/");
         ret = tt_fpath_to_child(&fp, "child1/child2/child3");
         TT_UT_SUCCESS(ret, "");
-        TT_UT_EQUAL(tt_fpath_cmp(&fp, "/a/b/c/d/e/child1/child2/child3"),
-                    0,
+        TT_UT_EQUAL(tt_fpath_cmp(&fp, "/a/b/c/d/e/child1/child2/child3"), 0,
                     "");
 
         tt_fpath_clear(&fp);
@@ -1112,8 +1062,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
     {
         tt_char_t buf[128] = {0};
         TT_UT_EQUAL(tt_fpath_pctencode_len(&fp, tt_g_uri_encode_table), 16, "");
-        TT_UT_EQUAL(tt_fpath_pctencode(&fp, tt_g_uri_encode_table, buf),
-                    16,
+        TT_UT_EQUAL(tt_fpath_pctencode(&fp, tt_g_uri_encode_table, buf), 16,
                     "");
         TT_UT_STREQ(buf, "/a%3db/c%3bd/e.f", "");
     }

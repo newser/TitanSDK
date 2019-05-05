@@ -33,7 +33,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     DNS_UT_BEGIN = 0,
 
     DNS_UT_QUERY = DNS_UT_BEGIN,
@@ -79,9 +80,7 @@ tt_result_t tt_dns_ut_init(IN tt_ptr_t reserved)
 
         if (tt_g_dns_ut_list[unit_id] != NULL) {
             result = tt_test_unit_to_class(tt_g_dns_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
+            if (!TT_OK(result)) { return TT_FAIL; }
         }
 
         // next

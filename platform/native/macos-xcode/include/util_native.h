@@ -55,14 +55,12 @@ template<typename T>
 T bswap(T val)
 {
     static_assert((sizeof(T) == 1) || (sizeof(T) == 2) || (sizeof(T) == 4) ||
-                      (sizeof(T) == 8),
-                  "invalid type");
-    // rely on compiler to optimize if
-    if (sizeof(T) == 1) {
+                  (sizeof(T) == 8));
+    if constexpr (sizeof(T) == 1) {
         return val;
-    } else if (sizeof(T) == 2) {
+    } else if constexpr (sizeof(T) == 2) {
         return __builtin_bswap16(val);
-    } else if (sizeof(T) == 4) {
+    } else if constexpr (sizeof(T) == 4) {
         return __builtin_bswap32(val);
     } else {
         return __builtin_bswap64(val);

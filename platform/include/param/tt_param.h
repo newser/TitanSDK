@@ -48,7 +48,8 @@ this file defines config object
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TT_PARAM_LV_INFO, // always read only
     TT_PARAM_LV_GUEST, // configurable by guest
     TT_PARAM_LV_USER, // configurable by guest
@@ -110,8 +111,7 @@ tt_export tt_result_t tt_param_add2root(IN tt_param_t *p);
 
 tt_export tt_result_t tt_param_add2platform(IN tt_param_t *p);
 
-tt_export tt_param_t *tt_param_create(IN tt_u32_t len,
-                                      IN tt_param_type_t type,
+tt_export tt_param_t *tt_param_create(IN tt_u32_t len, IN tt_param_type_t type,
                                       IN const tt_char_t *name,
                                       IN tt_param_itf_t *itf,
                                       IN OPT void *opaque,
@@ -145,8 +145,7 @@ tt_inline const tt_char_t *tt_param_detail(IN tt_param_t *p)
 tt_export tt_result_t tt_param_read(IN tt_param_t *p,
                                     OUT struct tt_buf_s *output);
 
-tt_export tt_result_t tt_param_write(IN tt_param_t *p,
-                                     IN tt_u8_t *val,
+tt_export tt_result_t tt_param_write(IN tt_param_t *p, IN tt_u8_t *val,
                                      IN tt_u32_t val_len);
 
 tt_export tt_param_t *tt_param_parent(IN tt_param_t *p);

@@ -48,8 +48,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_zipsrc_t *tt_zipsrc_blob_create(IN void *p,
-                                   IN tt_u32_t len,
+tt_zipsrc_t *tt_zipsrc_blob_create(IN void *p, IN tt_u32_t len,
                                    IN tt_bool_t free)
 {
     zip_source_t *zs;

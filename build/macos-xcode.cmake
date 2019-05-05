@@ -23,7 +23,7 @@ include(${BUILD_PATH}/util.cmake)
 # compiler options
 #
 
-choose_compiler_flag(CMAKE_CXX_FLAGS TRUE -std=c++11)
+choose_compiler_flag(CMAKE_CXX_FLAGS TRUE -std=c++1z)
 
 # disable c++ exception and rtti
 #choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -fno-exceptions)

@@ -70,12 +70,9 @@ tt_result_t tt_gzipdef_create(IN tt_gzipdef_t *gzd,
 
     TT_ZSTREAM_INIT(&gzd->zs);
 
-    z_err = deflateInit2(&gzd->zs,
-                         attr->level,
-                         Z_DEFLATED,
+    z_err = deflateInit2(&gzd->zs, attr->level, Z_DEFLATED,
                          attr->window_bits + 16, // gzip
-                         attr->mem_level,
-                         Z_DEFAULT_STRATEGY);
+                         attr->mem_level, Z_DEFAULT_STRATEGY);
     if (z_err != Z_OK) {
         TT_ERROR("fail to init gzip deflate");
         return TT_FAIL;

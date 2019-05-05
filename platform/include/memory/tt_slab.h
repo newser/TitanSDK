@@ -129,8 +129,7 @@ create a slab
 - TT_SUCCESS, if creating succeeds
 - TT_FAIL, otherwise
 */
-tt_export tt_result_t tt_slab_create(IN tt_slab_t *slab,
-                                     IN tt_u32_t obj_size,
+tt_export tt_result_t tt_slab_create(IN tt_slab_t *slab, IN tt_u32_t obj_size,
                                      IN OPT tt_slab_attr_t *attr);
 
 /**
@@ -170,10 +169,9 @@ allocate an object from slab memory cache
 tt_export void *tt_slab_alloc_tag(IN tt_slab_t *slab
 #ifdef TT_MEMORY_TAG_ENABLE
                                   ,
-                                  IN const tt_char_t *func,
-                                  IN tt_u32_t line
+                                  IN const tt_char_t *func, IN tt_u32_t line
 #endif
-                                  );
+);
 
 /**
 @fn void tt_slab_free(IN void *obj)

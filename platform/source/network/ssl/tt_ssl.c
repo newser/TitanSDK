@@ -84,7 +84,8 @@ void tt_ssl_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __ssl_component_init, __ssl_component_exit,
+        __ssl_component_init,
+        __ssl_component_exit,
     };
 
     // init component
@@ -99,7 +100,8 @@ void tt_ssl_log_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __ssl_log_component_init, __ssl_log_component_exit,
+        __ssl_log_component_init,
+        __ssl_log_component_exit,
     };
 
     // init component
@@ -159,8 +161,7 @@ void tt_ssl_destroy(IN tt_ssl_t *ssl)
     tt_free(ssl);
 }
 
-tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
-                             OUT tt_fiber_ev_t **p_fev,
+tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl, OUT tt_fiber_ev_t **p_fev,
                              OUT struct tt_tmr_s **p_tmr)
 {
     tt_ssl_config_t *sc;
@@ -198,9 +199,7 @@ tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ssl_send(IN tt_ssl_t *ssl,
-                        IN tt_u8_t *buf,
-                        IN tt_u32_t len,
+tt_result_t tt_ssl_send(IN tt_ssl_t *ssl, IN tt_u8_t *buf, IN tt_u32_t len,
                         OUT tt_u32_t *sent)
 {
     int e;
@@ -217,11 +216,8 @@ tt_result_t tt_ssl_send(IN tt_ssl_t *ssl,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
-                        OUT tt_u8_t *buf,
-                        IN tt_u32_t len,
-                        OUT tt_u32_t *recvd,
-                        OUT tt_fiber_ev_t **p_fev,
+tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl, OUT tt_u8_t *buf, IN tt_u32_t len,
+                        OUT tt_u32_t *recvd, OUT tt_fiber_ev_t **p_fev,
                         OUT struct tt_tmr_s **p_tmr)
 {
     int e;
@@ -274,9 +270,7 @@ tt_result_t tt_ssl_shutdown(IN tt_ssl_t *ssl, IN tt_ssl_shut_t shut)
     } else {
         sd = TT_SKT_SHUT_RDWR;
     }
-    if (!TT_OK(tt_skt_shutdown(ssl->skt, sd))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_skt_shutdown(ssl->skt, sd))) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -302,19 +296,16 @@ tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl, IN const tt_char_t *hostname)
     return TT_SUCCESS;
 }
 
-void tt_ssl_set_ca(IN tt_ssl_t *ssl,
-                   IN OPT tt_x509cert_t *ca,
+void tt_ssl_set_ca(IN tt_ssl_t *ssl, IN OPT tt_x509cert_t *ca,
                    IN OPT tt_x509crl_t *crl)
 {
     TT_ASSERT(ssl != NULL);
 
-    mbedtls_ssl_set_hs_ca_chain(&ssl->ctx,
-                                TT_COND(ca != NULL, &ca->crt, NULL),
+    mbedtls_ssl_set_hs_ca_chain(&ssl->ctx, TT_COND(ca != NULL, &ca->crt, NULL),
                                 TT_COND(crl != NULL, &crl->crl, NULL));
 }
 
-tt_result_t tt_ssl_set_cert(IN tt_ssl_t *ssl,
-                            IN tt_x509cert_t *cert,
+tt_result_t tt_ssl_set_cert(IN tt_ssl_t *ssl, IN tt_x509cert_t *cert,
                             IN tt_pk_t *pk)
 {
     int e;
@@ -413,12 +404,8 @@ int __ssl_recv(void *ctx, unsigned char *buf, size_t len)
     tt_u32_t recvd;
     tt_result_t result;
 
-    result = tt_skt_recv(ssl->skt,
-                         (tt_u8_t *)buf,
-                         (tt_u32_t)len,
-                         &recvd,
-                         ssl->p_fev,
-                         ssl->p_tmr);
+    result = tt_skt_recv(ssl->skt, (tt_u8_t *)buf, (tt_u32_t)len, &recvd,
+                         ssl->p_fev, ssl->p_tmr);
     if (TT_OK(result)) {
         return (int)recvd;
     } else if (result == TT_E_END) {

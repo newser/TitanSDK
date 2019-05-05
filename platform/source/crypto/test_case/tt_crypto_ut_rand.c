@@ -46,24 +46,12 @@ TT_TEST_ROUTINE_DECLARE(case_ctr_drbg)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_rand_case)
 
-TT_TEST_CASE("case_entropy",
-             "crypto: entropy",
-             case_entropy,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_entropy", "crypto: entropy", case_entropy, NULL, NULL, NULL,
+             NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_ctr_drbg",
-                 "crypto: ctr drbg",
-                 case_ctr_drbg,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_ctr_drbg", "crypto: ctr drbg", case_ctr_drbg, NULL, NULL,
+                 NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_rand_case)
     // =========================================

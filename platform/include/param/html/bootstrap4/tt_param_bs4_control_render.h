@@ -50,17 +50,13 @@ struct tt_param_bs4content_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t
-tt_param_bs4ctrl_render(IN struct tt_param_bs4content_s *ct,
-                        IN struct tt_param_s *param,
-                        IN tt_param_bs4level_t lv,
-                        OUT struct tt_buf_s *buf);
+tt_export tt_result_t tt_param_bs4ctrl_render(
+    IN struct tt_param_bs4content_s *ct, IN struct tt_param_s *param,
+    IN tt_param_bs4level_t lv, OUT struct tt_buf_s *buf);
 
-tt_export tt_result_t
-tt_param_bs4ctrl_render_pair(IN struct tt_param_bs4content_s *ct,
-                             IN struct tt_param_s *p1,
-                             IN struct tt_param_s *p2,
-                             IN tt_param_bs4level_t lv,
-                             OUT struct tt_buf_s *buf);
+tt_export tt_result_t tt_param_bs4ctrl_render_pair(
+    IN struct tt_param_bs4content_s *ct, IN struct tt_param_s *p1,
+    IN struct tt_param_s *p2, IN tt_param_bs4level_t lv,
+    OUT struct tt_buf_s *buf);
 
 #endif /* __TT_PARAM_BS4_CONTROL_RENDER__ */

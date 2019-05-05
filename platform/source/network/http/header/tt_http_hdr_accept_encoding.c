@@ -40,8 +40,7 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __accenc_parse(IN tt_http_hdr_t *h,
-                                  IN const tt_char_t *val,
+static tt_result_t __accenc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                                   IN tt_u32_t len);
 
 static tt_u32_t __accenc_render_len(IN tt_http_hdr_t *h);
@@ -65,12 +64,9 @@ tt_http_hdr_t *tt_http_hdr_accenc_create()
     tt_http_hdr_t *h;
     tt_http_accenc_t *ha;
 
-    h = tt_http_hdr_create_cs(sizeof(tt_http_accenc_t),
-                              TT_HTTP_HDR_ACCENC,
+    h = tt_http_hdr_create_cs(sizeof(tt_http_accenc_t), TT_HTTP_HDR_ACCENC,
                               &__accenc_itf);
-    if (h == NULL) {
-        return NULL;
-    }
+    if (h == NULL) { return NULL; }
 
     ha = TT_HTTP_HDR_CAST(h, tt_http_accenc_t);
 
@@ -97,8 +93,7 @@ void tt_http_hdr_accenc_set(IN tt_http_hdr_t *h, IN tt_http_accenc_t *accenc)
     tt_memcpy(ha, accenc, sizeof(tt_http_accenc_t));
 }
 
-tt_result_t __accenc_parse(IN tt_http_hdr_t *h,
-                           IN const tt_char_t *val,
+tt_result_t __accenc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                            IN tt_u32_t len)
 {
     tt_http_accenc_t *ha = TT_HTTP_HDR_CAST(h, tt_http_accenc_t);
@@ -197,9 +192,7 @@ tt_u32_t __accenc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
                                     0};
                 for (n = 4; (n != 1) && (buf[n] == '0'); --n)
                     ;
-                if (n == 1) {
-                    --n;
-                }
+                if (n == 1) { --n; }
                 ++n;
 
                 tt_memcpy(p, ";q=", 3);
@@ -229,9 +222,7 @@ tt_u32_t __accenc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
                                 0};
             for (n = 4; (n != 1) && (buf[n] == '0'); --n)
                 ;
-            if (n == 1) {
-                --n;
-            }
+            if (n == 1) { --n; }
             ++n;
 
             tt_memcpy(p, ";q=", 3);
@@ -247,9 +238,7 @@ tt_u32_t __accenc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
     }
 
     // "\r\n"
-    if (!empty) {
-        p -= 2;
-    }
+    if (!empty) { p -= 2; }
     *p++ = '\r';
     *p++ = '\n';
 

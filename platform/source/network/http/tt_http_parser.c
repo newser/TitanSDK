@@ -69,15 +69,8 @@ static int __on_msg_end(http_parser *p);
 
 static http_parser_settings tt_s_hp_setting = {
     NULL, // on_message_begin
-    __on_uri,
-    __on_status,
-    __on_hdr_field,
-    __on_hdr_value,
-    __on_hdr_end,
-    __on_body,
-    __on_msg_end,
-    NULL,
-    NULL,
+    __on_uri,  __on_status,  __on_hdr_field, __on_hdr_value, __on_hdr_end,
+    __on_body, __on_msg_end, NULL,           NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -94,8 +87,7 @@ tt_inline void __add_hdr(IN tt_http_parser_t *hp, IN tt_http_hdr_t *h)
 }
 
 static tt_http_rawval_t *__hp_first_rv(IN tt_http_parser_t *hp,
-                                       IN tt_char_t *name,
-                                       IN tt_u32_t len);
+                                       IN tt_char_t *name, IN tt_u32_t len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -134,9 +126,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
 
     // extend to initial size
     tt_buf_init(&hp->buf, &attr->buf_attr);
-    if (!TT_OK(tt_buf_extend(&hp->buf))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_buf_extend(&hp->buf))) { return TT_FAIL; }
 
     tt_blobex_init(&hp->rawuri, NULL, 0);
     tt_http_uri_init(&hp->uri);
@@ -155,9 +145,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     }
 
     hp->contenc_num = 0;
-    for (i = 0; i < TT_HTTP_ENC_NUM; ++i) {
-        hp->contenc[i] = TT_HTTP_ENC_NUM;
-    }
+    for (i = 0; i < TT_HTTP_ENC_NUM; ++i) { hp->contenc[i] = TT_HTTP_ENC_NUM; }
 
     hp->complete_line1 = TT_FALSE;
     hp->complete_header = TT_FALSE;
@@ -185,13 +173,9 @@ void tt_http_parser_destroy(IN tt_http_parser_t *hp)
 {
     TT_ASSERT(hp != NULL);
 
-    if (hp->rh != NULL) {
-        tt_http_rawhdr_destroy(hp->rh);
-    }
+    if (hp->rh != NULL) { tt_http_rawhdr_destroy(hp->rh); }
 
-    if (hp->rv != NULL) {
-        tt_http_rawval_destroy(hp->rv);
-    }
+    if (hp->rv != NULL) { tt_http_rawval_destroy(hp->rv); }
 
     // hp->host is a pointer and need not be destroyed
 
@@ -268,9 +252,7 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     }
 
     hp->contenc_num = 0;
-    for (i = 0; i < TT_HTTP_ENC_NUM; ++i) {
-        hp->contenc[i] = TT_HTTP_ENC_NUM;
-    }
+    for (i = 0; i < TT_HTTP_ENC_NUM; ++i) { hp->contenc[i] = TT_HTTP_ENC_NUM; }
 
     hp->contype = TT_HTTP_CONTYPE_NUM;
     hp->complete_line1 = TT_FALSE;
@@ -300,8 +282,7 @@ tt_result_t tt_http_parser_run(IN tt_http_parser_t *hp)
     tt_u32_t n;
     enum http_errno e;
 
-    n = (tt_u32_t)http_parser_execute(p,
-                                      &tt_s_hp_setting,
+    n = (tt_u32_t)http_parser_execute(p, &tt_s_hp_setting,
                                       (char *)TT_BUF_RPOS(buf),
                                       TT_BUF_RLEN(buf));
     TT_ASSERT(n <= TT_BUF_RLEN(buf));
@@ -318,8 +299,7 @@ tt_result_t tt_http_parser_run(IN tt_http_parser_t *hp)
         http_parser_pause(&hp->parser, 0);
         return TT_SUCCESS;
     } else {
-        TT_ERROR("fail to parse http: [%s:%s]",
-                 http_errno_name(e),
+        TT_ERROR("fail to parse http: [%s:%s]", http_errno_name(e),
                  http_errno_description(e));
         return TT_FAIL;
     }
@@ -338,17 +318,12 @@ tt_http_method_t tt_http_parser_get_method(IN tt_http_parser_t *hp)
 
 tt_http_uri_t *tt_http_parser_get_uri(IN tt_http_parser_t *hp)
 {
-    if (hp->parser.type == HTTP_RESPONSE) {
-        return NULL;
-    }
+    if (hp->parser.type == HTTP_RESPONSE) { return NULL; }
 
-    if (hp->updated_uri) {
-        return &hp->uri;
-    }
+    if (hp->updated_uri) { return &hp->uri; }
 
     if (tt_blobex_empty(&hp->rawuri) ||
-        !TT_OK(tt_http_uri_parse_n(&hp->uri,
-                                   tt_blobex_addr(&hp->rawuri),
+        !TT_OK(tt_http_uri_parse_n(&hp->uri, tt_blobex_addr(&hp->rawuri),
                                    tt_blobex_len(&hp->rawuri)))) {
         return NULL;
     }
@@ -419,9 +394,7 @@ tt_http_hdr_t *tt_http_parser_find_hdr(IN tt_http_parser_t *hp,
     tt_dnode_t *dn;
     for (dn = tt_dlist_head(&hp->hdr); dn != NULL; dn = dn->next) {
         tt_http_hdr_t *h = TT_CONTAINER(dn, tt_http_hdr_t, dnode);
-        if (h->name == hname) {
-            return h;
-        }
+        if (h->name == hname) { return h; }
     }
     return NULL;
 }
@@ -445,8 +418,7 @@ tt_http_contype_t tt_http_parser_get_contype(IN tt_http_parser_t *hp)
         }
 
         if (!hp->miss_contype &&
-            (tt_http_rawhdr_count_name_n(&hp->rawhdr,
-                                         "Content-Type",
+            (tt_http_rawhdr_count_name_n(&hp->rawhdr, "Content-Type",
                                          sizeof("Content-Type") - 1) > 1)) {
             // more than 1 content type
             hp->miss_contype = TT_TRUE;
@@ -478,8 +450,7 @@ tt_s32_t tt_http_parser_get_content_len(IN tt_http_parser_t *hp)
                 goto done;
             }
 
-            if (tt_http_rawhdr_count_name_n(&hp->rawhdr,
-                                            "Content-Length",
+            if (tt_http_rawhdr_count_name_n(&hp->rawhdr, "Content-Length",
                                             sizeof("Content-Length") - 1) > 1) {
                 hp->miss_content_len = TT_TRUE;
             }
@@ -504,14 +475,11 @@ tt_u32_t tt_http_parser_get_txenc(IN tt_http_parser_t *hp,
         tt_http_rawval_t *rv;
 
         h = tt_http_hdr_txenc_create();
-        if (h == NULL) {
-            return 0;
-        }
+        if (h == NULL) { return 0; }
 
         __FOREACH_RV(rh, rv, "Transfer-Encoding")
         {
-            tt_http_hdr_parse_n(h,
-                                tt_blobex_addr(&rv->val),
+            tt_http_hdr_parse_n(h, tt_blobex_addr(&rv->val),
                                 tt_blobex_len(&rv->val));
         }
         __FOREACH_RV_END()
@@ -523,9 +491,7 @@ tt_u32_t tt_http_parser_get_txenc(IN tt_http_parser_t *hp,
         hp->updated_txenc = TT_TRUE;
     }
 
-    for (i = 0; i < hp->txenc_num; ++i) {
-        txenc[i] = hp->txenc[i];
-    }
+    for (i = 0; i < hp->txenc_num; ++i) { txenc[i] = hp->txenc[i]; }
     return hp->txenc_num;
 }
 
@@ -540,14 +506,11 @@ tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
         tt_http_rawval_t *rv;
 
         h = tt_http_hdr_contenc_create();
-        if (h == NULL) {
-            return 0;
-        }
+        if (h == NULL) { return 0; }
 
         __FOREACH_RV(rh, rv, "Content-Encoding")
         {
-            tt_http_hdr_parse_n(h,
-                                tt_blobex_addr(&rv->val),
+            tt_http_hdr_parse_n(h, tt_blobex_addr(&rv->val),
                                 tt_blobex_len(&rv->val));
         }
         __FOREACH_RV_END()
@@ -559,9 +522,7 @@ tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
         hp->updated_contenc = TT_TRUE;
     }
 
-    for (i = 0; i < hp->contenc_num; ++i) {
-        contenc[i] = hp->contenc[i];
-    }
+    for (i = 0; i < hp->contenc_num; ++i) { contenc[i] = hp->contenc[i]; }
     return hp->contenc_num;
 }
 
@@ -575,20 +536,16 @@ tt_http_accenc_t *tt_http_parser_get_accenc(IN tt_http_parser_t *hp)
         tt_http_rawval_t *rv;
 
         h = tt_http_hdr_accenc_create();
-        if (h == NULL) {
-            goto out;
-        }
+        if (h == NULL) { goto out; }
 
         __FOREACH_RV(rh, rv, "Accept-Encoding")
         {
-            tt_http_hdr_parse_n(h,
-                                tt_blobex_addr(&rv->val),
+            tt_http_hdr_parse_n(h, tt_blobex_addr(&rv->val),
                                 tt_blobex_len(&rv->val));
         }
         __FOREACH_RV_END()
 
-        tt_memcpy(&hp->accenc,
-                  tt_http_hdr_accenc_get(h),
+        tt_memcpy(&hp->accenc, tt_http_hdr_accenc_get(h),
                   sizeof(tt_http_accenc_t));
 
         tt_http_hdr_destroy(h);
@@ -612,17 +569,13 @@ out:
             tt_u32_t num = 0;                                                  \
                                                                                \
             h = tt_http_hdr_##hdr##_create();                                  \
-            if (h == NULL) {                                                   \
-                return NULL;                                                   \
-            }                                                                  \
+            if (h == NULL) { return NULL; }                                    \
                                                                                \
             __FOREACH_RV(rh, rv, name_str)                                     \
             {                                                                  \
                 TT_DO_G(fail, tt_http_hdr_pre_parse(h));                       \
-                TT_DO_G(fail,                                                  \
-                        tt_http_hdr_parse_n(h,                                 \
-                                            tt_blobex_addr(&rv->val),          \
-                                            tt_blobex_len(&rv->val)));         \
+                TT_DO_G(fail, tt_http_hdr_parse_n(h, tt_blobex_addr(&rv->val), \
+                                                  tt_blobex_len(&rv->val)));   \
                 TT_DO_G(fail, tt_http_hdr_post_parse(h));                      \
                 ++num;                                                         \
             }                                                                  \
@@ -665,8 +618,7 @@ void __clear_hdr(IN tt_dlist_t *dl)
     }
 }
 
-tt_http_rawval_t *__hp_first_rv(IN tt_http_parser_t *hp,
-                                IN tt_char_t *name,
+tt_http_rawval_t *__hp_first_rv(IN tt_http_parser_t *hp, IN tt_char_t *name,
                                 IN tt_u32_t len)
 {
     tt_http_rawhdr_t *rh = tt_http_rawhdr_find(&hp->rawhdr, name);
@@ -702,16 +654,13 @@ int __on_hdr_field(http_parser *p, const char *at, size_t length)
 {
     tt_http_parser_t *hp = TT_CONTAINER(p, tt_http_parser_t, parser);
 
-    if (!hp->complete_line1) {
-        hp->complete_line1 = TT_TRUE;
-    }
+    if (!hp->complete_line1) { hp->complete_line1 = TT_TRUE; }
 
     if (hp->rv != NULL) {
         // the last raw header is done parsing
         TT_ASSERT(hp->rh != NULL);
         tt_http_rawhdr_add_val(hp->rh, hp->rv);
-        tt_http_rawhdr_add(TT_COND(hp->complete_header,
-                                   &hp->trailing_rawhdr,
+        tt_http_rawhdr_add(TT_COND(hp->complete_header, &hp->trailing_rawhdr,
                                    &hp->rawhdr),
                            hp->rh);
         hp->rh = NULL;
@@ -729,10 +678,8 @@ int __on_hdr_field(http_parser *p, const char *at, size_t length)
         // ok a new header
         tt_http_rawhdr_t *rh;
 
-        rh = tt_http_rawhdr_create(hp->rawhdr_slab,
-                                   (tt_char_t *)at,
-                                   (tt_u32_t)length,
-                                   TT_FALSE);
+        rh = tt_http_rawhdr_create(hp->rawhdr_slab, (tt_char_t *)at,
+                                   (tt_u32_t)length, TT_FALSE);
         if (rh != NULL) {
             hp->rh = rh;
             return 0;
@@ -746,9 +693,7 @@ int __on_hdr_value(http_parser *p, const char *at, size_t length)
 {
     tt_http_parser_t *hp = TT_CONTAINER(p, tt_http_parser_t, parser);
 
-    if (!hp->complete_line1) {
-        hp->complete_line1 = TT_TRUE;
-    }
+    if (!hp->complete_line1) { hp->complete_line1 = TT_TRUE; }
 
     if (hp->rv != NULL) {
         // it's parsing a header value
@@ -759,10 +704,9 @@ int __on_hdr_value(http_parser *p, const char *at, size_t length)
         }
     } else {
         // see header value
-        tt_http_rawval_t *rv = tt_http_rawval_create(hp->rawval_slab,
-                                                     (tt_char_t *)at,
-                                                     (tt_u32_t)length,
-                                                     TT_FALSE);
+        tt_http_rawval_t *rv =
+            tt_http_rawval_create(hp->rawval_slab, (tt_char_t *)at,
+                                  (tt_u32_t)length, TT_FALSE);
         if (rv != NULL) {
             hp->rv = rv;
             return 0;
@@ -778,9 +722,7 @@ int __on_hdr_end(http_parser *p)
 {
     tt_http_parser_t *hp = TT_CONTAINER(p, tt_http_parser_t, parser);
 
-    if (!hp->complete_line1) {
-        hp->complete_line1 = TT_TRUE;
-    }
+    if (!hp->complete_line1) { hp->complete_line1 = TT_TRUE; }
 
     hp->complete_header = TT_TRUE;
 
@@ -847,8 +789,7 @@ int __on_msg_end(http_parser *p)
 // helper
 // ========================================
 
-void tt_http_parse_weight(IN OUT tt_char_t **s,
-                          IN OUT tt_u32_t *len,
+void tt_http_parse_weight(IN OUT tt_char_t **s, IN OUT tt_u32_t *len,
                           OUT tt_float_t *q)
 {
     tt_char_t *pos, *end, *sep;
@@ -900,8 +841,7 @@ void tt_http_parse_weight(IN OUT tt_char_t **s,
     if (ok && (pos < end) && (ok = tt_isdigit(pos[0]))) {
         weight += pos[0] - '0';
     }
-    if (ok && ((pos + 1) < end) && (ok = (pos[1] == '.'))) {
-    }
+    if (ok && ((pos + 1) < end) && (ok = (pos[1] == '.'))) {}
     if (ok && ((pos + 2) < end) && (ok = tt_isdigit(pos[2]))) {
         weight += (pos[2] - '0') * 0.1;
     }

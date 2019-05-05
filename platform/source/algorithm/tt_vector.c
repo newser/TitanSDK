@@ -56,9 +56,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_vec_init(IN tt_vec_t *vec,
-                 IN tt_u32_t obj_size,
-                 IN OPT tt_cmp_t cmp,
+void tt_vec_init(IN tt_vec_t *vec, IN tt_u32_t obj_size, IN OPT tt_cmp_t cmp,
                  IN OPT tt_vec_attr_t *attr)
 {
     tt_vec_attr_t __attr;
@@ -77,8 +75,7 @@ void tt_vec_init(IN tt_vec_t *vec,
     vec->p = NULL;
     vec->cmp = cmp;
     vec->size = 0;
-    tt_memspg_init(&vec->mspg,
-                   attr->min_extent_num * obj_size,
+    tt_memspg_init(&vec->mspg, attr->min_extent_num * obj_size,
                    attr->max_extent_num * obj_size,
                    attr->max_limit_num * obj_size);
     vec->obj_size = obj_size;
@@ -106,9 +103,7 @@ void tt_vec_attr_default(IN tt_vec_attr_t *attr)
 
 tt_result_t __vec_reserve(IN tt_vec_t *vec, IN tt_u32_t count)
 {
-    TT_DO(tt_memspg_extend(&vec->mspg,
-                           &vec->p,
-                           &vec->size,
+    TT_DO(tt_memspg_extend(&vec->mspg, &vec->p, &vec->size,
                            (vec->capacity + count) * vec->obj_size));
     vec->capacity = vec->size / vec->obj_size;
 
@@ -136,13 +131,9 @@ tt_result_t tt_vec_push_tail(IN tt_vec_t *vec, IN void *obj)
 
 tt_result_t tt_vec_pop_head(IN tt_vec_t *vec, OUT OPT void *obj)
 {
-    if (vec->count == 0) {
-        return TT_FAIL;
-    }
+    if (vec->count == 0) { return TT_FAIL; }
 
-    if (obj != NULL) {
-        tt_memcpy(obj, vec->p, vec->obj_size);
-    }
+    if (obj != NULL) { tt_memcpy(obj, vec->p, vec->obj_size); }
     tt_memmove(vec->p, __V_OBJ(vec, 1), __V_SIZE(vec, vec->count - 1));
     --vec->count;
 
@@ -151,9 +142,7 @@ tt_result_t tt_vec_pop_head(IN tt_vec_t *vec, OUT OPT void *obj)
 
 tt_result_t tt_vec_pop_tail(IN tt_vec_t *vec, OUT OPT void *obj)
 {
-    if (vec->count == 0) {
-        return TT_FAIL;
-    }
+    if (vec->count == 0) { return TT_FAIL; }
 
     if (obj != NULL) {
         tt_memcpy(obj, __V_OBJ(vec, vec->count - 1), vec->obj_size);
@@ -165,31 +154,24 @@ tt_result_t tt_vec_pop_tail(IN tt_vec_t *vec, OUT OPT void *obj)
 
 void *tt_vec_head(IN tt_vec_t *vec)
 {
-    if (vec->count == 0) {
-        return NULL;
-    }
+    if (vec->count == 0) { return NULL; }
 
     return vec->p;
 }
 
 void *tt_vec_tail(IN tt_vec_t *vec)
 {
-    if (vec->count == 0) {
-        return NULL;
-    }
+    if (vec->count == 0) { return NULL; }
 
     return __V_OBJ(vec, vec->count - 1);
 }
 
 tt_result_t tt_vec_insert(IN tt_vec_t *vec, IN tt_u32_t idx, IN void *obj)
 {
-    if (idx >= vec->count) {
-        return TT_FAIL;
-    }
+    if (idx >= vec->count) { return TT_FAIL; }
 
     TT_DO(tt_vec_reserve(vec, 1));
-    tt_memmove(__V_OBJ(vec, idx + 1),
-               __V_OBJ(vec, idx),
+    tt_memmove(__V_OBJ(vec, idx + 1), __V_OBJ(vec, idx),
                __V_SIZE(vec, vec->count - idx));
     tt_memcpy(__V_OBJ(vec, idx), obj, vec->obj_size);
     ++vec->count;
@@ -211,8 +193,7 @@ tt_result_t tt_vec_move_all(IN tt_vec_t *dst, IN tt_vec_t *src)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_vec_move_from(IN tt_vec_t *dst,
-                             IN tt_vec_t *src,
+tt_result_t tt_vec_move_from(IN tt_vec_t *dst, IN tt_vec_t *src,
                              IN tt_u32_t from_idx)
 {
     tt_u32_t n;
@@ -220,14 +201,11 @@ tt_result_t tt_vec_move_from(IN tt_vec_t *dst,
     TT_ASSERT_ALWAYS(dst != src);
     TT_ASSERT_ALWAYS(dst->obj_size == src->obj_size);
 
-    if (from_idx >= src->count) {
-        return TT_SUCCESS;
-    }
+    if (from_idx >= src->count) { return TT_SUCCESS; }
     n = src->count - from_idx;
 
     TT_DO(tt_vec_reserve(dst, n));
-    tt_memcpy(__V_OBJ(dst, dst->count),
-              __V_OBJ(src, from_idx),
+    tt_memcpy(__V_OBJ(dst, dst->count), __V_OBJ(src, from_idx),
               __V_SIZE(src, n));
     dst->count += n;
 
@@ -236,10 +214,8 @@ tt_result_t tt_vec_move_from(IN tt_vec_t *dst,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_vec_move_range(IN tt_vec_t *dst,
-                              IN tt_vec_t *src,
-                              IN tt_u32_t from_idx,
-                              IN tt_u32_t to_idx)
+tt_result_t tt_vec_move_range(IN tt_vec_t *dst, IN tt_vec_t *src,
+                              IN tt_u32_t from_idx, IN tt_u32_t to_idx)
 {
     tt_u32_t n;
 
@@ -247,22 +223,16 @@ tt_result_t tt_vec_move_range(IN tt_vec_t *dst,
     TT_ASSERT_ALWAYS(dst->obj_size == src->obj_size);
     TT_ASSERT_ALWAYS(from_idx <= to_idx);
 
-    if (from_idx >= src->count) {
-        return TT_SUCCESS;
-    }
-    if (to_idx >= src->count) {
-        to_idx = src->count;
-    }
+    if (from_idx >= src->count) { return TT_SUCCESS; }
+    if (to_idx >= src->count) { to_idx = src->count; }
     n = to_idx - from_idx;
 
     TT_DO(tt_vec_reserve(dst, n));
-    tt_memcpy(__V_OBJ(dst, dst->count),
-              __V_OBJ(src, from_idx),
+    tt_memcpy(__V_OBJ(dst, dst->count), __V_OBJ(src, from_idx),
               __V_SIZE(src, n));
     dst->count += n;
 
-    tt_memcpy(__V_OBJ(src, from_idx),
-              __V_OBJ(src, to_idx),
+    tt_memcpy(__V_OBJ(src, from_idx), __V_OBJ(src, to_idx),
               __V_SIZE(src, src->count - to_idx));
     src->count -= n;
 
@@ -287,18 +257,14 @@ tt_bool_t tt_vec_comtain_all(IN tt_vec_t *vec, IN tt_vec_t *vec2)
 
 void *tt_vec_get(IN tt_vec_t *vec, IN tt_u32_t idx)
 {
-    if (idx >= vec->count) {
-        return NULL;
-    }
+    if (idx >= vec->count) { return NULL; }
 
     return __V_OBJ(vec, idx);
 }
 
 tt_result_t tt_vec_set(IN tt_vec_t *vec, IN tt_u32_t idx, IN void *obj)
 {
-    if (idx >= vec->count) {
-        return TT_FAIL;
-    }
+    if (idx >= vec->count) { return TT_FAIL; }
 
     tt_memcpy(__V_OBJ(vec, idx), obj, vec->obj_size);
     return TT_SUCCESS;
@@ -310,9 +276,7 @@ tt_u32_t tt_vec_find(IN tt_vec_t *vec, IN void *obj)
 
     if (vec->cmp != NULL) {
         for (i = 0; i < vec->count; ++i) {
-            if (vec->cmp(__V_OBJ(vec, i), obj) == 0) {
-                return i;
-            }
+            if (vec->cmp(__V_OBJ(vec, i), obj) == 0) { return i; }
         }
     } else {
         for (i = 0; i < vec->count; ++i) {
@@ -331,9 +295,7 @@ tt_u32_t tt_vec_find_last(IN tt_vec_t *vec, IN void *obj)
 
     if (vec->cmp != NULL) {
         for (i = vec->count - 1; i != ~0; --i) {
-            if (vec->cmp(__V_OBJ(vec, i), obj) == 0) {
-                return i;
-            }
+            if (vec->cmp(__V_OBJ(vec, i), obj) == 0) { return i; }
         }
     } else {
         for (i = vec->count - 1; i != ~0; --i) {
@@ -350,15 +312,11 @@ tt_u32_t tt_vec_find_from(IN tt_vec_t *vec, IN void *obj, IN tt_u32_t from_idx)
 {
     tt_u32_t i;
 
-    if (from_idx >= vec->count) {
-        return TT_POS_NULL;
-    }
+    if (from_idx >= vec->count) { return TT_POS_NULL; }
 
     if (vec->cmp != NULL) {
         for (i = from_idx; i < vec->count; ++i) {
-            if (vec->cmp(__V_OBJ(vec, i), obj) == 0) {
-                return i;
-            }
+            if (vec->cmp(__V_OBJ(vec, i), obj) == 0) { return i; }
         }
     } else {
         for (i = from_idx; i < vec->count; ++i) {
@@ -371,27 +329,19 @@ tt_u32_t tt_vec_find_from(IN tt_vec_t *vec, IN void *obj, IN tt_u32_t from_idx)
     return TT_POS_NULL;
 }
 
-tt_u32_t tt_vec_find_range(IN tt_vec_t *vec,
-                           IN void *obj,
-                           IN tt_u32_t from_idx,
+tt_u32_t tt_vec_find_range(IN tt_vec_t *vec, IN void *obj, IN tt_u32_t from_idx,
                            IN tt_u32_t to_idx)
 {
     tt_u32_t i;
 
     TT_ASSERT_ALWAYS(from_idx <= to_idx);
 
-    if (from_idx >= vec->count) {
-        return TT_POS_NULL;
-    }
-    if (to_idx >= vec->count) {
-        to_idx = vec->count;
-    }
+    if (from_idx >= vec->count) { return TT_POS_NULL; }
+    if (to_idx >= vec->count) { to_idx = vec->count; }
 
     if (vec->cmp != NULL) {
         for (i = from_idx; i < to_idx; ++i) {
-            if (vec->cmp(__V_OBJ(vec, i), obj) == 0) {
-                return i;
-            }
+            if (vec->cmp(__V_OBJ(vec, i), obj) == 0) { return i; }
         }
     } else {
         for (i = from_idx; i < to_idx; ++i) {
@@ -406,12 +356,9 @@ tt_u32_t tt_vec_find_range(IN tt_vec_t *vec,
 
 void tt_vec_remove(IN tt_vec_t *vec, IN tt_u32_t idx)
 {
-    if (idx >= vec->count) {
-        return;
-    }
+    if (idx >= vec->count) { return; }
 
-    tt_memmove(__V_OBJ(vec, idx),
-               __V_OBJ(vec, idx + 1),
+    tt_memmove(__V_OBJ(vec, idx), __V_OBJ(vec, idx + 1),
                __V_SIZE(vec, vec->count - idx - 1));
     --vec->count;
 }
@@ -420,27 +367,19 @@ void tt_vec_remove(IN tt_vec_t *vec, IN tt_u32_t idx)
 tt_u32_t tt_vec_remove_equal(IN tt_vec_t *vec, IN void *obj)
 {
     tt_u32_t idx = tt_vec_find(vec, obj);
-    if (idx != TT_POS_NULL) {
-        tt_vec_remove(vec, idx);
-    }
+    if (idx != TT_POS_NULL) { tt_vec_remove(vec, idx); }
     return idx;
 }
 
-void tt_vec_remove_range(IN tt_vec_t *vec,
-                         IN tt_u32_t from_idx,
+void tt_vec_remove_range(IN tt_vec_t *vec, IN tt_u32_t from_idx,
                          IN tt_u32_t to_idx)
 {
     TT_ASSERT_ALWAYS(from_idx <= to_idx);
 
-    if (from_idx >= vec->count) {
-        return;
-    }
-    if (to_idx >= vec->count) {
-        to_idx = vec->count;
-    }
+    if (from_idx >= vec->count) { return; }
+    if (to_idx >= vec->count) { to_idx = vec->count; }
 
-    tt_memmove(__V_OBJ(vec, from_idx),
-               __V_OBJ(vec, to_idx),
+    tt_memmove(__V_OBJ(vec, from_idx), __V_OBJ(vec, to_idx),
                __V_SIZE(vec, vec->count - to_idx));
     vec->count -= (to_idx - from_idx);
 }
@@ -448,9 +387,7 @@ void tt_vec_remove_range(IN tt_vec_t *vec,
 void tt_vec_trim(IN tt_vec_t *vec)
 {
     if (vec->count < vec->capacity) {
-        tt_memspg_compress(&vec->mspg,
-                           &vec->p,
-                           &vec->size,
+        tt_memspg_compress(&vec->mspg, &vec->p, &vec->size,
                            __V_SIZE(vec, vec->count));
         vec->capacity = vec->size / vec->obj_size;
     }

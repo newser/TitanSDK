@@ -56,10 +56,8 @@ typedef struct
 } tt_hnode_t;
 
 // return false if want to stop
-typedef tt_bool_t (*tt_hmap_action_t)(IN tt_u8_t *key,
-                                      IN tt_u32_t key_len,
-                                      IN tt_hnode_t *hnode,
-                                      IN void *param);
+typedef tt_bool_t (*tt_hmap_action_t)(IN tt_u8_t *key, IN tt_u32_t key_len,
+                                      IN tt_hnode_t *hnode, IN void *param);
 
 typedef void (*tt_hnode_destroy_t)(IN tt_hnode_t *hnode);
 
@@ -121,12 +119,10 @@ tt_inline tt_bool_t tt_hmap_empty(IN tt_hashmap_t *hmap)
     return hmap->count == 0 ? TT_TRUE : TT_FALSE;
 }
 
-tt_export tt_hnode_t *tt_hmap_find(IN tt_hashmap_t *hmap,
-                                   IN tt_u8_t *key,
+tt_export tt_hnode_t *tt_hmap_find(IN tt_hashmap_t *hmap, IN tt_u8_t *key,
                                    IN tt_u32_t key_len);
 
-tt_inline tt_bool_t tt_hmap_contain_key(IN tt_hashmap_t *hmap,
-                                        IN tt_u8_t *key,
+tt_inline tt_bool_t tt_hmap_contain_key(IN tt_hashmap_t *hmap, IN tt_u8_t *key,
                                         IN tt_u32_t key_len)
 {
     return tt_hmap_find(hmap, key, key_len) != NULL ? TT_TRUE : TT_FALSE;
@@ -135,20 +131,16 @@ tt_inline tt_bool_t tt_hmap_contain_key(IN tt_hashmap_t *hmap,
 tt_export tt_bool_t tt_hmap_contain(IN tt_hashmap_t *hmap,
                                     IN tt_hnode_t *hnode);
 
-tt_export tt_result_t tt_hmap_add(IN tt_hashmap_t *hmap,
-                                  IN tt_u8_t *key,
-                                  IN tt_u32_t key_len,
-                                  IN tt_hnode_t *hnode);
+tt_export tt_result_t tt_hmap_add(IN tt_hashmap_t *hmap, IN tt_u8_t *key,
+                                  IN tt_u32_t key_len, IN tt_hnode_t *hnode);
 
 tt_export void tt_hmap_remove(IN tt_hashmap_t *hmap, IN tt_hnode_t *hnode);
 
-tt_export tt_bool_t tt_hmap_remove_key(IN tt_hashmap_t *hmap,
-                                       IN tt_u8_t *key,
+tt_export tt_bool_t tt_hmap_remove_key(IN tt_hashmap_t *hmap, IN tt_u8_t *key,
                                        IN tt_u32_t key_len);
 
 tt_export void tt_hmap_foreach(IN tt_hashmap_t *hmap,
-                               IN tt_hmap_action_t action,
-                               IN void *param);
+                               IN tt_hmap_action_t action, IN void *param);
 
 tt_export void tt_hmap_iter(IN tt_hashmap_t *hmap, OUT tt_hmap_iter_t *iter);
 

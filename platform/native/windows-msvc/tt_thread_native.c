@@ -105,8 +105,9 @@ tt_result_t tt_thread_create_ntv(IN tt_thread_t *thread)
         // remember to _endthread
         return TT_SUCCESS;
     } else {
-        sys_thread->h_thread = (HANDLE)
-            _beginthreadex(NULL, 0, __joint_routine_wrapper, thread, 0, NULL);
+        sys_thread->h_thread =
+            (HANDLE)_beginthreadex(NULL, 0, __joint_routine_wrapper, thread, 0,
+                                   NULL);
         if (sys_thread->h_thread == 0) {
             TT_ERROR_NTV("fail to create joint thread");
             return TT_FAIL;

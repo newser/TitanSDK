@@ -49,8 +49,7 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __svr_kexdh_packet(IN tt_sshsvrconn_t *svrconn,
-                               IN tt_sshmsg_t *msg,
+static void __svr_kexdh_packet(IN tt_sshsvrconn_t *svrconn, IN tt_sshmsg_t *msg,
                                OUT tt_sshsvr_action_t *svract);
 tt_result_t __svr_kexdh_pkt_dhinit(IN tt_sshsvrconn_t *svrconn,
                                    IN tt_sshmsg_t *msg);
@@ -63,8 +62,7 @@ static tt_result_t __svr_kexdh_reply(IN tt_sshsvrconn_t *svrconn,
 ////////////////////////////////////////////////////////////
 
 void tt_sshsvr_state_kexdh(IN struct tt_sshsvrconn_s *svrconn,
-                           IN tt_sshsvr_event_t event,
-                           IN void *param,
+                           IN tt_sshsvr_event_t event, IN void *param,
                            OUT tt_sshsvr_action_t *svract)
 {
     tt_result_t result;
@@ -72,91 +70,90 @@ void tt_sshsvr_state_kexdh(IN struct tt_sshsvrconn_s *svrconn,
     TT_ASSERT(event < TT_SSHSVREV_NUM);
 
     switch (event) {
-        case TT_SSHSVREV_PACKET: {
-            __svr_kexdh_packet(svrconn, (tt_sshmsg_t *)param, svract);
+    case TT_SSHSVREV_PACKET: {
+        __svr_kexdh_packet(svrconn, (tt_sshmsg_t *)param, svract);
+        return;
+    } break;
+
+    case TT_SSHSVREV_KEXDH_REPLY: {
+        tt_sshmsg_t *newkeys;
+
+        result = __svr_kexdh_reply(svrconn, param);
+        if (!TT_OK(result)) {
+            svract->new_event = TT_SSHSVREV_DISCONNECT;
             return;
-        } break;
+        }
 
-        case TT_SSHSVREV_KEXDH_REPLY: {
-            tt_sshmsg_t *newkeys;
+        // send SSH_MSG_NEWKEYS
+        newkeys = tt_sshms_newkeys_create();
+        if (newkeys == NULL) {
+            svract->new_event = TT_SSHSVREV_DISCONNECT;
+            return;
+        }
+        if (!TT_OK(tt_sshsvrconn_send(svrconn, newkeys))) {
+            tt_sshmsg_release(newkeys);
 
-            result = __svr_kexdh_reply(svrconn, param);
-            if (!TT_OK(result)) {
-                svract->new_event = TT_SSHSVREV_DISCONNECT;
-                return;
-            }
+            svract->new_event = TT_SSHSVREV_DISCONNECT;
+            return;
+        }
 
-            // send SSH_MSG_NEWKEYS
-            newkeys = tt_sshms_newkeys_create();
-            if (newkeys == NULL) {
-                svract->new_event = TT_SSHSVREV_DISCONNECT;
-                return;
-            }
-            if (!TT_OK(tt_sshsvrconn_send(svrconn, newkeys))) {
-                tt_sshmsg_release(newkeys);
+        svrconn->ms_newkeys_out = TT_TRUE;
+        if (svrconn->ms_newkeys_in) {
+            svract->new_state = TT_SSHSVRST_KEX_DONE;
 
-                svract->new_event = TT_SSHSVREV_DISCONNECT;
-                return;
-            }
-
-            svrconn->ms_newkeys_out = TT_TRUE;
-            if (svrconn->ms_newkeys_in) {
-                svract->new_state = TT_SSHSVRST_KEX_DONE;
-
-                // remove unnecessary things
-                tt_sshctx_clear(&svrconn->ctx);
-
-                return;
-            }
+            // remove unnecessary things
+            tt_sshctx_clear(&svrconn->ctx);
 
             return;
-        } break;
+        }
 
-        default: {
-            TT_SSH_EV_IGNORED(TT_SSHSVRST_KEXDH, event);
-            return;
-        } break;
+        return;
+    } break;
+
+    default: {
+        TT_SSH_EV_IGNORED(TT_SSHSVRST_KEXDH, event);
+        return;
+    } break;
     }
 }
 
-void __svr_kexdh_packet(IN tt_sshsvrconn_t *svrconn,
-                        IN tt_sshmsg_t *msg,
+void __svr_kexdh_packet(IN tt_sshsvrconn_t *svrconn, IN tt_sshmsg_t *msg,
                         OUT tt_sshsvr_action_t *svract)
 {
     tt_result_t result;
 
     switch (msg->msg_id) {
-        case TT_SSH_MSGID_KEXDH_INIT: {
-            result = __svr_kexdh_pkt_dhinit(svrconn, msg);
-            if (TT_OK(result)) {
-                svract->new_event = TT_SSHSVREV_KEXDH_REPLY;
-            } else if (result == TT_E_PROCEED) {
-                TT_SSH_MSGID_IGNORED(TT_SSHSVRST_KEXDH, msg->msg_id);
-            } else {
-                svract->new_event = TT_SSHSVREV_DISCONNECT;
-            }
-
-            return;
-        } break;
-
-        case TT_SSH_MSGID_NEWKEYS: {
-            svrconn->ms_newkeys_in = TT_TRUE;
-            if (svrconn->ms_newkeys_out) {
-                svract->new_state = TT_SSHSVRST_KEX_DONE;
-
-                // remove unnecessary things
-                tt_sshctx_clear(&svrconn->ctx);
-            }
-
-            return;
-        } break;
-
-        default: {
-            TT_SSH_MSG_FAILURE(TT_SSHSVRST_KEXDH, msg->msg_id);
+    case TT_SSH_MSGID_KEXDH_INIT: {
+        result = __svr_kexdh_pkt_dhinit(svrconn, msg);
+        if (TT_OK(result)) {
+            svract->new_event = TT_SSHSVREV_KEXDH_REPLY;
+        } else if (result == TT_E_PROCEED) {
+            TT_SSH_MSGID_IGNORED(TT_SSHSVRST_KEXDH, msg->msg_id);
+        } else {
             svract->new_event = TT_SSHSVREV_DISCONNECT;
+        }
 
-            return;
-        } break;
+        return;
+    } break;
+
+    case TT_SSH_MSGID_NEWKEYS: {
+        svrconn->ms_newkeys_in = TT_TRUE;
+        if (svrconn->ms_newkeys_out) {
+            svract->new_state = TT_SSHSVRST_KEX_DONE;
+
+            // remove unnecessary things
+            tt_sshctx_clear(&svrconn->ctx);
+        }
+
+        return;
+    } break;
+
+    default: {
+        TT_SSH_MSG_FAILURE(TT_SSHSVRST_KEXDH, msg->msg_id);
+        svract->new_event = TT_SSHSVREV_DISCONNECT;
+
+        return;
+    } break;
     }
 }
 
@@ -169,53 +166,36 @@ tt_result_t __svr_kexdh_pkt_dhinit(IN tt_sshsvrconn_t *svrconn,
 
     // compute shared secret
     result = tt_sshctx_kexdh_compute(ctx, ki->e.addr, ki->e.len);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // e
     result = tt_sshctx_kexdh_set_e(ctx, ki->e.addr, ki->e.len, TT_TRUE);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // f
     result = tt_sshctx_kexdh_load_f(ctx);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // k
     result = tt_sshctx_kexdh_get_k(ctx);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // h
     result = tt_sshctx_kex_calc_h(ctx);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // signature of h
-    result = tt_sshctx_pubk_sign(ctx,
-                                 TT_BUF_RPOS(&ctx->kex->h),
+    result = tt_sshctx_pubk_sign(ctx, TT_BUF_RPOS(&ctx->kex->h),
                                  TT_BUF_RLEN(&ctx->kex->h));
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // session id
     result = tt_sshctx_load_session_id(ctx);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     // kdf
     result = tt_sshctx_kdf(ctx);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(result)) { return TT_FAIL; }
 
     return TT_SUCCESS;
 }
@@ -225,9 +205,7 @@ tt_result_t __svr_kexdh_reply(IN tt_sshsvrconn_t *svrconn, IN void *param)
     tt_sshmsg_t *msg;
 
     msg = tt_sshmsg_kexdh_reply_create();
-    if (msg == NULL) {
-        return TT_FAIL;
-    }
+    if (msg == NULL) { return TT_FAIL; }
 
     tt_sshmsg_kexdh_reply_setctx(msg, &svrconn->ctx);
 

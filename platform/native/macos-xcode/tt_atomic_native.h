@@ -216,10 +216,7 @@ tt_inline tt_bool_t tt_atomic_s32_cas_ntv(IN OUT tt_atomic_s32_ntv_t *a,
     TT_PTR_ALIGNED(a, 2);
 #endif
 
-    return TT_BOOL(__atomic_compare_exchange_n(a,
-                                               &comparand,
-                                               val,
-                                               0,
+    return TT_BOOL(__atomic_compare_exchange_n(a, &comparand, val, 0,
                                                __ATOMIC_SEQ_CST,
                                                __ATOMIC_SEQ_CST));
 }
@@ -353,10 +350,7 @@ tt_inline tt_bool_t tt_atomic_s64_cas_ntv(IN OUT tt_atomic_s64_ntv_t *a,
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    return TT_BOOL(__atomic_compare_exchange_n(a,
-                                               &comparand,
-                                               val,
-                                               0,
+    return TT_BOOL(__atomic_compare_exchange_n(a, &comparand, val, 0,
                                                __ATOMIC_SEQ_CST,
                                                __ATOMIC_SEQ_CST));
 }
@@ -446,10 +440,7 @@ tt_inline tt_bool_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
 #endif
 #endif
 
-    return TT_BOOL(__atomic_compare_exchange_n(a,
-                                               &comparand,
-                                               val,
-                                               0,
+    return TT_BOOL(__atomic_compare_exchange_n(a, &comparand, val, 0,
                                                __ATOMIC_SEQ_CST,
                                                __ATOMIC_SEQ_CST));
 }

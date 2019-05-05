@@ -148,7 +148,7 @@ tt_inline void tt_mutex_acquire_tag(IN tt_mutex_t *mutex
                                     IN const tt_char_t *function,
                                     IN tt_u32_t line
 #endif
-                                    )
+)
 {
     tt_mutex_acquire_ntv(&mutex->sys_mutex);
 }
@@ -169,7 +169,7 @@ tt_inline tt_bool_t tt_mutex_try_acquire_tag(IN tt_mutex_t *mutex
                                              IN const tt_char_t *function,
                                              IN tt_u32_t line
 #endif
-                                             )
+)
 {
     return tt_mutex_try_acquire_ntv(&mutex->sys_mutex);
 }

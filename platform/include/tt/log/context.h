@@ -56,27 +56,11 @@ class ctx
 public:
     ctx() = default;
 
-    ctx &layout(std::shared_ptr<i_layout> &layout)
-    {
-        layout_ = layout;
-        return *this;
-    }
-    ctx &layout(std::shared_ptr<i_layout> &&layout)
-    {
-        layout_ = layout;
-        return *this;
-    }
+    void layout(std::shared_ptr<i_layout> &layout) { layout_ = layout; }
+    void layout(std::shared_ptr<i_layout> &&layout) { layout_ = layout; }
 
-    ctx &append_io(std::shared_ptr<i_io> &io)
-    {
-        io_.emplace_back(io);
-        return *this;
-    }
-    ctx &append_io(std::shared_ptr<i_io> &&io)
-    {
-        io_.emplace_back(io);
-        return *this;
-    }
+    void append_io(std::shared_ptr<i_io> &io) { io_.emplace_back(io); }
+    void append_io(std::shared_ptr<i_io> &&io) { io_.emplace_back(io); }
 
     void write(const entry &e)
     {

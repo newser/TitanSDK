@@ -46,8 +46,7 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __fpath_parse(IN const tt_char_t *path,
-                                 IN tt_u32_t len,
+static tt_result_t __fpath_parse(IN const tt_char_t *path, IN tt_u32_t len,
                                  OUT tt_fpath_t *fp);
 
 static tt_result_t __fpath_parse_move(IN tt_fpath_t *fp,
@@ -57,8 +56,7 @@ static void __fpath_render(IN tt_fpath_t *fp);
 
 static tt_result_t __dir_push(IN tt_fpath_t *fp, IN tt_char_t *name);
 
-static tt_result_t __dir_push_n(IN tt_fpath_t *fp,
-                                IN tt_char_t *name,
+static tt_result_t __dir_push_n(IN tt_fpath_t *fp, IN tt_char_t *name,
                                 IN tt_u32_t len);
 
 static tt_char_t *__dir_pop(IN tt_fpath_t *fp);
@@ -74,8 +72,7 @@ static tt_result_t __dir_move(IN tt_fpath_t *dst, IN tt_fpath_t *src);
 static void __dir_destroy(IN tt_fpath_t *fp);
 
 static tt_result_t __fname_parse(IN tt_fpath_t *fp,
-                                 IN const tt_char_t *filename,
-                                 IN tt_u32_t len);
+                                 IN const tt_char_t *filename, IN tt_u32_t len);
 
 static void __fname_clear(IN tt_fpath_t *fp);
 
@@ -106,10 +103,8 @@ void tt_fpath_init(IN tt_fpath_t *fp, IN tt_char_t separator)
     fp->modified = TT_FALSE;
 }
 
-tt_result_t tt_fpath_create(IN tt_fpath_t *fp,
-                            IN const tt_char_t *path,
-                            IN tt_u32_t path_len,
-                            IN tt_char_t separator)
+tt_result_t tt_fpath_create(IN tt_fpath_t *fp, IN const tt_char_t *path,
+                            IN tt_u32_t path_len, IN tt_char_t separator)
 {
     tt_fpath_init(fp, separator);
 
@@ -140,8 +135,7 @@ void tt_fpath_clear(IN tt_fpath_t *fp)
     fp->modified = TT_FALSE;
 }
 
-tt_result_t tt_fpath_parse_n(IN tt_fpath_t *fp,
-                             const tt_char_t *path,
+tt_result_t tt_fpath_parse_n(IN tt_fpath_t *fp, const tt_char_t *path,
                              IN tt_u32_t path_len)
 {
     tt_fpath_clear(fp);
@@ -165,8 +159,7 @@ tt_result_t tt_fpath_parse_self(IN tt_fpath_t *fp)
     fp->modified = TT_FALSE;
 
     if (!TT_OK(__fpath_parse(tt_string_cstr(&fp->path),
-                             tt_string_len(&fp->path),
-                             fp))) {
+                             tt_string_len(&fp->path), fp))) {
         // caller should destroy fp
         return TT_FAIL;
     }
@@ -176,9 +169,7 @@ tt_result_t tt_fpath_parse_self(IN tt_fpath_t *fp)
 
 tt_result_t tt_fpath_copy(IN tt_fpath_t *dst, IN tt_fpath_t *src)
 {
-    if (!TT_OK(__fname_copy(dst, src))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(__fname_copy(dst, src))) { return TT_FAIL; }
 
     __dir_copy(dst, src);
 
@@ -262,9 +253,7 @@ tt_result_t tt_fpath_set_basename(IN tt_fpath_t *fp,
         return TT_E_NOMEM;
     }
 
-    if (fp->basename != NULL) {
-        tt_free((void *)fp->basename);
-    }
+    if (fp->basename != NULL) { tt_free((void *)fp->basename); }
     fp->basename = b;
 
     fp->modified = TT_TRUE;
@@ -282,9 +271,7 @@ tt_result_t tt_fpath_set_extension(IN tt_fpath_t *fp,
         return TT_E_NOMEM;
     }
 
-    if (fp->extension != NULL) {
-        tt_free((void *)fp->extension);
-    }
+    if (fp->extension != NULL) { tt_free((void *)fp->extension); }
     fp->extension = e;
 
     fp->modified = TT_TRUE;
@@ -356,9 +343,7 @@ tt_result_t tt_fpath_to_parent(IN tt_fpath_t *fp)
         }
 
         if ((level > 0) && (tt_fpath_is_relative(fp))) {
-            while (level-- > 0) {
-                TT_DO(__dir_push(fp, ".."));
-            }
+            while (level-- > 0) { TT_DO(__dir_push(fp, "..")); }
         }
     }
 
@@ -373,8 +358,7 @@ void tt_fpath_to_root(IN tt_fpath_t *fp)
     fp->modified = TT_TRUE;
 }
 
-tt_result_t tt_fpath_get_sibling(IN tt_fpath_t *fp,
-                                 IN const tt_char_t *sibling,
+tt_result_t tt_fpath_get_sibling(IN tt_fpath_t *fp, IN const tt_char_t *sibling,
                                  OUT tt_fpath_t *sibling_fp)
 {
     // init sibling_fp
@@ -390,15 +374,12 @@ tt_result_t tt_fpath_get_sibling(IN tt_fpath_t *fp,
 tt_result_t tt_fpath_to_sibling(IN tt_fpath_t *fp, IN const tt_char_t *sibling)
 {
     // move to parent if path is not empty
-    if (!tt_fpath_empty(fp)) {
-        tt_fpath_to_parent(fp);
-    }
+    if (!tt_fpath_empty(fp)) { tt_fpath_to_parent(fp); }
 
     return __fpath_parse_move(fp, sibling);
 }
 
-tt_result_t tt_fpath_get_child(IN tt_fpath_t *fp,
-                               IN const tt_char_t *child,
+tt_result_t tt_fpath_get_child(IN tt_fpath_t *fp, IN const tt_char_t *child,
                                OUT tt_fpath_t *child_fp)
 {
     TT_DO(tt_fpath_copy(child_fp, fp));
@@ -432,20 +413,14 @@ tt_result_t tt_fpath_to_absolute(IN tt_fpath_t *fp)
     tt_fpath_t tmp;
     tt_result_t result;
 
-    if (tt_fpath_is_absolute(fp)) {
-        return TT_SUCCESS;
-    }
+    if (tt_fpath_is_absolute(fp)) { return TT_SUCCESS; }
 
     dir = tt_current_path(TT_TRUE);
-    if (dir == NULL) {
-        return TT_FAIL;
-    }
+    if (dir == NULL) { return TT_FAIL; }
 
     result = tt_fpath_create_cstr(&tmp, dir, fp->sep);
     tt_free(dir);
-    if (TT_OK(!result)) {
-        return TT_FAIL;
-    }
+    if (TT_OK(!result)) { return TT_FAIL; }
 
     // copy root
     tt_memcpy(fp->root, tmp.root, sizeof(fp->root));
@@ -453,9 +428,7 @@ tt_result_t tt_fpath_to_absolute(IN tt_fpath_t *fp)
     // prepend directories
     result = TT_FAIL;
     while ((dir = tt_ptrq_pop_tail(&tmp.dir)) != NULL) {
-        if (!TT_OK(tt_ptrq_push_head(&fp->dir, dir))) {
-            goto done;
-        }
+        if (!TT_OK(tt_ptrq_push_head(&fp->dir, dir))) { goto done; }
     }
     result = TT_SUCCESS;
 
@@ -477,8 +450,7 @@ const tt_char_t *tt_fpath_get_name(IN tt_fpath_t *fp, IN tt_u32_t idx)
     }
 }
 
-tt_result_t tt_fpath_set_name(IN tt_fpath_t *fp,
-                              IN tt_u32_t idx,
+tt_result_t tt_fpath_set_name(IN tt_fpath_t *fp, IN tt_u32_t idx,
                               IN const tt_char_t *name)
 {
     tt_u32_t n;
@@ -524,10 +496,8 @@ const tt_char_t *tt_fpath_iter_next(IN OUT tt_fpath_iter_t *iter)
     }
 }
 
-tt_result_t tt_fpath_get_sub(IN tt_fpath_t *fp,
-                             IN tt_u32_t from,
-                             IN tt_u32_t num,
-                             OUT tt_fpath_t *sub)
+tt_result_t tt_fpath_get_sub(IN tt_fpath_t *fp, IN tt_u32_t from,
+                             IN tt_u32_t num, OUT tt_fpath_t *sub)
 {
     tt_u32_t n, end, i, dn;
     tt_fpath_iter_t iter;
@@ -568,9 +538,7 @@ tt_result_t tt_fpath_normalize(IN tt_fpath_t *fp)
     tt_char_t *d;
     tt_result_t result = TT_FAIL;
 
-    if (tt_strcmp(tt_fpath_render(fp), "./") == 0) {
-        return TT_SUCCESS;
-    }
+    if (tt_strcmp(tt_fpath_render(fp), "./") == 0) { return TT_SUCCESS; }
 
     tt_ptrq_attr_default(&dirq_attr);
     dirq_attr.destroy_ptr = tt_ptrq_free_ptr;
@@ -612,8 +580,7 @@ out:
     return result;
 }
 
-tt_result_t tt_fpath_resolve(IN tt_fpath_t *fp,
-                             IN tt_fpath_t *other,
+tt_result_t tt_fpath_resolve(IN tt_fpath_t *fp, IN tt_fpath_t *other,
                              OUT tt_fpath_t *resolved)
 {
     tt_fpath_clear(resolved);
@@ -645,8 +612,7 @@ tt_result_t tt_fpath_resolve(IN tt_fpath_t *fp,
     }
 }
 
-tt_result_t tt_fpath_relativize(IN tt_fpath_t *fp,
-                                IN tt_fpath_t *other,
+tt_result_t tt_fpath_relativize(IN tt_fpath_t *fp, IN tt_fpath_t *other,
                                 OUT tt_fpath_t *relative)
 {
     tt_fpath_t f, o;
@@ -726,8 +692,7 @@ tt_u32_t tt_fpath_pctencode_len(IN tt_fpath_t *fp, IN tt_char_t *enc_tbl)
     if ((fp->root[0] == fp->sep) && (fp->root[1] == 0)) {
         n += 1;
     } else {
-        n += tt_percent_encode_len(fp->root,
-                                   (tt_u32_t)tt_strlen(fp->root),
+        n += tt_percent_encode_len(fp->root, (tt_u32_t)tt_strlen(fp->root),
                                    enc_tbl);
     }
 
@@ -741,21 +706,18 @@ tt_u32_t tt_fpath_pctencode_len(IN tt_fpath_t *fp, IN tt_char_t *enc_tbl)
     // file
     if ((fp->basename != NULL) && (fp->basename[0] != 0)) {
         n += tt_percent_encode_len(fp->basename,
-                                   (tt_u32_t)tt_strlen(fp->basename),
-                                   enc_tbl);
+                                   (tt_u32_t)tt_strlen(fp->basename), enc_tbl);
     }
     if ((fp->extension != NULL) && (fp->extension[0] != 0)) {
         n += 1;
         n += tt_percent_encode_len(fp->extension,
-                                   (tt_u32_t)tt_strlen(fp->extension),
-                                   enc_tbl);
+                                   (tt_u32_t)tt_strlen(fp->extension), enc_tbl);
     }
 
     return n;
 }
 
-tt_u32_t tt_fpath_pctencode(IN tt_fpath_t *fp,
-                            IN tt_char_t *enc_tbl,
+tt_u32_t tt_fpath_pctencode(IN tt_fpath_t *fp, IN tt_char_t *enc_tbl,
                             OUT tt_char_t *dst)
 {
     tt_char_t *p = dst;
@@ -766,9 +728,7 @@ tt_u32_t tt_fpath_pctencode(IN tt_fpath_t *fp,
     if ((fp->root[0] == fp->sep) && (fp->root[1] == 0)) {
         *p++ = fp->sep;
     } else {
-        p += tt_percent_encode(fp->root,
-                               (tt_u32_t)tt_strlen(fp->root),
-                               enc_tbl,
+        p += tt_percent_encode(fp->root, (tt_u32_t)tt_strlen(fp->root), enc_tbl,
                                p);
     }
 
@@ -781,24 +741,19 @@ tt_u32_t tt_fpath_pctencode(IN tt_fpath_t *fp,
 
     // file
     if ((fp->basename != NULL) && (fp->basename[0] != 0)) {
-        p += tt_percent_encode(fp->basename,
-                               (tt_u32_t)tt_strlen(fp->basename),
-                               enc_tbl,
-                               p);
+        p += tt_percent_encode(fp->basename, (tt_u32_t)tt_strlen(fp->basename),
+                               enc_tbl, p);
     }
     if ((fp->extension != NULL) && (fp->extension[0] != 0)) {
         *p++ = '.';
         p += tt_percent_encode(fp->extension,
-                               (tt_u32_t)tt_strlen(fp->extension),
-                               enc_tbl,
-                               p);
+                               (tt_u32_t)tt_strlen(fp->extension), enc_tbl, p);
     }
 
     return (tt_u32_t)(p - dst);
 }
 
-tt_result_t __fpath_parse(IN const tt_char_t *path,
-                          IN tt_u32_t len,
+tt_result_t __fpath_parse(IN const tt_char_t *path, IN tt_u32_t len,
                           OUT tt_fpath_t *fp)
 {
     tt_char_t sep = fp->sep;
@@ -872,9 +827,7 @@ void __fpath_render(IN tt_fpath_t *fp)
     tt_ptrq_iter_t iter;
     tt_char_t *dir;
 
-    if (!fp->modified) {
-        return;
-    }
+    if (!fp->modified) { return; }
 
     tt_string_clear(s);
 
@@ -929,9 +882,7 @@ tt_char_t *__dir_pop(IN tt_fpath_t *fp)
 void __dir_pop_free(IN tt_fpath_t *fp)
 {
     tt_ptr_t p = tt_ptrq_pop_head(&fp->dir);
-    if (p != NULL) {
-        tt_free(p);
-    }
+    if (p != NULL) { tt_free(p); }
 }
 
 void __dir_clear(IN tt_fpath_t *fp)
@@ -951,9 +902,7 @@ tt_result_t __dir_copy(IN tt_fpath_t *dst, IN tt_fpath_t *src)
 
     tt_ptrq_iter(&src->dir, &iter);
     while ((dir = (tt_char_t *)tt_ptrq_iter_next(&iter)) != NULL) {
-        if (!TT_OK(__dir_push(dst, dir))) {
-            return TT_FAIL;
-        }
+        if (!TT_OK(__dir_push(dst, dir))) { return TT_FAIL; }
     }
 
     return TT_SUCCESS;
@@ -976,8 +925,7 @@ void __dir_destroy(IN tt_fpath_t *fp)
     tt_ptrq_destroy(&fp->dir);
 }
 
-tt_result_t __fname_parse(IN tt_fpath_t *fp,
-                          IN const tt_char_t *filename,
+tt_result_t __fname_parse(IN tt_fpath_t *fp, IN const tt_char_t *filename,
                           IN tt_u32_t len)
 {
     tt_char_t *pos, *end = (tt_char_t *)filename + len, *b = NULL, *e = NULL;
@@ -1001,13 +949,9 @@ tt_result_t __fname_parse(IN tt_fpath_t *fp,
     return TT_SUCCESS;
 
 fail:
-    if (b != NULL) {
-        tt_free(b);
-    }
+    if (b != NULL) { tt_free(b); }
 
-    if (e != NULL) {
-        tt_free(e);
-    }
+    if (e != NULL) { tt_free(e); }
 
     return TT_FAIL;
 }
@@ -1041,41 +985,29 @@ tt_result_t __fname_copy(IN tt_fpath_t *dst, IN tt_fpath_t *src)
         goto fail;
     }
 
-    if (dst->basename != NULL) {
-        tt_free((void *)dst->basename);
-    }
+    if (dst->basename != NULL) { tt_free((void *)dst->basename); }
     dst->basename = b;
 
-    if (dst->extension != NULL) {
-        tt_free((void *)dst->extension);
-    }
+    if (dst->extension != NULL) { tt_free((void *)dst->extension); }
     dst->extension = e;
 
     return TT_SUCCESS;
 
 fail:
-    if (b != NULL) {
-        tt_free(b);
-    }
+    if (b != NULL) { tt_free(b); }
 
-    if (e != NULL) {
-        tt_free(e);
-    }
+    if (e != NULL) { tt_free(e); }
 
     return TT_FAIL;
 }
 
 void __fname_move(IN tt_fpath_t *dst, IN tt_fpath_t *src)
 {
-    if (dst->basename != NULL) {
-        tt_free((void *)dst->basename);
-    }
+    if (dst->basename != NULL) { tt_free((void *)dst->basename); }
     dst->basename = src->basename;
     src->basename = NULL;
 
-    if (dst->extension != NULL) {
-        tt_free((void *)dst->extension);
-    }
+    if (dst->extension != NULL) { tt_free((void *)dst->extension); }
     dst->extension = src->extension;
     src->extension = NULL;
 }

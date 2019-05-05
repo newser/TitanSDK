@@ -95,8 +95,7 @@ int __sf_mkdir(const char *path, mode_t mode);
 
 #ifdef __SIMU_FAIL_FTSOPEN
 #define fts_open __sf_fts_open
-FTS *__sf_fts_open(char *const *path_argv,
-                   int options,
+FTS *__sf_fts_open(char *const *path_argv, int options,
                    int (*compar)(const FTSENT **, const FTSENT **));
 #endif
 
@@ -483,8 +482,7 @@ static void __time2date(IN time_t *t, IN tt_date_t *d);
 
 static void __date2timeval(IN tt_date_t *d, IN struct timeval *tv);
 
-static tt_result_t __copy_f(IN const tt_char_t *dst,
-                            IN const tt_char_t *src,
+static tt_result_t __copy_f(IN const tt_char_t *dst, IN const tt_char_t *src,
                             IN tt_u32_t flag);
 
 static tt_result_t __remove_d(IN const tt_char_t *path);
@@ -525,9 +523,7 @@ void tt_fs_status_dump_ntv(IN tt_u32_t flag)
 
         path[len] = 0;
         strncat(path, entry.d_name, PATH_MAX);
-        if ((n = readlink(path, link, PATH_MAX)) < 0) {
-            continue;
-        }
+        if ((n = readlink(path, link, PATH_MAX)) < 0) { continue; }
         link[n] = 0;
 
         if (link[0] != '/') {
@@ -537,8 +533,7 @@ void tt_fs_status_dump_ntv(IN tt_u32_t flag)
 
         tt_printf("%s[fd: %s] [%s]\n",
                   TT_COND(flag & TT_FS_STATUS_PREFIX, "<<FS>> ", ""),
-                  entry.d_name,
-                  link);
+                  entry.d_name, link);
     }
 
     closedir(d);
@@ -577,10 +572,8 @@ tt_result_t tt_fremove_ntv(IN const tt_char_t *path)
 }
 
 // this function can not open directory
-tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file,
-                         IN const tt_char_t *path,
-                         IN tt_u32_t flag,
-                         IN struct tt_file_attr_s *attr)
+tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file, IN const tt_char_t *path,
+                         IN tt_u32_t flag, IN struct tt_file_attr_s *attr)
 {
     __fopen_t fopen;
 
@@ -610,10 +603,8 @@ void tt_fclose_ntv(IN tt_file_ntv_t *file)
     tt_fiber_suspend();
 }
 
-tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file,
-                         IN tt_u32_t whence,
-                         IN tt_s64_t offset,
-                         OUT tt_u64_t *location)
+tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file, IN tt_u32_t whence,
+                         IN tt_s64_t offset, OUT tt_u64_t *location)
 {
     __fseek_t fseek;
 
@@ -630,10 +621,8 @@ tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file,
 }
 
 // avoid calling fread and fwrite by multi thread at same time
-tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
-                         OUT tt_u8_t *buf,
-                         IN tt_u32_t buf_len,
-                         OUT tt_u32_t *read_len)
+tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file, OUT tt_u8_t *buf,
+                         IN tt_u32_t buf_len, OUT tt_u32_t *read_len)
 {
     __fread_t fread;
 
@@ -651,10 +640,8 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
     return fread.result;
 }
 
-tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
-                          IN tt_u8_t *buf,
-                          IN tt_u32_t buf_len,
-                          OUT tt_u32_t *write_len)
+tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file, IN tt_u8_t *buf,
+                          IN tt_u32_t buf_len, OUT tt_u32_t *write_len)
 {
     __fwrite_t fwrite;
 
@@ -704,8 +691,7 @@ tt_result_t tt_ftrunc_ntv(IN tt_file_ntv_t *file, IN tt_u64_t len)
     return ftrunc.result;
 }
 
-tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst,
-                         IN const tt_char_t *src,
+tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst, IN const tt_char_t *src,
                          IN tt_u32_t flag)
 {
     __fcopy_t fcopy;
@@ -738,8 +724,7 @@ tt_result_t tt_fsync_ntv(IN tt_file_ntv_t *file)
     return fsync.result;
 }
 
-tt_result_t tt_futime_ntv(IN tt_file_ntv_t *file,
-                          IN tt_date_t *accessed,
+tt_result_t tt_futime_ntv(IN tt_file_ntv_t *file, IN tt_date_t *accessed,
                           IN tt_date_t *modified)
 {
     __futime_t futime;
@@ -788,8 +773,7 @@ tt_result_t tt_dremove_ntv(IN const tt_char_t *path)
     return dremove.result;
 }
 
-tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir,
-                         IN const tt_char_t *path,
+tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir, IN const tt_char_t *path,
                          IN tt_dir_attr_t *attr)
 {
     __dopen_t dopen;
@@ -835,8 +819,7 @@ tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir, OUT tt_dirent_t *entry)
     return dread.result;
 }
 
-tt_result_t tt_dcopy_ntv(IN const tt_char_t *dst,
-                         IN const tt_char_t *src,
+tt_result_t tt_dcopy_ntv(IN const tt_char_t *dst, IN const tt_char_t *src,
                          IN tt_u32_t flag)
 {
     __dcopy_t dcopy;
@@ -918,8 +901,7 @@ tt_result_t tt_fs_symlink_ntv(IN const tt_char_t *path,
     return fs_symlink.result;
 }
 
-tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link,
-                               OUT tt_char_t *path,
+tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link, OUT tt_char_t *path,
                                IN tt_u32_t len)
 {
     __fs_readlink_t fs_readlink;
@@ -938,8 +920,7 @@ tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link,
 }
 
 tt_result_t tt_fs_realpath_ntv(IN const tt_char_t *path,
-                               OUT tt_char_t *resolved,
-                               IN tt_u32_t len)
+                               OUT tt_char_t *resolved, IN tt_u32_t len)
 {
     __fs_realpath_t fs_realpath;
 
@@ -1020,41 +1001,39 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
     // actually mode should be generated from attr
 
     switch (fopen->flag & (TT_FO_READ | TT_FO_WRITE)) {
-        case TT_FO_WRITE: {
-            flag |= O_WRONLY;
-        } break;
-        case (TT_FO_READ | TT_FO_WRITE): {
-            flag |= O_RDWR;
-        } break;
-        case TT_FO_READ: {
-            flag |= O_RDONLY;
-        } break;
+    case TT_FO_WRITE: {
+        flag |= O_WRONLY;
+    } break;
+    case (TT_FO_READ | TT_FO_WRITE): {
+        flag |= O_RDWR;
+    } break;
+    case TT_FO_READ: {
+        flag |= O_RDONLY;
+    } break;
     }
 
-    if (fopen->flag & TT_FO_APPEND) {
-        flag |= O_APPEND;
-    }
+    if (fopen->flag & TT_FO_APPEND) { flag |= O_APPEND; }
 
     switch (fopen->flag & (TT_FO_CREAT | TT_FO_EXCL | TT_FO_TRUNC)) {
-        case TT_FO_CREAT: {
-            // if exist, open it
-            // if not exist, create it
-            flag |= O_CREAT;
-        } break;
-        case TT_FO_CREAT | TT_FO_EXCL:
-        case TT_FO_CREAT | TT_FO_EXCL | TT_FO_TRUNC: {
-            // if exist, fail
-            // if not exist, create it
-            flag |= O_CREAT | O_EXCL;
-        } break;
-        case TT_FO_TRUNC:
-        case TT_FO_CREAT | TT_FO_TRUNC: {
-            // if exist, truncate it
-            // if not exist, create it
-            flag |= O_CREAT | O_TRUNC;
-        } break;
-        default: {
-        } break;
+    case TT_FO_CREAT: {
+        // if exist, open it
+        // if not exist, create it
+        flag |= O_CREAT;
+    } break;
+    case TT_FO_CREAT | TT_FO_EXCL:
+    case TT_FO_CREAT | TT_FO_EXCL | TT_FO_TRUNC: {
+        // if exist, fail
+        // if not exist, create it
+        flag |= O_CREAT | O_EXCL;
+    } break;
+    case TT_FO_TRUNC:
+    case TT_FO_CREAT | TT_FO_TRUNC: {
+        // if exist, truncate it
+        // if not exist, create it
+        flag |= O_CREAT | O_TRUNC;
+    } break;
+    default: {
+    } break;
     }
 
 again:
@@ -1100,9 +1079,7 @@ again:
     n = read(fread->file->fd, fread->buf, fread->buf_len);
     if (n > 0) {
         len += n;
-        if (len < fread->buf_len) {
-            goto again;
-        }
+        if (len < fread->buf_len) { goto again; }
         TT_SAFE_ASSIGN(fread->read_len, (tt_u32_t)len);
         fread->result = TT_SUCCESS;
     } else if (n == 0) {
@@ -1126,9 +1103,7 @@ again:
     n = write(fwrite->file->fd, fwrite->buf, fwrite->buf_len);
     if (n >= 0) {
         len += n;
-        if (len < fwrite->buf_len) {
-            goto again;
-        }
+        if (len < fwrite->buf_len) { goto again; }
         TT_SAFE_ASSIGN(fwrite->write_len, (tt_u32_t)len);
         fwrite->result = TT_SUCCESS;
     } else {
@@ -1147,16 +1122,10 @@ void __do_fseek(IN tt_io_ev_t *io_ev)
     off_t location;
 
     switch (fseek->whence) {
-        case TT_FSEEK_BEGIN:
-            whence = SEEK_SET;
-            break;
-        case TT_FSEEK_END:
-            whence = SEEK_END;
-            break;
-        case TT_FSEEK_CUR:
-        default:
-            whence = SEEK_CUR;
-            break;
+    case TT_FSEEK_BEGIN: whence = SEEK_SET; break;
+    case TT_FSEEK_END: whence = SEEK_END; break;
+    case TT_FSEEK_CUR:
+    default: whence = SEEK_CUR; break;
     }
 
     location = lseek(fseek->file->fd, offset, whence);
@@ -1317,15 +1286,15 @@ void __do_dread(IN tt_io_ev_t *io_ev)
             strncpy(dread->entry->name, entry.d_name, TT_MAX_FILE_NAME_LEN);
 
             switch (entry.d_type) {
-                case DT_DIR: {
-                    dread->entry->type = TT_FS_TYPE_DIR;
-                } break;
-                case DT_UNKNOWN: {
-                    dread->entry->type = TT_FS_TYPE_UNKNOWN;
-                } break;
-                default: {
-                    dread->entry->type = TT_FS_TYPE_FILE;
-                } break;
+            case DT_DIR: {
+                dread->entry->type = TT_FS_TYPE_DIR;
+            } break;
+            case DT_UNKNOWN: {
+                dread->entry->type = TT_FS_TYPE_UNKNOWN;
+            } break;
+            default: {
+                dread->entry->type = TT_FS_TYPE_FILE;
+            } break;
             }
 
             dread->result = TT_SUCCESS;
@@ -1371,15 +1340,11 @@ void __do_dcopy(IN tt_io_ev_t *io_ev)
 
     dcopy_ev->result = TT_FAIL;
     TT_DO_V(tt_string_create(&np, dcopy_ev->dst, NULL));
-    if (!tt_string_endwith(&np, "/")) {
-        TT_DO_V(tt_string_append_c(&np, '/'));
-    }
+    if (!tt_string_endwith(&np, "/")) { TT_DO_V(tt_string_append_c(&np, '/')); }
     np_len = tt_string_len(&np);
 
     p_len = (tt_u32_t)tt_strlen(dcopy_ev->src);
-    if (dcopy_ev->src[p_len - 1] != '/') {
-        p_len += 1;
-    }
+    if (dcopy_ev->src[p_len - 1] != '/') { p_len += 1; }
 
 retry1:
     fts = fts_open(path, FTS_NOCHDIR | FTS_NOSTAT | FTS_PHYSICAL, NULL);
@@ -1408,47 +1373,46 @@ retry1:
         }
 
         switch (ftse->fts_info) {
-            case FTS_DEFAULT:
-            case FTS_F:
-            case FTS_NSOK: {
-                // copy file
-                if (ftse->fts_pathlen > p_len) {
-                    tt_string_remove_tailfrom(&np, np_len);
-                    TT_DO_V(tt_string_append(&np, ftse->fts_path + p_len));
-                    if (!TT_OK(__copy_f(tt_string_cstr(&np),
-                                        ftse->fts_accpath,
-                                        0))) {
-                        dcopy_ev->result = TT_FAIL;
-                        goto out;
-                    }
+        case FTS_DEFAULT:
+        case FTS_F:
+        case FTS_NSOK: {
+            // copy file
+            if (ftse->fts_pathlen > p_len) {
+                tt_string_remove_tailfrom(&np, np_len);
+                TT_DO_V(tt_string_append(&np, ftse->fts_path + p_len));
+                if (!TT_OK(
+                        __copy_f(tt_string_cstr(&np), ftse->fts_accpath, 0))) {
+                    dcopy_ev->result = TT_FAIL;
+                    goto out;
                 }
-            } break;
-            case FTS_SL:
-            case FTS_SLNONE: {
-                // howto: symbolic link
-            } break;
-            case FTS_D: {
-                // create directory
-                if (ftse->fts_pathlen > p_len) {
-                    tt_string_remove_tailfrom(&np, np_len);
-                    TT_DO_V(tt_string_append(&np, ftse->fts_path + p_len));
-                    if (mkdir(tt_string_cstr(&np), 0755) != 0) {
-                        TT_ERROR_NTV("fail to create directory[%s]",
-                                     tt_string_cstr(&np));
-                        dcopy_ev->result = TT_FAIL;
-                        goto out;
-                    }
+            }
+        } break;
+        case FTS_SL:
+        case FTS_SLNONE: {
+            // howto: symbolic link
+        } break;
+        case FTS_D: {
+            // create directory
+            if (ftse->fts_pathlen > p_len) {
+                tt_string_remove_tailfrom(&np, np_len);
+                TT_DO_V(tt_string_append(&np, ftse->fts_path + p_len));
+                if (mkdir(tt_string_cstr(&np), 0755) != 0) {
+                    TT_ERROR_NTV("fail to create directory[%s]",
+                                 tt_string_cstr(&np));
+                    dcopy_ev->result = TT_FAIL;
+                    goto out;
                 }
-            } break;
-            case FTS_DP: {
-                // something to ignore
-            } break;
-            default: {
-                // something unexpected
-                TT_ERROR("expected fts info: %d", ftse->fts_info);
-                dcopy_ev->result = TT_FAIL;
-                goto out;
-            } break;
+            }
+        } break;
+        case FTS_DP: {
+            // something to ignore
+        } break;
+        default: {
+            // something unexpected
+            TT_ERROR("expected fts info: %d", ftse->fts_info);
+            dcopy_ev->result = TT_FAIL;
+            goto out;
+        } break;
         }
     }
     dcopy_ev->result = TT_SUCCESS;
@@ -1475,8 +1439,7 @@ void __do_fs_rename(IN tt_io_ev_t *io_ev)
     if (rename(fs_rename->from, fs_rename->to) == 0) {
         fs_rename->result = TT_SUCCESS;
     } else {
-        TT_ERROR_NTV("fail to rename from %s to %s",
-                     fs_rename->from,
+        TT_ERROR_NTV("fail to rename from %s to %s", fs_rename->from,
                      fs_rename->to);
         fs_rename->result = TT_FAIL;
     }
@@ -1489,8 +1452,7 @@ void __do_fs_link(IN tt_io_ev_t *io_ev)
     if (link(fs_link->path, fs_link->link) == 0) {
         fs_link->result = TT_SUCCESS;
     } else {
-        TT_ERROR_NTV("fail to link from %s to %s",
-                     fs_link->path,
+        TT_ERROR_NTV("fail to link from %s to %s", fs_link->path,
                      fs_link->link);
         fs_link->result = TT_FAIL;
     }
@@ -1503,8 +1465,7 @@ void __do_fs_symlink(IN tt_io_ev_t *io_ev)
     if (symlink(fs_symlink->path, fs_symlink->link) == 0) {
         fs_symlink->result = TT_SUCCESS;
     } else {
-        TT_ERROR_NTV("fail to symlink from %s to %s",
-                     fs_symlink->path,
+        TT_ERROR_NTV("fail to symlink from %s to %s", fs_symlink->path,
                      fs_symlink->link);
         fs_symlink->result = TT_FAIL;
     }
@@ -1570,8 +1531,7 @@ void __date2timeval(IN tt_date_t *d, IN struct timeval *tv)
     tv->tv_usec = 0;
 }
 
-tt_result_t __copy_f(IN const tt_char_t *dst,
-                     IN const tt_char_t *src,
+tt_result_t __copy_f(IN const tt_char_t *dst, IN const tt_char_t *src,
                      IN tt_u32_t flag)
 {
     int ifd, ofd, f;
@@ -1617,7 +1577,8 @@ tt_result_t __copy_f(IN const tt_char_t *dst,
             }
         } /*else if (errno == EINTR) {
             goto s_ag;
-        }*/ else {
+        }*/
+        else {
             TT_ERROR_NTV("fail to sendfile dst");
             result = TT_FAIL;
         }
@@ -1693,33 +1654,32 @@ retry1:
         }
 
         switch (ftse->fts_info) {
-            case FTS_DEFAULT:
-            case FTS_F:
-            case FTS_NSOK:
-            case FTS_SL:
-            case FTS_SLNONE: {
-                // remove file
-                if (unlink(ftse->fts_accpath) != 0) {
-                    TT_ERROR_NTV("fail to remove file[%s]", ftse->fts_accpath);
-                    goto out;
-                }
-            } break;
-            case FTS_DP: {
-                // can remove directory now
-                if (rmdir(ftse->fts_accpath) != 0) {
-                    TT_ERROR_NTV("fail to remove directory[%s]",
-                                 ftse->fts_accpath);
-                    goto out;
-                }
-            } break;
-            case FTS_D: {
-                // something to ignore
-            } break;
-            default: {
-                // something unexpected
-                TT_ERROR("expected fts info: %d", ftse->fts_info);
+        case FTS_DEFAULT:
+        case FTS_F:
+        case FTS_NSOK:
+        case FTS_SL:
+        case FTS_SLNONE: {
+            // remove file
+            if (unlink(ftse->fts_accpath) != 0) {
+                TT_ERROR_NTV("fail to remove file[%s]", ftse->fts_accpath);
                 goto out;
-            } break;
+            }
+        } break;
+        case FTS_DP: {
+            // can remove directory now
+            if (rmdir(ftse->fts_accpath) != 0) {
+                TT_ERROR_NTV("fail to remove directory[%s]", ftse->fts_accpath);
+                goto out;
+            }
+        } break;
+        case FTS_D: {
+            // something to ignore
+        } break;
+        default: {
+            // something unexpected
+            TT_ERROR("expected fts info: %d", ftse->fts_info);
+            goto out;
+        } break;
         }
     }
     result = TT_SUCCESS;
@@ -1754,13 +1714,9 @@ int __sf_unlink(const char *path)
 #undef read
 ssize_t __sf_read(int fildes, void *buf, size_t nbyte)
 {
-    if ((tt_rand_u32() % 4) == 0) {
-        return -1;
-    }
+    if ((tt_rand_u32() % 4) == 0) { return -1; }
 
-    if (nbyte > 1) {
-        nbyte = tt_rand_u32() % nbyte;
-    }
+    if (nbyte > 1) { nbyte = tt_rand_u32() % nbyte; }
     return read(fildes, buf, nbyte);
 }
 #endif
@@ -1769,13 +1725,9 @@ ssize_t __sf_read(int fildes, void *buf, size_t nbyte)
 #undef write
 ssize_t __sf_write(int fildes, const void *buf, size_t nbyte)
 {
-    if ((tt_rand_u32() % 4) == 0) {
-        return -1;
-    }
+    if ((tt_rand_u32() % 4) == 0) { return -1; }
 
-    if (nbyte > 1) {
-        nbyte = tt_rand_u32() % nbyte;
-    }
+    if (nbyte > 1) { nbyte = tt_rand_u32() % nbyte; }
     return write(fildes, buf, nbyte);
 }
 #endif
@@ -1814,8 +1766,7 @@ int __sf_mkdir(const char *path, mode_t mode)
 
 #ifdef fts_open
 #undef fts_open
-FTS *__sf_fts_open(char *const *path_argv,
-                   int options,
+FTS *__sf_fts_open(char *const *path_argv, int options,
                    int (*compar)(const FTSENT **, const FTSENT **))
 {
     if (tt_rand_u32() % 2) {

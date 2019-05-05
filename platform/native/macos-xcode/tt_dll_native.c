@@ -51,8 +51,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_dll_create_ntv(IN tt_dll_ntv_t *dll,
-                              IN const tt_char_t *path,
+tt_result_t tt_dll_create_ntv(IN tt_dll_ntv_t *dll, IN const tt_char_t *path,
                               IN OPT tt_dll_attr_t *attr)
 {
     void *handle;

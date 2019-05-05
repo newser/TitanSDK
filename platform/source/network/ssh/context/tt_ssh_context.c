@@ -63,16 +63,12 @@ tt_result_t tt_sshctx_create(IN tt_sshctx_t *sshctx, IN tt_sshctx_attr_t *attr)
 
     // key exchange
     sshctx->kex = NULL;
-    if (!TT_OK(tt_sshctx_kex_create(sshctx))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_sshctx_kex_create(sshctx))) { return TT_FAIL; }
     TT_ASSERT(sshctx->kex != NULL);
 
     // public key
     sshctx->pubk = NULL;
-    if (!TT_OK(tt_sshctx_pubk_create(sshctx))) {
-        return TT_FAIL;
-    }
+    if (!TT_OK(tt_sshctx_pubk_create(sshctx))) { return TT_FAIL; }
     TT_ASSERT(sshctx->pubk != NULL);
 
     // encryption
@@ -172,10 +168,8 @@ tt_result_t tt_sshctx_kex_setalg(IN tt_sshctx_t *sshctx,
     return tt_sshkex_setalg(sshctx->kex, alg);
 }
 
-tt_result_t tt_sshctx_kex_setks(IN tt_sshctx_t *sshctx,
-                                IN tt_u8_t *ks,
-                                IN tt_u32_t ks_len,
-                                IN tt_bool_t format)
+tt_result_t tt_sshctx_kex_setks(IN tt_sshctx_t *sshctx, IN tt_u8_t *ks,
+                                IN tt_u32_t ks_len, IN tt_bool_t format)
 {
     if (sshctx->kex == NULL) {
         TT_ERROR("sshctx has no kex");
@@ -185,8 +179,7 @@ tt_result_t tt_sshctx_kex_setks(IN tt_sshctx_t *sshctx,
     return tt_sshkex_setks(sshctx->kex, ks, ks_len, format);
 }
 
-tt_result_t tt_sshctx_kex_setks_rsa(IN tt_sshctx_t *sshctx,
-                                    IN tt_blob_t *e,
+tt_result_t tt_sshctx_kex_setks_rsa(IN tt_sshctx_t *sshctx, IN tt_blob_t *e,
                                     IN tt_blob_t *n)
 {
     if (sshctx->kex == NULL) {
@@ -197,10 +190,8 @@ tt_result_t tt_sshctx_kex_setks_rsa(IN tt_sshctx_t *sshctx,
     return tt_sshkex_setks_rsa(sshctx->kex, e, n);
 }
 
-tt_result_t tt_sshctx_kex_setvs(IN tt_sshctx_t *sshctx,
-                                IN tt_u8_t *vs,
-                                IN tt_u32_t vs_len,
-                                IN tt_bool_t format)
+tt_result_t tt_sshctx_kex_setvs(IN tt_sshctx_t *sshctx, IN tt_u8_t *vs,
+                                IN tt_u32_t vs_len, IN tt_bool_t format)
 {
     if (sshctx->kex == NULL) {
         TT_ERROR("sshctx has no kex");
@@ -210,10 +201,8 @@ tt_result_t tt_sshctx_kex_setvs(IN tt_sshctx_t *sshctx,
     return tt_sshkex_setvs(sshctx->kex, vs, vs_len, format);
 }
 
-tt_result_t tt_sshctx_kex_setvc(IN tt_sshctx_t *sshctx,
-                                IN tt_u8_t *vc,
-                                IN tt_u32_t vc_len,
-                                IN tt_bool_t format)
+tt_result_t tt_sshctx_kex_setvc(IN tt_sshctx_t *sshctx, IN tt_u8_t *vc,
+                                IN tt_u32_t vc_len, IN tt_bool_t format)
 {
     if (sshctx->kex == NULL) {
         TT_ERROR("sshctx has no kex");
@@ -223,10 +212,8 @@ tt_result_t tt_sshctx_kex_setvc(IN tt_sshctx_t *sshctx,
     return tt_sshkex_setvc(sshctx->kex, vc, vc_len, format);
 }
 
-tt_result_t tt_sshctx_kex_setis(IN tt_sshctx_t *sshctx,
-                                IN tt_u8_t *is,
-                                IN tt_u32_t is_len,
-                                IN tt_bool_t format)
+tt_result_t tt_sshctx_kex_setis(IN tt_sshctx_t *sshctx, IN tt_u8_t *is,
+                                IN tt_u32_t is_len, IN tt_bool_t format)
 {
     if (sshctx->kex == NULL) {
         TT_ERROR("sshctx has no kex");
@@ -236,10 +223,8 @@ tt_result_t tt_sshctx_kex_setis(IN tt_sshctx_t *sshctx,
     return tt_sshkex_setis(sshctx->kex, is, is_len, format);
 }
 
-tt_result_t tt_sshctx_kex_setic(IN tt_sshctx_t *sshctx,
-                                IN tt_u8_t *ic,
-                                IN tt_u32_t ic_len,
-                                IN tt_bool_t format)
+tt_result_t tt_sshctx_kex_setic(IN tt_sshctx_t *sshctx, IN tt_u8_t *ic,
+                                IN tt_u32_t ic_len, IN tt_bool_t format)
 {
     if (sshctx->kex == NULL) {
         TT_ERROR("sshctx has no kex");
@@ -282,8 +267,7 @@ tt_result_t tt_sshctx_load_session_id(IN tt_sshctx_t *sshctx)
     return tt_blob_create(&sshctx->session_id, TT_BUF_RPOS(h), TT_BUF_RLEN(h));
 }
 
-tt_result_t tt_sshctx_kexdh_compute(IN tt_sshctx_t *sshctx,
-                                    IN tt_u8_t *peerpub,
+tt_result_t tt_sshctx_kexdh_compute(IN tt_sshctx_t *sshctx, IN tt_u8_t *peerpub,
                                     IN tt_u32_t peerpub_len)
 {
     if (sshctx->kex == NULL) {
@@ -299,10 +283,8 @@ tt_result_t tt_sshctx_kexdh_compute(IN tt_sshctx_t *sshctx,
     return tt_sshkexdh_compute(&sshctx->kex->alg_u.kexdh, peerpub, peerpub_len);
 }
 
-tt_result_t tt_sshctx_kexdh_set_e(IN tt_sshctx_t *sshctx,
-                                  IN tt_u8_t *e,
-                                  IN tt_u32_t e_len,
-                                  IN tt_bool_t format)
+tt_result_t tt_sshctx_kexdh_set_e(IN tt_sshctx_t *sshctx, IN tt_u8_t *e,
+                                  IN tt_u32_t e_len, IN tt_bool_t format)
 {
     if (sshctx->kex == NULL) {
         TT_ERROR("sshctx has no kex");
@@ -332,10 +314,8 @@ tt_result_t tt_sshctx_kexdh_load_e(IN tt_sshctx_t *sshctx)
     return tt_sshkexdh_load_e(&sshctx->kex->alg_u.kexdh);
 }
 
-tt_result_t tt_sshctx_kexdh_set_f(IN tt_sshctx_t *sshctx,
-                                  IN tt_u8_t *f,
-                                  IN tt_u32_t f_len,
-                                  IN tt_bool_t format)
+tt_result_t tt_sshctx_kexdh_set_f(IN tt_sshctx_t *sshctx, IN tt_u8_t *f,
+                                  IN tt_u32_t f_len, IN tt_bool_t format)
 {
     if (sshctx->kex == NULL) {
         TT_ERROR("sshctx has no kex");
@@ -414,8 +394,7 @@ void tt_sshctx_pubk_destroy(IN tt_sshctx_t *sshctx)
 }
 
 tt_result_t tt_sshctx_pubk_setalg(IN tt_sshctx_t *sshctx,
-                                  IN tt_ssh_pubkey_alg_t alg,
-                                  IN void *key)
+                                  IN tt_ssh_pubkey_alg_t alg, IN void *key)
 {
     if (sshctx->pubk == NULL) {
         TT_ERROR("sshctx has no pubk");
@@ -426,8 +405,7 @@ tt_result_t tt_sshctx_pubk_setalg(IN tt_sshctx_t *sshctx,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_sshctx_pubk_sign(IN tt_sshctx_t *sshctx,
-                                IN tt_u8_t *data,
+tt_result_t tt_sshctx_pubk_sign(IN tt_sshctx_t *sshctx, IN tt_u8_t *data,
                                 IN tt_u32_t data_len)
 {
     if (sshctx->pubk == NULL) {
@@ -464,14 +442,14 @@ tt_result_t tt_sshctx_kdf(IN tt_sshctx_t *sshctx)
         return TT_FAIL;
     }
     switch (kex->alg) {
-        case TT_SSH_KEX_ALG_DH_G14_SHA1:
-        case TT_SSH_KEX_ALG_DH_G1_SHA1: {
-            tt_sshkdf_init(&kdf, TT_SSH_HASH_ALG_SHA1);
-        } break;
+    case TT_SSH_KEX_ALG_DH_G14_SHA1:
+    case TT_SSH_KEX_ALG_DH_G1_SHA1: {
+        tt_sshkdf_init(&kdf, TT_SSH_HASH_ALG_SHA1);
+    } break;
 
-        default: {
-            return TT_FAIL;
-        } break;
+    default: {
+        return TT_FAIL;
+    } break;
     }
 
     enc_iv_len = tt_ssh_enc_iv_len(sshctx->enc_alg);
@@ -483,74 +461,48 @@ tt_result_t tt_sshctx_kdf(IN tt_sshctx_t *sshctx)
 
     tt_buf_get_rblob(&kex->k, &k_blob);
     tt_buf_get_rblob(&kex->h, &h_blob);
-    result = tt_sshkdf_run(&kdf,
-                           &k_blob,
-                           &h_blob,
-                           &sshctx->session_id,
-                           dec_iv_len,
-                           enc_iv_len,
-                           dec_key_len,
-                           enc_key_len,
-                           verify_key_len,
-                           sign_key_len);
-    if (!TT_OK(result)) {
-        goto k_fail;
-    }
+    result = tt_sshkdf_run(&kdf, &k_blob, &h_blob, &sshctx->session_id,
+                           dec_iv_len, enc_iv_len, dec_key_len, enc_key_len,
+                           verify_key_len, sign_key_len);
+    if (!TT_OK(result)) { goto k_fail; }
 
     // enc
-    result = tt_sshctx_enc_setalg(sshctx,
-                                  sshctx->enc_alg,
-                                  TT_COND(is_server,
-                                          TT_BUF_RPOS(&kdf.iv_s2c),
+    result = tt_sshctx_enc_setalg(sshctx, sshctx->enc_alg,
+                                  TT_COND(is_server, TT_BUF_RPOS(&kdf.iv_s2c),
                                           TT_BUF_RPOS(&kdf.iv_c2s)),
                                   enc_iv_len,
-                                  TT_COND(is_server,
-                                          TT_BUF_RPOS(&kdf.enc_s2c),
+                                  TT_COND(is_server, TT_BUF_RPOS(&kdf.enc_s2c),
                                           TT_BUF_RPOS(&kdf.enc_c2s)),
                                   enc_key_len);
-    if (!TT_OK(result)) {
-        goto k_fail;
-    }
+    if (!TT_OK(result)) { goto k_fail; }
     __done |= __KDF_ENC;
 
     // dec
-    result = tt_sshctx_dec_setalg(sshctx,
-                                  sshctx->dec_alg,
-                                  TT_COND(is_server,
-                                          TT_BUF_RPOS(&kdf.iv_c2s),
+    result = tt_sshctx_dec_setalg(sshctx, sshctx->dec_alg,
+                                  TT_COND(is_server, TT_BUF_RPOS(&kdf.iv_c2s),
                                           TT_BUF_RPOS(&kdf.iv_s2c)),
                                   dec_iv_len,
-                                  TT_COND(is_server,
-                                          TT_BUF_RPOS(&kdf.enc_c2s),
+                                  TT_COND(is_server, TT_BUF_RPOS(&kdf.enc_c2s),
                                           TT_BUF_RPOS(&kdf.enc_s2c)),
                                   dec_key_len);
-    if (!TT_OK(result)) {
-        goto k_fail;
-    }
+    if (!TT_OK(result)) { goto k_fail; }
     __done |= __KDF_DEC;
 
     // sign
-    result = tt_sshctx_sign_setalg(sshctx,
-                                   sshctx->sign_alg,
-                                   TT_COND(is_server,
-                                           TT_BUF_RPOS(&kdf.mac_s2c),
+    result = tt_sshctx_sign_setalg(sshctx, sshctx->sign_alg,
+                                   TT_COND(is_server, TT_BUF_RPOS(&kdf.mac_s2c),
                                            TT_BUF_RPOS(&kdf.mac_c2s)),
                                    sign_key_len);
-    if (!TT_OK(result)) {
-        goto k_fail;
-    }
+    if (!TT_OK(result)) { goto k_fail; }
     __done |= __KDF_SIGN;
 
     // verify
-    result = tt_sshctx_verify_setalg(sshctx,
-                                     sshctx->verify_alg,
-                                     TT_COND(is_server,
-                                             TT_BUF_RPOS(&kdf.mac_c2s),
-                                             TT_BUF_RPOS(&kdf.mac_s2c)),
-                                     verify_key_len);
-    if (!TT_OK(result)) {
-        goto k_fail;
-    }
+    result =
+        tt_sshctx_verify_setalg(sshctx, sshctx->verify_alg,
+                                TT_COND(is_server, TT_BUF_RPOS(&kdf.mac_c2s),
+                                        TT_BUF_RPOS(&kdf.mac_s2c)),
+                                verify_key_len);
+    if (!TT_OK(result)) { goto k_fail; }
     __done |= __KDF_VERIFY;
 
     tt_sshkdf_destroy(&kdf);
@@ -558,21 +510,13 @@ tt_result_t tt_sshctx_kdf(IN tt_sshctx_t *sshctx)
 
 k_fail:
 
-    if (__done & __KDF_ENC) {
-        tt_sshctx_enc_destroy(sshctx);
-    }
+    if (__done & __KDF_ENC) { tt_sshctx_enc_destroy(sshctx); }
 
-    if (__done & __KDF_DEC) {
-        tt_sshctx_dec_destroy(sshctx);
-    }
+    if (__done & __KDF_DEC) { tt_sshctx_dec_destroy(sshctx); }
 
-    if (__done & __KDF_SIGN) {
-        tt_sshctx_sign_destroy(sshctx);
-    }
+    if (__done & __KDF_SIGN) { tt_sshctx_sign_destroy(sshctx); }
 
-    if (__done & __KDF_VERIFY) {
-        tt_sshctx_verify_destroy(sshctx);
-    }
+    if (__done & __KDF_VERIFY) { tt_sshctx_verify_destroy(sshctx); }
 
     tt_sshkdf_destroy(&kdf);
     return TT_FAIL;

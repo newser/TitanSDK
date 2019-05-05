@@ -47,25 +47,19 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static int __ticket_write(void *p_ticket,
-                          const mbedtls_ssl_session *session,
-                          unsigned char *start,
-                          const unsigned char *end,
-                          size_t *tlen,
-                          uint32_t *lifetime);
+static int __ticket_write(void *p_ticket, const mbedtls_ssl_session *session,
+                          unsigned char *start, const unsigned char *end,
+                          size_t *tlen, uint32_t *lifetime);
 
-static int __ticket_parse(void *p_ticket,
-                          mbedtls_ssl_session *session,
-                          unsigned char *buf,
-                          size_t len);
+static int __ticket_parse(void *p_ticket, mbedtls_ssl_session *session,
+                          unsigned char *buf, size_t len);
 
 static int __get_cache(void *data, mbedtls_ssl_session *session);
 
 static int __set_cache(void *data, const mbedtls_ssl_session *session);
 
 static mbedtls_ssl_session *__find_cache(IN tt_ssl_cache_t *cache,
-                                         IN tt_u8_t *id,
-                                         IN tt_size_t len);
+                                         IN tt_u8_t *id, IN tt_size_t len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -112,9 +106,7 @@ tt_ssl_cache_t *tt_ssl_cache_create(IN tt_ssl_config_t *sc,
 
         mbedtls_ssl_ticket_init(t);
 
-        e = mbedtls_ssl_ticket_setup(t,
-                                     tt_ctr_drbg,
-                                     tt_current_ctr_drbg(),
+        e = mbedtls_ssl_ticket_setup(t, tt_ctr_drbg, tt_current_ctr_drbg(),
                                      MBEDTLS_CIPHER_AES_256_GCM,
                                      attr->time_out);
         if (e != 0) {
@@ -124,9 +116,7 @@ tt_ssl_cache_t *tt_ssl_cache_create(IN tt_ssl_config_t *sc,
             return NULL;
         }
 
-        mbedtls_ssl_conf_session_tickets_cb(cfg,
-                                            __ticket_write,
-                                            __ticket_parse,
+        mbedtls_ssl_conf_session_tickets_cb(cfg, __ticket_write, __ticket_parse,
                                             cache);
 
         cache->mode = 1;
@@ -218,32 +208,23 @@ void tt_ssl_cache_resume(IN tt_ssl_cache_t *cache, IN tt_ssl_t *ssl)
     tt_spinlock_release(&cache->lock);
 }
 
-int __ticket_write(void *p_ticket,
-                   const mbedtls_ssl_session *session,
-                   unsigned char *start,
-                   const unsigned char *end,
-                   size_t *tlen,
+int __ticket_write(void *p_ticket, const mbedtls_ssl_session *session,
+                   unsigned char *start, const unsigned char *end, size_t *tlen,
                    uint32_t *lifetime)
 {
     tt_ssl_cache_t *cache = (tt_ssl_cache_t *)p_ticket;
     int e;
 
     tt_spinlock_acquire(&cache->lock);
-    e = mbedtls_ssl_ticket_write(&cache->t,
-                                 session,
-                                 start,
-                                 end,
-                                 tlen,
+    e = mbedtls_ssl_ticket_write(&cache->t, session, start, end, tlen,
                                  lifetime);
     tt_spinlock_release(&cache->lock);
 
     return e;
 }
 
-int __ticket_parse(void *p_ticket,
-                   mbedtls_ssl_session *session,
-                   unsigned char *buf,
-                   size_t len)
+int __ticket_parse(void *p_ticket, mbedtls_ssl_session *session,
+                   unsigned char *buf, size_t len)
 {
     tt_ssl_cache_t *cache = (tt_ssl_cache_t *)p_ticket;
     int e;

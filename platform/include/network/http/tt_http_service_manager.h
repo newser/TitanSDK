@@ -100,11 +100,9 @@ tt_export tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
                                                 IN TO tt_http_inserv_t *s,
                                                 IN OPT void *ctx);
 
-tt_export tt_result_t
-tt_http_svcmgr_add_dynamic_inserv(IN tt_http_svcmgr_t *sm,
-                                  IN TO tt_http_inserv_t *s,
-                                  IN OPT void *ctx,
-                                  IN OUT tt_bool_t *ctx_created);
+tt_export tt_result_t tt_http_svcmgr_add_dynamic_inserv(
+    IN tt_http_svcmgr_t *sm, IN TO tt_http_inserv_t *s, IN OPT void *ctx,
+    IN OUT tt_bool_t *ctx_created);
 
 tt_export tt_result_t tt_http_svcmgr_add_inserv_host(IN tt_http_svcmgr_t *sm);
 
@@ -122,67 +120,53 @@ tt_export void tt_http_svcmgr_set_encserv(IN tt_http_svcmgr_t *sm,
 // ========================================
 
 tt_export tt_http_inserv_action_t
-tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
-                      IN struct tt_http_parser_s *req,
+tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
                       OUT struct tt_http_resp_render_s *resp);
 
-tt_export tt_http_inserv_action_t
-tt_http_svcmgr_on_header(IN tt_http_svcmgr_t *sm,
-                         IN struct tt_http_parser_s *req,
-                         OUT struct tt_http_resp_render_s *resp);
+tt_export tt_http_inserv_action_t tt_http_svcmgr_on_header(
+    IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
+    OUT struct tt_http_resp_render_s *resp);
 
 tt_export tt_http_inserv_action_t
-tt_http_svcmgr_on_body(IN tt_http_svcmgr_t *sm,
-                       IN struct tt_http_parser_s *req,
+tt_http_svcmgr_on_body(IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
                        OUT struct tt_http_resp_render_s *resp);
 
-tt_export tt_http_inserv_action_t
-tt_http_svcmgr_on_trailing(IN tt_http_svcmgr_t *sm,
-                           IN struct tt_http_parser_s *req,
-                           OUT struct tt_http_resp_render_s *resp);
+tt_export tt_http_inserv_action_t tt_http_svcmgr_on_trailing(
+    IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
+    OUT struct tt_http_resp_render_s *resp);
 
-tt_export tt_http_inserv_action_t
-tt_http_svcmgr_on_complete(IN tt_http_svcmgr_t *sm,
-                           IN struct tt_http_parser_s *req,
-                           OUT struct tt_http_resp_render_s *resp);
+tt_export tt_http_inserv_action_t tt_http_svcmgr_on_complete(
+    IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
+    OUT struct tt_http_resp_render_s *resp);
 
-tt_export tt_http_inserv_action_t
-tt_http_svcmgr_get_body(IN tt_http_svcmgr_t *sm,
-                        IN struct tt_http_parser_s *req,
-                        IN struct tt_http_resp_render_s *resp,
-                        OUT struct tt_buf_s *buf);
+tt_export tt_http_inserv_action_t tt_http_svcmgr_get_body(
+    IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
+    IN struct tt_http_resp_render_s *resp, OUT struct tt_buf_s *buf);
 
 // ========================================
 // outgoing response
 // ========================================
 
-tt_export tt_result_t
-tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
-                              IN struct tt_http_parser_s *req,
-                              IN OUT struct tt_http_resp_render_s *resp);
+tt_export tt_result_t tt_http_svcmgr_on_resp_header(
+    IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
+    IN OUT struct tt_http_resp_render_s *resp);
 
 // ========================================
 // encoding response body
 // ========================================
 
-tt_export tt_result_t
-tt_http_svcmgr_pre_body(IN tt_http_svcmgr_t *sm,
-                        IN struct tt_http_parser_s *req,
-                        IN struct tt_http_resp_render_s *resp,
-                        OUT struct tt_buf_s **output);
+tt_export tt_result_t tt_http_svcmgr_pre_body(
+    IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
+    IN struct tt_http_resp_render_s *resp, OUT struct tt_buf_s **output);
 
-tt_export tt_result_t
-tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
-                            IN struct tt_http_parser_s *req,
-                            IN struct tt_http_resp_render_s *resp,
-                            IN struct tt_buf_s *input,
-                            OUT struct tt_buf_s **output);
+tt_export tt_result_t tt_http_svcmgr_on_resp_body(
+    IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
+    IN struct tt_http_resp_render_s *resp, IN struct tt_buf_s *input,
+    OUT struct tt_buf_s **output);
 
-tt_export tt_result_t
-tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
-                         IN struct tt_http_parser_s *req,
-                         IN struct tt_http_resp_render_s *resp,
-                         IN struct tt_buf_s *input,
-                         OUT struct tt_buf_s **output);
+tt_export tt_result_t tt_http_svcmgr_post_body(
+    IN tt_http_svcmgr_t *sm, IN struct tt_http_parser_s *req,
+    IN struct tt_http_resp_render_s *resp, IN struct tt_buf_s *input,
+    OUT struct tt_buf_s **output);
 
 #endif /* __TT_HTTP_SERVICE_MANAGER__ */

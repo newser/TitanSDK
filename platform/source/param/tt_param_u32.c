@@ -40,12 +40,13 @@
 
 static tt_result_t __u32_read(IN tt_param_t *p, OUT tt_buf_t *output);
 
-static tt_result_t __u32_write(IN tt_param_t *p,
-                               IN tt_u8_t *val,
+static tt_result_t __u32_write(IN tt_param_t *p, IN tt_u8_t *val,
                                IN tt_u32_t val_len);
 
 static tt_param_itf_t __u32_itf = {
-    NULL, __u32_read, __u32_write,
+    NULL,
+    __u32_read,
+    __u32_write,
 };
 
 ////////////////////////////////////////////////////////////
@@ -56,23 +57,16 @@ static tt_param_itf_t __u32_itf = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_param_t *tt_param_u32_create(IN const tt_char_t *name,
-                                IN tt_u32_t *p_val,
+tt_param_t *tt_param_u32_create(IN const tt_char_t *name, IN tt_u32_t *p_val,
                                 IN OPT tt_param_attr_t *attr,
                                 IN OPT tt_param_u32_cb_t *cb)
 {
     tt_param_t *p;
     tt_param_u32_t *pu;
 
-    p = tt_param_create(sizeof(tt_param_u32_t),
-                        TT_PARAM_U32,
-                        name,
-                        &__u32_itf,
-                        p_val,
-                        attr);
-    if (p == NULL) {
-        return NULL;
-    }
+    p = tt_param_create(sizeof(tt_param_u32_t), TT_PARAM_U32, name, &__u32_itf,
+                        p_val, attr);
+    if (p == NULL) { return NULL; }
 
     pu = TT_PARAM_CAST(p, tt_param_u32_t);
 
@@ -112,9 +106,7 @@ tt_result_t __u32_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
     tt_u8_t buf[__MAX_U32_LEN + 1] = {0};
     tt_u32_t u32_val;
 
-    if ((val_len == 0) || (val_len > __MAX_U32_LEN)) {
-        return TT_E_BADARG;
-    }
+    if ((val_len == 0) || (val_len > __MAX_U32_LEN)) { return TT_E_BADARG; }
 
     tt_memcpy(buf, val, val_len);
     if (!TT_OK(tt_strtou32((const char *)buf, NULL, 0, &u32_val))) {
@@ -127,9 +119,7 @@ tt_result_t __u32_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
 
     *((tt_u32_t *)p->opaque) = u32_val;
 
-    if (pu->cb.post_set != NULL) {
-        pu->cb.post_set(p, u32_val);
-    }
+    if (pu->cb.post_set != NULL) { pu->cb.post_set(p, u32_val); }
 
     return TT_SUCCESS;
 }

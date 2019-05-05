@@ -71,69 +71,28 @@ TT_TEST_ROUTINE_DECLARE(case_http_server_basic)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(http_svr_case)
 
-TT_TEST_CASE("case_http_rule_basic",
-             "http uri rule basic",
-             case_http_rule_basic,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_http_rule_basic", "http uri rule basic",
+             case_http_rule_basic, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_http_rule_startwith",
-                 "http uri rule: prefix",
-                 case_http_rule_startwith,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_rule_startwith", "http uri rule: prefix",
+                 case_http_rule_startwith, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_rule_auth",
-                 "http uri rule: auth",
-                 case_http_rule_auth,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_rule_auth", "http uri rule: auth",
+                 case_http_rule_auth, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_rule_index",
-                 "http uri rule: index",
-                 case_http_rule_index,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_rule_index", "http uri rule: index",
+                 case_http_rule_index, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_host",
-                 "http host",
-                 case_http_host,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_host", "http host", case_http_host, NULL, NULL,
+                 NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_hostset",
-                 "http host map",
-                 case_http_hostset,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_http_hostset", "http host map", case_http_hostset, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_http_server_basic",
-                 "http server basic",
-                 case_http_server_basic,
-                 NULL,
-                 __ut_html_spa_enter,
-                 NULL,
-                 __ut_html_spa_exit,
-                 NULL),
+    TT_TEST_CASE("case_http_server_basic", "http server basic",
+                 case_http_server_basic, NULL, __ut_html_spa_enter, NULL,
+                 __ut_html_spa_exit, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(http_svr_case)
     // =========================================
@@ -230,9 +189,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_http_rule_t *r, *child;
     tt_http_rule_itf_t i1 = {0};
-    tt_http_rule_itf_t i2 = {__hr1_destroy,
-                             __hr1_match,
-                             __rule_pre,
+    tt_http_rule_itf_t i2 = {__hr1_destroy, __hr1_match, __rule_pre,
                              __rule_post};
     tt_http_rule_result_t rret;
     tt_u32_t pos, i;
@@ -274,9 +231,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
 
     __hr1_clear();
     // go through all
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
     for (i = 0; i < 3; ++i) {
@@ -287,9 +242,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
 
     __hr1_clear();
     // the first/third match
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     __hr1_match_ret[1] = TT_FALSE;
     rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
@@ -306,9 +259,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
 
     __hr1_clear();
     // the second pre error
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     __hr1_pre_ret[1] = TT_HTTP_RULE_ERROR;
     rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
@@ -324,9 +275,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
 
     __hr1_clear();
     // the second post error
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     __hr1_post_ret[1] = TT_HTTP_RULE_ERROR;
     rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
@@ -342,9 +291,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
 
     __hr1_clear();
     // continue
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     __hr1_post_ret[1] = TT_HTTP_RULE_CONTINUE;
     rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_CONTINUE, "");
@@ -358,9 +305,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
     TT_UT_FALSE(__hr1_post_called[2], "");
 
     tt_http_rule_release(r);
-    for (i = 0; i < 3; ++i) {
-        TT_UT_TRUE(__hr1_destroyed[i], "");
-    }
+    for (i = 0; i < 3; ++i) { TT_UT_TRUE(__hr1_destroyed[i], ""); }
 
     tt_http_inserv_destroy_ctx(is, &ctx);
     tt_http_inserv_release(is);
@@ -500,9 +445,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_http_host_t *hh;
     tt_http_rule_t *child;
-    tt_http_rule_itf_t i2 = {__hr1_destroy,
-                             __hr1_match,
-                             __rule_pre,
+    tt_http_rule_itf_t i2 = {__hr1_destroy, __hr1_match, __rule_pre,
                              __rule_post};
     tt_http_rule_result_t rret;
     tt_u32_t pos, i;
@@ -545,9 +488,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
 
     __hr1_clear();
     // go through all
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     rret = tt_http_host_apply(hh, &uri, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
     for (i = 0; i < 3; ++i) {
@@ -558,9 +499,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
 
     __hr1_clear();
     // the first/third match
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     __hr1_match_ret[1] = TT_FALSE;
     rret = tt_http_host_apply(hh, &uri, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
@@ -577,9 +516,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
 
     __hr1_clear();
     // the second pre error
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     __hr1_pre_ret[1] = TT_HTTP_RULE_ERROR;
     rret = tt_http_host_apply(hh, &uri, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
@@ -595,9 +532,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
 
     __hr1_clear();
     // the second post error
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     __hr1_post_ret[1] = TT_HTTP_RULE_ERROR;
     rret = tt_http_host_apply(hh, &uri, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
@@ -613,17 +548,13 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
 
     __hr1_clear();
     // continue
-    for (i = 0; i < 3; ++i) {
-        __hr1_match_ret[i] = TT_TRUE;
-    }
+    for (i = 0; i < 3; ++i) { __hr1_match_ret[i] = TT_TRUE; }
     __hr1_post_ret[1] = TT_HTTP_RULE_CONTINUE;
     rret = tt_http_host_apply(hh, &uri, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
 
     tt_http_host_destroy(hh);
-    for (i = 0; i < 3; ++i) {
-        TT_UT_TRUE(__hr1_destroyed[i], "");
-    }
+    for (i = 0; i < 3; ++i) { TT_UT_TRUE(__hr1_destroyed[i], ""); }
 
     // match any
     {

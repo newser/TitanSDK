@@ -98,7 +98,8 @@ void tt_slab_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __slab_component_init, __slab_component_exit,
+        __slab_component_init,
+        __slab_component_exit,
     };
 
     // init component
@@ -108,8 +109,7 @@ void tt_slab_component_register()
     tt_component_register(&comp);
 }
 
-tt_result_t tt_slab_create(IN tt_slab_t *slab,
-                           IN tt_u32_t obj_size,
+tt_result_t tt_slab_create(IN tt_slab_t *slab, IN tt_u32_t obj_size,
                            IN OPT tt_slab_attr_t *attr)
 {
     tt_slab_attr_t __attr;
@@ -122,9 +122,7 @@ tt_result_t tt_slab_create(IN tt_slab_t *slab,
         tt_slab_attr_default(&__attr);
         attr = &__attr;
     }
-    if (attr->bulk_num < __MIN_BULK_NUM) {
-        attr->bulk_num = __MIN_BULK_NUM;
-    }
+    if (attr->bulk_num < __MIN_BULK_NUM) { attr->bulk_num = __MIN_BULK_NUM; }
 
     tt_dlist_init(&slab->obj_list);
     tt_dlist_init(&slab->frame_list);
@@ -132,13 +130,9 @@ tt_result_t tt_slab_create(IN tt_slab_t *slab,
     size = obj_size;
     TT_U32_ALIGN_INC_CPU(size);
     // each obj size is at least a tt_dnode_t
-    if (size < sizeof(tt_dnode_t)) {
-        size = sizeof(tt_dnode_t);
-    }
+    if (size < sizeof(tt_dnode_t)) { size = sizeof(tt_dnode_t); }
     size += tt_s_objtag_size;
-    if (attr->cache_align) {
-        TT_U32_ALIGN_INC_CACHE(size);
-    }
+    if (attr->cache_align) { TT_U32_ALIGN_INC_CACHE(size); }
     slab->obj_size = size;
 
     slab->obj_num = 0;
@@ -179,8 +173,7 @@ void tt_slab_destroy(IN tt_slab_t *slab)
 
         // either give a fatal log or an assertion
         if (frame->ref != 0) {
-            TT_FATAL("frame[%p] is still being referenced[%d]",
-                     frame,
+            TT_FATAL("frame[%p] is still being referenced[%d]", frame,
                      frame->ref);
             return;
         }
@@ -209,10 +202,9 @@ void tt_slab_attr_default(OUT tt_slab_attr_t *attr)
 void *tt_slab_alloc_tag(IN tt_slab_t *slab
 #ifdef TT_MEMORY_TAG_ENABLE
                         ,
-                        IN const tt_char_t *func,
-                        IN tt_u32_t line
+                        IN const tt_char_t *func, IN tt_u32_t line
 #endif
-                        )
+)
 {
     tt_u8_t *obj;
 
@@ -244,9 +236,7 @@ void tt_slab_free(IN void *obj)
     __slab_frame_t *frame;
     tt_slab_t *slab;
 
-    if (obj == NULL) {
-        return;
-    }
+    if (obj == NULL) { return; }
 
     frame = __OBJTAG(obj)->frame;
     --frame->ref;
@@ -304,10 +294,8 @@ tt_result_t __slab_alloc_frame(IN tt_slab_t *slab)
 
     tt_dlist_push_tail(&slab->frame_list, &frame->node);
 
-    pos = TT_PTR_INC(tt_u8_t,
-                     frame,
-                     TT_COND(slab->cache_align,
-                             tt_s_fdesc_size_aligned,
+    pos = TT_PTR_INC(tt_u8_t, frame,
+                     TT_COND(slab->cache_align, tt_s_fdesc_size_aligned,
                              tt_s_fdesc_size));
     end = TT_PTR_INC(tt_u8_t, frame, slab->frame_size);
     obj_size = slab->obj_size;
@@ -336,10 +324,8 @@ void __slab_free_frame(IN tt_slab_t *slab, IN __slab_frame_t *frame)
     tt_u8_t *pos, *end;
     tt_u32_t obj_size;
 
-    pos = TT_PTR_INC(tt_u8_t,
-                     frame,
-                     TT_COND(slab->cache_align,
-                             tt_s_fdesc_size_aligned,
+    pos = TT_PTR_INC(tt_u8_t, frame,
+                     TT_COND(slab->cache_align, tt_s_fdesc_size_aligned,
                              tt_s_fdesc_size));
     end = TT_PTR_INC(tt_u8_t, frame, slab->frame_size);
     obj_size = slab->obj_size;

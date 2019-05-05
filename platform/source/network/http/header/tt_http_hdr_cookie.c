@@ -60,8 +60,7 @@ typedef struct
 
 static void __hc_destroy(IN tt_http_hdr_t *h);
 
-static tt_result_t __hc_parse(IN tt_http_hdr_t *h,
-                              IN const tt_char_t *val,
+static tt_result_t __hc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                               IN tt_u32_t len);
 
 static tt_u32_t __hc_render_len(IN tt_http_hdr_t *h);
@@ -74,8 +73,7 @@ static tt_http_hdr_itf_t __hc_itf = {
 
 static tt_result_t __hsc_pre_parse(IN tt_http_hdr_t *h);
 
-static tt_result_t __hsc_parse(IN tt_http_hdr_t *h,
-                               IN const tt_char_t *val,
+static tt_result_t __hsc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                                IN tt_u32_t len);
 
 static tt_result_t __hsc_post_parse(IN tt_http_hdr_t *h);
@@ -85,12 +83,8 @@ static tt_u32_t __hsc_render_len(IN tt_http_hdr_t *h);
 static tt_u32_t __hsc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 static tt_http_hdr_itf_t __hsc_itf = {
-    __hc_destroy,
-    __hsc_pre_parse,
-    __hsc_parse,
-    __hsc_post_parse,
-    __hsc_render_len,
-    __hsc_render,
+    __hc_destroy,     __hsc_pre_parse,  __hsc_parse,
+    __hsc_post_parse, __hsc_render_len, __hsc_render,
 };
 
 ////////////////////////////////////////////////////////////
@@ -146,13 +140,10 @@ void __hc_destroy(IN tt_http_hdr_t *h)
         tt_http_cookie_destroy(TT_CONTAINER(node, tt_http_cookie_t, node));
     }
 
-    if (hc->cur != NULL) {
-        tt_http_cookie_destroy(hc->cur);
-    }
+    if (hc->cur != NULL) { tt_http_cookie_destroy(hc->cur); }
 }
 
-tt_result_t __hc_parse(IN tt_http_hdr_t *h,
-                       IN const tt_char_t *val,
+tt_result_t __hc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                        IN tt_u32_t len)
 {
     __hdr_cookie_t *hc = TT_HTTP_HDR_CAST(h, __hdr_cookie_t);
@@ -172,9 +163,7 @@ tt_result_t __hc_parse(IN tt_http_hdr_t *h,
         vlen = 0;
     }
 
-    if (nlen == 0) {
-        return TT_SUCCESS;
-    }
+    if (nlen == 0) { return TT_SUCCESS; }
 
     /*
      create a tt_http_cookie_t for each val of Cookie header
@@ -184,15 +173,11 @@ tt_result_t __hc_parse(IN tt_http_hdr_t *h,
      */
 
     c = tt_http_cookie_create();
-    if (c == NULL) {
-        return TT_FAIL;
-    }
+    if (c == NULL) { return TT_FAIL; }
 
     tt_blobex_set(&c->name, (tt_u8_t *)n, nlen, TT_FALSE);
 
-    if (vlen > 0) {
-        tt_blobex_set(&c->val, (tt_u8_t *)v, vlen, TT_FALSE);
-    }
+    if (vlen > 0) { tt_blobex_set(&c->val, (tt_u8_t *)v, vlen, TT_FALSE); }
 
     tt_dlist_push_tail(&hc->ck_lst, &c->node);
     return TT_SUCCESS;
@@ -231,9 +216,7 @@ tt_u32_t __hc_render_len(IN tt_http_hdr_t *h)
         }
     }
 
-    if (empty) {
-        n += 2;
-    }
+    if (empty) { n += 2; }
 
     return n;
 }
@@ -290,9 +273,7 @@ tt_u32_t __hc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
     }
 
     // "\r\n"
-    if (!empty) {
-        p -= 2;
-    }
+    if (!empty) { p -= 2; }
     *p++ = '\r';
     *p++ = '\n';
 
@@ -307,17 +288,14 @@ tt_result_t __hsc_pre_parse(IN tt_http_hdr_t *h)
         tt_http_cookie_clear(hc->cur);
     } else {
         tt_http_cookie_t *c = tt_http_cookie_create();
-        if (c == NULL) {
-            return TT_FAIL;
-        }
+        if (c == NULL) { return TT_FAIL; }
         hc->cur = c;
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t __hsc_parse(IN tt_http_hdr_t *h,
-                        IN const tt_char_t *val,
+tt_result_t __hsc_parse(IN tt_http_hdr_t *h, IN const tt_char_t *val,
                         IN tt_u32_t len)
 {
     __hdr_cookie_t *hc = TT_HTTP_HDR_CAST(h, __hdr_cookie_t);
@@ -337,9 +315,7 @@ tt_result_t __hsc_parse(IN tt_http_hdr_t *h,
         vlen = 0;
     }
 
-    if (nlen == 0) {
-        return TT_SUCCESS;
-    }
+    if (nlen == 0) { return TT_SUCCESS; }
 
     c = hc->cur;
     TT_ASSERT(c != NULL);
@@ -347,9 +323,7 @@ tt_result_t __hsc_parse(IN tt_http_hdr_t *h,
     if (tt_blobex_len(&c->name) == 0) {
         tt_blobex_set(&c->name, (tt_u8_t *)n, nlen, TT_FALSE);
 
-        if (vlen > 0) {
-            tt_blobex_set(&c->val, (tt_u8_t *)v, vlen, TT_FALSE);
-        }
+        if (vlen > 0) { tt_blobex_set(&c->val, (tt_u8_t *)v, vlen, TT_FALSE); }
     } else {
 #define __IS_CKV(name)                                                         \
     (nlen == (sizeof(name) - 1)) && (tt_strnicmp(n, name, nlen) == 0)
@@ -358,9 +332,7 @@ tt_result_t __hsc_parse(IN tt_http_hdr_t *h,
             tt_blobex_set(&c->expires, (tt_u8_t *)v, vlen, TT_FALSE);
         } else if (__IS_CKV(__CK_MAX_AGE)) {
             tt_char_t tmp[16];
-            if (vlen >= sizeof(tmp)) {
-                return TT_FAIL;
-            }
+            if (vlen >= sizeof(tmp)) { return TT_FAIL; }
             tt_memcpy(tmp, v, vlen);
             tmp[vlen] = 0;
 
@@ -426,9 +398,7 @@ tt_u32_t __hsc_render_len(IN tt_http_hdr_t *h)
         tt_u32_t nlen = tt_blobex_len(&c->name);
         tt_u32_t vlen = tt_blobex_len(&c->val);
 
-        if (nlen == 0) {
-            continue;
-        }
+        if (nlen == 0) { continue; }
         // "Set-Cookie: "
         n += tt_g_http_hname_len[h->name] + 2;
 
@@ -496,9 +466,7 @@ tt_u32_t __hsc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
         tt_u32_t nlen = tt_blobex_len(&c->name);
         tt_u32_t vlen = tt_blobex_len(&c->val);
 
-        if (nlen == 0) {
-            continue;
-        }
+        if (nlen == 0) { continue; }
 
         // "Set-Cookie: "
         n = tt_g_http_hname_len[h->name];
@@ -578,9 +546,7 @@ tt_http_hdr_t *__hdr_create(IN tt_http_hname_t name, IN tt_http_hdr_itf_t *itf)
     __hdr_cookie_t *hc;
 
     h = tt_http_hdr_create_scs(sizeof(__hdr_cookie_t), name, itf);
-    if (h == NULL) {
-        return NULL;
-    }
+    if (h == NULL) { return NULL; }
 
     hc = TT_HTTP_HDR_CAST(h, __hdr_cookie_t);
 
@@ -590,8 +556,7 @@ tt_http_hdr_t *__hdr_create(IN tt_http_hname_t name, IN tt_http_hdr_itf_t *itf)
     return h;
 }
 
-tt_http_cookie_t *__find_ck(IN tt_dlist_t *ck_lst,
-                            IN const tt_char_t *name,
+tt_http_cookie_t *__find_ck(IN tt_dlist_t *ck_lst, IN const tt_char_t *name,
                             IN tt_u32_t name_len)
 {
     tt_dnode_t *node;
@@ -670,15 +635,13 @@ tt_http_cookie_t *tt_http_cookie_head(IN tt_http_hdr_t *h)
               (h->name == TT_HTTP_HDR_SET_COOKIE));
 
     node = tt_dlist_head(&hc->ck_lst);
-    return TT_COND(node != NULL,
-                   TT_CONTAINER(node, tt_http_cookie_t, node),
+    return TT_COND(node != NULL, TT_CONTAINER(node, tt_http_cookie_t, node),
                    NULL);
 }
 
 tt_http_cookie_t *tt_http_cookie_next(IN tt_http_cookie_t *c)
 {
     tt_dnode_t *node = c->node.next;
-    return TT_COND(node != NULL,
-                   TT_CONTAINER(node, tt_http_cookie_t, node),
+    return TT_COND(node != NULL, TT_CONTAINER(node, tt_http_cookie_t, node),
                    NULL);
 }
