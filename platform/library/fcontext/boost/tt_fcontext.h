@@ -9,6 +9,10 @@
 
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void *tt_fcontext_t;
 
 typedef struct
@@ -19,8 +23,11 @@ typedef struct
 
 tt_transfer_t tt_jump_fcontext(tt_fcontext_t const to, void *vp);
 
-tt_fcontext_t tt_make_fcontext(void *sp,
-                               size_t size,
+tt_fcontext_t tt_make_fcontext(void *sp, size_t size,
                                void (*fn)(tt_transfer_t));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __TT_FCONTEXT__

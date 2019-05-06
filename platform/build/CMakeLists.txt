@@ -114,6 +114,7 @@ include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV}/include)
 
 # library: fcontext
+include_directories(${PLATFORM_PATH}/library/fcontext)
 include_directories(${PLATFORM_PATH}/library/fcontext/include)
 include_directories(${PLATFORM_PATH}/library/fcontext/boost)
 
@@ -165,6 +166,7 @@ add_group_hdr(${PLATFORM_PATH}/include/tt/io io SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/io io SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/os os SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/tt/os os SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/os os SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/memory memory SRC_FILE)

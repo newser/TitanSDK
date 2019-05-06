@@ -40,10 +40,6 @@ this file defines list data structure and related operations.
 // import header files
 ////////////////////////////////////////////////////////////
 
-extern "C" {
-#include <misc/tt_util.h>
-}
-
 #include <tt/misc/util.h>
 
 namespace tt {
@@ -70,8 +66,8 @@ public:
     lnode *next() const { return next_; };
     bool in_list() { return list_ == nullptr; }
 
-    lnode &insert_front(lnode &n);
-    lnode &insert_back(lnode &n);
+    void insert_front(lnode &n);
+    void insert_back(lnode &n);
     lnode *remove();
 
 private:
@@ -102,8 +98,8 @@ public:
 
     lnode *head() const { return head_; }
     lnode *tail() const { return tail_; }
-    list &push_head(lnode &n);
-    list &push_tail(lnode &n);
+    void push_head(lnode &n);
+    void push_tail(lnode &n);
     lnode *pop_head();
     lnode *pop_tail();
 

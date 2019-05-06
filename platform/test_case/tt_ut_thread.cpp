@@ -1,6 +1,7 @@
 /*
  * import header files
  */
+extern "C" {
 #include "tt_unit_test_case_config.h"
 #include <tt_platform.h>
 #include <unit_test/tt_unit_test.h>
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+}
 
 /*
  * local definition
@@ -213,14 +215,14 @@ tt_result_t test_thread(IN void *param)
         tt_thread_exit();
     }
 
-    return 0;
+    return TT_SUCCESS;
 }
 
 tt_result_t test_thread_sleep(IN void *param)
 {
     tt_sleep(10);
 
-    return 0;
+    return TT_SUCCESS;
 }
 
 TT_TEST_ROUTINE_DEFINE(case_thread_sleep)
@@ -357,7 +359,8 @@ TT_TEST_ROUTINE_DEFINE(case_dll)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dll_t c_dll;
     tt_result_t ret;
-    void *(*__c_memcpy)(void *dst, const void *src, size_t n);
+    typedef void *(*__c_memcpy_t)(void *dst, const void *src, size_t n);
+    __c_memcpy_t __c_memcpy;
     tt_u8_t buf1[10], buf2[10];
 
     TT_TEST_CASE_ENTER()
@@ -378,14 +381,14 @@ TT_TEST_ROUTINE_DEFINE(case_dll)
 #endif
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    __c_memcpy = tt_dll_symbol(&c_dll, "memcpy");
+    __c_memcpy = (__c_memcpy_t)tt_dll_symbol(&c_dll, "memcpy");
     TT_UT_NOT_EQUAL(__c_memcpy, NULL, "");
 
     tt_memset(buf1, 0xd0, sizeof(buf1));
     __c_memcpy(buf2, buf1, sizeof(buf1));
     TT_UT_EQUAL(tt_memcmp(buf1, buf2, sizeof(buf1)), 0, "");
 
-    __c_memcpy = tt_dll_symbol(&c_dll, "memcpy111");
+    __c_memcpy = (__c_memcpy_t)tt_dll_symbol(&c_dll, "memcpy111");
     TT_UT_EQUAL(__c_memcpy, NULL, "");
 
     tt_dll_destroy(&c_dll);
@@ -405,14 +408,14 @@ TT_TEST_ROUTINE_DEFINE(case_dll)
 #endif
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    __c_memcpy = tt_dll_symbol(&c_dll, "memcpy");
+    __c_memcpy = (__c_memcpy_t)tt_dll_symbol(&c_dll, "memcpy");
     TT_UT_NOT_EQUAL(__c_memcpy, NULL, "");
 
     tt_memset(buf1, 0xd0, sizeof(buf1));
     __c_memcpy(buf2, buf1, sizeof(buf1));
     TT_UT_EQUAL(tt_memcmp(buf1, buf2, sizeof(buf1)), 0, "");
 
-    __c_memcpy = tt_dll_symbol(&c_dll, "memcpy111");
+    __c_memcpy = (__c_memcpy_t)tt_dll_symbol(&c_dll, "memcpy111");
     TT_UT_EQUAL(__c_memcpy, NULL, "");
 
     tt_dll_destroy(&c_dll);
@@ -466,27 +469,27 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
 #endif
 
     // create a child process
-    argv[0] = "tsk_unit_test";
-    argv[1] = "process";
-    argv[2] = "proc1";
+    argv[0] = (char *)"tsk_unit_test";
+    argv[1] = (char *)"process";
+    argv[2] = (char *)"proc1";
     ret = tt_process_create(&proc, __app_file, argv, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_process_wait(&proc, TT_TRUE, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // create a child process which does not exist
-    argv[0] = "tsk_unit_test";
-    argv[1] = "process";
-    argv[2] = "proc1";
+    argv[0] = (char *)"tsk_unit_test";
+    argv[1] = (char *)"process";
+    argv[2] = (char *)"proc1";
     ret = tt_process_create(&proc, "./app_unit_test_not_exist", argv, NULL);
     // TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // ret = tt_process_wait(&proc, TT_TRUE, NULL);
     // TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     // create a child process and test nonblock wait
-    argv[0] = "tsk_unit_test";
-    argv[1] = "process";
-    argv[2] = "proc_to";
+    argv[0] = (char *)"tsk_unit_test";
+    argv[1] = (char *)"process";
+    argv[2] = (char *)"proc_to";
     ret = tt_process_create(&proc, __app_file, argv, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
@@ -502,10 +505,10 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
     } while (1);
 
     // create a child process and test receiving exit code
-    argv[0] = "tsk_unit_test";
-    argv[1] = "process";
-    argv[2] = "proc_exit";
-    argv[3] = "213";
+    argv[0] = (char *)"tsk_unit_test";
+    argv[1] = (char *)"process";
+    argv[2] = (char *)"proc_exit";
+    argv[3] = (char *)"213";
     ret = tt_process_create(&proc, __app_file, argv, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_process_wait(&proc, TT_TRUE, &ec);
@@ -513,22 +516,22 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
     TT_UT_EQUAL(ec, 213, "");
 
     // create a child process with more args
-    argv[0] = "tsk_unit_test";
-    argv[1] = "process";
-    argv[2] = "proc_args";
-    argv[3] = "3";
-    argv[4] = "4";
-    argv[5] = "5";
-    argv[6] = "6";
-    argv[7] = "7";
-    argv[8] = "8";
-    argv[9] = "9";
-    argv[10] = "a";
-    argv[11] = "b";
-    argv[12] = "c";
-    argv[13] = "d";
-    argv[14] = "e";
-    argv[15] = "f";
+    argv[0] = (char *)"tsk_unit_test";
+    argv[1] = (char *)"process";
+    argv[2] = (char *)"proc_args";
+    argv[3] = (char *)"3";
+    argv[4] = (char *)"4";
+    argv[5] = (char *)"5";
+    argv[6] = (char *)"6";
+    argv[7] = (char *)"7";
+    argv[8] = (char *)"8";
+    argv[9] = (char *)"9";
+    argv[10] = (char *)"a";
+    argv[11] = (char *)"b";
+    argv[12] = (char *)"c";
+    argv[13] = (char *)"d";
+    argv[14] = (char *)"e";
+    argv[15] = (char *)"f";
     ret = tt_process_create(&proc, __app_file, argv, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_process_wait(&proc, TT_TRUE, &ec);

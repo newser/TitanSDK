@@ -4,12 +4,12 @@
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
+ * (the "License"); you may not use this file except compliance with
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -21,10 +21,6 @@
 ////////////////////////////////////////////////////////////
 
 #include <tt/algorithm/single_linked_list.h>
-
-#include <misc/tt_assert.h>
-
-#include <utility>
 
 namespace tt {
 
@@ -63,7 +59,7 @@ size_t slist::count() const
     return count;
 }
 
-bool slist::contain(IN const snode &n) const
+bool slist::contain(const snode &n) const
 {
     snode *p = head_;
     while (p != nullptr) {
@@ -114,7 +110,7 @@ void slist::clear()
     head_ = nullptr;
 }
 
-snode *slist::remove(IN snode &n)
+snode *slist::remove(snode &n)
 {
     snode *p = head_;
     snode *next = n.next_;
@@ -128,21 +124,21 @@ snode *slist::remove(IN snode &n)
     return next;
 }
 
-snode *slist::remove(IN snode *prev, IN snode &n)
+snode *slist::remove(snode *prev, snode &n)
 {
     snode *next = n.next_;
     if (prev != nullptr) {
-        TT_ASSERT(prev->next_ == &n);
+        assert(prev->next_ == &n);
         prev->next_ = next;
     } else {
-        TT_ASSERT(head_ == &n);
+        assert(head_ == &n);
         head_ = next;
     }
     n.clear();
     return next;
 }
 
-slist &slist::move(IN slist &src)
+void slist::move(slist &src)
 {
     snode *t = tail();
     if (t != nullptr) {
@@ -151,12 +147,10 @@ slist &slist::move(IN slist &src)
         head_ = src.head_;
     }
     src.head_ = nullptr;
-
-    return *this;
 }
 
 // returns how many nodes are moved to dst
-size_t slist::move(IN slist &src, IN size_t count)
+size_t slist::move(slist &src, size_t count)
 {
     if (this == &src) { return 0; }
 
@@ -180,13 +174,6 @@ size_t slist::move(IN slist &src, IN size_t count)
     }
 
     return n;
-}
-
-slist &slist::swap(IN slist &l)
-{
-    std::swap(head_, l.head_);
-
-    return *this;
 }
 
 }

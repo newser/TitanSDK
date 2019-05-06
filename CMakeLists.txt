@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-project(TitanSDK)
+project(tt)
 
 cmake_minimum_required(VERSION 3.1.3)
 

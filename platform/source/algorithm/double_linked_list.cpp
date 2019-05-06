@@ -22,17 +22,13 @@
 
 #include <tt/algorithm/double_linked_list.h>
 
-#include <misc/tt_assert.h>
-
-#include <utility>
-
 namespace tt {
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define DL_ASSERT TT_ASSERT
+#define DL_ASSERT assert
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -75,9 +71,9 @@ bool dlist::contain(const dnode &n) const
     return false;
 }
 
-dlist &dlist::push_head(dnode &n)
+void dlist::push_head(dnode &n)
 {
-    TT_ASSERT(!n.in_list());
+    assert(!n.in_list());
     if (head_ != NULL) {
         head_->prev_ = &n;
         n.next_ = head_;
@@ -85,12 +81,11 @@ dlist &dlist::push_head(dnode &n)
         tail_ = &n;
     }
     head_ = &n;
-    return *this;
 }
 
-dlist &dlist::push_tail(dnode &n)
+void dlist::push_tail(dnode &n)
 {
-    TT_ASSERT(!n.in_list());
+    assert(!n.in_list());
     if (tail_ != NULL) {
         tail_->next_ = &n;
         n.prev_ = tail_;
@@ -98,7 +93,6 @@ dlist &dlist::push_tail(dnode &n)
         head_ = &n;
     }
     tail_ = &n;
-    return *this;
 }
 
 dnode *dlist::pop_head()
@@ -131,10 +125,10 @@ dnode *dlist::pop_tail()
     return n;
 }
 
-dlist &dlist::insert_front(dnode &pos, dnode &n)
+void dlist::insert_front(dnode &pos, dnode &n)
 {
     DL_ASSERT(contain(pos));
-    TT_ASSERT(!n.in_list());
+    assert(!n.in_list());
 
     if (pos.prev_ != NULL) {
         pos.prev_->next_ = &n;
@@ -145,14 +139,12 @@ dlist &dlist::insert_front(dnode &pos, dnode &n)
 
     n.next_ = &pos;
     pos.prev_ = &n;
-
-    return *this;
 }
 
-dlist &dlist::insert_back(dnode &pos, dnode &n)
+void dlist::insert_back(dnode &pos, dnode &n)
 {
     DL_ASSERT(contain(pos));
-    TT_ASSERT(!n.in_list());
+    assert(!n.in_list());
 
     if (pos.next_ != NULL) {
         pos.next_->prev_ = &n;
@@ -163,8 +155,6 @@ dlist &dlist::insert_back(dnode &pos, dnode &n)
 
     n.prev_ = &pos;
     pos.next_ = &n;
-
-    return *this;
 }
 
 dnode *dlist::remove(dnode &n)
@@ -190,9 +180,9 @@ dnode *dlist::remove(dnode &n)
     return next;
 }
 
-dlist &dlist::move(dlist &src)
+void dlist::move(dlist &src)
 {
-    if (src.empty()) { return *this; }
+    if (src.empty()) { return; }
 
     if (tail_ != NULL) {
         tail_->next_ = src.head_;
@@ -204,16 +194,6 @@ dlist &dlist::move(dlist &src)
 
     src.head_ = nullptr;
     src.tail_ = nullptr;
-
-    return *this;
-}
-
-dlist &dlist::swap(dlist &l)
-{
-    std::swap(head_, l.head_);
-    std::swap(tail_, l.tail_);
-
-    return *this;
 }
 
 }

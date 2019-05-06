@@ -20,11 +20,15 @@ if (PLATFORM_ENV_OS STREQUAL windows)
 elseif ((PLATFORM_ENV_OS STREQUAL macos) OR PLATFORM_IOS_SIMULATOR)
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(REL_SRC include/tt_fiber_wrapper.h
+                    tt/native/fcontext/fcontext_boost.h
+                    fcontext_boost.cpp
                     source/tt_fiber_wrapper.c
                     boost/jump_x86_64_sysv_macho_gas.S
                     boost/make_x86_64_sysv_macho_gas.S)
     else ()
         set(REL_SRC include/tt_fiber_wrapper.h
+                    tt/native/fcontext/fiber_boost.h
+                    fiber_boost.cpp
                     source/tt_fiber_wrapper.c
                     boost/jump_i386_sysv_macho_gas.S
                     boost/make_i386_sysv_macho_gas.S)

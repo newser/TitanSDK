@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/misc/rng.h>
+#include <tt/os/fiber.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -32,8 +32,6 @@
 
 namespace tt {
 
-namespace rng {
-
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -41,8 +39,6 @@ namespace rng {
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
-
-thread_local std::random_device tl_randev;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -52,6 +48,68 @@ thread_local std::random_device tl_randev;
 // interface implementation
 ////////////////////////////////////////////////////////////
 
+void fiber::internal_yield(fiber &cur, bool suspend_cur)
+{
+    fiber_mgr &fb_mgr = cur.mgr();
+    // fiber &cur = fb_mgr.current_fiber();
+
+    assert(cur.can_yield());
+
+    if (!fb_mgr.is_main(cur)) {
+        cur.remove();
+        fb_mgr.push_tail(!suspend_cur, cur);
+    }
+
+    fiber &next = fb_mgr.next();
+    if (next != cur) {
+        fb_mgr.current_fiber(next);
+        native::fctx::jump(fb_mgr, cur, next);
+        fb_mgr.current_fiber(cur);
+    }
+}
+
+void fiber::internal_resume(fiber &cur, fiber &new_fb, bool suspend_cur)
+{
+    fiber_mgr &fb_mgr = cur.mgr();
+
+    if (cur == new_fb) { return; }
+
+    if (!fb_mgr.is_main(cur)) {
+        cur.remove();
+        fb_mgr.push_tail(!suspend_cur, cur);
+    }
+
+    if (!fb_mgr.is_main(new_fb)) {
+        new_fb.remove();
+        fb_mgr.push_head(true, new_fb);
+    }
+
+    fb_mgr.current_fiber(new_fb);
+    native::fctx::jump(fb_mgr, cur, new_fb);
+    fb_mgr.current_fiber(cur);
+}
+
+fiber *fiber_mgr::find(const char *name) const
+{
+    static_assert(std::is_standard_layout<fiber>::value);
+
+    if (name[0] == 0) { return nullptr; }
+
+    for (lnode *n = active_.head(); n != nullptr; n = n->next()) {
+        if (fiber *fb = TT_CONTAINER(n, fiber, node);
+            fb->name() != nullptr && strcmp(fb->name(), name) == 0) {
+            return fb;
+        }
+    }
+
+    for (lnode *n = pending_.head(); n != nullptr; n = n->next()) {
+        if (fiber *fb = TT_CONTAINER(n, fiber, node);
+            fb->name() != nullptr && strcmp(fb->name(), name) == 0) {
+            return fb;
+        }
+    }
+
+    return nullptr;
 }
 
 }

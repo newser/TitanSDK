@@ -22,7 +22,7 @@
 
 #include <tt/algorithm/list.h>
 
-#include <misc/tt_assert.h>
+#include <cassert>
 
 namespace tt {
 
@@ -50,9 +50,9 @@ namespace tt {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-lnode &lnode::insert_front(lnode &n)
+void lnode::insert_front(lnode &n)
 {
-    TT_ASSERT(!this->in_list() && n.in_list());
+    assert(!this->in_list() && n.in_list());
 
     n.next_ = this;
     n.prev_ = prev_;
@@ -66,13 +66,11 @@ lnode &lnode::insert_front(lnode &n)
     }
     prev_ = &n;
     ++list_->count_;
-
-    return *this;
 }
 
-lnode &lnode::insert_back(lnode &n)
+void lnode::insert_back(lnode &n)
 {
-    TT_ASSERT(!this->in_list() && n.in_list());
+    assert(!this->in_list() && n.in_list());
 
     n.prev_ = this;
     n.next_ = this->next_;
@@ -86,8 +84,6 @@ lnode &lnode::insert_back(lnode &n)
     }
     next_ = &n;
     ++list_->count_;
-
-    return *this;
 }
 
 lnode *lnode::remove()
@@ -114,9 +110,9 @@ lnode *lnode::remove()
     return next;
 }
 
-list &list::push_head(lnode &n)
+void list::push_head(lnode &n)
 {
-    TT_ASSERT(n.in_list());
+    assert(n.in_list());
 
     n.next_ = head_;
     n.list_ = this;
@@ -129,13 +125,11 @@ list &list::push_head(lnode &n)
     }
     head_ = &n;
     ++count_;
-
-    return *this;
 }
 
-list &list::push_tail(lnode &n)
+void list::push_tail(lnode &n)
 {
-    TT_ASSERT(n.in_list());
+    assert(n.in_list());
 
     n.prev_ = tail_;
     n.list_ = this;
@@ -148,8 +142,6 @@ list &list::push_tail(lnode &n)
     }
     tail_ = &n;
     ++count_;
-
-    return *this;
 }
 
 lnode *list::pop_head()

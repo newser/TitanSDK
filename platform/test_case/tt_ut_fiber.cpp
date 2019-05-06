@@ -20,6 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
+extern "C" {
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
@@ -35,6 +36,13 @@
 
 // portlayer header files
 #include <tt_cstd_api.h>
+}
+
+#include <tt/log/manager.h>
+#include <tt/misc/rng.h>
+#include <tt/os/fiber.h>
+
+#include <thread>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -54,7 +62,9 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_fiber_basic)
+TT_TEST_ROUTINE_DECLARE(case_fiber_basic_cpp)
 TT_TEST_ROUTINE_DECLARE(case_fiber_3fibers)
+TT_TEST_ROUTINE_DECLARE(case_fiber_3fibers_cpp)
 TT_TEST_ROUTINE_DECLARE(case_fiber_sanity)
 TT_TEST_ROUTINE_DECLARE(case_fiber_sanity2)
 TT_TEST_ROUTINE_DECLARE(case_fiber_event)
@@ -72,8 +82,14 @@ TT_TEST_CASE("case_fiber_basic", "testing basic fiber API", case_fiber_basic,
              NULL, NULL, NULL, NULL, NULL)
 ,
 
+    TT_TEST_CASE("case_fiber_basic_cpp", "testing basic fiber API",
+                 case_fiber_basic_cpp, NULL, NULL, NULL, NULL, NULL),
+
     TT_TEST_CASE("case_fiber_3fibers", "testing basic fiber API, 3 fibers",
                  case_fiber_3fibers, NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_fiber_3fibers_cpp", "testing basic fiber API, 3 fibers",
+                 case_fiber_3fibers_cpp, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE("case_fiber_sanity", "testing fiber sanity", case_fiber_sanity,
                  NULL, NULL, NULL, NULL, NULL),
@@ -285,8 +301,123 @@ TT_TEST_ROUTINE_DEFINE(case_fiber_basic)
     TT_TEST_CASE_LEAVE()
 }
 
+static tt::err __find_name_cpp(void *p)
+{
+    if (p == (void *)&__ut_ret && tt::fiber::find("1") != nullptr &&
+        tt::fiber::find("") == nullptr && tt::fiber::find("12") == nullptr) {
+        __ut_ret = TT_SUCCESS;
+    }
+
+    return tt::err::e_ok;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_fiber_basic_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    {
+        __ut_ret = TT_FAIL;
+        tt::fiber &f1 = tt::fiber::create(__find_name_cpp, (void *)&__ut_ret);
+        f1.name("1");
+        TT_UT_TRUE(f1 == f1, "");
+        TT_UT_EQUAL(tt::fiber::find("1"), &f1, "");
+
+        tt::fiber &f2 = tt::fiber::create(__find_name_cpp, (void *)&__ut_ret);
+        TT_UT_TRUE(f1 != f2, "");
+        tt::fiber &f3 = tt::fiber::create(__find_name_cpp, (void *)&__ut_ret);
+
+        f1.resume(false);
+        f2.resume(false);
+        f3.resume(false);
+        TT_UT_EQUAL(__ut_ret, TT_SUCCESS, "");
+    }
+
+    {
+        std::thread t([]() {
+            int i = 0;
+            while (i++ < 100) { tt::fiber::yield_current(); }
+        });
+        t.join();
+    }
+
+    {
+        __ut_num = 0;
+        __ut_ret = TT_FAIL;
+
+        std::thread t([]() {
+            tt::fiber &f1 = tt::fiber::create([]() -> tt::err {
+                tt::fiber &fm = tt::fiber_mgr::current().main();
+
+                while (__ut_num < 100) {
+                    ++__ut_num;
+                    tt::fiber::resume_to(fm, true);
+                }
+                return tt::err::e_ok;
+            });
+            f1.resume(false);
+
+            uint32_t last_num = __ut_num;
+            while (__ut_num < 100) {
+                f1.resume(false);
+
+                if (__ut_num != (last_num + 1)) {
+                    __ut_ret = TT_FAIL;
+                    __err_line = __LINE__;
+                    return TT_FAIL;
+                }
+                last_num = __ut_num;
+            }
+            __ut_ret = TT_SUCCESS;
+
+            return TT_SUCCESS;
+        });
+        t.join();
+        TT_UT_SUCCESS(__ut_ret, "");
+    }
+
+    {
+        __ut_num = 0;
+        __ut_ret = TT_FAIL;
+
+        std::thread t([]() {
+            tt::fiber &f1 = tt::fiber::create([]() -> tt::err {
+                while (__ut_num < 100) {
+                    ++__ut_num;
+                    tt::fiber::suspend_current();
+                }
+                return tt::err::e_ok;
+            });
+            f1.resume(false);
+
+            uint32_t last_num = __ut_num;
+            while (__ut_num < 100) {
+                f1.resume(false);
+
+                if (__ut_num != (last_num + 1)) {
+                    __ut_ret = TT_FAIL;
+                    __err_line = __LINE__;
+                    return TT_FAIL;
+                }
+                last_num = __ut_num;
+            }
+            __ut_ret = TT_SUCCESS;
+
+            return TT_SUCCESS;
+        });
+        t.join();
+        TT_UT_SUCCESS(__ut_ret, "");
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
 #define FIBER_NUM 3
 static tt_fiber_t *__fb_ar[FIBER_NUM];
+static tt::fiber *__fb_ar_cpp[FIBER_NUM];
 
 static tt_u32_t __ques[FIBER_NUM], __ans[FIBER_NUM], __waiting[FIBER_NUM];
 
@@ -437,6 +568,62 @@ TT_TEST_ROUTINE_DEFINE(case_fiber_3fibers)
     tt_thread_wait(t);
 
     TT_UT_EQUAL(__ut_ret, TT_SUCCESS, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_fiber_3fibers_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    {
+        __ut_ret = TT_FAIL;
+        __err_line = 0;
+
+        std::thread t([]() {
+            int num = 0;
+
+            for (int i = 0; i < FIBER_NUM; ++i) {
+                __fb_ar_cpp[i] = &tt::fiber::create(
+                    [](void *param) -> tt::err {
+                        int idx = (int)(uintptr_t)param;
+                        tt::fiber_mgr &fm = tt::fiber_mgr::current();
+
+                        tt::log::info("entered fiber[%d]", idx);
+                        while (1) {
+                            int i = tt::rng::next() % (FIBER_NUM + 1);
+                            TT_INFO("fiber[%d] => [%d]", idx, i);
+                            if (i == FIBER_NUM) {
+                                fm.main().resume(true);
+                            } else {
+                                __fb_ar_cpp[i]->resume(false);
+                            }
+                            tt::log::info("fiber[%d]", idx);
+                        }
+
+                        return tt::err::e_ok;
+                    },
+                    (void *)(uintptr_t)i);
+            }
+            __fb_ar_cpp[0]->resume(true);
+
+            while (num++ < 100) {
+                tt_u32_t idx = tt::rng::next() % FIBER_NUM;
+                __fb_ar_cpp[idx]->resume(true);
+                TT_INFO("main num: %d", num);
+            }
+            __ut_ret = TT_SUCCESS;
+
+            return TT_SUCCESS;
+        });
+        t.join();
+
+        TT_UT_EQUAL(__ut_ret, TT_SUCCESS, "");
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()

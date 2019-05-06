@@ -37,12 +37,10 @@ this file defines apis of simple sl data structure.
 // import header files
 ////////////////////////////////////////////////////////////
 
-extern "C" {
-#include <misc/tt_assert.h>
-#include <misc/tt_util.h>
-}
-
 #include <tt/misc/util.h>
+
+#include <cassert>
+#include <utility>
 
 namespace tt {
 
@@ -87,13 +85,12 @@ public:
     snode *head() const { return head_; }
     snode *tail() const;
 
-    slist &push_head(snode &n)
+    void push_head(snode &n)
     {
         n.next_ = head_;
         head_ = &n;
-        return *this;
     }
-    slist &push_tail(snode &n)
+    void push_tail(snode &n)
     {
         snode *t = tail();
         if (t != NULL) {
@@ -101,7 +98,6 @@ public:
         } else {
             head_ = &n;
         }
-        return *this;
     }
 
     snode *pop_head()
@@ -117,20 +113,19 @@ public:
 
     void clear();
 
-    slist &insert_back(snode &pos, snode &n)
+    void insert_back(snode &pos, snode &n)
     {
-        TT_ASSERT(n.next_ == nullptr);
+        assert(n.next_ == nullptr);
         n.next_ = pos.next_;
         pos.next_ = &n;
-        return *this;
     }
 
     snode *remove(snode &n);
     snode *remove(snode *prev, snode &n);
 
-    slist &move(slist &src);
+    void move(slist &src);
     size_t move(slist &src, size_t count);
-    slist &swap(slist &l);
+    void swap(slist &l) { std::swap(head_, l.head_); }
 
 private:
     snode *head_{nullptr};

@@ -51,7 +51,7 @@ namespace rng {
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export thread_local std::random_device g_randev;
+tt_export thread_local std::random_device tl_randev;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -65,8 +65,8 @@ public:
     xorshift()
     {
         static_assert(sizeof(std::random_device::result_type) == 4);
-        s_[0] = (g_randev() << 4) | g_randev();
-        s_[1] = (g_randev() << 4) | g_randev();
+        s_[0] = (tl_randev() << 4) | tl_randev();
+        s_[1] = (tl_randev() << 4) | tl_randev();
     }
 
     uint64_t operator()()

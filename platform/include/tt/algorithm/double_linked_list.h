@@ -38,11 +38,10 @@ this file defines apis of doulbe linked dl data structure.
 // import header files
 ////////////////////////////////////////////////////////////
 
-extern "C" {
-#include <misc/tt_util.h>
-}
-
 #include <tt/misc/util.h>
+
+#include <cassert>
+#include <utility>
 
 namespace tt {
 
@@ -94,8 +93,8 @@ public:
 
     dnode *head() const { return head_; }
     dnode *tail() const { return tail_; }
-    dlist &push_head(dnode &n);
-    dlist &push_tail(dnode &n);
+    void push_head(dnode &n);
+    void push_tail(dnode &n);
     dnode *pop_head();
     dnode *pop_tail();
 
@@ -105,12 +104,16 @@ public:
             ;
     }
 
-    dlist &insert_front(dnode &pos, dnode &n);
-    dlist &insert_back(dnode &pos, dnode &n);
+    void insert_front(dnode &pos, dnode &n);
+    void insert_back(dnode &pos, dnode &n);
     dnode *remove(dnode &n);
 
-    dlist &move(dlist &src);
-    dlist &swap(dlist &l);
+    void move(dlist &src);
+    void swap(dlist &l)
+    {
+        std::swap(head_, l.head_);
+        std::swap(tail_, l.tail_);
+    }
 
 private:
     dnode *head_{nullptr};

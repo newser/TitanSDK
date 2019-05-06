@@ -29,10 +29,6 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-extern "C" {
-#include <misc/tt_util.h>
-}
-
 #include <tt/misc/util.h>
 
 namespace tt {

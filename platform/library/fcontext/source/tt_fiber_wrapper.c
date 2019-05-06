@@ -129,7 +129,7 @@ void __fiber_routine_wrapper(IN tt_transfer_t t)
     //  f3 -> f1
     //  f1 -> main ; f1 termiantes
     //  main -> f2
-    //  f2 -> ? ; f2 terminates now, but t.fctx is invalid
+    //  f2 -> ? ; f2 termina；tes now, but t.fctx is invalid
     //
     // the simplest solution is jumping to main fiber as it's
     // always valid
