@@ -46,11 +46,7 @@ this file define all basic types
 // type definition
 ////////////////////////////////////////////////////////////
 
-namespace tt {
-
-namespace log {
-
-namespace placeholder {
+namespace tt::log::placeholder {
 
 class base
 {
@@ -180,10 +176,6 @@ private:
 ////////////////////////////////////////////////////////////
 
 tt_export base *parse(const char *p, size_t len);
-
-}
-
-}
 
 }
 

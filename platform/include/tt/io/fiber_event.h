@@ -17,23 +17,23 @@
  */
 
 /**
-@file util_native.h
-@brief all basic type definitions
+@file fiber_event.h
+@brief log def
 
 this file define all basic types
 
 */
 
-#ifndef __TT_UTIL_NATIVE_CPP__
-#define __TT_UTIL_NATIVE_CPP__
+#ifndef __TT_IO_FIBER_EVENT_CPP__
+#define __TT_IO_FIBER_EVENT_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-namespace tt {
+#include <tt/io/event.h>
 
-namespace native {
+#include <tt/native/poller.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -43,6 +43,60 @@ namespace native {
 // type definition
 ////////////////////////////////////////////////////////////
 
+namespace tt {
+
+class fiber_ev: public io::ev
+{
+public:
+    fiber_ev(uint32_t id): io::ev(io::e_fiber, id)
+    {
+        src_fiber(&fiber::current());
+    }
+
+    fiber_ev(uint32_t id, fiber &src): io::ev(io::e_fiber, id)
+    {
+        src_fiber(&src);
+    }
+
+    std::pair<bool, bool> handle(native::poller &p) override
+    {
+        // by destination poller
+        fiber &dst = *dst_fiber();
+        dst.push_ev(*this);
+        if (dst.recving()) {
+            assert(dst.mgr().current_is_main());
+            dst.resume_cautious(dst.mgr().main(), false);
+        }
+        return std::make_pair(false, false);
+    }
+
+    void to(fiber &dst, bool wait)
+    {
+        fiber &src = *src_fiber();
+        assert(&src.mgr().current_fiber() == &src);
+        if (&src.mgr() == &dst.mgr()) {
+            dst.push_ev(*this);
+            if (dst.recving()) {
+                dst.resume_cautious(src, wait);
+            } else if (wait) {
+                src.suspend();
+            }
+        } else {
+            // cross thread fiber event, be sure dst.poller()
+            // is active
+            dst_fiber(&dst);
+            dst.poller()->recv(*this);
+            if (wait) { dst.suspend(); }
+        }
+    }
+
+    fiber *dst_fiber() { return dst_fiber_; }
+    void dst_fiber(fiber *f) { dst_fiber_ = f; }
+
+private:
+    fiber *dst_fiber_{nullptr};
+};
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -51,24 +105,6 @@ namespace native {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-template<typename T>
-T bswap(T val)
-{
-    static_assert((sizeof(T) == 1) || (sizeof(T) == 2) || (sizeof(T) == 4) ||
-                  (sizeof(T) == 8));
-    if constexpr (sizeof(T) == 1) {
-        return val;
-    } else if constexpr (sizeof(T) == 2) {
-        return __builtin_bswap16(val);
-    } else if constexpr (sizeof(T) == 4) {
-        return __builtin_bswap32(val);
-    } else {
-        return __builtin_bswap64(val);
-    }
 }
 
-}
-
-}
-
-#endif /* __TT_UTIL_NATIVE_CPP__ */
+#endif /* __TT_IO_FIBER_EVENT_CPP__ */

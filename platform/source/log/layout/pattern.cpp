@@ -30,9 +30,7 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-namespace tt {
-
-namespace log {
+namespace tt::log {
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -162,8 +160,6 @@ void pattern::render(const entry &e, OUT buf &b) const
         }
     }
     b.write(prev_pos, pos - prev_pos);
-}
-
 }
 
 }

@@ -34,8 +34,7 @@ extern "C" {
 #include <memory/tt_memory_alloc.h>
 }
 
-#include <tt/misc/throw.h>
-#include <tt/misc/util.h>
+#include <tt/misc/macro.h>
 
 #include <string.h>
 

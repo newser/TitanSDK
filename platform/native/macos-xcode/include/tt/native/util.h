@@ -17,22 +17,21 @@
  */
 
 /**
-@file err.h
+@file util.h
 @brief all basic type definitions
 
 this file define all basic types
 
 */
 
-#ifndef __TT_ERROR_CPP__
-#define __TT_ERROR_CPP__
+#ifndef __TT_NATIVE_UTIL_CPP__
+#define __TT_NATIVE_UTIL_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <cstdint>
+namespace tt::native {
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,31 +41,6 @@ this file define all basic types
 // type definition
 ////////////////////////////////////////////////////////////
 
-namespace tt {
-
-class err
-{
-public:
-    enum code
-    {
-        e_ok = 0,
-        e_fail,
-        e_timeout,
-        e_end,
-
-        err_num
-    };
-
-    err(code e): code_(e) { assert(code_ < err_num); }
-
-    enum code code() const { return (enum code)code_; }
-
-    operator bool() const { return code_ == 0; }
-
-private:
-    uint32_t code_ = e_ok;
-};
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -75,6 +49,22 @@ private:
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+template<typename T>
+T bswap(T val)
+{
+    static_assert((sizeof(T) == 1) || (sizeof(T) == 2) || (sizeof(T) == 4) ||
+                  (sizeof(T) == 8));
+    if constexpr (sizeof(T) == 1) {
+        return val;
+    } else if constexpr (sizeof(T) == 2) {
+        return __builtin_bswap16(val);
+    } else if constexpr (sizeof(T) == 4) {
+        return __builtin_bswap32(val);
+    } else {
+        return __builtin_bswap64(val);
+    }
 }
 
-#endif /* __TT_ERROR_CPP__ */
+}
+
+#endif /* __TT_NATIVE_UTIL_CPP__ */

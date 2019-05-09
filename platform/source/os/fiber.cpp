@@ -48,10 +48,9 @@ namespace tt {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void fiber::internal_yield(fiber &cur, bool suspend_cur)
+void fiber::do_yield(fiber &cur, bool suspend_cur)
 {
     fiber_mgr &fb_mgr = cur.mgr();
-    // fiber &cur = fb_mgr.current_fiber();
 
     assert(cur.can_yield());
 
@@ -68,7 +67,7 @@ void fiber::internal_yield(fiber &cur, bool suspend_cur)
     }
 }
 
-void fiber::internal_resume(fiber &cur, fiber &new_fb, bool suspend_cur)
+void fiber::do_resume(fiber &cur, fiber &new_fb, bool suspend_cur)
 {
     fiber_mgr &fb_mgr = cur.mgr();
 

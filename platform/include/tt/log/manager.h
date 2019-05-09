@@ -46,9 +46,7 @@ this file define all basic types
 // type definition
 ////////////////////////////////////////////////////////////
 
-namespace tt {
-
-namespace log {
+namespace tt::log {
 
 class mgr
 {
@@ -161,12 +159,12 @@ public:
 
     const char *logger() const
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         return logger_;
     }
     void logger(const char *logger)
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         logger_ = logger;
     }
 
@@ -178,19 +176,19 @@ public:
 
     void layout(enum level lv, std::shared_ptr<i_layout> &layout)
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         assert((lv < log::level_num));
         ctx_[lv].layout(std::forward<std::shared_ptr<i_layout>>(layout));
     }
     void layout(enum level lv, std::shared_ptr<i_layout> &&layout)
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         assert((lv < log::level_num));
         ctx_[lv].layout(std::forward<std::shared_ptr<i_layout>>(layout));
     }
     void layout(std::shared_ptr<i_layout> &layout)
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         ctx_[e_debug].layout(std::forward<std::shared_ptr<i_layout>>(layout));
         ctx_[e_info].layout(std::forward<std::shared_ptr<i_layout>>(layout));
         ctx_[e_warn].layout(std::forward<std::shared_ptr<i_layout>>(layout));
@@ -199,7 +197,7 @@ public:
     }
     void layout(std::shared_ptr<i_layout> &&layout)
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         ctx_[e_debug].layout(std::forward<std::shared_ptr<i_layout>>(layout));
         ctx_[e_info].layout(std::forward<std::shared_ptr<i_layout>>(layout));
         ctx_[e_warn].layout(std::forward<std::shared_ptr<i_layout>>(layout));
@@ -209,19 +207,19 @@ public:
 
     void append_io(enum level lv, std::shared_ptr<log::i_io> &io)
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         assert((lv < log::level_num));
         ctx_[lv].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
     }
     void append_io(enum level lv, std::shared_ptr<log::i_io> &&io)
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         assert((lv < log::level_num));
         ctx_[lv].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
     }
     void append_io(std::shared_ptr<log::i_io> &io)
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         ctx_[e_debug].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
         ctx_[e_info].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
         ctx_[e_warn].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
@@ -230,7 +228,7 @@ public:
     }
     void append_io(std::shared_ptr<log::i_io> &&io)
     {
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         ctx_[e_debug].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
         ctx_[e_info].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
         ctx_[e_warn].append_io(std::forward<std::shared_ptr<log::i_io>>(io));
@@ -255,7 +253,7 @@ private:
         e.line = line;
         e.level = lv;
 
-        std::lock_guard<std::mutex> lk(lock_);
+        std::scoped_lock<std::mutex> lk(lock_);
         ctx_[lv].write(e);
     }
 
@@ -379,8 +377,6 @@ inline void fatal(const char *format, ...)
     va_start(ap, format);
     g_log_mgr->fatal_v(nullptr, 0, format, ap);
     va_end(ap);
-}
-
 }
 
 }

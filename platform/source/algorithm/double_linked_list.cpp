@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/algorithm/double_linked_list.h>
+#include <tt/container/double_linked_list.h>
 
 namespace tt {
 

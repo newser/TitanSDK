@@ -17,37 +17,63 @@
  */
 
 /**
-@file endian.h
+@file macro.h
 @brief all basic type definitions
 
 this file define all basic types
 
 */
 
-#ifndef __TT_ENDIAN_NATIVE_CPP__
-#define __TT_ENDIAN_NATIVE_CPP__
+#ifndef __TT_MISC_MACRO_CPP__
+#define __TT_MISC_MACRO_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <stdexcept>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define TT_BIG_ENDIAN
-#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#define TT_LITTLE_ENDIAN
-#endif
+#define TT_ENABLE_IF(e) , typename std::enable_if<e, int>::type = 0
+
+#define TT_NO_COPY_CTOR(class_name) class_name(const class_name &) = delete;
+
+#define TT_NO_OP_EQ(class_name)                                                \
+    class_name &operator=(const class_name &) = delete;
+
+#define TT_NON_COPYABLE(class_name)                                            \
+    TT_NO_COPY_CTOR(class_name)                                                \
+    TT_NO_OP_EQ(class_name)
+
+// ========================================
+// throw
+// ========================================
+
+#define TT_EXCEPTION_IF_0(etype, e)                                            \
+    do {                                                                       \
+        if (e) { throw etype(); }                                              \
+    } while (0)
+
+#define TT_EXCEPTION_IF_1(etype, e, info)                                      \
+    do {                                                                       \
+        if (e) { throw etype(info); }                                          \
+    } while (0)
+
+#define TT_INVALID_ARG_IF(e, info)                                             \
+    TT_EXCEPTION_IF_1(std::invalid_argument, e, info)
+
+#define TT_OVERFLOW_IF(e, info) TT_EXCEPTION_IF_1(std::overflow_error, e, info)
+
+#define TT_BAD_CALL_IF(e) TT_EXCEPTION_IF_0(std::bad_function_call, e)
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
 namespace tt {
-
-namespace native {
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -59,6 +85,4 @@ namespace native {
 
 }
 
-}
-
-#endif /* __TT_ENDIAN_NATIVE_CPP__ */
+#endif /* __TT_MISC_MACRO_CPP__ */

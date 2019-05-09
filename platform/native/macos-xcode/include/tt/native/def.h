@@ -17,42 +17,25 @@
  */
 
 /**
-@file throw.h
+@file def.h
 @brief all basic type definitions
 
 this file define all basic types
 
 */
 
-#ifndef __TT_THROW_CPP__
-#define __TT_THROW_CPP__
+#ifndef __TT_NATIVE_DEF_CPP__
+#define __TT_NATIVE_DEF_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <stdexcept>
+namespace tt::native {
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_EXCEPTION_IF_0(etype, e)                                            \
-    do {                                                                       \
-        if (e) { throw etype(); }                                              \
-    } while (0)
-
-#define TT_EXCEPTION_IF_1(etype, e, info)                                      \
-    do {                                                                       \
-        if (e) { throw etype(info); }                                          \
-    } while (0)
-
-#define TT_INVALID_ARG_IF(e, info)                                             \
-    TT_EXCEPTION_IF_1(std::invalid_argument, e, info)
-
-#define TT_OVERFLOW_IF(e, info) TT_EXCEPTION_IF_1(std::overflow_error, e, info)
-
-#define TT_BAD_CALL_IF(e) TT_EXCEPTION_IF_0(std::bad_function_call, e)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -66,4 +49,6 @@ this file define all basic types
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_THROW_CPP__ */
+}
+
+#endif /* __TT_NATIVE_DEF_CPP__ */

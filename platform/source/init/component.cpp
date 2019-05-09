@@ -67,7 +67,7 @@ bool component_mgr::start(void *reserved)
         for (; i >= 0; --i) { components_[i]->stop(); }
     });
 
-    for (; i < component::cid_num; ++i) {
+    for (; i < component::id_num; ++i) {
         if (!components_[i]->start()) { return false; }
     }
     _1.dismiss();
@@ -77,7 +77,7 @@ bool component_mgr::start(void *reserved)
 
 void component_mgr::stop()
 {
-    for (int i = 0; i < component::cid_num; ++i) { components_[i]->stop(); }
+    for (int i = 0; i < component::id_num; ++i) { components_[i]->stop(); }
 }
 
 }

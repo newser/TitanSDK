@@ -30,11 +30,7 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-namespace tt {
-
-namespace log {
-
-namespace placeholder {
+namespace tt::log::placeholder {
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -96,10 +92,6 @@ base *parse(const char *p, size_t len)
     } else {
         return nullptr;
     }
-}
-
-}
-
 }
 
 }

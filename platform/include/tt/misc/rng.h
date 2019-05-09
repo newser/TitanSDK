@@ -43,15 +43,11 @@ extern "C" {
 // type definition
 ////////////////////////////////////////////////////////////
 
-namespace tt {
-
-namespace rng {
+namespace tt::rng {
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
-
-tt_export thread_local std::random_device tl_randev;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -65,8 +61,10 @@ public:
     xorshift()
     {
         static_assert(sizeof(std::random_device::result_type) == 4);
-        s_[0] = (tl_randev() << 4) | tl_randev();
-        s_[1] = (tl_randev() << 4) | tl_randev();
+
+        thread_local std::random_device rd;
+        s_[0] = (rd() << 4) | rd();
+        s_[1] = (rd() << 4) | rd();
     }
 
     uint64_t operator()()
@@ -86,14 +84,14 @@ private:
 template<typename T>
 T &engine()
 {
-    thread_local static T s_engine(std::random_device{}());
+    thread_local T s_engine(std::random_device{}());
     return s_engine;
 }
 
 template<>
 inline xorshift &engine<xorshift>()
 {
-    thread_local static xorshift s_engine;
+    thread_local xorshift s_engine;
     return s_engine;
 }
 
@@ -103,8 +101,6 @@ V next()
 {
     T &e = engine<T>();
     return e();
-}
-
 }
 
 }

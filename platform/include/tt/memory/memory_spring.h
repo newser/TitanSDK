@@ -30,8 +30,7 @@ APIs to extend/compress memory
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/misc/throw.h>
-#include <tt/misc/util.h>
+#include <tt/misc/macro.h>
 
 #include <cassert>
 #include <string.h>

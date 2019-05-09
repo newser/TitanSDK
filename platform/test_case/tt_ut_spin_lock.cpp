@@ -20,6 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
+extern "C" {
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
@@ -33,6 +34,14 @@
 #include <tt_cstd_api.h>
 
 #include <time.h>
+}
+
+#include <tt/container/list.h>
+#include <tt/io/poller.h>
+#include <tt/misc/rng.h>
+#include <tt/os/spinlock.h>
+
+#include <thread>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -54,6 +63,7 @@
 TT_TEST_ROUTINE_DECLARE(case_spin_lock_basic_mp)
 TT_TEST_ROUTINE_DECLARE(case_spin_lock_basic_sp)
 TT_TEST_ROUTINE_DECLARE(case_spin_lock_mt)
+TT_TEST_ROUTINE_DECLARE(case_spin_lock_mt_cpp)
 // =========================================
 
 // === test case list ======================
@@ -69,6 +79,10 @@ TT_TEST_CASE("case_spin_lock_basic_mp", "testing basic spin lock API for smp",
 
     TT_TEST_CASE("case_spin_lock_mt", "testing spin lock API in multithread",
                  case_spin_lock_mt, NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_spin_lock_mt_cpp",
+                 "testing spin lock API in multithread", case_spin_lock_mt_cpp,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(spin_lock_case)
     // =========================================
@@ -194,7 +208,7 @@ static int cnt;
 #ifdef __UT_LITE__
 #define __ACT_NUM 100
 #else
-#define __ACT_NUM 10000
+#define __ACT_NUM 5000
 #endif
 unsigned char act[sizeof(test_threads) / sizeof(tt_thread_t *)][__ACT_NUM];
 
@@ -309,6 +323,79 @@ TT_TEST_ROUTINE_DEFINE(case_spin_lock_mt)
 
     // restore cpu number
     //*((tt_u32_t*)&tt_g_cpu_num) = real_cpu_num;
+
+    TT_UT_EQUAL(cnt, exp_cnt, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt::list __test_list_cpp;
+
+TT_TEST_ROUTINE_DEFINE(case_spin_lock_mt_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_ptrdiff_t i;
+    int j;
+    int exp_cnt;
+
+    tt_s64_t start_time, end_time;
+
+    // tt_u32_t real_cpu_num = tt_g_cpu_num;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt::spinlock l;
+    cnt = 0;
+
+    std::thread *pd[10];
+
+    exp_cnt = (sizeof(pd) / sizeof(pd[0])) * __ACT_NUM;
+
+    start_time = tt_time_ref();
+    for (i = 0; i < sizeof(pd) / sizeof(pd[0]); ++i) {
+        pd[i] = new std::thread(
+            [&l](int idx) {
+                int i = 0;
+                // unsigned char *thread_act = act[idx];
+
+                tt::lnode thread_node;
+
+                // TT_ASSERT(thread == test_threads[idx]);
+
+                for (i = 0; i < __ACT_NUM; ++i) {
+                    int k = 0, k_end = /*thread_act[i]*/ 5 * 1000;
+
+                    std::scoped_lock<tt::spinlock> g(l);
+                    ++cnt;
+
+                    if (thread_node.in_list()) {
+                        thread_node.remove();
+                    } else {
+                        __test_list_cpp.push_head(thread_node);
+                    }
+
+                    // simulating processing
+                    while (k++ < k_end)
+                        ;
+                }
+
+                std::scoped_lock<tt::spinlock> g(l);
+                if (thread_node.in_list()) { thread_node.remove(); }
+
+                return TT_SUCCESS;
+            },
+            i);
+    }
+
+    for (i = 0; i < sizeof(pd) / sizeof(pd[0]); ++i) {
+        pd[i]->join();
+        delete pd[i];
+    }
+    end_time = tt_time_ref();
+    TT_INFO("time consumed: %d ms, %d, %d",
+            (tt_u32_t)tt_time_ref2ms(end_time - start_time), cnt, exp_cnt);
 
     TT_UT_EQUAL(cnt, exp_cnt, "");
 

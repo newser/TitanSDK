@@ -35,7 +35,7 @@ extern "C" {
 #include <misc/tt_util.h>
 }
 
-#include <tt/algorithm/list.h>
+#include <tt/container/list.h>
 #include <tt/misc/error.h>
 #include <tt/native/fcontext/fcontext_boost.h>
 
@@ -54,6 +54,14 @@ extern "C" {
 
 namespace tt {
 
+namespace native {
+class poller;
+}
+
+namespace io {
+class ev;
+}
+
 class fiber_mgr;
 
 class fiber
@@ -66,14 +74,19 @@ public:
     template<typename R, typename... P>
     static fiber &create(R &&routine, P &&... params);
 
+    static fiber &current();
+
     static void yield_current();
     static void suspend_current();
     static void resume_to(fiber &new_fb, bool suspend_current);
     static fiber *find(const char *name);
 
-    void yield() { internal_yield(*this, false); }
-    void suspend() { internal_yield(*this, true); }
+    void yield() { do_yield(*this, false); }
+    void suspend() { do_yield(*this, true); }
     void resume(bool suspend_current) { resume_to(*this, suspend_current); }
+
+    // current_fb must be current fb
+    void resume_cautious(fiber &current_fb, bool suspend_current);
 
     void remove() { node.remove(); }
 
@@ -83,6 +96,12 @@ public:
     std::any run() { return routine_->run(); }
 
     fiber_mgr &mgr() { return *mgr_; }
+
+    // fiber does not need to know what poller is, just
+    // keep a pointer
+    native::poller *poller();
+
+    void push_ev(io::ev &ev) { ev_.push(&ev); }
 
     native::fctx &fctx() { return fctx_; }
 
@@ -132,9 +151,8 @@ protected:
         std::any result_;
     };
 
-    static void internal_yield(fiber &cur, bool suspend_cur);
-    static void internal_resume(fiber &cur, fiber &new_fb,
-                                bool suspend_current);
+    static void do_yield(fiber &cur, bool suspend_cur);
+    static void do_resume(fiber &cur, fiber &new_fb, bool suspend_cur);
 
     fiber(fiber_mgr &mgr): mgr_(&mgr) {}
 
@@ -145,7 +163,7 @@ protected:
     const char *name_{nullptr};
     std::unique_ptr<i_routine> routine_{nullptr};
     fiber_mgr *mgr_{nullptr};
-    std::queue<int> ev_;
+    std::queue<io::ev *> ev_;
     std::queue<int> unexpired_tmr_;
     std::queue<int> expired_tmr_;
     native::fctx fctx_;
@@ -161,11 +179,13 @@ class fiber_mgr
 public:
     static fiber_mgr &current()
     {
-        static thread_local fiber_mgr fb_mgr;
+        thread_local fiber_mgr fb_mgr;
         return fb_mgr;
     }
 
     bool empty() const { return active_.empty() && pending_.empty(); }
+
+    bool current_is_main() const { return current_ == &main_; }
 
     fiber *find(const char *name) const;
 
@@ -193,12 +213,15 @@ public:
     fiber &current_fiber() { return *current_; }
     void current_fiber(fiber &fb) { current_ = &fb; }
 
+    native::poller *poller() { return poller_; }
+    void poller(native::poller *p) { poller_ = p; }
+
 private:
     list active_;
     list pending_;
-    fiber main_{*this};
     fiber *current_{&main_};
-    // std::thread *thread_;
+    native::poller *poller_{nullptr};
+    fiber main_{*this};
 };
 
 ////////////////////////////////////////////////////////////
@@ -216,20 +239,30 @@ fiber &fiber::create(R &&routine, P &&... params)
                       std::forward<R>(routine), std::forward<P>(params)...);
 }
 
+inline fiber &fiber::current()
+{
+    return fiber_mgr::current().current_fiber();
+}
+
 inline void fiber::yield_current()
 {
-    internal_yield(fiber_mgr::current().current_fiber(), false);
+    do_yield(fiber::current(), false);
 }
 
 inline void fiber::suspend_current()
 {
-    internal_yield(fiber_mgr::current().current_fiber(), true);
+    do_yield(fiber::current(), true);
 }
 
 inline void fiber::resume_to(fiber &new_fb, bool suspend_current)
 {
-    internal_resume(fiber_mgr::current().current_fiber(), new_fb,
-                    suspend_current);
+    do_resume(fiber::current(), new_fb, suspend_current);
+}
+
+inline void fiber::resume_cautious(fiber &current_fb, bool suspend_current)
+{
+    assert(&current_fb == &fiber::current());
+    do_resume(current_fb, *this, suspend_current);
 }
 
 inline fiber *fiber::find(const char *name)
@@ -245,6 +278,11 @@ fiber::fiber(fiber_mgr &mgr, size_t stack_size, R &&routine, P &&... params):
                                                std::forward<P>(params)...));
 
     mgr_->push_tail(true, *this);
+}
+
+inline native::poller *fiber::poller()
+{
+    return mgr_ != nullptr ? mgr_->poller() : nullptr;
 }
 
 }

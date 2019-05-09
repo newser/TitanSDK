@@ -37,7 +37,7 @@ this file defines apis of simple sl data structure.
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/misc/util.h>
+#include <tt/misc/macro.h>
 
 #include <cassert>
 #include <utility>

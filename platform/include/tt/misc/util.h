@@ -31,7 +31,7 @@ this file define all basic types
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <util_native.h>
+#include <tt/native/util.h>
 
 #include <cstdint>
 #include <string.h>
@@ -39,17 +39,6 @@ this file define all basic types
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_ENABLE_IF(e) , typename std::enable_if<e, int>::type = 0
-
-#define TT_NO_COPY_CTOR(class_name) class_name(const class_name &) = delete;
-
-#define TT_NO_OP_EQ(class_name)                                                \
-    class_name &operator=(const class_name &) = delete;
-
-#define TT_NON_COPYABLE(class_name)                                            \
-    TT_NO_COPY_CTOR(class_name)                                                \
-    TT_NO_OP_EQ(class_name)
 
 ////////////////////////////////////////////////////////////
 // type definition

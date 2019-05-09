@@ -31,8 +31,7 @@ this file define all basic types
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/misc/throw.h>
-#include <tt/misc/util.h>
+#include <tt/misc/macro.h>
 
 #include <cassert>
 
@@ -53,16 +52,17 @@ class component
     friend class component_mgr;
 
 protected:
-    enum
+    enum id
     {
         e_log,
-        cid_num
+
+        id_num
     };
 
-    component(int cid, const char *name): name_(name), cid_(cid)
+    component(enum id id, const char *name): name_(name), id_(id)
     {
         TT_INVALID_ARG_IF(name == nullptr, "null name");
-        TT_INVALID_ARG_IF(cid_ >= cid_num, "invalid component id");
+        TT_INVALID_ARG_IF(id_ >= id_num, "invalid component id");
     }
 
     ~component() { assert(state_ == e_stopped); }
@@ -71,7 +71,7 @@ protected:
     virtual void do_stop() = 0;
 
     const char *name_;
-    int cid_;
+    int id_;
 
 private:
     bool start(void *reserved = nullptr)
@@ -113,7 +113,7 @@ private:
 
     component_mgr();
 
-    component *components_[component::cid_num];
+    component *components_[component::id_num];
 
     TT_NON_COPYABLE(component_mgr);
 };

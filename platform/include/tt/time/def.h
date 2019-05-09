@@ -17,22 +17,21 @@
  */
 
 /**
-@file err.h
-@brief all basic type definitions
+@file def.h
+@brief time def
 
 this file define all basic types
 
 */
 
-#ifndef __TT_ERROR_CPP__
-#define __TT_ERROR_CPP__
+#ifndef __TT_TIME_DEF_CPP__
+#define __TT_TIME_DEF_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <cstdint>
+#include <limits>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -44,27 +43,10 @@ this file define all basic types
 
 namespace tt {
 
-class err
+class time
 {
 public:
-    enum code
-    {
-        e_ok = 0,
-        e_fail,
-        e_timeout,
-        e_end,
-
-        err_num
-    };
-
-    err(code e): code_(e) { assert(code_ < err_num); }
-
-    enum code code() const { return (enum code)code_; }
-
-    operator bool() const { return code_ == 0; }
-
-private:
-    uint32_t code_ = e_ok;
+    static constexpr uint64_t k_inf = std::numeric_limits<uint64_t>::max();
 };
 
 ////////////////////////////////////////////////////////////
@@ -77,4 +59,4 @@ private:
 
 }
 
-#endif /* __TT_ERROR_CPP__ */
+#endif /* __TT_TIME_DEF_CPP__ */

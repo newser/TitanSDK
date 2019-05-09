@@ -26,7 +26,7 @@ extern "C" {
 #include <tt_platform.h>
 }
 
-#include <tt/algorithm/hash.h>
+#include <tt/container/hash.h>
 #include <tt/log/layout.h>
 
 ////////////////////////////////////////////////////////////

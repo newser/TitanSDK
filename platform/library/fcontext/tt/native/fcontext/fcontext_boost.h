@@ -28,7 +28,8 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/misc/util.h>
+#include <tt/misc/macro.h>
+
 #include <tt_fcontext.h>
 
 #include <memory>

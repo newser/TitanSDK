@@ -29,7 +29,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/misc/util.h>
+#include <tt/misc/macro.h>
 
 namespace tt {
 

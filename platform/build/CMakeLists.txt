@@ -174,6 +174,7 @@ add_group_hdr(${PLATFORM_PATH}/include/tt/memory memory SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/memory memory SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/time time SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/tt/time time SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/time time SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/misc misc SRC_FILE)

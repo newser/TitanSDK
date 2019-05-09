@@ -17,31 +17,32 @@
  */
 
 /**
-@file tt_double_linked_list.h
-@brief doulbe linked dl
-this file defines apis of doulbe linked dl data structure.
+@file list.h
+@brief list data structure
+
+this file defines list data structure and related operations.
 
  - push_tail/push_head/pop_tail/pop_head
  - head/tail
  - insert_front/insert_back
- - move
- - empty
+ - count/empty
  - clear
- - remove(n)
+ - contain/contain_all
+ - find/find_from/find_last
+ - remove(node)/remove_equal
 
 */
 
-#ifndef __TT_DOUBLE_LINKED_LIST_CPP__
-#define __TT_DOUBLE_LINKED_LIST_CPP__
+#ifndef __TT_LIST_CPP__
+#define __TT_LIST_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/misc/util.h>
+#include <tt/misc/macro.h>
 
-#include <cassert>
-#include <utility>
+#include <cstddef>
 
 namespace tt {
 
@@ -53,50 +54,56 @@ namespace tt {
 // type definition
 ////////////////////////////////////////////////////////////
 
-class dlist;
+class list;
 
-class dnode
+class lnode
 {
-    friend class dlist;
+    friend class list;
 
 public:
-    dnode() = default;
+    lnode() = default;
 
-    dnode *prev() const { return prev_; };
-    dnode *next() const { return next_; };
+    list *list() const { return list_; };
+    lnode *prev() const { return prev_; };
+    lnode *next() const { return next_; };
+    bool in_list() { return list_ == nullptr; }
 
-    bool in_list() const { return (prev_ != NULL) || (next_ != NULL); }
+    void insert_front(lnode &n);
+    void insert_back(lnode &n);
+    lnode *remove();
 
 private:
     void clear()
     {
+        list_ = nullptr;
         prev_ = nullptr;
         next_ = nullptr;
     }
 
-    dnode *prev_{nullptr};
-    dnode *next_{nullptr};
+    class list *list_{nullptr};
+    lnode *prev_{nullptr};
+    lnode *next_{nullptr};
 
-    TT_NON_COPYABLE(dnode)
+    TT_NON_COPYABLE(lnode)
 };
 
-class dlist
+class list
 {
-    friend class dnode;
+    friend class lnode;
 
 public:
-    dlist() = default;
+    list() = default;
 
-    size_t count() const;
-    bool empty() const { return head_ == NULL; }
-    bool contain(const dnode &n) const;
+    size_t count() const { return count_; }
+    bool empty() const { return count_ == 0; }
+    bool contain(const lnode &n) const { return n.list_ == this; }
 
-    dnode *head() const { return head_; }
-    dnode *tail() const { return tail_; }
-    void push_head(dnode &n);
-    void push_tail(dnode &n);
-    dnode *pop_head();
-    dnode *pop_tail();
+    lnode *head() const { return head_; }
+    lnode *tail() const { return tail_; }
+    void push_head(lnode &n);
+    void push_tail(lnode &n);
+    lnode *pop_head();
+    lnode *pop_tail();
 
     void clear()
     {
@@ -104,22 +111,12 @@ public:
             ;
     }
 
-    void insert_front(dnode &pos, dnode &n);
-    void insert_back(dnode &pos, dnode &n);
-    dnode *remove(dnode &n);
-
-    void move(dlist &src);
-    void swap(dlist &l)
-    {
-        std::swap(head_, l.head_);
-        std::swap(tail_, l.tail_);
-    }
-
 private:
-    dnode *head_{nullptr};
-    dnode *tail_{nullptr};
+    lnode *head_{nullptr};
+    lnode *tail_{nullptr};
+    size_t count_{0};
 
-    TT_NON_COPYABLE(dlist)
+    TT_NON_COPYABLE(list)
 };
 
 ////////////////////////////////////////////////////////////
@@ -132,4 +129,4 @@ private:
 
 }
 
-#endif /* __TT_DOUBLE_LINKED_LIST_CPP__ */
+#endif /* __TT_LIST_CPP__ */

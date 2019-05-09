@@ -17,22 +17,21 @@
  */
 
 /**
-@file err.h
-@brief all basic type definitions
+@file poller.h
+@brief poller
 
 this file define all basic types
 
 */
 
-#ifndef __TT_ERROR_CPP__
-#define __TT_ERROR_CPP__
+#ifndef __TT_IO_POLLER_CPP__
+#define __TT_IO_POLLER_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <cstdint>
+#include <tt/native/poller.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -44,29 +43,6 @@ this file define all basic types
 
 namespace tt {
 
-class err
-{
-public:
-    enum code
-    {
-        e_ok = 0,
-        e_fail,
-        e_timeout,
-        e_end,
-
-        err_num
-    };
-
-    err(code e): code_(e) { assert(code_ < err_num); }
-
-    enum code code() const { return (enum code)code_; }
-
-    operator bool() const { return code_ == 0; }
-
-private:
-    uint32_t code_ = e_ok;
-};
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -77,4 +53,4 @@ private:
 
 }
 
-#endif /* __TT_ERROR_CPP__ */
+#endif /* __TT_IO_POLLER_CPP__ */

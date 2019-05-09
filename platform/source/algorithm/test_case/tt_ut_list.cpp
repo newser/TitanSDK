@@ -20,9 +20,9 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/algorithm/double_linked_list.h>
-#include <tt/algorithm/list.h>
-#include <tt/algorithm/single_linked_list.h>
+#include <tt/container/double_linked_list.h>
+#include <tt/container/list.h>
+#include <tt/container/single_linked_list.h>
 
 extern "C" {
 #include <unit_test/tt_unit_test.h>

@@ -26,6 +26,7 @@ extern "C" {
 
 #include <tt_platform.h>
 
+#include <tt/io/fiber_event.h>
 #include <tt/log/context.h>
 #include <tt/log/layout/pattern.h>
 #include <tt/log/layout/placeholder.h>

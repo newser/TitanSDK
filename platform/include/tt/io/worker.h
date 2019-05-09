@@ -17,22 +17,27 @@
  */
 
 /**
-@file err.h
-@brief all basic type definitions
+@file worker.h
+@brief log def
 
 this file define all basic types
 
 */
 
-#ifndef __TT_ERROR_CPP__
-#define __TT_ERROR_CPP__
+#ifndef __TT_IO_WORKER_CPP__
+#define __TT_IO_WORKER_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <cstdint>
+#include <tt/io/event.h>
+#include <tt/os/spinlock.h>
+
+#include <array>
+#include <mutex>
+#include <queue>
+#include <thread>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,29 +47,56 @@ this file define all basic types
 // type definition
 ////////////////////////////////////////////////////////////
 
-namespace tt {
+namespace tt::io {
 
-class err
+class worker_group;
+
+class worker
 {
 public:
-    enum code
+    worker(worker_group &group): group_(group)
     {
-        e_ok = 0,
-        e_fail,
-        e_timeout,
-        e_end,
+        // be sure all members are well initialized
+        thread_ = std::thread(&worker::routine, this);
+    }
 
-        err_num
-    };
-
-    err(code e): code_(e) { assert(code_ < err_num); }
-
-    enum code code() const { return (enum code)code_; }
-
-    operator bool() const { return code_ == 0; }
+    bool exit();
 
 private:
-    uint32_t code_ = e_ok;
+    void routine();
+
+    io::ev &pop_ev();
+
+    worker_group &group_;
+    std::thread thread_;
+};
+
+class worker_group
+{
+public:
+    void push_ev(io::ev &ev)
+    {
+        std::unique_lock<std::mutex> l(mutex_);
+        ev_q_.push(&ev);
+        cond_.notify_one();
+    }
+
+    io::ev &pop_ev()
+    {
+        std::unique_lock<std::mutex> l(mutex_);
+        while (ev_q_.empty()) { cond_.wait(l); }
+
+        io::ev *ev = ev_q_.front();
+        assert(ev != nullptr);
+        ev_q_.pop();
+        return *ev;
+    }
+
+private:
+    std::vector<worker> worker_;
+    std::queue<io::ev *> ev_q_;
+    std::mutex mutex_;
+    std::condition_variable cond_;
 };
 
 ////////////////////////////////////////////////////////////
@@ -75,6 +107,11 @@ private:
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+inline io::ev &worker::pop_ev()
+{
+    return group_.pop_ev();
 }
 
-#endif /* __TT_ERROR_CPP__ */
+}
+
+#endif /* __TT_IO_WORKER_CPP__ */

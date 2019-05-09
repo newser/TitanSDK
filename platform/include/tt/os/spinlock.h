@@ -17,22 +17,23 @@
  */
 
 /**
-@file err.h
-@brief all basic type definitions
+@file spinlock.h
+@brief spinlock
 
 this file define all basic types
 
 */
 
-#ifndef __TT_ERROR_CPP__
-#define __TT_ERROR_CPP__
+#ifndef __TT_OS_SPINLOCK_CPP__
+#define __TT_OS_SPINLOCK_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <cstdint>
+#include <tt/misc/macro.h>
+
+#include <atomic>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -44,27 +45,22 @@ this file define all basic types
 
 namespace tt {
 
-class err
+class spinlock
 {
 public:
-    enum code
+    spinlock() = default;
+
+    void lock()
     {
-        e_ok = 0,
-        e_fail,
-        e_timeout,
-        e_end,
-
-        err_num
-    };
-
-    err(code e): code_(e) { assert(code_ < err_num); }
-
-    enum code code() const { return (enum code)code_; }
-
-    operator bool() const { return code_ == 0; }
+        while (af_.test_and_set(std::memory_order_acquire))
+            ;
+    }
+    void unlock() { af_.clear(std::memory_order_release); }
 
 private:
-    uint32_t code_ = e_ok;
+    std::atomic_flag af_ = ATOMIC_FLAG_INIT;
+
+    TT_NON_COPYABLE(spinlock);
 };
 
 ////////////////////////////////////////////////////////////
@@ -77,4 +73,4 @@ private:
 
 }
 
-#endif /* __TT_ERROR_CPP__ */
+#endif /* __TT_OS_SPINLOCK_CPP__ */

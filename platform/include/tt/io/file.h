@@ -17,22 +17,24 @@
  */
 
 /**
-@file err.h
-@brief all basic type definitions
+@file file.h
+@brief log def
 
 this file define all basic types
 
 */
 
-#ifndef __TT_ERROR_CPP__
-#define __TT_ERROR_CPP__
+#ifndef __TT_IO_FILE_CPP__
+#define __TT_IO_FILE_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <cstdint>
+#include <tt/misc/error.h>
+#include <tt/misc/util.h>
+
+#include <tt/native/file.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -44,27 +46,23 @@ this file define all basic types
 
 namespace tt {
 
-class err
+class file
 {
 public:
-    enum code
+    enum flag
     {
-        e_ok = 0,
-        e_fail,
-        e_timeout,
-        e_end,
-
-        err_num
+        r = (1 << 0),
+        w = (1 << 1),
+        rw = r | w,
     };
+    file(const char *path, flag f = rw);
 
-    err(code e): code_(e) { assert(code_ < err_num); }
+    err read(const void *addr, size_t len, size_t *read);
 
-    enum code code() const { return (enum code)code_; }
-
-    operator bool() const { return code_ == 0; }
+    err write(const void *addr, size_t len, size_t *written = nullptr);
 
 private:
-    uint32_t code_ = e_ok;
+    TT_NON_COPYABLE(file)
 };
 
 ////////////////////////////////////////////////////////////
@@ -77,4 +75,4 @@ private:
 
 }
 
-#endif /* __TT_ERROR_CPP__ */
+#endif /* __TT_IO_FILE_CPP__ */

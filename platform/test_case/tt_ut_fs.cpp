@@ -1,6 +1,7 @@
 /*
  * import header files
  */
+extern "C" {
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
@@ -22,6 +23,9 @@
 #include <string.h> /* memset */
 #include <sys/stat.h>
 #endif
+}
+
+#include <tt/io/file.h>
 
 /*
  * local definition
@@ -257,28 +261,16 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         tt_dremove(__TEST_D1);
         TT_UT_FALSE(tt_fs_exist(__TEST_D1), "");
 
-        ret = tt_fcreate(__TEST_D1
-                         "/"__TEST_D2
-                         "/"__TEST_F3,
-                         NULL);
+        ret = tt_fcreate(__TEST_D1 "/" __TEST_D2 "/" __TEST_F3, NULL);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
-                                         "/"__TEST_F3),
-                   "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/" __TEST_D2 "/" __TEST_F3), "");
 
-        tt_dremove(__TEST_D1
-                   "/"__TEST_D2
-                   "/");
-        TT_UT_FALSE(tt_fs_exist(__TEST_D1 "/"__TEST_D2), "");
+        tt_dremove(__TEST_D1 "/" __TEST_D2 "/");
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1 "/" __TEST_D2), "");
 
-        ret = tt_fcreate(__TEST_D1
-                         "/"__TEST_D2
-                         "/"__TEST_F3,
-                         NULL);
+        ret = tt_fcreate(__TEST_D1 "/" __TEST_D2 "/" __TEST_F3, NULL);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
-                                         "/"__TEST_F3),
-                   "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/" __TEST_D2 "/" __TEST_F3), "");
     }
 
     // open file with parent paths
@@ -286,34 +278,20 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         tt_dremove(__TEST_D1);
         TT_UT_FALSE(tt_fs_exist(__TEST_D1), "");
 
-        ret = tt_fopen(&f,
-                       __TEST_D1
-                       "/"__TEST_D2
-                       "/"__TEST_F3,
+        ret = tt_fopen(&f, __TEST_D1 "/" __TEST_D2 "/" __TEST_F3,
                        TT_FO_CREAT_DIR, NULL);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
-                                         "/"__TEST_F3),
-                   "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/" __TEST_D2 "/" __TEST_F3), "");
         tt_fclose(&f);
 
-        tt_dremove(__TEST_D1
-                   "/"__TEST_D2
-                   "/");
+        tt_dremove(__TEST_D1 "/" __TEST_D2 "/");
         TT_UT_TRUE(tt_fs_exist(__TEST_D1), "");
-        TT_UT_FALSE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
-                                          "/"),
-                    "");
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1 "/" __TEST_D2 "/"), "");
 
-        ret = tt_fopen(&f,
-                       __TEST_D1
-                       "/"__TEST_D2
-                       "/"__TEST_F3,
+        ret = tt_fopen(&f, __TEST_D1 "/" __TEST_D2 "/" __TEST_F3,
                        TT_FO_CREAT_DIR, NULL);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
-                                         "/"__TEST_F3),
-                   "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/" __TEST_D2 "/" __TEST_F3), "");
         tt_fclose(&f);
     }
 

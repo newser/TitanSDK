@@ -17,22 +17,26 @@
  */
 
 /**
-@file err.h
+@file poller.h
 @brief all basic type definitions
 
 this file define all basic types
 
 */
 
-#ifndef __TT_ERROR_CPP__
-#define __TT_ERROR_CPP__
+#ifndef __TT_NATIVE_POLLER_CPP__
+#define __TT_NATIVE_POLLER_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <cstdint>
+#include <tt_basic_type.h>
+
+#include <tt/os/spinlock.h>
+
+#include <list>
+#include <mutex>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,29 +46,48 @@ this file define all basic types
 // type definition
 ////////////////////////////////////////////////////////////
 
-namespace tt {
+namespace tt::io {
+class ev;
+}
 
-class err
+namespace tt::native {
+
+class poller
 {
+    // larger k_kev_num could save time for calling kevent, but may
+    // impact timer accuracy and vice vesa
+    static constexpr int k_kev_num = 1;
+
 public:
-    enum code
+    poller() = default;
+    ~poller();
+
+    bool init();
+    bool run(uint64_t wait_ms);
+    bool exit();
+
+    bool worker_done(io::ev &ev);
+
+    void get_poller_ev(OUT std::list<io::ev *> &l)
     {
-        e_ok = 0,
-        e_fail,
-        e_timeout,
-        e_end,
+        std::scoped_lock s(poller_lock_);
+        l.splice(l.end(), poller_ev_);
+    }
 
-        err_num
-    };
+    void get_worker_ev(OUT std::list<io::ev *> &l)
+    {
+        std::scoped_lock s(worker_lock_);
+        l.splice(l.end(), worker_ev_);
+    }
 
-    err(code e): code_(e) { assert(code_ < err_num); }
-
-    enum code code() const { return (enum code)code_; }
-
-    operator bool() const { return code_ == 0; }
+    bool recv(io::ev &ev);
 
 private:
-    uint32_t code_ = e_ok;
+    std::list<io::ev *> poller_ev_;
+    std::list<io::ev *> worker_ev_;
+    int kq_{-1};
+    spinlock poller_lock_;
+    spinlock worker_lock_;
 };
 
 ////////////////////////////////////////////////////////////
@@ -77,4 +100,4 @@ private:
 
 }
 
-#endif /* __TT_ERROR_CPP__ */
+#endif /* __TT_NATIVE_POLLER_CPP__ */

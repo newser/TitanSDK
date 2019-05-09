@@ -29,7 +29,7 @@ this file define all basic types
 
 #include <tt/misc/util.h>
 
-#include <endian_native.h>
+#include <tt/native/endian.h>
 
 ////////////////////////////////////////////////////////////
 // import header files

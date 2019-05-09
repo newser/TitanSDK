@@ -34,9 +34,7 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-namespace tt {
-
-namespace log {
+namespace tt::log {
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -128,8 +126,6 @@ void log_component::do_stop()
 {
     assert(g_log_mgr != nullptr);
     delete g_log_mgr;
-}
-
 }
 
 }
