@@ -45,40 +45,36 @@ this file define all basic types
 
 namespace tt {
 
+template<bool t_wait>
 class fiber_ev: public io::ev
 {
 public:
-    fiber_ev(uint32_t id): io::ev(io::e_fiber, id)
-    {
-        src_fiber(&fiber::current());
-    }
+    fiber_ev(uint32_t id): io::ev(false, id) { src_fiber(&fiber::current()); }
 
-    fiber_ev(uint32_t id, fiber &src): io::ev(io::e_fiber, id)
-    {
-        src_fiber(&src);
-    }
+    fiber_ev(uint32_t id, fiber &src): io::ev(false, id) { src_fiber(&src); }
 
-    std::pair<bool, bool> handle(native::poller &p) override
+    bool handle(native::poller &p) override
     {
         // by destination poller
         fiber &dst = *dst_fiber();
+        assert(&dst.mgr() == &fiber_mgr::current());
         dst.push_ev(*this);
         if (dst.recving()) {
             assert(dst.mgr().current_is_main());
             dst.resume_cautious(dst.mgr().main(), false);
         }
-        return std::make_pair(false, false);
+        return false;
     }
 
-    void to(fiber &dst, bool wait)
+    void to(fiber &dst)
     {
         fiber &src = *src_fiber();
         assert(&src.mgr().current_fiber() == &src);
         if (&src.mgr() == &dst.mgr()) {
             dst.push_ev(*this);
             if (dst.recving()) {
-                dst.resume_cautious(src, wait);
-            } else if (wait) {
+                dst.resume_cautious(src, t_wait);
+            } else if constexpr (t_wait) {
                 src.suspend();
             }
         } else {
@@ -86,7 +82,27 @@ public:
             // is active
             dst_fiber(&dst);
             dst.poller()->recv(*this);
-            if (wait) { dst.suspend(); }
+            if constexpr (t_wait) { dst.suspend(); }
+        }
+    }
+
+    void done()
+    {
+        // by destination fiber
+
+        if constexpr (!t_wait) {
+            delete this;
+            return;
+        }
+
+        fiber &src = *src_fiber();
+        fiber &dst = *dst_fiber();
+        assert(&src.mgr().current_fiber() == &dst);
+        if (&src.mgr() == &dst.mgr()) {
+            // tell src that dst is done
+            src.resume_cautious(dst, false);
+        } else {
+            src.poller()->fiber_done(*this);
         }
     }
 

@@ -45,36 +45,14 @@
 
 namespace tt::native {
 
-class poller_ev: public io::ev
+struct poller_wakeup: public io::ev_static
 {
-public:
-    enum
-    {
-        e_wakeup,
-        e_exit,
-
-        id_num
-    };
-
-    poller_ev(uint32_t id): io::ev(io::e_poller, id) { assert(id < id_num); }
-
-    std::pair<bool, bool> handle(native::poller &p) override;
+    bool handle(native::poller &p) override;
 };
 
-class worker_ev: public io::ev
+struct worker_wakeup: public io::ev_static
 {
-public:
-    enum
-    {
-        e_wakeup,
-        e_exit,
-
-        id_num
-    };
-
-    worker_ev(uint32_t id): io::ev(io::e_worker, id) { assert(id < id_num); }
-
-    std::pair<bool, bool> handle(native::poller &p) override;
+    bool handle(native::poller &p) override;
 };
 
 ////////////////////////////////////////////////////////////
@@ -85,9 +63,9 @@ public:
 // global variant
 ////////////////////////////////////////////////////////////
 
-static poller_ev s_poller_ev{poller_ev::e_wakeup};
+static poller_wakeup s_poller_wakeup;
 
-static worker_ev s_worker_ev{worker_ev::e_wakeup};
+static worker_wakeup s_worker_wakeup;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -97,20 +75,31 @@ static worker_ev s_worker_ev{worker_ev::e_wakeup};
 // interface implementation
 ////////////////////////////////////////////////////////////
 
+poller *poller::current()
+{
+    return fiber_mgr::current().poller();
+}
+
 poller::~poller()
 {
+#if 0
     while (!poller_ev_.empty()) {
         io::ev *ev = poller_ev_.front();
         poller_ev_.pop_front();
 
-        if (ev->is(io::e_poller, poller_ev::e_exit)) {
-            // saft to delete poller exit
-            delete ev;
+        if (ev->is(io::e_poller, poller_wakeup::e_exit)) {
+        } else {
+            log::fatal("poller ev[%x] is unhandled", ev->id());
         }
     }
+#else
+    if (!poller_ev_.empty()) {
+        log::fatal("poller poller_wakeup list is not empty");
+    }
+#endif
 
     if (!worker_ev_.empty()) {
-        log::fatal("poller worker_ev list is not empty");
+        log::fatal("poller worker_wakeup list is not empty");
     }
 
     close(kq_);
@@ -127,7 +116,7 @@ bool poller::init()
 
     struct kevent kev;
     EV_SET(&kev, io::e_poller, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0,
-           &s_poller_ev);
+           &s_poller_wakeup);
 ag_poller:
     if (kevent(kq_, &kev, 1, nullptr, 0, nullptr) != 0) {
         if (errno == EINTR) { goto ag_poller; }
@@ -135,7 +124,7 @@ ag_poller:
     }
 
     EV_SET(&kev, io::e_worker, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0,
-           &s_worker_ev);
+           &s_worker_wakeup);
 ag_worker:
     if (kevent(kq_, &kev, 1, nullptr, 0, nullptr) != 0) {
         if (errno == EINTR) { goto ag_worker; }
@@ -176,8 +165,8 @@ bool poller::run(uint64_t wait_ms)
 
             ev->kev_flags(flags);
 
-            auto [del, end] = ev->handle(*this);
-            if (del) { delete ev; }
+            bool end = ev->handle(*this);
+            if (ev->del()) { delete ev; }
             if (end) { return false; }
         }
     } else if ((nev != 0) && (errno != EINTR)) {
@@ -190,14 +179,9 @@ bool poller::run(uint64_t wait_ms)
 
 bool poller::exit()
 {
-    struct poller_exit: public poller_ev
+    struct poller_exit: public io::ev_static
     {
-        poller_exit(): poller_ev(poller_ev::e_exit) {}
-
-        std::pair<bool, bool> handle(native::poller &p) override
-        {
-            return std::make_pair(false, true);
-        }
+        bool handle(native::poller &p) override { return true; }
     };
     static poller_exit ev;
 
@@ -205,9 +189,14 @@ bool poller::exit()
         std::scoped_lock<tt::spinlock> s(poller_lock_);
         poller_ev_.push_back(&ev);
     }
+    return wakeup_poller();
+}
 
+bool poller::wakeup_poller()
+{
     struct kevent kev;
-    EV_SET(&kev, io::e_poller, EVFILT_USER, 0, NOTE_TRIGGER, 0, &s_poller_ev);
+    EV_SET(&kev, io::e_poller, EVFILT_USER, 0, NOTE_TRIGGER, 0,
+           &s_poller_wakeup);
 ag:
     if (kevent(kq_, &kev, 1, NULL, 0, NULL) == 0) {
         return true;
@@ -220,15 +209,11 @@ ag:
     }
 }
 
-bool poller::worker_done(io::ev &ev)
+bool poller::wakeup_worker()
 {
-    {
-        std::scoped_lock<tt::spinlock> s(worker_lock_);
-        worker_ev_.push_back(&ev);
-    }
-
     struct kevent kev;
-    EV_SET(&kev, io::e_worker, EVFILT_USER, 0, NOTE_TRIGGER, 0, &s_worker_ev);
+    EV_SET(&kev, io::e_worker, EVFILT_USER, 0, NOTE_TRIGGER, 0,
+           &s_worker_wakeup);
 ag:
     if (kevent(kq_, &kev, 1, NULL, 0, NULL) == 0) {
         return true;
@@ -241,28 +226,7 @@ ag:
     }
 }
 
-bool poller::recv(io::ev &ev)
-{
-    {
-        std::scoped_lock<tt::spinlock> s(poller_lock_);
-        poller_ev_.push_back(&ev);
-    }
-
-    struct kevent kev;
-    EV_SET(&kev, io::e_poller, EVFILT_USER, 0, NOTE_TRIGGER, 0, &s_poller_ev);
-ag:
-    if (kevent(kq_, &kev, 1, NULL, 0, NULL) == 0) {
-        return true;
-    } else if (errno == EINTR) {
-        goto ag;
-    } else {
-        // TT_ERROR_NTV("fail to send poller exit");
-        // no need to care io_ev, as it may already be processed
-        return false;
-    }
-}
-
-std::pair<bool, bool> poller_ev::handle(native::poller &p)
+bool poller_wakeup::handle(native::poller &p)
 {
     std::list<io::ev *> l;
     p.get_poller_ev(l);
@@ -271,9 +235,9 @@ std::pair<bool, bool> poller_ev::handle(native::poller &p)
         io::ev *ev = l.front();
         l.pop_front();
 
-        auto [del, end] = ev->handle(p);
-        if (del) { delete ev; }
-        if (end) { return std::make_pair(false, true); }
+        bool end = ev->handle(p);
+        if (ev->del()) { delete ev; }
+        if (end) { return true; }
 
 #if 0
         if (io_ev->io == TT_IO_POLLER) {
@@ -299,10 +263,10 @@ std::pair<bool, bool> poller_ev::handle(native::poller &p)
 #endif
     }
 
-    return std::make_pair(false, false);
+    return false;
 }
 
-std::pair<bool, bool> worker_ev::handle(native::poller &p)
+bool worker_wakeup::handle(native::poller &p)
 {
     std::list<io::ev *> l;
     p.get_worker_ev(l);
@@ -318,7 +282,7 @@ std::pair<bool, bool> worker_ev::handle(native::poller &p)
         fb->resume_cautious(fb_mgr.main(), false);
     }
 
-    return std::make_pair(false, false);
+    return false;
 }
 
 }

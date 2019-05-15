@@ -38,10 +38,12 @@ extern "C" {
 #include <tt_cstd_api.h>
 }
 
+#include <tt/io/poller.h>
 #include <tt/io/worker.h>
 #include <tt/log/manager.h>
 #include <tt/misc/rng.h>
 #include <tt/os/fiber.h>
+#include <tt/time/def.h>
 
 #include <thread>
 
@@ -76,6 +78,9 @@ TT_TEST_ROUTINE_DECLARE(case_fiber_event_cross)
 TT_TEST_ROUTINE_DECLARE(case_worker_group)
 
 TT_TEST_ROUTINE_DECLARE(case_task)
+
+TT_TEST_ROUTINE_DECLARE(case_poller)
+TT_TEST_ROUTINE_DECLARE(case_worker)
 // =========================================
 
 // === test case list ======================
@@ -119,6 +124,12 @@ TT_TEST_CASE("case_fiber_basic", "testing basic fiber API", case_fiber_basic,
                  "testing fiber event send/recv cross-task",
                  case_fiber_event_cross, NULL, NULL, NULL, NULL, NULL),
 
+    TT_TEST_CASE("case_poller", "testing poller basic", case_poller, NULL, NULL,
+                 NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_worker", "testing poller basic", case_worker, NULL, NULL,
+                 NULL, NULL, NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(fiber_case)
     // =========================================
 
@@ -133,7 +144,7 @@ TT_TEST_CASE("case_fiber_basic", "testing basic fiber API", case_fiber_basic,
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_task)
+    TT_TEST_ROUTINE_DEFINE(case_worker)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1219,6 +1230,78 @@ TT_TEST_ROUTINE_DEFINE(case_fiber_event_cross)
     tt_task_wait(&t1);
     tt_task_wait(&t2);
     TT_UT_EQUAL(__err_line, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_poller)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    {
+        tt::native::poller p;
+    }
+
+    __err_line = 0;
+    {
+        tt::native::poller p;
+        tt::fiber_mgr::current().poller(&p);
+
+        TT_UT_TRUE(p.init(), "");
+
+        tt::fiber &f = tt::fiber::create([&p]() {
+            tt::fiber &cfb = tt::fiber::current();
+            if (cfb.poller() != &p) { __err_line = __LINE__; }
+
+            if (tt::native::poller::current() != &p) { __err_line = __LINE__; }
+
+            p.exit();
+        });
+        f.resume(false);
+
+        p.run(tt::time::k_inf);
+    }
+    TT_UT_EXP(__err_line == 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static std::atomic_int __wg_counter;
+
+TT_TEST_ROUTINE_DEFINE(case_worker)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    {
+        tt::io::worker_group wg;
+    }
+
+    __wg_counter.store(0);
+    int test_num = 100;
+    {
+        tt::io::worker_group wg;
+
+        struct test_ev: public tt::io::ev_static
+        {
+            bool work()
+            {
+                __wg_counter.fetch_add(1);
+                return false;
+            }
+        };
+        static test_ev tev;
+
+        for (int i = 0; i < test_num; ++i) { wg.push_ev(tev); }
+    }
+    TT_UT_EQUAL(__wg_counter.load(), test_num, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

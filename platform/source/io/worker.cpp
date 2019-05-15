@@ -42,6 +42,8 @@ namespace tt::io {
 // global variant
 ////////////////////////////////////////////////////////////
 
+worker_group g_worker_group;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -52,23 +54,68 @@ namespace tt::io {
 
 void worker::routine()
 {
-    bool end = false;
-    do {
+    while (1) {
         io::ev &ev = pop_ev();
-        end = ev.work();
+        bool end = ev.work();
+        ev.work_done();
 
-        native::poller *poller = ev.src_poller();
-        if (poller != nullptr) {
+#if 0
+        if (!ev.del()) {
+            native::poller *poller = ev.src_poller();
+            assert(poller != nullptr);
             poller->worker_done(ev);
         } else {
             delete &ev;
         }
-    } while (!end);
+#endif
+        if (ev.del()) { delete &ev; }
+        if (end) { break; }
+    }
 }
 
-bool worker::exit()
+worker_group::~worker_group()
 {
-    return true;
+    for (int i = 0; i < worker_.size(); ++i) { go_home(); }
+    worker_.clear();
+}
+
+void worker_group::push_ev(io::ev &ev)
+{
+    int pending;
+    {
+        std::unique_lock<std::mutex> l(mutex_);
+        // must get pending ev count before pushing
+        pending = ev_q_.size();
+        ev_q_.push(&ev);
+        cond_.notify_one();
+    }
+
+    if ((worker_.empty() || pending >= max_pending_) &&
+        (worker_.size() < max_worker_)) {
+        go_work();
+    }
+}
+
+io::ev &worker_group::pop_ev()
+{
+    std::unique_lock<std::mutex> l(mutex_);
+    while (ev_q_.empty()) { cond_.wait(l); }
+
+    io::ev *ev = ev_q_.front();
+    assert(ev != nullptr);
+    ev_q_.pop();
+    return *ev;
+}
+
+void worker_group::go_home()
+{
+    struct worker_exit: public io::ev_static
+    {
+        bool work() override { return true; }
+    };
+    static worker_exit s_worker_exit;
+
+    push_ev(s_worker_exit);
 }
 
 }

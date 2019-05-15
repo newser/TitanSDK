@@ -34,7 +34,6 @@ this file define all basic types
 #include <tt/io/event.h>
 #include <tt/os/spinlock.h>
 
-#include <array>
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -56,11 +55,10 @@ class worker
 public:
     worker(worker_group &group): group_(group)
     {
-        // be sure all members are well initialized
-        thread_ = std::thread(&worker::routine, this);
+        thread_ = std::thread(&worker::routine, std::ref(*this));
     }
 
-    bool exit();
+    ~worker() { thread_.join(); }
 
 private:
     void routine();
@@ -73,35 +71,49 @@ private:
 
 class worker_group
 {
+    static constexpr int k_ratio = 2;
+    static constexpr int k_max_pending = 1;
+
 public:
-    void push_ev(io::ev &ev)
+    worker_group():
+        min_worker_(0),
+        max_worker_(std::thread::hardware_concurrency() * k_ratio),
+        max_pending_(k_max_pending)
     {
-        std::unique_lock<std::mutex> l(mutex_);
-        ev_q_.push(&ev);
-        cond_.notify_one();
+        assert(min_worker_ <= max_worker_);
     }
 
-    io::ev &pop_ev()
+    worker_group(int min_worker, int max_worker,
+                 int max_pending = k_max_pending):
+        min_worker_(min_worker),
+        max_worker_(max_worker), max_pending_(max_pending)
     {
-        std::unique_lock<std::mutex> l(mutex_);
-        while (ev_q_.empty()) { cond_.wait(l); }
-
-        io::ev *ev = ev_q_.front();
-        assert(ev != nullptr);
-        ev_q_.pop();
-        return *ev;
+        assert(min_worker_ <= max_worker_);
     }
+
+    ~worker_group();
+
+    void push_ev(io::ev &ev);
+    io::ev &pop_ev();
 
 private:
-    std::vector<worker> worker_;
+    void go_work() { worker_.emplace_back(new worker(*this)); }
+    void go_home();
+
+    std::vector<std::unique_ptr<worker>> worker_;
     std::queue<io::ev *> ev_q_;
     std::mutex mutex_;
     std::condition_variable cond_;
+    int min_worker_;
+    int max_worker_;
+    int max_pending_;
 };
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
+
+tt_export worker_group g_worker_group;
 
 ////////////////////////////////////////////////////////////
 // interface declaration

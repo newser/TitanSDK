@@ -69,14 +69,14 @@ enum
 class ev
 {
 public:
-    ev(uint32_t io, uint32_t id): id_(id), io_(io) { assert(io < io_num); };
     virtual ~ev() {}
 
-    // [ del, end ]
-    virtual std::pair<bool, bool> handle(native::poller &p) = 0;
+    // return true if should terminate poller
+    virtual bool handle(native::poller &p) { return false; }
 
-    // [end], work() would be executed by worker thread
+    // return true if should terminate worker
     virtual bool work() { return false; }
+    virtual void work_done() {}
 
     fiber *src_fiber() { return fiber_; }
     void src_fiber(fiber *f) { fiber_ = f; }
@@ -89,15 +89,14 @@ public:
     enum err::code err() const { return err_.code(); }
     void err(enum err::code code) { err_ = code; }
 
-    uint32_t io() const { return io_; }
-    void io(uint32_t io)
-    {
-        assert(io < io_num);
-        io_ = io;
-    }
     uint32_t id() const { return id_; }
     void id(uint32_t id) { id_ = id; }
-    bool is(uint32_t io, uint32_t id) const { return io_ == io && id_ == id; }
+
+    bool del() const { return del_; }
+
+protected:
+    ev(bool del): del_(del){};
+    ev(bool del, uint32_t id): id_(id), del_(del){};
 
 private:
     fiber *fiber_{nullptr};
@@ -113,7 +112,6 @@ private:
 #endif
     class err err_ = err::e_ok;
     uint32_t id_;
-    uint16_t io_;
 #if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS
 
 public:
@@ -124,6 +122,22 @@ private:
     uint16_t kev_flags_{0};
 
 #endif
+
+    bool del_;
+};
+
+class ev_static: public ev
+{
+protected:
+    ev_static(): ev(false) {}
+    ev_static(uint32_t id): ev(false, id) {}
+};
+
+class ev_dynamic: public ev
+{
+protected:
+    ev_dynamic(): ev(true) {}
+    ev_dynamic(uint32_t id): ev(true, id) {}
 };
 
 ////////////////////////////////////////////////////////////
